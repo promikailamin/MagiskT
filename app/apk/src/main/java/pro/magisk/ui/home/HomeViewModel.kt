@@ -64,7 +64,7 @@ class HomeViewModel(
     val magiskInstalledVersion
         get() = Info.env.run {
             if (isActive)
-                ("$versionString ($versionCode)" + if (isDebug) " (D)" else "").asText()
+                ("$versionString" + if (isDebug) ":D" else ":R").asText()
             else
                 CoreR.string.not_available.asText()
         }
@@ -74,8 +74,8 @@ class HomeViewModel(
         set(value) = set(value, field, { field = it }, BR.managerRemoteVersion)
 
     val managerInstalledVersion
-        get() = "${BuildConfig.APP_VERSION_NAME} (${BuildConfig.APP_VERSION_CODE})" +
-            if (BuildConfig.DEBUG) " (D)" else ""
+        get() = "${BuildConfig.APP_VERSION_NAME}" +
+            if (BuildConfig.DEBUG) ":D" else ":R"
 
     @get:Bindable
     var stateManagerProgress = 0

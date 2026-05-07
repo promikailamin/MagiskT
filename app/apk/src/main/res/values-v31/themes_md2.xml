@@ -158,12 +158,21 @@
     
     <style name="ThemeFoundationMD2.Dynamic" parent="ThemeFoundationMD2.Piplup">
 
-        <!-- Fallback colors for Android 11 and below -->
-        <item name="colorPrimary">#4EAFF5</item>
-        <item name="colorPrimaryVariant">#804EAFF5</item>
+        <!-- Android Monet / Dynamic Colors -->
+        <item name="colorPrimary">@android:color/system_accent1_500</item>
+        <item name="colorPrimaryVariant">@android:color/system_accent1_200</item>
 
-        <item name="colorSecondary">#3E78AF</item>
-        <item name="colorSecondaryVariant">#803E78AF</item>
+        <item name="colorSecondary">@android:color/system_accent2_500</item>
+        <item name="colorSecondaryVariant">@android:color/system_accent2_200</item>
+
+        <item name="colorSurface">@android:color/system_neutral1_10</item>
+        <item name="colorSurfaceVariant">@android:color/system_neutral1_50</item>
+
+        <item name="colorOnPrimary">@android:color/system_accent1_0</item>
+        <item name="colorOnSecondary">@android:color/system_accent2_0</item>
+
+        <item name="colorOnSurface">@android:color/system_neutral1_900</item>
+        <item name="colorOnSurfaceVariant">@android:color/system_neutral2_700</item>
 
     </style>
 

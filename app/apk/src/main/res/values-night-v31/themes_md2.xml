@@ -75,33 +75,20 @@
     
     <style name="ThemeFoundationMD2.Dynamic" parent="ThemeFoundationMD2.Piplup">
 
-        <!-- Fallback dark colors for Android 11 and below -->
+        <item name="colorPrimary">@android:color/system_accent1_200</item>
+        <item name="colorPrimaryVariant">@android:color/system_accent1_700</item>
 
-        <item name="colorPrimary">#70B2C6</item>
-        <item name="colorPrimaryVariant">#8070B2C6</item>
+        <item name="colorSecondary">@android:color/system_accent2_200</item>
+        <item name="colorSecondaryVariant">@android:color/system_accent2_700</item>
 
-        <item name="colorSecondary">#3E78AF</item>
-        <item name="colorSecondaryVariant">#803E78AF</item>
+        <item name="colorSurface">@android:color/system_neutral1_900</item>
+        <item name="colorSurfaceVariant">@android:color/system_neutral1_800</item>
 
-        <item name="colorSurface">#121212</item>
-        <item name="colorSurfaceVariant">#1E1E1E</item>
-        <item name="colorSurfaceSurfaceVariant">?colorSurface</item>
+        <item name="colorOnPrimary">@android:color/system_accent1_900</item>
+        <item name="colorOnSecondary">@android:color/system_accent2_900</item>
 
-        <item name="colorOnPrimary">#000000</item>
-        <item name="colorOnPrimaryVariant">#D9222222</item>
-
-        <item name="colorOnSecondary">#FFFFFF</item>
-
-        <item name="colorOnBackground">?colorOnSurface</item>
-
-        <item name="colorError">#CF6679</item>
-        <item name="colorOnError">#000000</item>
-
-        <item name="colorOnSurface">#FFFFFF</item>
-        <item name="colorOnSurfaceVariant">#B3FFFFFF</item>
-
-        <item name="colorDisabled">#666666</item>
-        <item name="colorDisabledVariant">#44666666</item>
+        <item name="colorOnSurface">@android:color/system_neutral1_50</item>
+        <item name="colorOnSurfaceVariant">@android:color/system_neutral2_200</item>
 
     </style>
 
