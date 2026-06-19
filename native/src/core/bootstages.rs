@@ -39,15 +39,6 @@ impl MagiskD {
             .append_path("0")
             .append_path(APP_PACKAGE_NAME)
             .append_path("install");
-        let mut bufm = cstr::buf::default();
-            
-        let hideroot_module_dir = bufm
-            .append_path(self.app_data_dir())
-            .append_path("0")
-            .append_path(APP_PACKAGE_NAME)
-            .append_path("install")
-            .append_path("module")
-            .append_path("zygisk_hideroot");
 
         // Alternative binaries paths
         let alt_bin_dirs = &[
@@ -55,18 +46,11 @@ impl MagiskD {
             cstr!("/data/magisk"),
             app_bin_dir,
         ];
-        if (hideroot_module_dir.exists()) {
-            let target = cstr!(concatcp!(MODULEROOT, "/zygisk_hideroot"));
-            
-            target.remove_all().ok();
-            hideroot_module_dir.copy_to(&target).ok();
-        }
         for dir in alt_bin_dirs {
             if dir.exists() {
                 cstr!(DATABIN).remove_all().ok();
                 dir.copy_to(cstr!(DATABIN)).ok();
                 dir.remove_all().ok();
-                info!("* Magisk app bin files found and installed!");
             }
         }
         cstr!("/cache/data_adb").remove_all().ok();
