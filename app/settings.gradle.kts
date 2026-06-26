@@ -9,3 +9,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "MagiskT"
 include(":apk", ":core", ":shared", ":stub", ":test")
+includeBuild("build_logic")
