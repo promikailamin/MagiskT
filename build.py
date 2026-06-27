@@ -432,12 +432,20 @@ def build_apk(module: str):
 def build_app():
     header("* Building the Magisk app")
     apk = build_apk(":apk")
+    header("* Building the Magisk cus app")
+    cus_apk = build_apk(":cus_apk")
 
     build_type = "release" if args.release else "debug"
 
     # Rename apk-variant.apk to app-variant.apk
     source = apk
     target = apk.parent / apk.name.replace("apk-", "app-")
+    mv(source, target)
+    header(f"Output: {target}")
+    
+    # Rename apk-variant.apk to app-variant.apk
+    source = cus_apk
+    target = cus_apk.parent / cus_apk.name.replace("apk-", "app-")
     mv(source, target)
     header(f"Output: {target}")
 
