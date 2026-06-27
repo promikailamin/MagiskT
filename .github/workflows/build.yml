@@ -95,11 +95,17 @@ jobs:
             - name: Stop Gradle
               run: ./app/gradlew --stop
 
-            - name: Upload artifact
+            - name: Upload main apk
               uses: actions/upload-artifact@v4
               with:
                   name: magisk_${{ matrix.build_type }}
                   path: out/app-release.apk
+                  
+            - name: Upload cus apk
+              uses: actions/upload-artifact@v4
+              with:
+                  name: magisk_${{ matrix.build_type }}
+                  path: out/cus_apk.apk
 
             - name: Create GitHub Release
               env:
