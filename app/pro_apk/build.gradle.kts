@@ -5,7 +5,7 @@ plugins {
     id("androidx.navigation.safeargs.kotlin")
 }
 
-setupCusApk()
+setupMainApk()
 
 kapt {
     correctErrorTypes = true

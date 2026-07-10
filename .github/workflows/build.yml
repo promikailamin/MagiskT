@@ -98,13 +98,13 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                   name: magisk_${{ matrix.build_type }}
-                  path: out/app-release.apk
+                  path: out/release.apk
                   
-            - name: Upload custom apk
+            - name: Upload pro apk
               uses: actions/upload-artifact@v4
               with:
-                  name: custom_magisk_${{ matrix.build_type }}
-                  path: out/cus_app-release.apk
+                  name: pro_magisk_${{ matrix.build_type }}
+                  path: out/pro_release.apk
 
             - name: Create GitHub Release
               env:
@@ -112,12 +112,12 @@ jobs:
               run: |
                   if [ "${{ matrix.build_type }}" = "release" ]; then
                       tag="build"
-                      file="out/app-release.apk"
-                      cus_file="out/cus_app-release.apk"
+                      file="out/release.apk"
+                      cus_file="out/pro_release.apk"
                   else
                       tag="canary_build"
-                      file="out/app-debug.apk"
-                      cus_file="out/cus_app-debug.apk"
+                      file="out/debug.apk"
+                      cus_file="out/pro_debug.apk"
                   fi
 
                   commit=$(git rev-parse --short HEAD)
