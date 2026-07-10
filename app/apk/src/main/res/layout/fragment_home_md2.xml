@@ -103,7 +103,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@{Info.isZygiskEnabled ? 'Zygisk is Activated' : 'Zygisk is Disabled'}"
+                    android:text="@{Info.isZygiskEnabled ? @string/yes : @string/no}"
                     android:textAppearance="@style/AppearanceFoundation.Caption.OnPrimary" />
             </com.google.android.material.card.MaterialCardView>
 
