@@ -1,0 +1,436 @@
+================================================================================
+MAGISK WORKFLOW DIAGRAM (TEXT REPRESENTATION)
+================================================================================
+
+This is the text version of the workflow. For the full PDF with all details,
+render the DOT file:  dot -Tpdf work_flow.gv -o work_flow.pdf
+Or run:               bash render_workflow.sh
+
+================================================================================
+1. BUILD PROCESS
+================================================================================
+
+  build.py (Python orchestrator)
+     |
+     +---> cargo build (Rust crates)
+     |       +-- crate: magisk       -> libmagisk-rs.a
+     |       +-- crate: magiskboot   -> libmagiskboot-rs.a
+     |       +-- crate: magiskinit   -> libmagiskinit-rs.a
+     |       +-- crate: magiskpolicy -> libmagiskpolicy-rs.a
+     |
+     +---> ndk-build (C++ via Android.mk)
+     |       +-- applets.cpp, su.cpp, zygisk/*, deny/*
+     |       +-- init/mount.cpp, rootdir.cpp, getinfo.cpp
+     |       +-- boot/bootimg.cpp
+     |       +-- sepolicy/*.cpp
+     |       +-- external/* (xz, lz4, libsepol, lsplt, crt0)
+     |
+     +---> elf-cleaner (strip sections)
+     |
+     +---> Gradle assembleRelease (via MagiskPlugin)
+             +-- Copies natives as JNI libs
+             +-- Downloads busybox
+             +-- Copies scripts -> assets/
+             +-- Embeds stub.apk -> assets/
+             +-- Signs APK
+             |
+             +---> out/app-release.apk  (Magisk Manager)
+             +---> out/stub-release.apk (Stub ~10KB)
+
+================================================================================
+2. BOOT PROCESS
+================================================================================
+
+  [Power On] -> [BootROM] -> [Bootloader] -> [Kernel]
+                                                    |
+  [magiskinit: init/init.rs :: main()] <------ Patched boot.img
+       |                                           ^
+       |                                           |
+       +-- Detect boot mode:                        |
+       |   init.rs :: MagiskInit.start()     boot_patch.sh (patches)
+       |   config.init() (parse cmdline)            |
+       |                                    [Stock boot.img]
+       +-- [2-Stage Init (2SI)]:
+       |     init.rs :: first_stage()
+       |       -> twostage.rs :: hijack_init_with_switch_root()
+       |          (/sdcard bind trick)
+       |       -> second_stage()
+       |          -> rootdir.cpp :: patch_ro_root()
+       |             + inject init.rc services:
+       |               - magisk --post-fs-data
+       |               - magisk --service
+       |               - magisk --boot-complete
+       |             + create overlay structure
+       |             + extract magisk.xz, stub.xz, init-ld.xz
+       |
+       +-- [Legacy SAR]:
+       |     init.rs :: legacy_system_as_root()
+       |       -> hexpatch_init() + patch_ro_root()
+       |
+       +-- [RootFS (old)]:
+       |     init.rs :: rootfs()
+       |       -> patch_rw_root()
+       |
+       +-- [Recovery/Charger]:
+             -> restore original init, abort patching
+       |
+       +-- preload.c :: LD_PRELOAD intercepts security_load_policy()
+       +-- exec_init() -> /system/bin/init
+
+================================================================================
+3. BOOT STAGES (init.rc injects magisk commands)
+================================================================================
+
+  stage: magisk --post-fs-data
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    bootstages.rs :: MagiskD::post_fs_data()
+      -> setup_magisk_env()
+           - copy binaries to DATABIN
+           - setup busybox
+      -> safe mode check (volume down / bootloop counter)
+      -> exec_common_scripts("post-fs-data")  (/data/adb/post-fs-data.d/*)
+      -> initialize_denylist()
+      -> handle_modules()
+           - module.rs :: collect_modules()
+                scan /data/adb/modules/*/
+                read module.prop, check disable/remove flags
+           - module.rs :: apply_modules()
+                step 1: build FsNode virtual tree
+                step 2: inject magisk bins + zygisk libs
+                step 3: extract secondary partitions
+                step 4: commit() -> bind mount overlays
+           - exec_module_scripts("post-fs-data")
+      -> clean_mounts()
+
+  stage: magisk --service
+  ~~~~~~~~~~~~~~~~~~~~~~~~
+    bootstages.rs :: MagiskD::late_start()
+      -> exec_common_scripts("service")         (/data/adb/service.d/*)
+      -> exec_module_scripts("service")         (module/service.sh)
+
+  stage: magisk --boot-complete
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    bootstages.rs :: MagiskD::boot_complete()
+      -> reset bootloop counter
+      -> ensure_manager()  (verify Manager APK installed)
+
+  daemon: magiskd (started by post-fs-data)
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    daemon.rs :: daemon_entry()
+      -> setsid(), block signals, /dev/null stdio
+      -> bind Unix socket at $MAGISKTMP/.magisk/device/socket
+      -> main loop: handle_requests()
+           Permission check (root/shell/zygote context)
+           Sync requests: CHECK_VERSION, START/STOP_DAEMON
+           Async requests (thread pool):
+             SUPERUSER, DENYLIST, SQLITE_CMD, REMOVE_MODULES, ZYGISK
+           Boot stage requests (serialized by boot_stage_lock):
+             POST_FS_DATA, LATE_START, BOOT_COMPLETE
+
+================================================================================
+4. SU SYSTEM
+================================================================================
+
+  User/app runs:  su
+       |
+       v
+  su.cpp :: su_client_main()
+    -> parse args: -c CMD, -s SHELL, -t PID, -Z context, etc.
+    -> connect_daemon(SUPERUSER)
+    -> write SuRequest to socket
+    -> send stdin/stdout/stderr FDs
+    -> PTY pump (if interactive)
+    -> return exit code
+       |
+       v
+  daemon.rs :: handle_request_async(SUPERUSER)
+    -> su/daemon.rs :: su_daemon_handler()
+       -> get_su_info() -> build_su_info()
+            + DB query: get_root_settings(uid)
+            + apply multiuser/mount_ns policies
+            + check manager identity
+       -> if Query policy:
+            su/connect.rs :: app_request()
+              -> create FIFO at $MAGISKTMP/.magisk/su_request_{PID}
+              -> exec_cmd(): am start intent to Manager app
+              -> poll FIFO (70s timeout)
+              -> read policy decision
+       -> if logging needed:
+            fork_dont_care()
+              -> app_log() / app_notify()
+              -> content provider URI or am broadcast
+       -> fork child:
+            child: exec_root_shell() (C++)
+              -> session leader, PTY setup
+              -> switch_mnt_ns(Requester/Global/Isolate)
+              -> set identity (uid/gid)
+              -> set SELinux context
+              -> drop capabilities
+              -> execvp(shell, argv)
+            parent: waitpid() -> write exit code to socket
+       |
+       v
+  Java side:
+    SuRequestHandler.kt :: start(intent)
+      -> init(): validate uid, pid, fifo path
+      -> fetch/update SuPolicy from Room DB
+      -> check auto-response (allow/deny)
+      -> if prompt: show SuRequestActivity dialog
+      -> respond(action, timeout):
+           write int to FIFO
+           update DB policy
+
+    SuCallbackHandler.kt :: handleLogging(data)
+      -> create SuLog entry
+      -> insert into Room DB via LogRepository
+      -> show toast/notification
+
+================================================================================
+5. ZYGISK
+================================================================================
+
+  magiskinit sets: ro.dalvik.vm.native.bridge = libzygisk.so
+       |
+       v
+  Zygote starts -> LoadNativeBridge(libzygisk.so)
+       |
+       v
+  entry.cpp :: NativeBridgeItf.isCompatibleWith()
+    -> hook_entry()  (enter hook.cpp)
+    -> return false  (triggers dlclose → hook fires)
+       |
+       v
+  hook.cpp :: hook_plt()
+    PLT hooks on: dlclose, strdup, fork, unshare,
+                  selinux_android_setcontext, android_log_close
+       |
+       v
+  dlclose fires on self -> post_native_bridge_load()
+    -> find runtime_callbacks (via arch-specific register scan)
+    -> reload real native bridge
+       |
+       v
+  strdup("com.android.internal.os.ZygoteInit") detected
+    -> hook_zygote_jni()
+       -> JNI hooks on:
+           nativeForkAndSpecialize()
+           nativeSpecializeAppProcess()
+           nativeForkSystemServer()
+       |
+       v
+  App fork intercepted:
+    -> ZygiskContext created (per-process)
+    -> Before fork: prepare module list from zygiskd
+    -> After fork in child:
+         if on DenyList: revert_unmount()
+              deny/utils.cpp :: revert_unmount()
+                -> unmount Magisk tmpfs
+                -> unmount module bind mounts
+         else:
+              load Zygisk modules
+              call module.onAppSpecialize()
+    -> Cleanup: pthread_attr_destroy hook
+         -> restore_plt_hook()
+         -> restore_zygote_hook()
+         -> dlclose(self_handle)  (self-unload via musttail)
+
+================================================================================
+6. DENYLIST
+================================================================================
+
+  Manager app config -> magisk --denylist add <pkg>
+       |
+       v
+  daemon.rs -> deny/utils.cpp :: denylist_cli()
+    -> add/remove/enable/disable/status
+    -> stored in SQLite DB
+       |
+       v
+  inotify watch on /data/system/packages.xml
+    -> auto-update when apps installed/removed
+       |
+       v
+  Zygisk intercepts fork -> if process on DenyList:
+    -> set PROCESS_DENY flag
+    -> post-fork: revert_unmount()
+         -> umount(MAGISKTMP)
+         -> umount(module mounts)
+         -> umount(su contents)
+         -> hide magisk binaries from /proc/self/maps
+
+================================================================================
+7. MODULE MOUNTING (DETAIL)
+================================================================================
+
+  module.rs :: handle_modules()
+       |
+       v
+  Step 1: collect_modules()
+    -> iterate /data/adb/modules/{name}/
+    -> for each: read module.prop, check disable flag
+    -> process module upgrade dirs
+    -> filter Riru modules if Zygisk enabled
+    -> open Zygisk .so FDs (convert to memfd)
+       |
+       v
+  Step 2: apply_modules()
+    -> Build FsNode virtual tree for each partition:
+         system/ -> FsNode (Directory/File/Symlink/Whiteout)
+         vendor/ -> separate tree
+         product/ -> separate tree
+         system_ext/ -> separate tree
+    -> Inject magisk bins into PATH directories
+    -> Inject zygisk .so into lib/lib64
+       |
+       v
+  Step 3: commit() for each partition
+    -> For each file in virtual tree:
+         if target exists and matches: skip
+         if .replace file: full directory replacement
+         if symlink: create symlink
+         if whiteout: mount empty dir over original
+         if magisklink: symlink to ./magisk or ./magiskpolicy
+    -> Create tmpfs mirror if original path exists
+       and any file in that directory is modified
+    -> Bind mount: src=module_file, dst=tmpfs_mirror
+    -> Bind mount: src=tmpfs_mirror, dst=real_path
+       |
+       v
+  Result: Module files appear at system paths
+          System partition itself never modified
+          Disable module = remove bind mounts (on reboot)
+
+================================================================================
+8. IPC MECHANISMS
+================================================================================
+
+  +------------------+     Unix Domain Socket      +------------------+
+  |  Native Client   | <-------------------------> |   magiskd        |
+  |  (su, magisk)    |   (daemon.rs :: socket.rs)  |   (daemon)       |
+  +------------------+                             +------------------+
+
+  +------------------+     FIFO (Named Pipe)       +------------------+
+  |  Native Daemon   | <-------------------------> |   Java App       |
+  |  (su/connect.rs) |   (su_request_{PID})        |   (SuRequest)    |
+  +------------------+                             +------------------+
+
+  +------------------+     Content Provider        +------------------+
+  |  Native Daemon   | --------------------------> |   Java App       |
+  |  (su/connect.rs) |   (content:// URI)          |   (SuCallback)   |
+  +------------------+                             +------------------+
+
+  +------------------+     am start (Intent)       +------------------+
+  |  Native Daemon   | --------------------------> |   Java Activity  |
+  |  (su/connect.rs) |   (extras bundle)           |   (request UI)   |
+  +------------------+                             +------------------+
+
+  +------------------+     SCM_RIGHTS (FD passing) +------------------+
+  |  magiskd         | <-------------------------> |   zygiskd        |
+  |  (daemon.rs)     |   (module .so FDs)          |   (entry.cpp)    |
+  +------------------+                             +------------------+
+
+  +------------------+     CXX FFI (within binary) +------------------+
+  |  Rust code       | <-------------------------> |   C++ code       |
+  |  (logging, etc)  |   (cxx::bridge)             |   (syscalls)     |
+  +------------------+                             +------------------+
+
+================================================================================
+9. KEY ENTRY POINTS & CROSS-REFERENCES
+================================================================================
+
+  Binary/File           Entry Function              Called From
+  --------------------  -------------------------   -------------------------
+  applets.cpp           main()                      OS (exec entry)
+    -> dispatch to:
+       -> magisk_main()    core/magisk.rs           argv[0]=="magisk"
+       -> su_client_main() core/su/su.cpp           argv[0]=="su"
+       -> resetprop_main() core/resetprop/cli.rs    argv[0]=="resetprop"
+       -> zygisk_main()    core/zygisk/entry.cpp    argv[0]=="zygisk"
+
+  magisk.rs             magisk_main()               applets.cpp
+    -> Cli::from_args() -> action.exec()
+       -> Daemon -> connect_daemon(START_DAEMON)
+       -> PostFsData -> connect_daemon(POST_FS_DATA) -> post_fs_data()
+       -> Service -> connect_daemon(LATE_START) -> late_start()
+       -> BootComplete -> connect_daemon(BOOT_COMPLETE) -> boot_complete()
+
+  daemon.rs             daemon_entry()              magisk_main(Daemon)
+    -> socket bind -> handle_requests()
+
+  bootstages.rs         post_fs_data()              daemon.rs
+    -> handle_modules()
+    -> initialize_denylist()
+
+  module.rs             handle_modules()            bootstages.rs
+    -> collect_modules()
+    -> apply_modules()
+
+  su/daemon.rs          su_daemon_handler()         daemon.rs
+    -> get_su_info()
+    -> connect_app()
+    -> fork + exec_root_shell()
+
+  su/connect.rs         connect_app()               su/daemon.rs
+    -> app_request()
+    -> app_log() / app_notify()
+
+  hook.cpp              hook_entry()                entry.cpp
+    -> hook_plt()
+    -> post_native_bridge_load()
+    -> hook_zygote_jni()
+
+  init.rs               main()                      OS (PID 1)
+    -> MagiskInit::start()
+       -> first_stage()
+       -> second_stage()
+       -> legacy_system_as_root()
+       -> rootfs()
+       -> exec_init()
+
+  boot/cli.rs           boot_main()                 magiskboot main()
+    -> unpack/repack/cpio/dtb/sign/verify/etc.
+
+  sepolicy/cli.rs       main()                      magiskpolicy main()
+    -> SePolicy::from_file()
+    -> load_rules() / to_file()
+
+  App.kt                attachBaseContext()         Android framework
+    -> AppContext.attachApplication()
+
+  StubApk.java          current/update/addAssetPath App.kt/AppMigration
+
+================================================================================
+10. DATA FLOW SUMMARY
+================================================================================
+
+  User Action              Native Code Flow                    Java/Kotlin Flow
+  ------------             ----------------                    ----------------
+  Tap Install in app       boot_patch.sh + magiskboot          MagiskInstaller.direct()
+                           -> flash to boot partition          -> extractFiles()
+                                                                -> patchBoot()
+
+  App requests root        su.cpp -> daemon -> su/daemon.rs    SuRequestHandler.start()
+                           -> connect_app() via FIFO           -> SuRequestActivity dialog
+                           -> fork + exec_root_shell()         -> respond() writes to FIFO
+
+  Add module ZIP           magisk --install-module ZIP         ModuleViewModel.install()
+                           -> module_installer.sh              -> extracts module_installer.sh
+                           -> /data/adb/modules/{id}/          -> runs update-binary script
+
+  Toggle Zygisk            Config::ZYGISK -> setprop            Config.kt writes DB value
+                           -> next boot: magiskinit reads       -> reboot required
+                           -> sets ro.dalvik.vm.native.bridge
+
+  Add to DenyList          magisk --denylist add <pkg>          DenyListViewModel
+                           -> stored in SQLite DB               -> magisk --denylist add
+                           -> Zygisk checks on fork
+                           -> revert_unmount() if matched
+
+  Hide Magisk Manager      (no native change)                  AppMigration.patchAndHide()
+                                                                -> repackages stub.apk
+                                                                -> installs with random pkg
+                                                                -> sets Config.suManager
+
+================================================================================
+                        END OF WORKFLOW DOCUMENTATION
+================================================================================
