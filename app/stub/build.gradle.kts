@@ -13,7 +13,7 @@ android {
     namespace = "pro.magisk"
 
     val canary = false
-    val base = "https://github.com/mikailamin-master/MagiskT/releases/download/"
+    val base = "https://github.com/promikailamin/MagiskT/releases/download/"
     val url = base + "build/release.apk"
     val canaryUrl = base + "canary-${Config.versionCode}/"
 
@@ -27,13 +27,13 @@ android {
 
     buildTypes {
         release {
-            if (canary) buildConfigField("String", "APK_URL", "\"${canaryUrl}app-release.apk\"")
+            if (canary) buildConfigField("String", "APK_URL", "\"${canaryUrl}release.apk\"")
             proguardFiles("proguard-rules.pro")
             isMinifyEnabled = true
             isShrinkResources = false
         }
         debug {
-            if (canary) buildConfigField("String", "APK_URL", "\"${canaryUrl}app-debug.apk\"")
+            if (canary) buildConfigField("String", "APK_URL", "\"${canaryUrl}debug.apk\"")
         }
     }
 
