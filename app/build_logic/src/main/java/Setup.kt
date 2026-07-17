@@ -319,6 +319,8 @@ fun Project.setupMainApk() {
     }
 }
 
+// For testing only
+
 const val LSPOSED_DOWNLOAD_URL =
     "https://github.com/LSPosed/LSPosed/releases/download/v1.9.2/LSPosed-v1.9.2-7024-zygisk-release.zip"
 const val LSPOSED_CHECKSUM =

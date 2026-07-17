@@ -437,7 +437,7 @@ def build_app():
 
     # Rename apk-variant.apk to app-variant.apk
     source = apk
-    target = apk.parent / apk.name.replace("apk-", "app-")
+    target = apk.parent / apk.name.replace("apk-", "")
     mv(source, target)
     header(f"Output: {target}")
 
@@ -446,6 +446,16 @@ def build_app():
     source = Path("app", "core", "src", build_type, "assets", "stub.apk")
     target = config["outdir"] / f"stub-{build_type}.apk"
     cp(source, target)
+
+def build_pro_apk():
+    header("* Building the Magisk pro app")
+    apk = build_apk(":pro_apk")
+    build_type = "release" if args.release else "debug"
+    # Rename apk-variant.apk to app-variant.apk
+    source = apk
+    target = apk.parent / apk.name.replace("apk-", "")
+    mv(source, target)
+    header(f"Output: {target}")
 
 
 def build_stub():
@@ -511,7 +521,7 @@ def cleanup():
 def build_all():
     build_native()
     build_app()
-    build_test()
+    # build_pro_apk()
 
 
 ############

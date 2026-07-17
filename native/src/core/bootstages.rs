@@ -51,6 +51,7 @@ impl MagiskD {
                 cstr!(DATABIN).remove_all().ok();
                 dir.copy_to(cstr!(DATABIN)).ok();
                 dir.remove_all().ok();
+                info!("* Environment files has been updated!");
             }
         }
         cstr!("/cache/data_adb").remove_all().ok();
@@ -142,9 +143,9 @@ impl MagiskD {
 
         if safe_mode {
             info!("* Safe mode triggered");
-            // Disable all modules and zygisk so next boot will be clean
+            // Disable all modules so next boot will be clean
             disable_modules();
-            self.set_db_setting(DbEntryKey::ZygiskConfig, 0).log_ok();
+            // self.set_db_setting(DbEntryKey::ZygiskConfig, 0).log_ok();
             return true;
         }
 

@@ -25,6 +25,11 @@ constexpr const char *applet_names[] = { "su", "resetprop", nullptr };
 #define POST_FS_DATA_SCRIPT_MAX_TIME 35
 
 // Unconstrained domain the daemon and root processes run in
+// Termux environment paths
+#define TERMUX_PREFIX   "/data/data/com.termux/files/usr"
+#define TERMUX_BIN      TERMUX_PREFIX "/bin"
+#define TERMUX_LIB      TERMUX_PREFIX "/lib"
+
 #define SEPOL_PROC_DOMAIN   "magisk"
 #define MAGISK_PROC_CON     "u:r:" SEPOL_PROC_DOMAIN ":s0"
 // Unconstrained file type that anyone can access
