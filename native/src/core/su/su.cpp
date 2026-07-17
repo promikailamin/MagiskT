@@ -442,22 +442,6 @@ void exec_root_shell(int client, int pid, SuRequest &req, MntNsMode mode) {
             setenv("SHELL", req.shell.c_str(), 1);
         }
     }
-    if (req.target_uid == AID_ROOT) {
-        if (access(TERMUX_BIN, F_OK) == 0) {
-            char new_path[4096];
-            const char *opath = getenv("PATH");
-            ssprintf(new_path, sizeof(new_path), TERMUX_BIN ":%s",
-                    opath ? opath : "");
-            setenv("PATH", new_path, 1);
-        }
-        if (access(TERMUX_LIB, F_OK) == 0) {
-            char new_ld_path[4096];
-            const char *old_ld = getenv("LD_LIBRARY_PATH");
-            ssprintf(new_ld_path, sizeof(new_ld_path), TERMUX_LIB ":%s",
-                    old_ld ? old_ld : "");
-            setenv("LD_LIBRARY_PATH", new_ld_path, 1);
-        }
-    }
 
     // Config privileges
     if (!req.context.empty()) {
