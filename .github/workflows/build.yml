@@ -94,13 +94,13 @@ jobs:
             - name: Stop Gradle
               run: ./app/gradlew --stop
 
-            - name: Check pro apk
-              id: check_pro
+            - name: Check apkT apk
+              id: check_apkT
               run: |
                   if [ "${{ matrix.build_type }}" = "release" ]; then
-                      file="out/pro_release.apk"
+                      file="out/apkT-release.apk"
                   else
-                      file="out/pro_debug.apk"
+                      file="out/apkT-debug.apk"
                   fi
 
                   if [ -f "$file" ]; then
@@ -113,14 +113,14 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                   name: magisk_${{ matrix.build_type }}
-                  path: ${{ matrix.build_type == 'release' && 'out/release.apk' || 'out/debug.apk' }}
+                  path: ${{ matrix.build_type == 'release' && 'out/app-release.apk' || 'out/app-debug.apk' }}
 
-            - name: Upload pro apk
-              if: steps.check_pro.outputs.exists == 'true'
+            - name: Upload apkT apk
+              if: steps.check_apkT.outputs.exists == 'true'
               uses: actions/upload-artifact@v4
               with:
-                  name: pro_magisk_${{ matrix.build_type }}
-                  path: ${{ matrix.build_type == 'release' && 'out/pro_release.apk' || 'out/pro_debug.apk' }}
+                  name: apkT_magisk_${{ matrix.build_type }}
+                  path: ${{ matrix.build_type == 'release' && 'out/apkT-release.apk' || 'out/apkT-debug.apk' }}
 
             - name: Create GitHub Release
               env:
@@ -128,12 +128,12 @@ jobs:
               run: |
                   if [ "${{ matrix.build_type }}" = "release" ]; then
                       tag="build"
-                      file="out/release.apk"
-                      pro_file="out/pro_release.apk"
+                      file="out/app-release.apk"
+                      pro_file="out/apkT-release.apk"
                   else
                       tag="canary_build"
-                      file="out/debug.apk"
-                      pro_file="out/pro_debug.apk"
+                      file="out/app-debug.apk"
+                      pro_file="out/apkT-debug.apk"
                   fi
 
                   commit=$(git rev-parse --short HEAD)
