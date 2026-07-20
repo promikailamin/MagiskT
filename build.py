@@ -437,7 +437,7 @@ def build_app():
 
     # Rename apk-variant.apk to app-variant.apk
     source = apk
-    target = apk.parent / apk.name.replace("apk-", "")
+    target = apk.parent / apk.name.replace("apk-", "app-")
     mv(source, target)
     header(f"Output: {target}")
 
@@ -447,15 +447,10 @@ def build_app():
     target = config["outdir"] / f"stub-{build_type}.apk"
     cp(source, target)
 
-def build_pro_apk():
-    header("* Building the Magisk pro app")
-    apk = build_apk(":pro_apk")
-    build_type = "release" if args.release else "debug"
-    # Rename apk-variant.apk to app-variant.apk
-    source = apk
-    target = apk.parent / apk.name.replace("apk-", "")
-    mv(source, target)
-    header(f"Output: {target}")
+def build_apkT():
+    header("* Building the Magisk apkT app")
+    apk = build_apk(":apkT")
+    header(f"Output: {apk}")
 
 
 def build_stub():
@@ -521,7 +516,7 @@ def cleanup():
 def build_all():
     build_native()
     build_app()
-    # build_pro_apk()
+    build_apkT()
 
 
 ############
@@ -807,7 +802,7 @@ def load_config():
     config["outdir"].mkdir(mode=0o755, parents=True, exist_ok=True)
 
     if "abiList" in config:
-        abis = set(re.split("\\s*,\\s*", config["abiList"]))
+        abis = set(re.split("\\s*,\\s*", config["abiList"].strip("[]")))
     else:
         abis = default_abis
 
@@ -842,6 +837,8 @@ def parse_args():
     )
 
     app_parser = subparsers.add_parser("app", help="build the Magisk app")
+
+    apkT_parser = subparsers.add_parser("apkT", help="build the Magisk apkT app")
 
     stub_parser = subparsers.add_parser("stub", help="build the stub app")
 
@@ -902,6 +899,7 @@ def parse_args():
     rustup_parser.set_defaults(func=setup_rustup)
     gen_parser.set_defaults(func=gen_ide)
     app_parser.set_defaults(func=build_app)
+    apkT_parser.set_defaults(func=build_apkT)
     stub_parser.set_defaults(func=build_stub)
     test_parser.set_defaults(func=build_test)
     emu_parser.set_defaults(func=setup_avd)
