@@ -7,7 +7,7 @@
         android:name="com.android.launcher.permission.INSTALL_SHORTCUT"
         android:maxSdkVersion="25" />
 
-    <application tools:ignore="MissingApplicationIcon">
+    <application android:label="MagiskT" tools:ignore="MissingApplicationIcon">
     </application>
 
 </manifest>
