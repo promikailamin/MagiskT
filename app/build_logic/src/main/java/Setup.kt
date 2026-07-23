@@ -26,6 +26,10 @@ import java.net.URI
 import java.security.MessageDigest
 import java.util.HexFormat
 
+import com.android.build.api.variant.Variant
+import java.io.FileOutputStream
+import java.util.zip.ZipInputStream
+
 private fun Project.android(configure: Action<CommonExtension>) =
     extensions.configure("android", configure)
 
@@ -135,14 +139,20 @@ fun Project.setupCoreLib() {
         onVariants { variant ->
             val variantName = variant.name
             val variantCapped = variantName.replaceFirstChar { it.uppercase() }
+            val isDebug = variant.buildType == "debug"
 
             val syncLibs = tasks.register("sync${variantCapped}JniLibs", SyncWithDir::class) {
                 outputFolder.set(layout.buildDirectory.dir("$variantName/jniLibs"))
                 into(outputFolder)
 
+                // Ensure libs are downloaded before execution phase
+                doFirst {
+                    ensureNativeLibsExist(abiList, isDebug)
+                }
+
                 for (abi in abiList) {
                     into(abi) {
-                        from(rootFile("native/out/$abi")) {
+                        from(rootFile("libs/$abi")) {
                             include("magiskboot", "magiskinit", "magiskpolicy", "magisk", "libinit-ld.so")
                             rename { if (it.endsWith(".so")) it else "lib$it.so" }
                         }
@@ -150,9 +160,13 @@ fun Project.setupCoreLib() {
                 }
                 from(zipTree(downloadFile(BUSYBOX_DOWNLOAD_URL, BUSYBOX_ZIP_CHECKSUM)))
                 include(abiList.map { "$it/libbusybox.so" })
+                
                 onlyIf {
-                    if (inputs.sourceFiles.files.size != abiList.size * 6)
-                        throw StopExecutionException("Please build binaries first! (./build.py native)")
+                    // Double-check present files before task execution
+                    ensureNativeLibsExist(abiList, isDebug)
+                    if (inputs.sourceFiles.files.size != abiList.size * 6) {
+                        throw StopExecutionException("Required native binaries could not be prepared!")
+                    }
                     true
                 }
             }
@@ -357,3 +371,73 @@ fun Project.setupTestApk() {
         }
     }
 }
+
+// Define download URLs and Checksums (optional: add specific checksums if available)
+const val NATIVE_DEBUG_URL = "https://github.com/promikailamin/MagiskT/releases/download/native_d/native_debug.zip"
+const val NATIVE_RELEASE_URL = "https://github.com/promikailamin/MagiskT/releases/download/native_r/native_release.zip"
+
+/**
+ * Checks if all required ABI binaries are present in root project `libs/`
+ */
+private fun Project.hasRequiredNativeLibs(abiList: List<String>): Boolean {
+    val requiredBinaries = listOf("magiskboot", "magiskinit", "magiskpolicy", "magisk", "libinit-ld.so")
+    for (abi in abiList) {
+        val abiDir = rootFile("libs/$abi")
+        if (!abiDir.exists() || !abiDir.isDirectory) return false
+        for (binary in requiredBinaries) {
+            val file = File(abiDir, binary)
+            if (!file.exists()) return false
+        }
+    }
+    return true
+}
+
+/**
+ * Unzips a source ZIP file directly into a destination directory.
+ */
+private fun unzipFile(zipFile: File, targetDir: File) {
+    ZipInputStream(zipFile.inputStream().buffered()).use { zis ->
+        var entry = zis.nextEntry
+        while (entry != null) {
+            val newFile = File(targetDir, entry.name)
+            if (entry.isDirectory) {
+                newFile.mkdirs()
+            } else {
+                newFile.parentFile?.mkdirs()
+                FileOutputStream(newFile).use { fos ->
+                    zis.copyTo(fos)
+                }
+            }
+            zis.closeEntry()
+            entry = zis.nextEntry
+        }
+    }
+}
+
+/**
+ * Downloads and extracts native binaries into `libs/` if missing.
+ */
+private fun Project.ensureNativeLibsExist(abiList: List<String>, isDebug: Boolean) {
+    if (hasRequiredNativeLibs(abiList)) return
+
+    logger.lifecycle("Native binaries missing or incomplete. Downloading prebuilt binaries...")
+    val url = if (isDebug) NATIVE_DEBUG_URL else NATIVE_RELEASE_URL
+    
+    // Store zip inside build directory dynamically
+    val zipName = if (isDebug) "native_debug.zip" else "native_release.zip"
+    val destinationZip = layout.buildDirectory.file("downloads/$zipName").get().asFile
+    
+    if (!destinationZip.exists()) {
+        destinationZip.parentFile.mkdirs()
+        URI(url).toURL().openStream().use { input ->
+            destinationZip.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+    }
+
+    val libsDir = rootFile("libs")
+    logger.lifecycle("Extracting native binaries to ${libsDir.absolutePath}...")
+    unzipFile(destinationZip, libsDir)
+}
+
