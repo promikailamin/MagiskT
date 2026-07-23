@@ -379,7 +379,9 @@ const val NATIVE_RELEASE_URL = "https://github.com/promikailamin/MagiskT/release
 /**
  * Checks if all required ABI binaries are present in root project `libs/`
  */
-private fun Project.hasRequiredNativeLibs(abiList: List<String>): Boolean {
+private fun Project.hasRequiredNativeLibs(
+    abiList: Collection<String>
+): Boolean {
     val requiredBinaries = listOf("magiskboot", "magiskinit", "magiskpolicy", "magisk", "libinit-ld.so")
     for (abi in abiList) {
         val abiDir = rootFile("libs/$abi")
@@ -417,7 +419,10 @@ private fun unzipFile(zipFile: File, targetDir: File) {
 /**
  * Downloads and extracts native binaries into `libs/` if missing.
  */
-private fun Project.ensureNativeLibsExist(abiList: List<String>, isDebug: Boolean) {
+private fun Project.ensureNativeLibsExist(
+    abiList: Collection<String>,
+    isDebug: Boolean
+) {
     if (hasRequiredNativeLibs(abiList)) return
 
     logger.lifecycle("Native binaries missing or incomplete. Downloading prebuilt binaries...")
