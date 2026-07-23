@@ -1,152 +1,149 @@
-name: Build MagiskT
+name: Build MagiskM Native
 
 on:
     push:
-        branches: [main, test]
+        branches: [ native, native_test ]
     pull_request:
-        branches: [main, test]
     workflow_dispatch:
 
 jobs:
-    build:
+    build-native:
         runs-on: ubuntu-latest
 
         permissions: write-all
 
         strategy:
+            fail-fast: false
             matrix:
-                build_type: [release]
+                build_type: [debug]
+
+        env:
+            ANDROID_HOME: ${{ github.workspace }}/android-sdk
+            ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
 
         steps:
-            - name: Checkout
+            - name: Checkout repository
               uses: actions/checkout@v4
               with:
                   submodules: recursive
                   fetch-depth: 1
 
+            - name: Shallow submodules
+              run: git submodule update --init --recursive --depth 1
+
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.10"
+
             - name: Install dependencies
               run: |
                   sudo apt-get update
-                  sudo apt-get install -y ccache python3 python3-pip gh
+                  sudo apt-get install -y --no-install-recommends \
+                      curl \
+                      xz-utils \
+                      zip \
+                      build-essential \
+                      pkg-config
 
-            - name: Cache pip
-              uses: actions/cache@v4
-              with:
-                  path: ~/.cache/pip
-                  key: pip-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
-                  restore-keys: |
-                      pip-${{ runner.os }}-
+            - name: Prepare Android SDK directory
+              run: mkdir -p "$ANDROID_HOME"
 
-            - name: Setup ccache
-              run: |
-                  mkdir -p ~/.ccache
-                  echo "CCACHE_DIR=$HOME/.ccache" >> $GITHUB_ENV
-                  echo "CCACHE_MAXSIZE=3G" >> $GITHUB_ENV
-                  echo "/usr/lib/ccache" >> $GITHUB_PATH
-                  ccache --max-size=3G
+            - name: Enable incremental compilation
+              run: echo "CARGO_INCREMENTAL=1" >> $GITHUB_ENV
 
-            - name: Cache ccache
-              uses: actions/cache@v4
-              with:
-                  path: ~/.ccache
-                  key: ccache-${{ runner.os }}-${{ hashFiles('**/*.c','**/*.cpp','**/*.h') }}
-                  restore-keys: |
-                      ccache-${{ runner.os }}-
-
-            - name: Cache Gradle
+            - name: Cache ONDK
+              id: cache-ondk
               uses: actions/cache@v4
               with:
                   path: |
-                      ~/.gradle/caches
-                      ~/.gradle/wrapper
-                  key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*','**/gradle-wrapper.properties') }}
+                      ${{ env.ANDROID_HOME }}/ndk/magisk
+                      ${{ env.ANDROID_HOME }}/ndk/ondk-r29.5
+                  key: ondk-r29.5-${{ runner.os }}
+
+            - name: Setup ONDK
+              if: steps.cache-ondk.outputs.cache-hit != 'true'
+              run: python3 build.py -v ndk
+
+            - name: Cache Cargo
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      ~/.cargo/registry
+                      ~/.cargo/git
+                      native/target
+                  key: cargo-${{ runner.os }}-${{ matrix.build_type }}-${{ hashFiles('**/Cargo.lock') }}
                   restore-keys: |
-                      gradle-${{ runner.os }}-
+                      cargo-${{ runner.os }}-${{ matrix.build_type }}-
+                      cargo-${{ runner.os }}-
 
-            - name: Setup Java
-              uses: actions/setup-java@v4
-              with:
-                  distribution: temurin
-                  java-version: 17
-                  cache: gradle
-
-            - name: Setup environment
-              uses: ./.github/actions/setup
-              with:
-                  is-asset-build: true
-
-            - name: Replace version
+            - name: Build native (${{ matrix.build_type }})
               run: |
                   if [ "${{ matrix.build_type }}" = "release" ]; then
-                      sed -i 's/^version=.*/version=Modified/' config.prop
+                      python3 build.py -vr native
                   else
-                      sed -i 's/^version=.*/version=Modified:D/' config.prop
+                      python3 build.py -v native
                   fi
+              env:
+                  ANDROID_HOME: ${{ env.ANDROID_HOME }}
+                  ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/magisk
 
-            - name: Build Magisk
+            - name: Clean and rename native libraries
               run: |
-                  if [ "${{ matrix.build_type }}" = "release" ]; then
-                      python build.py -vr all
-                  else
-                      python build.py -v all
-                  fi
+                  for dir in native/out/*; do
+                      if [ -d "$dir" ]; then
+                          find "$dir" -type f -name "*.a" -delete
 
-            - name: Stop Gradle
-              run: ./app/gradlew --stop
+                          for file in "$dir"/*; do
+                              filename=$(basename "$file")
 
-            - name: Check apkT apk
-              id: check_apkT
+                              if [[ -f "$file" && ! "$filename" == lib*.so ]]; then
+                                  mv "$file" "$dir/lib${filename}.so"
+                              fi
+                          done
+                      fi
+                  done
+
+            - name: Create native zip
               run: |
-                  if [ "${{ matrix.build_type }}" = "release" ]; then
-                      file="out/apkT-release.apk"
-                  else
-                      file="out/apkT-debug.apk"
-                  fi
+                  cd native/out
 
-                  if [ -f "$file" ]; then
-                      echo "exists=true" >> "$GITHUB_OUTPUT"
-                  else
-                      echo "exists=false" >> "$GITHUB_OUTPUT"
-                  fi
+                  zip_name="native_${{ matrix.build_type }}.zip"
 
-            - name: Upload main apk
+                  zip -r "../../$zip_name" \
+                      arm64-v8a \
+                      armeabi-v7a \
+                      x86 \
+                      x86_64
+
+                  echo "ZIP_NAME=$zip_name" >> $GITHUB_ENV
+
+            - name: Upload native (${{ matrix.build_type }})
               uses: actions/upload-artifact@v4
               with:
-                  name: magisk_${{ matrix.build_type }}
-                  path: ${{ matrix.build_type == 'release' && 'out/app-release.apk' || 'out/app-debug.apk' }}
-
-            - name: Upload apkT apk
-              if: steps.check_apkT.outputs.exists == 'true'
-              uses: actions/upload-artifact@v4
-              with:
-                  name: apkT_magisk_${{ matrix.build_type }}
-                  path: ${{ matrix.build_type == 'release' && 'out/apkT-release.apk' || 'out/apkT-debug.apk' }}
+                  name: native_${{ matrix.build_type }}
+                  path: ${{ env.ZIP_NAME }}
+                  compression-level: 0
 
             - name: Create GitHub Release
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   if [ "${{ matrix.build_type }}" = "release" ]; then
-                      tag="build"
-                      file="out/app-release.apk"
-                      pro_file="out/apkT-release.apk"
+                      tag="native_r"
                   else
-                      tag="canary_build"
-                      file="out/app-debug.apk"
-                      pro_file="out/apkT-debug.apk"
+                      tag="native_d"
                   fi
 
                   commit=$(git rev-parse --short HEAD)
                   branch=${GITHUB_REF#refs/heads/}
                   build_time=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
 
-                  body=$(printf "MagiskT automated build\n\nBranch: %s\nCommit: %s\nBuild type: %s\nBuild time: %s\nActor: %s\nRepository: %s\n" \
+                  body=$(printf "MagiskM Native Build\n\nBranch: %s\nCommit: %s\nBuild type: %s\nBuild time: %s\n" \
                       "$branch" \
                       "$commit" \
                       "${{ matrix.build_type }}" \
-                      "$build_time" \
-                      "$GITHUB_ACTOR" \
-                      "$GITHUB_REPOSITORY")
+                      "$build_time")
 
                   gh release delete "$tag" -y || true
                   git tag -d "$tag" || true
@@ -155,15 +152,6 @@ jobs:
                   git tag "$tag"
                   git push origin "$tag"
 
-                  assets=("$file")
-
-                  if [ -f "$pro_file" ]; then
-                      echo "Pro APK found."
-                      assets+=("$pro_file")
-                  else
-                      echo "Pro APK not found. Skipping."
-                  fi
-
-                  gh release create "$tag" "${assets[@]}" \
-                      --title "MagiskT $tag" \
+                  gh release create "$tag" "${{ env.ZIP_NAME }}" \
+                      --title "MagiskM Native" \
                       --notes "$body"
