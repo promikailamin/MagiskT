@@ -36,17 +36,17 @@ jobs:
       - name: Build app
         run: |
           if [ "${{ matrix.build_type }}" = "release" ]; then
-            python build.py -vr app
+            python build.py -r app
           else
-            python build.py -v app
+            python build.py app
           fi
 
       - name: Build apkT
         run: |
           if [ "${{ matrix.build_type }}" = "release" ]; then
-            python build.py -vr apkT
+            python build.py -r apkT
           else
-            python build.py -v apkT
+            python build.py apkT
           fi
 
       - name: Upload app artifact
