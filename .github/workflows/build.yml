@@ -139,11 +139,7 @@ jobs:
                   branch=${GITHUB_REF#refs/heads/}
                   build_time=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
 
-                  body=$(printf "MagiskM Native Build\n\nBranch: %s\nCommit: %s\nBuild type: %s\nBuild time: %s\n" \
-                      "$branch" \
-                      "$commit" \
-                      "${{ matrix.build_type }}" \
-                      "$build_time")
+                  sha256=$(sha256sum "${{ env.ZIP_NAME }}" | awk '{print $1}')
 
                   gh release delete "$tag" -y || true
                   git tag -d "$tag" || true
@@ -153,5 +149,5 @@ jobs:
                   git push origin "$tag"
 
                   gh release create "$tag" "${{ env.ZIP_NAME }}" \
-                      --title "MagiskM Native" \
-                      --notes "$body"
+                      --title "MagiskT Native" \
+                      --notes "$sha256"
