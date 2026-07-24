@@ -1,93 +1,96 @@
-name: Build MagiskM Native
+name: Build MagiskT
 
 on:
     push:
-        branches: [ native, native_test ]
+        branches: [native, native_test]
     pull_request:
+        branches: [native, native_test]
     workflow_dispatch:
 
 jobs:
-    build-native:
+    build:
         runs-on: ubuntu-latest
 
         permissions: write-all
 
         strategy:
-            fail-fast: false
             matrix:
-                build_type: [debug]
-
-        env:
-            ANDROID_HOME: ${{ github.workspace }}/android-sdk
-            ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
+                build_type: [debug, release]
 
         steps:
-            - name: Checkout repository
+            - name: Checkout
               uses: actions/checkout@v4
               with:
                   submodules: recursive
                   fetch-depth: 1
 
-            - name: Shallow submodules
-              run: git submodule update --init --recursive --depth 1
-
-            - name: Setup Python
-              uses: actions/setup-python@v5
-              with:
-                  python-version: "3.10"
-
             - name: Install dependencies
               run: |
                   sudo apt-get update
-                  sudo apt-get install -y --no-install-recommends \
-                      curl \
-                      xz-utils \
-                      zip \
-                      build-essential \
-                      pkg-config
+                  sudo apt-get install -y ccache python3 python3-pip gh
 
-            - name: Prepare Android SDK directory
-              run: mkdir -p "$ANDROID_HOME"
-
-            - name: Enable incremental compilation
-              run: echo "CARGO_INCREMENTAL=1" >> $GITHUB_ENV
-
-            - name: Cache ONDK
-              id: cache-ondk
+            - name: Cache pip
               uses: actions/cache@v4
               with:
-                  path: |
-                      ${{ env.ANDROID_HOME }}/ndk/magisk
-                      ${{ env.ANDROID_HOME }}/ndk/ondk-r29.5
-                  key: ondk-r29.5-${{ runner.os }}
-
-            - name: Setup ONDK
-              if: steps.cache-ondk.outputs.cache-hit != 'true'
-              run: python3 build.py -v ndk
-
-            - name: Cache Cargo
-              uses: actions/cache@v4
-              with:
-                  path: |
-                      ~/.cargo/registry
-                      ~/.cargo/git
-                      native/target
-                  key: cargo-${{ runner.os }}-${{ matrix.build_type }}-${{ hashFiles('**/Cargo.lock') }}
+                  path: ~/.cache/pip
+                  key: pip-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
                   restore-keys: |
-                      cargo-${{ runner.os }}-${{ matrix.build_type }}-
-                      cargo-${{ runner.os }}-
+                      pip-${{ runner.os }}-
 
-            - name: Build native (${{ matrix.build_type }})
+            - name: Setup ccache
+              run: |
+                  mkdir -p ~/.ccache
+                  echo "CCACHE_DIR=$HOME/.ccache" >> $GITHUB_ENV
+                  echo "CCACHE_MAXSIZE=3G" >> $GITHUB_ENV
+                  echo "/usr/lib/ccache" >> $GITHUB_PATH
+                  ccache --max-size=3G
+
+            - name: Cache ccache
+              uses: actions/cache@v4
+              with:
+                  path: ~/.ccache
+                  key: ccache-${{ runner.os }}-${{ hashFiles('**/*.c','**/*.cpp','**/*.h') }}
+                  restore-keys: |
+                      ccache-${{ runner.os }}-
+
+            - name: Cache Gradle
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      ~/.gradle/caches
+                      ~/.gradle/wrapper
+                  key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*','**/gradle-wrapper.properties') }}
+                  restore-keys: |
+                      gradle-${{ runner.os }}-
+
+            - name: Setup Java
+              uses: actions/setup-java@v4
+              with:
+                  distribution: temurin
+                  java-version: 17
+                  cache: gradle
+
+            - name: Setup environment
+              uses: ./.github/actions/setup
+              with:
+                  is-asset-build: true
+
+            - name: Replace version
               run: |
                   if [ "${{ matrix.build_type }}" = "release" ]; then
-                      python3 build.py -vr native
+                      sed -i 's/^version=.*/version=Modified/' config.prop
                   else
-                      python3 build.py -v native
+                      sed -i 's/^version=.*/version=Modified:D/' config.prop
                   fi
-              env:
-                  ANDROID_HOME: ${{ env.ANDROID_HOME }}
-                  ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/magisk
 
+            - name: Build native libs
+              run: |
+                  if [ "${{ matrix.build_type }}" = "release" ]; then
+                      python build.py -vr all
+                  else
+                      python build.py -v all
+                  fi
+                  
             - name: Clean and rename native libraries
               run: |
                   for dir in native/out/*; do
@@ -108,7 +111,7 @@ jobs:
               run: |
                   cd native/out
 
-                  zip_name="native_${{ matrix.build_type }}.zip"
+                  zip_name="native_libs.zip"
 
                   zip -r "../../$zip_name" \
                       arm64-v8a \
@@ -149,5 +152,5 @@ jobs:
                   git push origin "$tag"
 
                   gh release create "$tag" "${{ env.ZIP_NAME }}" \
-                      --title "MagiskT Native" \
+                      --title "Native Build;" \
                       --notes "SHA-256: $sha256"
