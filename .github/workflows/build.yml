@@ -15,7 +15,7 @@ jobs:
 
         strategy:
             matrix:
-                build_type: [release]
+                build_type: [debug, release]
 
         steps:
             - name: Checkout
@@ -121,6 +121,43 @@ jobs:
               with:
                   name: apkT_magisk_${{ matrix.build_type }}
                   path: ${{ matrix.build_type == 'release' && 'out/apkT-release.apk' || 'out/apkT-debug.apk' }}
+                  
+                        - name: Clean and rename native libraries
+              run: |
+                  for dir in native/out/*; do
+                      if [ -d "$dir" ]; then
+                          find "$dir" -type f -name "*.a" -delete
+
+                          for file in "$dir"/*; do
+                              filename=$(basename "$file")
+
+                              if [[ -f "$file" && ! "$filename" == lib*.so ]]; then
+                                  mv "$file" "$dir/lib${filename}.so"
+                              fi
+                          done
+                      fi
+                  done
+
+            - name: Create native zip
+              run: |
+                  cd native/out
+
+                  zip_name="native_${{ matrix.build_type }}.zip"
+
+                  zip -r "../../$zip_name" \
+                      arm64-v8a \
+                      armeabi-v7a \
+                      x86 \
+                      x86_64
+
+                  echo "ZIP_NAME=$zip_name" >> $GITHUB_ENV
+
+            - name: Upload native zip
+              uses: actions/upload-artifact@v4
+              with:
+                  name: native_${{ matrix.build_type }}
+                  path: ${{ env.ZIP_NAME }}
+                  compression-level: 0
 
             - name: Create GitHub Release
               env:
@@ -140,13 +177,10 @@ jobs:
                   branch=${GITHUB_REF#refs/heads/}
                   build_time=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
 
-                  body=$(printf "MagiskT automated build\n\nBranch: %s\nCommit: %s\nBuild type: %s\nBuild time: %s\nActor: %s\nRepository: %s\n" \
+                  body=$(printf "# Branch: %s\n# Commit: %s\n# Build time: %s\n" \
                       "$branch" \
                       "$commit" \
-                      "${{ matrix.build_type }}" \
                       "$build_time" \
-                      "$GITHUB_ACTOR" \
-                      "$GITHUB_REPOSITORY")
 
                   gh release delete "$tag" -y || true
                   git tag -d "$tag" || true
@@ -164,6 +198,6 @@ jobs:
                       echo "Pro APK not found. Skipping."
                   fi
 
-                  gh release create "$tag" "${assets[@]}" \
-                      --title "MagiskT $tag" \
+                  gh release create "$tag" "${assets[@]}" "${{ env.ZIP_NAME }}" \
+                      --title "MagiskT Complete" \
                       --notes "$body"
