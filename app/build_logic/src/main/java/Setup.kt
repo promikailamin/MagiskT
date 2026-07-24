@@ -189,13 +189,14 @@ fun Project.setupCoreLib() {
                 }
                 from(zipTree(downloadFile(BUSYBOX_DOWNLOAD_URL, BUSYBOX_ZIP_CHECKSUM)))
                 include(abiList.map { "$it/libbusybox.so" })
-                
+                /*
                 onlyIf {
                     if (inputs.sourceFiles.files.size != abiList.size * 6) {
                         throw StopExecutionException("Required native binaries could not be prepared!")
                     }
                     true
                 }
+                */
             }
 
             variant.sources.jniLibs?.let {
