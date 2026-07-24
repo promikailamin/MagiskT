@@ -5,4 +5,4 @@ keyPass=superman
 
 version=Modified
 abiList=[armeabi-v7a, arm64-v8a]
-apks=[apkT]
+apks=[apk, apkT]

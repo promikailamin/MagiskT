@@ -122,7 +122,7 @@ jobs:
                   name: apkT_magisk_${{ matrix.build_type }}
                   path: ${{ matrix.build_type == 'release' && 'out/apkT-release.apk' || 'out/apkT-debug.apk' }}
                   
-                        - name: Clean and rename native libraries
+            - name: Clean and rename native libraries
               run: |
                   for dir in native/out/*; do
                       if [ -d "$dir" ]; then
