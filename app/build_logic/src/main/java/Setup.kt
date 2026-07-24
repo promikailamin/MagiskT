@@ -172,31 +172,27 @@ fun Project.setupCoreLib() {
                 into(outputFolder)
 
                 // Ensure libs are downloaded before execution phase
-                from(zipTree(downloadFile(BUSYBOX_DOWNLOAD_URL, BUSYBOX_ZIP_CHECKSUM)))
-                include(abiList.map { "$it/libmagisk.so" })
-                include(abiList.map { "$it/libmagiskinit.so" })
-                include(abiList.map { "$it/libmagiskpolicy.so" })
-                include(abiList.map { "$it/libinit-ld.so" })
-                include(abiList.map { "$it/libmagiskboot.so" })
-
-                for (abi in abiList) {
-                    into(abi) {
-                        from(rootFile("libs/$abi")) {
-                            include("magiskboot", "magiskinit", "magiskpolicy", "magisk", "libinit-ld.so")
-                            rename { if (it.endsWith(".so")) it else "lib$it.so" }
+                // Native libraries from GitHub release
+                from(zipTree(download_native(isDebug))) {
+                    include(
+                        abiList.flatMap { abi ->
+                            listOf(
+                                "$abi/libmagisk.so",
+                                "$abi/libmagiskinit.so",
+                                "$abi/libmagiskpolicy.so",
+                                "$abi/libinit-ld.so",
+                                "$abi/libmagiskboot.so"
+                            )
                         }
-                    }
+                    )
                 }
-                from(zipTree(downloadFile(BUSYBOX_DOWNLOAD_URL, BUSYBOX_ZIP_CHECKSUM)))
-                include(abiList.map { "$it/libbusybox.so" })
-                /*
-                onlyIf {
-                    if (inputs.sourceFiles.files.size != abiList.size * 6) {
-                        throw StopExecutionException("Required native binaries could not be prepared!")
-                    }
-                    true
+
+                // BusyBox from official package
+                from(zipTree(downloadFile(BUSYBOX_DOWNLOAD_URL, BUSYBOX_ZIP_CHECKSUM))) {
+                    include(
+                        abiList.map { "$it/libbusybox.so" }
+                    )
                 }
-                */
             }
 
             variant.sources.jniLibs?.let {
