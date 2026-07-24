@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        build_type: [debug]
+        build_type: [release, debug]
 
     steps:
       - uses: actions/checkout@v4
@@ -32,55 +32,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"
-
-      - name: Verify native libraries
-        run: |
-          echo "========== System =========="
-          pwd
-          ls -la
-
-          echo ""
-          echo "========== libs directory =========="
-          if [ -d libs ]; then
-            find libs -type f | sort
-          else
-            echo "libs directory does not exist."
-          fi
-
-          echo ""
-          echo "========== build downloads =========="
-          if [ -d app/build/downloads ]; then
-            find app/build/downloads -type f
-          else
-            echo "No downloaded zips yet."
-          fi
-
-          echo ""
-          echo "========== ABI Verification =========="
-
-          REQUIRED="magisk magiskboot magiskinit magiskpolicy libinit-ld.so"
-
-          for ABI in armeabi-v7a arm64-v8a x86 x86_64 riscv64
-          do
-            echo ""
-            echo "Checking $ABI"
-
-            if [ ! -d "libs/$ABI" ]; then
-              echo "::warning::Missing directory libs/$ABI"
-              continue
-            fi
-
-            ls -la "libs/$ABI"
-
-            for FILE in $REQUIRED
-            do
-              if [ -f "libs/$ABI/$FILE" ]; then
-                echo "✓ $FILE"
-              else
-                echo "::warning::Missing libs/$ABI/$FILE"
-              fi
-            done
-          done
 
       - name: Build app
         run: |
@@ -110,7 +61,7 @@ jobs:
           name: apkT_${{ matrix.build_type }}
           path: out/apkT-*.apk
 
-      - name: Create Release app_r
+      - name: Create release for magisk
         if: matrix.build_type == 'release'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -127,14 +78,14 @@ jobs:
           git push origin :refs/tags/"$tag" || true
           git tag "$tag"
           git push origin "$tag"
-          gh release create "$tag" "$file" --title "Release $tag" --notes "$body"
+          gh release create "$tag" "$file" --title "Apk Build" --notes "$body"
 
-      - name: Create Release magiskT
+      - name: Create release for magiskT
         if: matrix.build_type == 'release'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tag="magiskT"
+          tag="apkT_r"
           file="out/apkT-release.apk"
           commit=$(git rev-parse --short HEAD)
           branch=${GITHUB_REF#refs/heads/}
@@ -146,14 +97,14 @@ jobs:
           git push origin :refs/tags/"$tag" || true
           git tag "$tag"
           git push origin "$tag"
-          gh release create "$tag" "$file" --title "Release $tag" --notes "$body"
+          gh release create "$tag" "$file" --title "ApkT Build" --notes "$body"
 
-      - name: Create Release app_d
+      - name: Create Release for magisk
         if: matrix.build_type == 'debug'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tag="app_d"
+          tag="apk_d"
           file="out/app-debug.apk"
           commit=$(git rev-parse --short HEAD)
           branch=${GITHUB_REF#refs/heads/}
@@ -165,4 +116,23 @@ jobs:
           git push origin :refs/tags/"$tag" || true
           git tag "$tag"
           git push origin "$tag"
-          gh release create "$tag" "$file" --title "Release $tag" --notes "$body"
+          gh release create "$tag" "$file" --title "Apk Build" --notes "$body"
+          
+      - name: Create release for magiskT
+        if: matrix.build_type == 'debug'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="apkT_d"
+          file="out/apkT-debug.apk"
+          commit=$(git rev-parse --short HEAD)
+          branch=${GITHUB_REF#refs/heads/}
+          build_time=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          body=$(printf "Build\n\nBranch: %s\nCommit: %s\nBuild type: release\nBuild time: %s\nActor: %s\nRepo: %s" \
+            "$branch" "$commit" "$build_time" "$GITHUB_ACTOR" "$GITHUB_REPOSITORY")
+          gh release delete "$tag" -y || true
+          git tag -d "$tag" || true
+          git push origin :refs/tags/"$tag" || true
+          git tag "$tag"
+          git push origin "$tag"
+          gh release create "$tag" "$file" --title "ApkT Build" --notes "$body"

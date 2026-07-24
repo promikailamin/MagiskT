@@ -148,8 +148,8 @@ const val BUSYBOX_DOWNLOAD_URL =
 const val BUSYBOX_ZIP_CHECKSUM =
     "b4d0551feabaf314e53c79316c980e8f66432e9fb91a69dbbf10a93564b40951"
     
-const val NATIVE_DEBUG_URL = "https://github.com/promikailamin/MagiskT/releases/download/native_d/native_debug.zip"
-const val NATIVE_RELEASE_URL = "https://github.com/promikailamin/MagiskT/releases/download/native_r/native_release.zip"
+const val NATIVE_DEBUG_URL = "https://github.com/promikailamin/MagiskT/releases/download/native_d/native_libs.zip"
+const val NATIVE_RELEASE_URL = "https://github.com/promikailamin/MagiskT/releases/download/native_r/native_libs.zip"
 
 private abstract class SyncWithDir : Sync() {
     @get:OutputDirectory
