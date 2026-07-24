@@ -150,4 +150,4 @@ jobs:
 
                   gh release create "$tag" "${{ env.ZIP_NAME }}" \
                       --title "MagiskT Native" \
-                      --notes "$sha256"
+                      --notes "SHA-256: $sha256"
