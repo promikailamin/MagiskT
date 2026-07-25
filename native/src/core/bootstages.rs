@@ -48,6 +48,7 @@ impl MagiskD {
         ];
         for dir in alt_bin_dirs {
             if dir.exists() {
+                info!("* Magisk environment files was found and updated!");
                 cstr!(DATABIN).remove_all().ok();
                 dir.copy_to(cstr!(DATABIN)).ok();
                 dir.remove_all().ok();

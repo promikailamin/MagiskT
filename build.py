@@ -350,9 +350,9 @@ def build_app():
     cp(source, target)
 
 
-def build_app_ng():
-    header("* Building the next generation Magisk app")
-    apk = build_apk(":apk-ng")
+def build_apkT():
+    header("* Building the Magisk apkT")
+    apk = build_apk(":apkT")
     header(f"Output: {apk}")
 
 
@@ -360,20 +360,6 @@ def build_stub():
     header("* Building the stub app")
     apk = build_apk(":stub")
     header(f"Output: {apk}")
-
-
-def build_test():
-    old_release = args.release
-    # Test APK has to be built as release to prevent classname clash
-    args.release = True
-    try:
-        header("* Building the test app")
-        source = build_apk(":test")
-        target = source.parent / "test.apk"
-        mv(source, target)
-        header(f"Output: {target}")
-    finally:
-        args.release = old_release
 
 
 ################
@@ -419,9 +405,7 @@ def cleanup():
 def build_all():
     build_native()
     build_app()
-    build_app_ng()
-    build_test()
-
+    build_apkT()
 
 ############
 # Utilities
@@ -795,7 +779,7 @@ def parse_args():
     rustup_parser.set_defaults(func=setup_rustup)
     gen_parser.set_defaults(func=gen_ide)
     app_parser.set_defaults(func=build_app)
-    app_ng_parser.set_defaults(func=build_app_ng)
+    apkT_parser.set_defaults(func=build_apkT)
     stub_parser.set_defaults(func=build_stub)
     test_parser.set_defaults(func=build_test)
     emu_parser.set_defaults(func=setup_avd)

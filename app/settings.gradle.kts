@@ -9,7 +9,7 @@ dependencyResolutionManagement {
 }
 
 pluginManagement {
-    includeBuild("build-logic")
+    includeBuild("build_logic")
     repositories {
         gradlePluginPortal()
         google()
@@ -17,4 +17,4 @@ pluginManagement {
 }
 
 rootProject.name = "Magisk"
-include(":apk", ":apk-ng", ":core", ":shared", ":stub", ":stub-res", ":test")
+include(":apk", ":apkT", ":core", ":shared", ":stub", ":stub-res")
