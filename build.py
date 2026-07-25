@@ -716,7 +716,7 @@ def parse_args():
 
     app_parser = subparsers.add_parser("app", help="build the Magisk app")
 
-    app_ng_parser = subparsers.add_parser(
+    apkT_parser = subparsers.add_parser(
         "app-ng", help="build the next generation Magisk app"
     )
 
