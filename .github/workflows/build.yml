@@ -91,9 +91,10 @@ jobs:
           build_time=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
 
           body=$(printf "# Branch: %s\n# Commit: %s\n# Build time: %s\n" \
-              "$branch" \
-              "$commit" \
-              "$build_time" \
+          "$branch" \
+          "$commit" \
+          "$build_time")
+
 
           gh release delete "$tag" -y || true
           git tag -d "$tag" || true
@@ -102,11 +103,11 @@ jobs:
           git tag "$tag"
           git push origin "$tag"
 
-          if [ -f "$app" ]; then
-              echo "app was found and add to release."
-              assets+=("$app")
+          if [ -f "$apk" ]; then
+              echo "apk was found and add to release."
+              assets+=("$apk")
           else
-              echo "app isn't exist. Skipping."
+              echo "apk isn't exist. Skipping."
           fi
 
           if [ -f "$apkT" ]; then
