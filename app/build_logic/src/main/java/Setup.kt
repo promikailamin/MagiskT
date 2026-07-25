@@ -207,6 +207,7 @@ fun Project.setupAppCommon() {
                     storePassword = Config["keyStorePass"]
                     keyAlias = Config["keyAlias"]
                     keyPassword = Config["keyPass"]
+                    storeType = "PKCS12"
                 }
             }
         }
