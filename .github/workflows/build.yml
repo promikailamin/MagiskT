@@ -40,14 +40,14 @@ jobs:
       - name: Upload release artifact
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ github.sha }}
+          name: app-release
           path: out/app-release.apk
           compression-level: 9
           
       - name: Upload release T artifact
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ github.sha }}
+          name: apkT-release
           path: out/apkT-release.apk
           compression-level: 9
 
@@ -57,14 +57,14 @@ jobs:
       - name: Upload debug artifact
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ github.sha }}
+          name: app-debug
           path: out/app-debug.apk
           compression-level: 9
           
       - name: Upload debug T artifact
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ github.sha }}
+          name: apkT-debug
           path: out/apkT-debug.apk
           compression-level: 9
 
