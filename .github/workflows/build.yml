@@ -31,6 +31,9 @@ jobs:
         with:
           is-asset-build: true
 
+      - name: Chmod build.py
+        run: chmod +x build.py
+
       - name: Complete release build
         run: ./build.py -vr all
 
