@@ -16,6 +16,7 @@ jobs:
   build:
     name: Build Magisk artifacts
     runs-on: macos-26
+    permissions: write-all
     strategy:
       fail-fast: false
     steps:
