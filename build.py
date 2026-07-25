@@ -722,8 +722,6 @@ def parse_args():
 
     stub_parser = subparsers.add_parser("stub", help="build the stub app")
 
-    test_parser = subparsers.add_parser("test", help="build the test app")
-
     clean_parser = subparsers.add_parser("clean", help="cleanup")
     clean_parser.add_argument(
         "targets", nargs="*", help="native, cpp, rust, java, or empty to clean all"
@@ -781,7 +779,6 @@ def parse_args():
     app_parser.set_defaults(func=build_app)
     apkT_parser.set_defaults(func=build_apkT)
     stub_parser.set_defaults(func=build_stub)
-    test_parser.set_defaults(func=build_test)
     emu_parser.set_defaults(func=setup_avd)
     avd_patch_parser.set_defaults(func=patch_avd_file)
     clean_parser.set_defaults(func=cleanup)
