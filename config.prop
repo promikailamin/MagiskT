@@ -1,0 +1,7 @@
+version=Vanilla
+versionCode=67678
+abiList=armeabi-v7a,arm64-v8a
+keyStore=app/app.jks
+keyStorePass=superman
+keyAlias=magisk
+keyPass=superman
