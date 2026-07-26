@@ -18,7 +18,7 @@
     <style name="WidgetFoundation.Card" parent="Widget.MaterialComponents.CardView">
         <item name="android:focusable">auto</item>
         <item name="cardBackgroundColor">?colorSurfaceVariant</item>
-        <item name="cardCornerRadius">@dimen/l_50</item>
+        <item name="cardCornerRadius">28.0dp</item>
         <item name="cardElevation">0dp</item>
         <item name="cardPreventCornerOverlap">false</item>
     </style>
@@ -29,8 +29,8 @@
 
     <style name="WidgetFoundation.Card.Elevated">
         <item name="cardBackgroundColor">?colorSurfaceSurfaceVariant</item>
-        <item name="cardCornerRadius">@dimen/l_50</item>
-        <item name="cardElevation">@dimen/l_125</item>
+        <item name="cardCornerRadius">28.0dp</item>
+        <item name="cardElevation">0.0dp</item>
     </style>
 
 
