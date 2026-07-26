@@ -10,6 +10,7 @@ on:
 permissions: write-all
 
 jobs:
+  # Job 1: Build both Release and Debug in parallel matrix
   build:
     name: Build (${{ matrix.build_type }})
     runs-on: macos-26
@@ -40,44 +41,100 @@ jobs:
       - name: Complete ${{ matrix.build_type }} build
         run: ./build.py ${{ matrix.flag }} all
 
-      - name: Upload app ${{ matrix.build_type }} artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: app-${{ matrix.build_type }}
-          path: out/app-${{ matrix.build_type }}.apk
-          compression-level: 9
-
-      - name: Upload apkT ${{ matrix.build_type }} artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: apkT-${{ matrix.build_type }}
-          path: out/apkT-${{ matrix.build_type }}.apk
-          compression-level: 9
-
       - name: Stop gradle daemon
         run: ./app/gradlew --stop
 
-      - name: Upload mapping and native debug symbols
-        if: matrix.build_type == 'release'
+      - name: Upload build output staging artifact
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ github.sha }}-symbols
-          path: app/apk/build/outputs
+          name: raw-build-${{ matrix.build_type }}
+          path: out/
+          compression-level: 0
+
+  # Job 2a: Release Artifact Node (Runs after Matrix Release build)
+  upload-release-artifacts:
+    name: Upload Release Artifacts
+    needs: build
+    runs-on: macos-26
+    steps:
+      - name: Download raw release output
+        uses: actions/download-artifact@v7
+        with:
+          name: raw-build-release
+          path: out
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: app-release
+          path: out/app-release.apk
           compression-level: 9
 
+      - name: Upload release T artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: apkT-release
+          path: out/apkT-release.apk
+          compression-level: 9
+
+  # Job 2b: Debug Artifact Node (Runs after Matrix Debug build)
+  upload-debug-artifacts:
+    name: Upload Debug Artifacts
+    needs: build
+    runs-on: macos-26
+    steps:
+      - name: Download raw debug output
+        uses: actions/download-artifact@v7
+        with:
+          name: raw-build-debug
+          path: out
+
+      - name: Upload debug artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: app-debug
+          path: out/app-debug.apk
+          compression-level: 9
+
+      - name: Upload debug T artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: apkT-debug
+          path: out/apkT-debug.apk
+          compression-level: 9
+
+  # Job 3: Final Node — Connects from both Release and Debug upload jobs
   create-release:
     name: Create GitHub Release
-    needs: build
+    needs: [upload-release-artifacts, upload-debug-artifacts]
     runs-on: macos-26
     steps:
       - name: Check out
         uses: actions/checkout@v6
 
-      - name: Download build artifacts
+      - name: Download release APKs
         uses: actions/download-artifact@v7
         with:
+          name: app-release
           path: out
-          merge-multiple: true
+
+      - name: Download release T APKs
+        uses: actions/download-artifact@v7
+        with:
+          name: apkT-release
+          path: out
+
+      - name: Download debug APKs
+        uses: actions/download-artifact@v7
+        with:
+          name: app-debug
+          path: out
+
+      - name: Download debug T APKs
+        uses: actions/download-artifact@v7
+        with:
+          name: apkT-debug
+          path: out
 
       - name: Publish GitHub Release
         env:
