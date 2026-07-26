@@ -29,6 +29,9 @@ jobs:
         uses: actions/checkout@v6
         with:
           submodules: "recursive"
+          
+      - name: Remove untrusted Homebrew tap warnings
+        run: brew untap aws/tap || true
 
       - name: Setup environment
         uses: ./.github/actions/setup
