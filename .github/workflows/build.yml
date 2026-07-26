@@ -1,4 +1,4 @@
-name: Magisk Complete Build
+Name: Magisk Complete Build
 
 on:
   push:
@@ -7,14 +7,22 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions: write-all
+
 jobs:
   build:
-    name: Build Magisk artifacts
+    name: Build (${{ matrix.build_type }})
     runs-on: macos-26
-
-    permissions: write-all
     strategy:
       fail-fast: false
+      matrix:
+        build_type: [release, debug]
+        include:
+          - build_type: release
+            flag: "-vr"
+          - build_type: debug
+            flag: "-v"
+
     steps:
       - name: Check out
         uses: actions/checkout@v6
@@ -29,57 +37,57 @@ jobs:
       - name: Chmod build.py
         run: chmod +x build.py
 
-      - name: Complete release build
-        run: ./build.py -vr all
+      - name: Complete ${{ matrix.build_type }} build
+        run: ./build.py ${{ matrix.flag }} all
 
-      - name: Upload release artifact
+      - name: Upload app ${{ matrix.build_type }} artifact
         uses: actions/upload-artifact@v7
         with:
-          name: app-release
-          path: out/app-release.apk
-          compression-level: 9
-          
-      - name: Upload release T artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: apkT-release
-          path: out/apkT-release.apk
+          name: app-${{ matrix.build_type }}
+          path: out/app-${{ matrix.build_type }}.apk
           compression-level: 9
 
-      - name: Complete debug build
-        run: ./build.py -v all
-
-      - name: Upload debug artifact
+      - name: Upload apkT ${{ matrix.build_type }} artifact
         uses: actions/upload-artifact@v7
         with:
-          name: app-debug
-          path: out/app-debug.apk
-          compression-level: 9
-          
-      - name: Upload debug T artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: apkT-debug
-          path: out/apkT-debug.apk
+          name: apkT-${{ matrix.build_type }}
+          path: out/apkT-${{ matrix.build_type }}.apk
           compression-level: 9
 
       - name: Stop gradle daemon
         run: ./app/gradlew --stop
 
       - name: Upload mapping and native debug symbols
+        if: matrix.build_type == 'release'
         uses: actions/upload-artifact@v7
         with:
           name: ${{ github.sha }}-symbols
           path: app/apk/build/outputs
           compression-level: 9
-          
-      - name: Create GitHub Release
+
+  create-release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: macos-26
+    steps:
+      - name: Check out
+        uses: actions/checkout@v6
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: out
+          merge-multiple: true
+
+      - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           tag="build"
           apk="out/app-release.apk"
           apkT="out/apkT-release.apk"
+          apkD="out/app-debug.apk"
+          apkTD="out/apkT-debug.apk"
 
           commit=$(git rev-parse --short HEAD)
           branch=${GITHUB_REF#refs/heads/}
@@ -90,7 +98,6 @@ jobs:
           "$commit" \
           "$build_time")
 
-
           gh release delete "$tag" -y || true
           git tag -d "$tag" || true
           git push origin :refs/tags/$tag || true
@@ -98,20 +105,20 @@ jobs:
           git tag "$tag"
           git push origin "$tag"
 
+          assets=()
+
           if [ -f "$apk" ]; then
-              echo "apk was found and add to release."
+              echo "Release APK found."
               assets+=("$apk")
-          else
-              echo "apk isn't exist. Skipping."
+              assets+=("$apkD")
           fi
 
           if [ -f "$apkT" ]; then
-              echo "apkT was found and add to release."
+              echo "Release T-APK found."
               assets+=("$apkT")
-          else
-              echo "apkT isn't exist. Skipping."
+              assets+=("$apkTD")
           fi
 
           gh release create "$tag" "${assets[@]}" \
-              --title "MagiskT Complete Build;" \
+              --title "MagiskT Complete Build" \
               --notes "$body"
