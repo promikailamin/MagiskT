@@ -1,4 +1,4 @@
-Name: Magisk Complete Build
+name: Magisk Complete Build
 
 on:
   push:
