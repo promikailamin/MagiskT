@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Nuk ka lidhje në rrjet</string>
-    <string name="app_changelog">Ndryshimet</string>
     <string name="loading">Duke u ngarkuar…</string>
     <string name="update">Përditëso</string>
     <string name="not_available">N/A</string>
@@ -33,7 +32,6 @@
     <string name="home_status_title">Statusi</string>
     <string name="home_installed_version">I instaluar</string>
     <string name="home_latest_version">I fundit</string>
-    <string name="invalid_update_channel">Kanal përditësimi i pavlefshëm</string>
     <string name="uninstall">Çinstalo</string>
     <string name="uninstall_magisk_title">Çinstalo Magisk</string>
     <string name="uninstall_magisk_msg">Të gjitha modulet do të çaktivizohen/hiqen!\nRoot do të hiqet!\nÇdo hapësirë ruajtëse e brendshme e çkoduar përmes Magisk do të ri-enkriptohet!</string>
@@ -46,7 +44,6 @@
     <string name="install_method_title">Metoda</string>
     <string name="install_next">Tjetër</string>
     <string name="install_start">Le t\'ia fillojmë</string>
-    <string name="manager_download_install">Shtypni për të shkarkuar dhe instaluar</string>
     <string name="direct_install">Instalim direkt (I rekomanduar)</string>
     <string name="direct_install_summary">Instalo Magisk drejtpërdrejt në particionin boot</string>
     <string name="install_inactive_slot">Instalo në slotin joaktiv (Pas OTA)</string>
@@ -136,7 +133,6 @@
     <string name="module_action">Veprim</string>
     <string name="module_state_restore">Rikthe</string>
     <string name="module_action_install_external">Instalo nga hapësira ruajtëse</string>
-    <string name="update_available">Përditësim i disponueshëm</string>
     <string name="suspend_text_riru">Moduli është pezulluar sepse %1$s është i aktivizuar</string>
     <string name="suspend_text_zygisk">Moduli është pezulluar sepse %1$s nuk është i aktivizuar</string>
     <string name="zygisk_module_unloaded">Moduli Zygisk nuk u ngarkua për shkak të papajtueshmërisë</string>
@@ -158,14 +154,6 @@
     <string name="settings_restore_app_summary">Shfaq aplikacionin dhe rikthe APK-në origjinale</string>
     <string name="language">Gjuha</string>
     <string name="system_default">(E paracaktuar e sistemit)</string>
-    <string name="settings_check_update_title">Kontrollo për përditësime</string>
-    <string name="settings_check_update_summary">Kontrollo periodikisht për përditësime në sfond</string>
-    <string name="settings_update_channel_title">Kanali i përditësimeve</string>
-    <string name="settings_update_stable">Stabil (Stable)</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_debug">Debug</string>
-    <string name="settings_update_custom">I personalizuar</string>
-    <string name="settings_update_custom_msg">Vendosni një URL kanali të personalizuar</string>
     <string name="settings_zygisk_summary">Ekzekuto pjesë të Magisk në daemon-in Zygote</string>
     <string name="settings_denylist_title">Detyro DenyList</string>
     <string name="settings_denylist_summary">Proceset në listën e mohimit do të kenë të gjitha modifikimet e Magisk të anuluara</string>
@@ -231,17 +219,12 @@
     <!--Notifications-->
     <string name="update_channel">Përditësimet e Magisk</string>
     <string name="progress_channel">Njoftimet e progresit</string>
-    <string name="updated_channel">Përditësimi përfundoi</string>
     <string name="download_complete">Shkarkimi përfundoi</string>
     <string name="download_file_error">Gabim gjatë shkarkimit të skedarit</string>
-    <string name="magisk_update_title">Ka përditësim të Magisk!</string>
-    <string name="updated_title">Magisk u përditësua</string>
-    <string name="updated_text">Prekni për të hapur aplikacionin</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Po</string>
     <string name="no">Jo</string>
-    <string name="repo_install_title">Instalo %1$s %2$s(%3$d)</string>
     <string name="download">Shkarko</string>
     <string name="reboot">Rinis</string>
     <string name="close">Mbyll</string>

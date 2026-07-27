@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Нет подключения к сети</string>
-    <string name="app_changelog">Изменения</string>
     <string name="loading">Загрузка…</string>
     <string name="update">Обновить</string>
     <string name="not_available">Не установлен</string>
@@ -27,7 +26,6 @@
     <string name="home_support_content">Magisk был и всегда будет бесплатным и открытым проектом. Однако Вы всегда можете поддержать нас, отправив небольшое пожертвование.</string>
     <string name="home_installed_version">Текущая версия</string>
     <string name="home_latest_version">Последняя версия</string>
-    <string name="invalid_update_channel">Некорректный канал обновлений</string>
     <string name="uninstall_magisk_title">Удаление Magisk</string>
     <string name="uninstall_magisk_msg">Все модули будут отключены либо удалены!\nRoot-доступ будет недоступен!\nБудет активировано шифрование /data (если отключалось при установке)!</string>
 
@@ -39,7 +37,6 @@
     <string name="install_method_title">Способ</string>
     <string name="install_next">Далее</string>
     <string name="install_start">Установить</string>
-    <string name="manager_download_install">Нажмите для установки</string>
     <string name="direct_install">Автоматическая установка (рекомендуется)</string>
     <string name="install_inactive_slot">Установка во второй слот (после OTA-обновления)</string>
     <string name="install_inactive_slot_msg">Ваше устройство будет принудительно перезагружено в неактивный (противоположный) слот!\nИспользуйте эту опцию только при интеграции Magisk после OTA-обновления!\nПродолжить?</string>
@@ -110,7 +107,6 @@
     <string name="module_state_remove">Удалить</string>
     <string name="module_state_restore">Восстановить</string>
     <string name="module_action_install_external">Установить из хранилища</string>
-    <string name="update_available">Доступно обновление</string>
     <string name="suspend_text_riru">Модуль отключён, поскольку активирован %1$s</string>
     <string name="suspend_text_zygisk">Модуль отключён, поскольку %1$s не активирован</string>
     <string name="zygisk_module_unloaded">Модуль Zygisk не запущен из-за несовместимости</string>
@@ -132,13 +128,6 @@
     <string name="settings_restore_app_summary">Восстановить приложение Magisk к исходному состоянию</string>
     <string name="language">Язык</string>
     <string name="system_default">По умолчанию</string>
-    <string name="settings_check_update_title">Проверка обновлений</string>
-    <string name="settings_check_update_summary">Периодически проверять наличие обновлений в фоновом режиме</string>
-    <string name="settings_update_channel_title">Источник обновлений</string>
-    <string name="settings_update_stable">Стабильный канал</string>
-    <string name="settings_update_beta">Beta канал</string>
-    <string name="settings_update_custom">Сторонний канал</string>
-    <string name="settings_update_custom_msg">Укажите ссылку</string>
     <string name="settings_zygisk_summary">Запускать компоненты Magisk в zygote процессе</string>
     <string name="settings_denylist_title">Активировать DenyList</string>
     <string name="settings_denylist_summary">Все изменения, внесённые Magisk-ом, будут скрыты от процессов, отмеченных в DenyList</string>
@@ -197,17 +186,12 @@
     <!--Notifications-->
     <string name="update_channel">Обновление Magisk</string>
     <string name="progress_channel">Уведомления о прогрессе</string>
-    <string name="updated_channel">Обновление завершено</string>
     <string name="download_complete">Загрузка завершена</string>
     <string name="download_file_error">Ошибка загрузки файла</string>
-    <string name="magisk_update_title">Доступно обновление Magisk!</string>
-    <string name="updated_title">Magisk обновлён</string>
-    <string name="updated_text">Нажмите, чтобы открыть</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Да</string>
     <string name="no">Нет</string>
-    <string name="repo_install_title">Установка %1$s %2$s(%3$d)</string>
     <string name="download">Скачать</string>
     <string name="reboot">Перезагрузка</string>
     <string name="release_notes">О версии</string>

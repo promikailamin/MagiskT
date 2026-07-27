@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Keine Verbindung verfügbar</string>
-    <string name="app_changelog">Änderungen</string>
     <string name="loading">Laden …</string>
     <string name="update">Aktualisieren</string>
     <string name="not_available">Nicht verfügbar</string>
@@ -27,7 +26,6 @@
     <string name="home_support_content">Magisk ist und wird immer frei und quelloffen sein. Du kannst uns jedoch jederzeit mit einer kleinen Spende unterstützen.</string>
     <string name="home_installed_version">Installiert</string>
     <string name="home_latest_version">Neueste</string>
-    <string name="invalid_update_channel">Ungültiger Update-Kanal</string>
     <string name="uninstall_magisk_title">Magisk deinstallieren</string>
     <string name="uninstall_magisk_msg">Alle Module werden deaktiviert/entfernt!\nRoot wird entfernt!\nDeine Daten werden potentiell verschlüsselt, wenn sie nicht bereits verschlüsselt sind!</string>
 
@@ -39,7 +37,6 @@
     <string name="install_method_title">Methode</string>
     <string name="install_next">Nächster Schritt</string>
     <string name="install_start">Los geht\'s</string>
-    <string name="manager_download_install">Tippen zum Herunterladen und Installieren</string>
     <string name="direct_install">Direkte Installation (empfohlen)</string>
     <string name="install_inactive_slot">In inaktiven Slot installieren (nach OTA)</string>
     <string name="install_inactive_slot_msg">Dein Gerät wird gezwungen, nach einem Neustart in den inaktiven Slot zu booten! Diese Option nur verwenden, wenn OTA abgeschlossen ist.\nWeiter?</string>
@@ -110,7 +107,6 @@
     <string name="module_state_remove">Entfernen</string>
     <string name="module_state_restore">Wiederherstellen</string>
     <string name="module_action_install_external">Aus dem Speicher installieren</string>
-    <string name="update_available">Update verfügbar</string>
     <string name="suspend_text_riru">Modul ausgesetzt, weil %1$s aktiviert ist</string>
     <string name="suspend_text_zygisk">Modul ausgesetzt, weil %1$s nicht aktiviert ist</string>
     <string name="zygisk_module_unloaded">Zygisk-Modul aufgrund von Inkompatibilität nicht geladen</string>
@@ -132,13 +128,6 @@
     <string name="settings_restore_app_summary">App wieder einblenden und original APK wiederherstellen</string>
     <string name="language">Sprache</string>
     <string name="system_default">Systemstandard</string>
-    <string name="settings_check_update_title">Auf Updates prüfen</string>
-    <string name="settings_check_update_summary">Regelmäßig im Hintergrund auf Aktualisierungen prüfen</string>
-    <string name="settings_update_channel_title">Aktualisierungs-Kanal</string>
-    <string name="settings_update_stable">Stabil</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_custom">Benutzerdefiniert</string>
-    <string name="settings_update_custom_msg">Benutzerdefinierte URL einfügen</string>
     <string name="settings_zygisk_summary">Teile von Magisk im Zygoten-Daemon ausführen</string>
     <string name="settings_denylist_title">Ausnahmeliste erzwingen</string>
     <string name="settings_denylist_summary">Bei Prozessen, die auf der Ausnahmeliste stehen, werden alle Magisk-Änderungen rückgängig gemacht.</string>
@@ -195,17 +184,12 @@
     <!--Notifications-->
     <string name="update_channel">Magisk Updates</string>
     <string name="progress_channel">Fortschrittsmitteilungen</string>
-    <string name="updated_channel">Update abgeschlossen</string>
     <string name="download_complete">Download abgeschlossen</string>
     <string name="download_file_error">Fehler beim Herunterladen der Datei</string>
-    <string name="magisk_update_title">Magisk Update verfügbar!</string>
-    <string name="updated_title">Magisk aktualisiert</string>
-    <string name="updated_text">Tippen, um die App zu öffnen</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
-    <string name="repo_install_title">%1$s installieren %2$s(%3$d)</string>
     <string name="download">Herunterladen</string>
     <string name="reboot">Neustart</string>
     <string name="release_notes">Anmerkungen zur Veröffentlichung</string>

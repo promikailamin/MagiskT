@@ -7,12 +7,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Parcelable
 import androidx.core.net.toUri
-import pro.magisk.core.Info
-import pro.magisk.core.model.UpdateInfo
-import pro.magisk.core.model.module.OnlineModule
 import pro.magisk.core.utils.MediaStoreUtils
 import pro.magisk.view.Notifications
-import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.io.File
 import java.util.UUID
@@ -26,33 +22,6 @@ abstract class Subject : Parcelable {
     open val autoLaunch: Boolean get() = true
 
     open fun pendingIntent(context: Context): PendingIntent? = null
-
-    abstract class Module : Subject() {
-        abstract val module: OnlineModule
-        final override val url: String get() = module.zipUrl
-        final override val title: String get() = module.downloadFilename
-        final override val file by lazy {
-            MediaStoreUtils.getFile(title).uri
-        }
-    }
-
-    @Parcelize
-    class App(
-        private val json: UpdateInfo = Info.update,
-        override val notifyId: Int = Notifications.nextId()
-    ) : Subject() {
-        override val title: String get() = "Magisk-${json.version}(${json.versionCode})"
-        override val url: String get() = json.link
-
-        @IgnoredOnParcel
-        override val file by lazy {
-            MediaStoreUtils.getFile("${title}.apk").uri
-        }
-
-        @IgnoredOnParcel
-        var intent: Intent? = null
-        override fun pendingIntent(context: Context) = intent?.toPending(context)
-    }
 
     @Parcelize
     class Test(

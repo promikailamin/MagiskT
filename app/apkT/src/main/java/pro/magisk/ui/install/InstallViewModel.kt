@@ -11,19 +11,14 @@ import pro.magisk.core.Info
 import pro.magisk.core.ktx.toast
 import pro.magisk.core.repository.NetworkService
 import pro.magisk.ui.navigation.Route
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import timber.log.Timber
-import java.io.File
-import java.io.IOException
 import pro.magisk.core.R as CoreR
 
-class InstallViewModel(svc: NetworkService) : BaseViewModel() {
+class InstallViewModel(@Suppress("UNUSED_PARAMETER") svc: NetworkService) : BaseViewModel() {
 
     enum class Method { NONE, PATCH, DIRECT, INACTIVE_SLOT, DOWNLOAD }
 
@@ -43,28 +38,6 @@ class InstallViewModel(svc: NetworkService) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(UiState(step = if (skipOptions) 1 else 0))
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val noteFile = File(AppContext.cacheDir, "${APP_VERSION_CODE}.md")
-                val noteText = when {
-                    noteFile.exists() -> noteFile.readText()
-                    else -> {
-                        val note = svc.fetchUpdate(APP_VERSION_CODE)?.note.orEmpty()
-                        if (note.isEmpty()) return@launch
-                        noteFile.writeText(note)
-                        note
-                    }
-                }
-                withContext(Dispatchers.Main) {
-                    _uiState.update { it.copy(notes = noteText) }
-                }
-            } catch (e: IOException) {
-                Timber.e(e)
-            }
-        }
-    }
 
     fun nextStep() {
         _uiState.update { it.copy(step = 1) }

@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Няма връзка</string>
-    <string name="app_changelog">Списък с промени</string>
     <string name="loading">Зареждане…</string>
     <string name="update">Обновяване</string>
     <string name="not_available">Липсва</string>
@@ -27,7 +26,6 @@
     <string name="home_support_content">Magisk е, и винаги ще бъде, безплатен и с отворен изходен код. Въпреки това можете да покажете подкрапата си чрез дарение.</string>
     <string name="home_installed_version">Инсталиранo</string>
     <string name="home_latest_version">Последно</string>
-    <string name="invalid_update_channel">Каналът за обновяване е недействителен</string>
     <string name="uninstall_magisk_title">Премахване на Magisk</string>
     <string name="uninstall_magisk_msg">Всички модули ще бъдат изключени/премахнати. Достъпът до правата на суперпотребителя ще бъде премахнат!\nАко вътрешното хранилище е разшифровано с Magisk, то ще бъде шифровано отново!</string>
 
@@ -39,7 +37,6 @@
     <string name="install_method_title">Метод</string>
     <string name="install_next">Напред</string>
     <string name="install_start">Начало</string>
-    <string name="manager_download_install">За да изтеглите и инсталирате, докоснете</string>
     <string name="direct_install">Директно инсталиране (препоръчително)</string>
     <string name="install_inactive_slot">Инсталиране в неактивен дял (след OTA)</string>
     <string name="install_inactive_slot_msg">Устройство ЗАДЪЛЖИТЕЛНО ще зареди от текущия неактивен дял при следващия рестарт.\nИзползвайте само при приключила инсталация на OTA.\nПродължаване?</string>
@@ -107,7 +104,6 @@
     <string name="module_state_remove">Премахване</string>
     <string name="module_state_restore">Възстановяване</string>
     <string name="module_action_install_external">Инсталиране от хранилището</string>
-    <string name="update_available">Има обновяване</string>
     <string name="suspend_text_riru">Модулът е спрян, защото е включено: %1$s</string>
     <string name="suspend_text_zygisk">Модулът е спрян, защото не е включено: %1$s</string>
     <string name="zygisk_module_unloaded">Поради несъвместимост модулът Zygisk не е зареден</string>
@@ -129,13 +125,6 @@
     <string name="settings_restore_app_summary">Показва и възстановява оригиналното приложение</string>
     <string name="language">Език</string>
     <string name="system_default">(Според системата)</string>
-    <string name="settings_check_update_title">Проверка за обновяване</string>
-    <string name="settings_check_update_summary">Периодична проверка за обновяване във фонов режим</string>
-    <string name="settings_update_channel_title">Канал за обновяване</string>
-    <string name="settings_update_stable">Стабилен</string>
-    <string name="settings_update_beta">Бета</string>
-    <string name="settings_update_custom">Потребителски</string>
-    <string name="settings_update_custom_msg">Адрес на потребителски канал</string>
     <string name="settings_zygisk_summary">Изпълняване на части от Magisk в демон на zygote</string>
     <string name="settings_denylist_title">Налагане на черен списък</string>
     <string name="settings_denylist_summary">На процесите в черния списък ще бъдат възстановени всички модификации, направени от Magisk</string>
@@ -189,17 +178,12 @@
     <!--Notifications-->
     <string name="update_channel">Обновяване на Magisk</string>
     <string name="progress_channel">Известия за напредък</string>
-    <string name="updated_channel">Завършено обновяване</string>
     <string name="download_complete">Завършено изтегляне</string>
     <string name="download_file_error">Грешка при изтегляне на файл</string>
-    <string name="magisk_update_title">Има обновяване на Magisk!</string>
-    <string name="updated_title">Magisk е обновен</string>
-    <string name="updated_text">За да отворите приложението, докоснете</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Да</string>
     <string name="no">Не</string>
-    <string name="repo_install_title">Инсталиране на %1$s %2$s(%3$d)</string>
     <string name="download">Изтегляне</string>
     <string name="reboot">Рестартиране</string>
     <string name="release_notes">Бележки по изданието</string>

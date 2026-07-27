@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Δεν υπάρχει διαθέσιμη σύνδεση</string>
-    <string name="app_changelog">Καταγραφή αλλαγών εφαρμογής</string>
     <string name="loading">Φόρτωση…</string>
     <string name="update">Ενημέρωση</string>
     <string name="not_available">Μη διαθέσιμο</string>
@@ -27,7 +26,6 @@
     <string name="home_support_content">Το Magisk είναι, και θα είναι για πάντα, δωρεάν και ανοιχτού κώδικα. Μπορείτε ωστόσο να μας δείξετε ότι ενδιαφέρεστε στέλνοντας μια μικρή δωρεά.</string>
     <string name="home_installed_version">Τρέχουσα έκδοση</string>
     <string name="home_latest_version">Διαθέσιμη έκδοση</string>
-    <string name="invalid_update_channel">Λανθασμένο κανάλι ενημέρωσης</string>
     <string name="uninstall_magisk_title">Απεγκατάσταση Magisk</string>
     <string name="uninstall_magisk_msg">Όλα τα modules θα απενεργοποιηθούν/αφαιρεθούν. Το root θα αφαιρεθεί και ενδέχεται να κρυπτογραφηθούν τα δεδομένα σας, εάν δεν είναι κρυπτογραφημένα!</string>
 
@@ -39,7 +37,6 @@
     <string name="install_method_title">Μέθοδος</string>
     <string name="install_next">Επόμενο</string>
     <string name="install_start">Εκκίνηση</string>
-    <string name="manager_download_install">Πιέστε για λήψη και εγκατάσταση</string>
     <string name="direct_install">Απευθείας Εγκατάσταση (Προτείνεται)</string>
     <string name="install_inactive_slot">Εγκατάσταση στο ανενεργό Slot (Μετά από OTA)</string>
     <string name="install_inactive_slot_msg">Η συσκευή σας θα αναγκαστεί να εκκινήσει στο τρέχον ανενεργό Slot μετά από επανεκκίνηση!\nΧρησιμοποιήστε αυτήν την επιλογή μόνο αφού ολοκληρωθεί το OTA.\nΣυνέχεια;</string>
@@ -107,7 +104,6 @@
     <string name="module_state_remove">Αφαίρεση</string>
     <string name="module_state_restore">Επαναφορά</string>
     <string name="module_action_install_external">Εγκατάσταση από χώρο αποθήκευσης</string>
-    <string name="update_available">Διαθέσιμη Ενημέρωση</string>
     <string name="suspend_text_riru">Η επέκταση έχει ανασταλεί επειδή το %1$s είναι ενεργοποιημένο</string>
     <string name="suspend_text_zygisk">Η επέκταση έχει ανασταλεί επειδή το %1$s δεν είναι ενεργοποιημένο</string>
     <string name="zygisk_module_unloaded">Zygisk module not loaded due to incompatibility</string>
@@ -127,13 +123,6 @@
     <string name="settings_restore_app_summary">Καταργήστε την απόκρυψη της εφαρμογής και επαναφέρετέ την στο αρχικό APK</string>
     <string name="language">Γλώσσα</string>
     <string name="system_default">(Προεπιλογή Συστήματος)</string>
-    <string name="settings_check_update_title">Έλεγχος Ενημερώσεων</string>
-    <string name="settings_check_update_summary">Περιοδικά ελέγχετε για ενημερώσεις στο παρασκήνιο</string>
-    <string name="settings_update_channel_title">Κανάλι Ενημερώσεων</string>
-    <string name="settings_update_stable">Σταθερό</string>
-    <string name="settings_update_beta">Δοκιμαστικό</string>
-    <string name="settings_update_custom">Προσαρμοσμένο</string>
-    <string name="settings_update_custom_msg">Εισαγωγή ενός custom URL</string>
     <string name="settings_zygisk_summary">Εκτέλεση μέρους του Magisk μέσα στο zygote daemon</string>
     <string name="settings_denylist_title">Επιβολή Λίστας Απορρίψεων</string>
     <string name="settings_denylist_summary">Επαναφορά όλων των τροποποιήσεων του Magisk για της διεργασίες στην λίστα απορρίψεων</string>
@@ -187,17 +176,12 @@
     <!--Notifications-->
     <string name="update_channel">Ενημερώσεις Magisk</string>
     <string name="progress_channel">Ειδοποιήσεις προόδου</string>
-    <string name="updated_channel">Η Αναβάθμηση Ολοκληρώθηκε</string>
     <string name="download_complete">Η λήψη ολοκληρώθηκε</string>
     <string name="download_file_error">Σφάλμα στη λήψη του αρχείου</string>
-    <string name="magisk_update_title">Νέα Ενημέρωση Magisk Διαθέσιμη!</string>
-    <string name="updated_title">Το Magisk Ενημερώθηκε</string>
-    <string name="updated_text">Πατήστε για άνοιγμα εφαρμογής</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Ναι</string>
     <string name="no">Όχι</string>
-    <string name="repo_install_title">Εγκατάσταση %1$s %2$s(%3$d)</string>
     <string name="download">Λήψη</string>
     <string name="reboot">Επανεκκίνηση</string>
     <string name="release_notes">Σημειώσεις έκδοσης</string>

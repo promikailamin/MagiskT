@@ -26,16 +26,14 @@ import pro.magisk.dialog.SecondSlotWarningDialog
 import pro.magisk.events.GetContentEvent
 import pro.magisk.ui.flash.FlashFragment
 import io.noties.markwon.Markwon
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
 import pro.magisk.core.R as CoreR
 
-class InstallViewModel(svc: NetworkService, markwon: Markwon) : BaseViewModel() {
+class InstallViewModel(@Suppress("UNUSED_PARAMETER") svc: NetworkService, @Suppress("UNUSED_PARAMETER") markwon: Markwon) : BaseViewModel() {
 
     val isRooted get() = Info.isRooted
     val skipOptions = Info.isEmulator || (Info.isSAR && !Info.isFDE && Info.ramdisk)
@@ -69,29 +67,6 @@ class InstallViewModel(svc: NetworkService, markwon: Markwon) : BaseViewModel() 
     @get:Bindable
     var notes: Spanned = SpannedString("")
         set(value) = set(value, field, { field = it }, BR.notes)
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val noteFile = File(AppContext.cacheDir, "${APP_VERSION_CODE}.md")
-                val noteText = when {
-                    noteFile.exists() -> noteFile.readText()
-                    else -> {
-                        val note = svc.fetchUpdate(APP_VERSION_CODE)?.note.orEmpty()
-                        if (note.isEmpty()) return@launch
-                        noteFile.writeText(note)
-                        note
-                    }
-                }
-                val spanned = markwon.toMarkdown(noteText)
-                withContext(Dispatchers.Main) {
-                    notes = spanned
-                }
-            } catch (e: IOException) {
-                Timber.e(e)
-            }
-        }
-    }
 
     fun install() {
         when (method) {

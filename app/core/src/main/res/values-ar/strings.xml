@@ -11,7 +11,6 @@
 
     <!--Home-->
     <string name="no_connection">لا يوجد إتصال</string>
-    <string name="app_changelog">تفاصيل التحديث</string>
     <string name="loading">جارٍ التحميل...</string>
     <string name="update">تحديث</string>
     <string name="not_available">غير متوفر</string>
@@ -23,7 +22,6 @@
     <string name="home_support_content">ماجيسك هو، وسيظل دوماً، مجانياّ و مفتوح المصدر، اظهر اهتمامك لنا لكي نبقيه هكذا بدعم مالي صغير</string>
     <string name="home_installed_version">تم التثبيت</string>
     <string name="home_latest_version">آخر إصدار</string>
-    <string name="invalid_update_channel">مصدر التحديث غير صالح</string>
     <string name="uninstall_magisk_title">إلغاء تثبيت ماجيسك</string>
     <string name="uninstall_magisk_msg">ستُعطل/ستُحذف جميع الإضافات. سيُحذف الروت، وربما ستشفر بياناتك إذا لم تكن غير مشفرة حالياً.</string>
 
@@ -35,7 +33,6 @@
     <string name="install_method_title">الطريقة</string>
     <string name="install_next">التالي</string>
     <string name="install_start">هيا بنا</string>
-    <string name="manager_download_install">اضغط للتنزيل و التثبيت</string>
     <string name="direct_install">تثبيت مباشر (موصى بها)</string>
     <string name="install_inactive_slot">التثبيت على المنطقة الغير نشطة (بعد OTA)</string>
     <string name="install_inactive_slot_msg">سيُجبر جهازك للاقلاع على المنطقة الغير النشطة بعد إعادة التشغيل!\n استخدم هذا الخيار فقط بعد الانتهاء من OTA. استمرار؟</string>
@@ -100,7 +97,6 @@
     <string name="module_state_remove">إزالة </string>
     <string name="module_state_restore">إسترجاع</string>
     <string name="module_action_install_external">اختر من الذاكرة الداخلية</string>
-    <string name="update_available">التحديث متوفر</string>
     <string name="external_rw_permission_denied">امنحني إذن الولوج للذاكرة الداخلية</string>
 
     <!--Settings -->
@@ -113,13 +109,6 @@
     <string name="settings_download_path_message">ستحمل الملفات إلى %1$s</string>
     <string name="language">اللغة</string>
     <string name="system_default">(الإفتراضي)</string>
-    <string name="settings_check_update_title">تحقق من التحديثات</string>
-    <string name="settings_check_update_summary">التحقق من التحديثات في الخلفية بشكل دوري</string>
-    <string name="settings_update_channel_title">مصدر التحديثات</string>
-    <string name="settings_update_stable">مستقر</string>
-    <string name="settings_update_beta">تجريبي</string>
-    <string name="settings_update_custom">مخصص</string>
-    <string name="settings_update_custom_msg">أدخل الرابط لمصدرك المخصص</string>
     <string name="settings_hosts_title">موانع الاعلانات</string>
     <string name="settings_hosts_summary">حجب الاعلانات دون تعديل النظام</string>
     <string name="settings_hosts_toast">تم تمكين خاصية حجب الاعلانات</string>
@@ -165,7 +154,6 @@
     <string name="progress_channel">إشعارات التقدم</string>
     <string name="download_complete">اكتمل التنزيل</string>
     <string name="download_file_error">فشل تنزيل الملف</string>
-    <string name="magisk_update_title">تحديث ماجيسك متوفر!</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">نعم</string>

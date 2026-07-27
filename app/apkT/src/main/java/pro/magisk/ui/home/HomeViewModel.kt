@@ -23,17 +23,9 @@ class HomeViewModel(
     private val svc: NetworkService
 ) : AsyncLoadViewModel() {
 
-    enum class State {
-        LOADING, INVALID, OUTDATED, UP_TO_DATE
-    }
-
     data class UiState(
         val isNoticeVisible: Boolean = Config.safetyNotice,
-        val appState: State = State.LOADING,
-        val managerRemoteVersion: String = "",
-        val managerProgress: Int = 0,
         val showUninstall: Boolean = false,
-        val showManagerInstall: Boolean = false,
         val showHideRestore: Boolean = false,
         val envFixCode: Int = 0,
     )
@@ -57,27 +49,11 @@ class HomeViewModel(
                 ""
         }
 
-    val managerInstalledVersion: String
-        get() = "${BuildConfig.APP_VERSION_NAME} (${BuildConfig.APP_VERSION_CODE})" +
-            if (BuildConfig.DEBUG) " (D)" else ""
-
     companion object {
         private var checkedEnv = false
     }
 
     override suspend fun doLoadWork() {
-        _uiState.update { it.copy(appState = State.LOADING) }
-        Info.fetchUpdate(svc)?.apply {
-            val isDebug = Config.updateChannel == Config.Value.DEBUG_CHANNEL
-            _uiState.update {
-                it.copy(
-                    appState = if (BuildConfig.APP_VERSION_CODE < versionCode) State.OUTDATED else State.UP_TO_DATE,
-                    managerRemoteVersion = "$version ($versionCode)" + if (isDebug) " (D)" else ""
-                )
-            }
-        } ?: run {
-            _uiState.update { it.copy(appState = State.INVALID, managerRemoteVersion = "") }
-        }
         ensureEnv()
     }
 
@@ -108,18 +84,6 @@ class HomeViewModel(
 
     fun onUninstallConsumed() {
         _uiState.update { it.copy(showUninstall = false) }
-    }
-
-    fun onManagerPressed() {
-        when (_uiState.value.appState) {
-            State.LOADING -> showSnackbar(CoreR.string.loading)
-            State.INVALID -> showSnackbar(CoreR.string.no_connection)
-            else -> _uiState.update { it.copy(showManagerInstall = true) }
-        }
-    }
-
-    fun onManagerInstallConsumed() {
-        _uiState.update { it.copy(showManagerInstall = false) }
     }
 
     fun onHideRestorePressed() {

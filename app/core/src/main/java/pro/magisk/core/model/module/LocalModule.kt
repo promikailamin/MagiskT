@@ -1,31 +1,22 @@
 package pro.magisk.core.model.module
 
-import com.squareup.moshi.JsonDataException
 import pro.magisk.core.Const
-import pro.magisk.core.di.ServiceLocator
 import pro.magisk.core.utils.RootUtils
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.nio.ExtendedFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import timber.log.Timber
-import java.io.IOException
 import java.util.Locale
 
 data class LocalModule(
     val base: ExtendedFile,
 ) : Module() {
-    private val svc get() = ServiceLocator.networkService
-
     override var id: String = ""
     override var name: String = ""
     override var version: String = ""
     override var versionCode: Int = -1
     var author: String = ""
     var description: String = ""
-    var updateInfo: OnlineModule? = null
-    var outdated = false
-    private var updateUrl: String = ""
 
     private val removeFile = base.getChildFile("remove")
     private val disableFile = base.getChildFile("disable")
@@ -82,7 +73,6 @@ data class LocalModule(
                 "versionCode" -> versionCode = value.toInt()
                 "author" -> author = value
                 "description" -> description = value
-                "updateJson" -> updateUrl = value
             }
         }
     }
@@ -99,24 +89,6 @@ data class LocalModule(
         if (name.isEmpty()) {
             name = id
         }
-    }
-
-    suspend fun fetch(): Boolean {
-        if (updateUrl.isEmpty())
-            return false
-
-        try {
-            val json = svc.fetchModuleJson(updateUrl)
-            updateInfo = OnlineModule(this, json)
-            outdated = json.versionCode > versionCode
-            return true
-        } catch (e: IOException) {
-            Timber.w(e)
-        } catch (e: JsonDataException) {
-            Timber.w(e)
-        }
-
-        return false
     }
 
     companion object {

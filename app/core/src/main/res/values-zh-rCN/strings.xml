@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">无法连接</string>
-    <string name="app_changelog">更新日志</string>
     <string name="loading">正在加载</string>
     <string name="update">更新</string>
     <string name="not_available">无法获取</string>
@@ -26,7 +25,6 @@
     <string name="home_support_content">Magisk 将一直保持免费且开源，向开发者捐赠以表示支持。</string>
     <string name="home_installed_version">当前</string>
     <string name="home_latest_version">最新</string>
-    <string name="invalid_update_channel">无效的更新通道</string>
     <string name="uninstall_magisk_title">卸载 Magisk</string>
     <string name="uninstall_magisk_msg">所有模块将被停用或删除！超级用户权限丢失！\n如果设备尚未加密，用户数据可能被自动加密。</string>
 
@@ -38,7 +36,6 @@
     <string name="install_method_title">方式</string>
     <string name="install_next">下一步</string>
     <string name="install_start">开始</string>
-    <string name="manager_download_install">立即安装</string>
     <string name="direct_install">直接安装（推荐）</string>
     <string name="install_inactive_slot">安装到未使用的槽位（OTA 后）</string>
     <string name="install_inactive_slot_msg">将在重启后强制切换到另一个槽位！注意只能在 OTA 更新完成后的重启之前使用。</string>
@@ -112,7 +109,6 @@
     <string name="module_action">操作</string>
     <string name="module_state_restore">还原</string>
     <string name="module_action_install_external">从本地安装</string>
-    <string name="update_available">可更新</string>
     <string name="suspend_text_riru">%1$s 已启用，此模块暂停加载</string>
     <string name="suspend_text_zygisk">%1$s 未启用，此模块暂停加载</string>
     <string name="zygisk_module_unloaded">存在兼容性问题，此模块未加载</string>
@@ -134,14 +130,6 @@
     <string name="settings_restore_app_summary">取消隐藏，恢复到原始应用</string>
     <string name="language">语言</string>
     <string name="system_default">系统默认</string>
-    <string name="settings_check_update_title">检查更新</string>
-    <string name="settings_check_update_summary">定期在后台检查更新</string>
-    <string name="settings_update_channel_title">更新通道</string>
-    <string name="settings_update_stable">稳定版</string>
-    <string name="settings_update_beta">测试版</string>
-    <string name="settings_update_debug">调试版</string>
-    <string name="settings_update_custom">自定义通道</string>
-    <string name="settings_update_custom_msg">自定义通道网址</string>
     <string name="settings_zygisk_summary">在 Zygote 中运行 Magisk</string>
     <string name="settings_denylist_title">遵守排除列表</string>
     <string name="settings_denylist_summary">Magisk 不会修改列表中的进程</string>
@@ -200,17 +188,12 @@
     <!--Notifications-->
     <string name="update_channel">更新提示</string>
     <string name="progress_channel">下载进度</string>
-    <string name="updated_channel">更新完成</string>
     <string name="download_complete">下载完成</string>
     <string name="download_file_error">下载失败</string>
-    <string name="magisk_update_title">Magisk 已发布新版本！</string>
-    <string name="updated_title">Magisk 已完成更新</string>
-    <string name="updated_text">点按即可打开应用</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">是</string>
     <string name="no">否</string>
-    <string name="repo_install_title">安装 %1$s %2$s(%3$d)</string>
     <string name="download">下载</string>
     <string name="reboot">重启</string>
     <string name="close">关闭</string>

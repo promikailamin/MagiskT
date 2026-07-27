@@ -1,6 +1,5 @@
 package pro.magisk.ui.module
 
-import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,21 +8,16 @@ import pro.magisk.arch.AsyncLoadViewModel
 import pro.magisk.core.Const
 import pro.magisk.core.Info
 import pro.magisk.core.R as CoreR
-import pro.magisk.core.download.Subject
 import pro.magisk.core.model.module.LocalModule
-import pro.magisk.core.model.module.OnlineModule
 import pro.magisk.core.utils.TextHolder
 import pro.magisk.core.utils.asText
-import pro.magisk.ui.flash.FlashUtils
 import pro.magisk.ui.navigation.Route
-import pro.magisk.view.Notifications
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
-import kotlinx.parcelize.Parcelize
 
 class ModuleItem(val module: LocalModule) {
     val showNotice: Boolean
@@ -49,18 +43,7 @@ class ModuleItem(val module: LocalModule) {
 
     var isEnabled by mutableStateOf(module.enable)
     var isRemoved by mutableStateOf(module.remove)
-    var showUpdate by mutableStateOf(module.updateInfo != null)
     val isUpdated = module.updated
-    val updateReady get() = module.outdated && !isRemoved && isEnabled
-}
-
-@Parcelize
-class OnlineModuleSubject(
-    override val module: OnlineModule,
-    override val autoLaunch: Boolean,
-    override val notifyId: Int = Notifications.nextId()
-) : Subject.Module() {
-    override fun pendingIntent(context: Context) = FlashUtils.installIntent(context, file)
 }
 
 class ModuleViewModel : AsyncLoadViewModel() {
@@ -82,30 +65,8 @@ class ModuleViewModel : AsyncLoadViewModel() {
                 LocalModule.installed().map { ModuleItem(it) }
             }
             _uiState.update { it.copy(loading = false, modules = modules) }
-            loadUpdateInfo()
         } else {
             _uiState.update { it.copy(loading = false) }
-        }
-    }
-
-    private val networkObserver: (Boolean) -> Unit = { startLoading() }
-
-    init {
-        Info.isConnected.observeForever(networkObserver)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Info.isConnected.removeObserver(networkObserver)
-    }
-
-    private suspend fun loadUpdateInfo() {
-        withContext(Dispatchers.IO) {
-            _uiState.value.modules.forEach { item ->
-                if (item.module.fetch()) {
-                    item.showUpdate = item.module.updateInfo != null
-                }
-            }
         }
     }
 

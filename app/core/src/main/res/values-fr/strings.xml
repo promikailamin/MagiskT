@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Aucune connexion disponible</string>
-    <string name="app_changelog">Journal des modifications</string>
     <string name="loading">Chargement…</string>
     <string name="update">Mettre à jour</string>
     <string name="not_available">Non disponible</string>
@@ -27,7 +26,6 @@
     <string name="home_support_content">Magisk est, et sera toujours, libre et open source. Vous pouvez cependant nous témoigner de votre soutien en envoyant un petit don.</string>
     <string name="home_installed_version">Version installée</string>
     <string name="home_latest_version">Dernière version</string>
-    <string name="invalid_update_channel">Canal de mise à jour invalide</string>
     <string name="uninstall_magisk_title">Désinstaller Magisk</string>
     <string name="uninstall_magisk_msg">Tous les modules seront désactivés ou supprimés !\nL’accès super‑utiliateur sera perdu !\nVos données seront potentiellement chiffrées si elles ne le sont pas déjà.</string>
 
@@ -39,7 +37,6 @@
     <string name="install_method_title">Méthode</string>
     <string name="install_next">Suivant</string>
     <string name="install_start">C’est parti</string>
-    <string name="manager_download_install">Appuyez pour le télécharger et l’installer</string>
     <string name="direct_install">Installation directe (recommandée)</string>
     <string name="install_inactive_slot">Installer dans l’espace inactif (après mise à jour OTA)</string>
     <string name="install_inactive_slot_msg">Votre appareil sera obligatoirement réamorcé à partir de l’espace (slot) actuellement inactif après son redémarrage !\nN’utilisez uniquement cette option qu’après que la mise à jour OTA a été effectuée.\nVoulez‑vous continuer ?</string>
@@ -111,7 +108,6 @@
     <string name="module_state_remove">Supprimer</string>
     <string name="module_state_restore">Restaurer</string>
     <string name="module_action_install_external">Installer depuis le stockage</string>
-    <string name="update_available">Mise à jour disponible</string>
     <string name="suspend_text_riru">Module suspendu car %1$s est actif</string>
     <string name="suspend_text_zygisk">Module suspendu car %1$s n’est pas actif</string>
     <string name="zygisk_module_unloaded">Module Zygisk non chargé en raison d’une incompatibilité</string>
@@ -133,13 +129,6 @@
     <string name="settings_restore_app_summary">Démasquer l’application et la restaurer comme son APK d’origine.</string>
     <string name="language">Langue</string>
     <string name="system_default">(langue par défaut du système)</string>
-    <string name="settings_check_update_title">Vérifier les mises à jour</string>
-    <string name="settings_check_update_summary">Vérifier périodiquement en tâche de fond l’existence d’une mise à jour.</string>
-    <string name="settings_update_channel_title">Canal de mise à jour</string>
-    <string name="settings_update_stable">Stable</string>
-    <string name="settings_update_beta">Bêta</string>
-    <string name="settings_update_custom">Canal personnalisé</string>
-    <string name="settings_update_custom_msg">Saisissez une URL personnalisée</string>
     <string name="settings_zygisk_summary">Exécuter des parties de Magisk dans le service zygote</string>
     <string name="settings_denylist_title">Imposer Liste Exclusion</string>
     <string name="settings_denylist_summary">Les processus figurant sur la liste des exclusions verront toutes les modifications de Magisk annulées.</string>
@@ -198,17 +187,12 @@
     <!--Notifications-->
     <string name="update_channel">Mises à jour de Magisk</string>
     <string name="progress_channel">Notifications de progression</string>
-    <string name="updated_channel">Mise à jour Terminée</string>
     <string name="download_complete">Téléchargement terminé</string>
     <string name="download_file_error">Erreur lors du téléchargement du fichier</string>
-    <string name="magisk_update_title">Une mise à jour de Magisk est disponible !</string>
-    <string name="updated_title">Magisk Mis à jour</string>
-    <string name="updated_text">Appuyer pour ouvrir l’application</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Oui</string>
     <string name="no">Non</string>
-    <string name="repo_install_title">Installer %1$s %2$s(%3$d)</string>
     <string name="download">Télécharger</string>
     <string name="reboot">Redémarrer</string>
     <string name="release_notes">Notes de version</string>

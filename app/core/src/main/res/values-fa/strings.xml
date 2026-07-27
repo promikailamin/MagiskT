@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">هیچ اتصالی وجود ندارد</string>
-    <string name="app_changelog">تغییرات</string>
     <string name="loading">در حال بارگذاری…</string>
     <string name="update">بروزرسانی کردن</string>
     <string name="not_available">غیر/قابل دسترسی</string>
@@ -26,7 +25,6 @@
     <string name="home_support_content">این برنامه (Magisk) رایگان و متن باز است و همیشه خواهد ماند. اگرچه شما میتواند با دونیت خود نشان دهد که به ما اهمیت می دهید.</string>
     <string name="home_installed_version">نصب شده</string>
     <string name="home_latest_version">آخرین نسخه</string>
-    <string name="invalid_update_channel">کانال بروزرسانی نامعتبر است</string>
     <string name="uninstall_magisk_title">حذف Magisk</string>
     <string name="uninstall_magisk_msg">همه ماژول ها غیرفعال/حذف می شوند!\nروت حذف می شود!\nداده های شما اگر از قبل رمزگذارری نشده بودند رمز نگاری میشوند!</string>
 
@@ -38,7 +36,6 @@
     <string name="install_method_title">روش</string>
     <string name="install_next">بعدی</string>
     <string name="install_start">بزن بریم</string>
-    <string name="manager_download_install">برای دانلود و نصب فشار دهید</string>
     <string name="direct_install">نصب مستقیم (توصیه می شود)</string>
     <string name="install_inactive_slot">نصب در حافظه غیر فعال (بعد OTA)</string>
     <string name="install_inactive_slot_msg">بعد از راه اندازی مجدد دستگاه شما مجبور به راه اندازی در حافظه غیرفعال فعلی می شود! \nفقط پس از انجام OTA از این گزینه استفاده کنید. \nادامه می دهید؟</string>
@@ -108,7 +105,6 @@
     <string name="module_state_remove">حذف کردن</string>
     <string name="module_state_restore">بازگرداندن</string>
     <string name="module_action_install_external">نصب از حافظه</string>
-    <string name="update_available">بروزرسانی در دسترس است</string>
     <string name="suspend_text_riru">ماژول به دلیل فعال بودن %1$s متوقف شد</string>
     <string name="suspend_text_zygisk">ماژول به دلیل غیرفعال بودن %1$s متوقف شد</string>
     <string name="zygisk_module_unloaded">ماژول Zygisk به دلیل ناسازگاری بارگذاری نشد</string>
@@ -131,14 +127,6 @@
     <string name="settings_restore_app_summary">آشکار کردن برنامه و بازگرداندن APK اصلی</string>
     <string name="language">زبان</string>
     <string name="system_default">(پیش فرض سیستم)</string>
-    <string name="settings_check_update_title">چک کردن بروز رسانی ها</string>
-    <string name="settings_check_update_summary"> برسی کردن به صورت دوره ای برای به روزرسانی در پس زمینه</string>
-    <string name="settings_update_channel_title">کانال بروزرسانی</string>
-    <string name="settings_update_stable">پایدار</string>
-    <string name="settings_update_beta">آزمایشی</string>
-    <string name="settings_update_debug">اشکال‌زدایی</string>
-    <string name="settings_update_custom">شخصی سازی شده</string>
-    <string name="settings_update_custom_msg">اضافه کردن یک URL سفارشی</string>
     <string name="settings_zygisk_summary">اجرای بخش‌هایی از Magisk در سرویس Zygote</string>
     <string name="settings_denylist_title">اعمال لیست منع</string>
     <string name="settings_denylist_summary">فرآیندهای موجود در لیست منع تمام تغییرات Magisk را از دست خواهند داد</string>
@@ -197,17 +185,12 @@
     <!--Notifications-->
     <string name="update_channel">Magisk بروزرسانی های</string>
     <string name="progress_channel">اعلان پیشرفت</string>
-    <string name="updated_channel">به‌روزرسانی کامل شد</string>
     <string name="download_complete">دانلود کامل شد</string>
     <string name="download_file_error">خطا در دانلود فایل</string>
-    <string name="magisk_update_title">بروزرسانی Magisk در دسترس است!</string>
-    <string name="updated_title">Magisk به‌روزرسانی شد</string>
-    <string name="updated_text">برای باز کردن برنامه لمس کنید</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">بله</string>
     <string name="no">نه</string>
-    <string name="repo_install_title">نصب %1$s %2$s(%3$d)</string>
     <string name="download">دانلود کردن</string>
     <string name="reboot">راه اندازی مجدد</string>
     <string name="close">بستن</string>

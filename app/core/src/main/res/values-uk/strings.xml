@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Немає з\’єднання</string>
-    <string name="app_changelog">Список змін</string>
     <string name="loading">Завантаження…</string>
     <string name="update">Оновити</string>
     <string name="not_available">Н/Д</string>
@@ -26,7 +25,6 @@
     <string name="home_support_content">Magisk є, і завжди буде безкоштовним та з відкритим кодом. Однак, якщо вам не байдуже, можете зробити невеличке пожертвування.</string>
     <string name="home_installed_version">Встановлено</string>
     <string name="home_latest_version">Найновіша</string>
-    <string name="invalid_update_channel">Невірний канал оновлення</string>
     <string name="uninstall_magisk_title">Видалити Magisk</string>
     <string name="uninstall_magisk_msg">Ця дія призведе до вимкнення/видалення всіх модулів! Рут буде повністю видалено!\nВаші дані можуть зашифруватися, якщо вони не зашифровані!\nВпевнені, що бажаєте продовжити?</string>
 
@@ -38,7 +36,6 @@
     <string name="install_method_title">Спосіб</string>
     <string name="install_next">Далі</string>
     <string name="install_start">Встановити</string>
-    <string name="manager_download_install">Натисніть, щоб завантажити і встановити</string>
     <string name="direct_install">Пряме встановлення (рекомендовано)</string>
     <string name="install_inactive_slot">Встановити в неактивний слот (після OTA)</string>
     <string name="install_inactive_slot_msg">Ваш пристрій буде примусово перезавантажено в неактивний слот!\nВикористовуйте цю опцію тільки для встановлення OTA.\nПродовжити?</string>
@@ -106,7 +103,6 @@
     <string name="module_state_remove">Видалити</string>
     <string name="module_state_restore">Відновити</string>
     <string name="module_action_install_external">Встановити зі сховища</string>
-    <string name="update_available">Доступне оновлення</string>
 
     <!--Settings -->
     <string name="settings_dark_mode_title">Режим теми</string>
@@ -122,13 +118,6 @@
     <string name="settings_restore_app_summary">Відновити застосунок з оригінального APK та показати його</string>
     <string name="language">Мова</string>
     <string name="system_default">(системна)</string>
-    <string name="settings_check_update_title">Перевіряти оновлення</string>
-    <string name="settings_check_update_summary">Періодично перевіряти оновлення у фоновому режимі</string>
-    <string name="settings_update_channel_title">Канал оновлення</string>
-    <string name="settings_update_stable">Стабільний реліз</string>
-    <string name="settings_update_beta">Бета реліз</string>
-    <string name="settings_update_custom">Власний</string>
-    <string name="settings_update_custom_msg">Вставте власний URL</string>
     <string name="settings_zygisk_summary">Запускати частини Magisk в сервісі zygote</string>
     <string name="settings_denylist_title">Увімкнути DenyList</string>
     <string name="settings_denylist_summary">Всі зміни, внесені Magisk, будуть приховані від процесів, позначених у DenyList</string>
@@ -184,12 +173,10 @@
     <string name="progress_channel">Сповіщення прогресу</string>
     <string name="download_complete">Завантаження завершено</string>
     <string name="download_file_error">Помилка завантаження файлу</string>
-    <string name="magisk_update_title">Доступне оновлення Magisk!</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Так</string>
     <string name="no">Ні</string>
-    <string name="repo_install_title">Встановити %1$s %2$s(%3$d)</string>
     <string name="download">Завантажити</string>
     <string name="reboot">Перезавантажити</string>
     <string name="release_notes">Особливості версії</string>

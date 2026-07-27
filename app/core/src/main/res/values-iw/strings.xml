@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">אין חיבור זמין</string>
-    <string name="app_changelog">רשימת שינויים</string>
     <string name="loading">טוען…</string>
     <string name="update">עדכון</string>
     <string name="not_available">לא זמין</string>
@@ -26,7 +25,6 @@
     <string name="home_support_content">Magisk היה ותמיד יהיה בקוד פתוח. עם זאת באפשרותך להראות לנו שאכפת לך על ידי שליחת תרומה קטנה.</string>
     <string name="home_installed_version">מותקנת</string>
     <string name="home_latest_version">אחרונה</string>
-    <string name="invalid_update_channel">ערוץ עדכון לא חוקי</string>
     <string name="uninstall_magisk_title">הסרת Magisk</string>
     <string name="uninstall_magisk_msg">כל המודולים יושבתו/יוסרו!\nגישת Root תושבת!\nהנתונים שלך עשויים להיות מוצפנים אם לא הוצפנו כבר!</string>
 
@@ -38,7 +36,6 @@
     <string name="install_method_title">שיטה</string>
     <string name="install_next">הבא</string>
     <string name="install_start">צא לדרך</string>
-    <string name="manager_download_install">לחיצה להורדה והתקנה</string>
     <string name="direct_install">התקנה ישירה (מומלץ)</string>
     <string name="install_inactive_slot">התקנה לסלוט לא פעיל (לאחר OTA)</string>
     <string name="install_inactive_slot_msg">ההתקן שלך ייאלץ אתחול לסלוט הלא פעיל הנוכחי שלך לאחר הפעלה מחדש!\nיש להשתמש באפשרות זו רק לאחר ביצוע OTA בלבד.\nלהמשיך?</string>
@@ -110,7 +107,6 @@
     <string name="module_action">פעולה</string>
     <string name="module_state_restore">שיחזור</string>
     <string name="module_action_install_external">התקנה מהאחסון</string>
-    <string name="update_available">עדכונים זמינים</string>
     <string name="suspend_text_riru">מודול מושעה כי %1$s מופעל</string>
     <string name="suspend_text_zygisk">המודול הושעה כי %1$s אינו מופעל</string>
     <string name="zygisk_module_unloaded">מודול Zygisk לא נטען עקב חוסר תאימות</string>
@@ -132,13 +128,6 @@
     <string name="settings_restore_app_summary">ביטול הסתרת היישום ושיחזור אל ה-APK המקורי</string>
     <string name="language">שפה</string>
     <string name="system_default">(ברירת מחדל מערכת)</string>
-    <string name="settings_check_update_title">בדיקת עדכונים</string>
-    <string name="settings_check_update_summary">בדיקה מעת לעת ברקע אם יש עדכונים</string>
-    <string name="settings_update_channel_title">ערוץ עדכון</string>
-    <string name="settings_update_stable">יציב</string>
-    <string name="settings_update_beta">בטא</string>
-    <string name="settings_update_custom">מותאם אישית</string>
-    <string name="settings_update_custom_msg">הזנת כתובת מותאמת אישית</string>
     <string name="settings_zygisk_summary">הפעל חלקים של Magisk בדמון zygote</string>
     <string name="settings_denylist_title">אכיפת רשימת דחייה</string>
     <string name="settings_denylist_summary">כל השינויים של Magisk יוחזרו לתהליכים ברשימת הדחייה</string>
@@ -195,17 +184,12 @@
     <!--Notifications-->
     <string name="update_channel">עדכוני Magisk</string>
     <string name="progress_channel">התראות התקדמות</string>
-    <string name="updated_channel">העדכון הושלם</string>
     <string name="download_complete">ההורדה הושלמה</string>
     <string name="download_file_error">שגיאה בהורדת קובץ</string>
-    <string name="magisk_update_title">עדכון Magisk זמין!</string>
-    <string name="updated_title">עדכון Magisk</string>
-    <string name="updated_text">הקשה כדי לפתוח יישום</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">כן</string>
     <string name="no">לא</string>
-    <string name="repo_install_title">מתקין %1$s %2$s(%3$d)</string>
     <string name="download">הורדה</string>
     <string name="reboot">הפעלה מחדש</string>
     <string name="close">סגירה</string>

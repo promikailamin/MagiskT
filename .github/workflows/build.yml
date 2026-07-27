@@ -2,9 +2,9 @@ name: Magisk Complete Build
 
 on:
   push:
-    branches: [main]
+    branches: [main, test]
   pull_request:
-    branches: [main]
+    branches: [main, test]
   workflow_dispatch:
 
 permissions: write-all

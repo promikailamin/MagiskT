@@ -11,7 +11,6 @@
 
     <!--Home-->
     <string name="no_connection">Connexió no disponible</string>
-    <string name="app_changelog">Registre de canvis</string>
     <string name="loading">Carregant…</string>
     <string name="update">Actualització</string>
     <string name="not_available">N/A</string>
@@ -25,7 +24,6 @@
     <string name="home_support_content">Magisk és, i sempre serà, gratis i codi lliure. De totes maneres, pot mostrar el seu interès fent una petita donació.</string>
     <string name="home_installed_version">Instal·lat</string>
     <string name="home_latest_version">Última</string>
-    <string name="invalid_update_channel">Canal d\'actualització invàlid</string>
     <string name="uninstall_magisk_title">Desinstal·lar Magisk</string>
     <string name="uninstall_magisk_msg">Tots els mòduls seran desactivats i eliminats! L\'accés d\'arrel s\'eliminarà i, possiblement, xifrarà totes les dades (si no estan ja xifrades).</string>
 
@@ -37,7 +35,6 @@
     <string name="install_method_title">Mètode</string>
     <string name="install_next">Següent</string>
     <string name="install_start">Endavant</string>
-    <string name="manager_download_install">Premi per baixar i instal·lar</string>
     <string name="direct_install">Instal·lació directa (Recomanat)</string>
     <string name="install_inactive_slot">Instal·la a la ranura inactiva (Després d\'una OTA)</string>
     <string name="install_inactive_slot_msg">El teu dispositiu serà FORÇAT a arrancar en l\'actual ranura inactiva després del reinici!\nUtilitza aquesta opció NOMÉS quan l\'OTA s\'hagi fet.\nContinuar?</string>
@@ -105,7 +102,6 @@
     <string name="module_state_remove">Eliminar</string>
     <string name="module_state_restore">Recuperar</string>
     <string name="module_action_install_external">Instal·lar des de l\'emmagatzematge</string>
-    <string name="update_available">Actualització Disponible</string>
 
     <!--Settings-->
     <string name="settings_dark_mode_title">Mode del tema</string>
@@ -121,13 +117,6 @@
     <string name="settings_restore_app_summary">Restaura Magisk Manager amb el nom de paquet original</string>
     <string name="language">Idioma</string>
     <string name="system_default">(Idioma del sistema)</string>
-    <string name="settings_check_update_title">Comprovar Actualitzacions</string>
-    <string name="settings_check_update_summary">Comprovar periòdicament en segon pla si existeixen actualitzacions</string>
-    <string name="settings_update_channel_title">Canal d\'Actualitzacions</string>
-    <string name="settings_update_stable">Estable</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_custom">Canal personalitzat</string>
-    <string name="settings_update_custom_msg">Inserta un URL personalitzada</string>
     <string name="settings_hosts_title">Systemless Hosts</string>
     <string name="settings_hosts_summary">Suport per aplicacions tipus Adblock fora de la partició del sistema</string>
     <string name="settings_hosts_toast">Agregat el mòdul Systemless Hosts</string>
@@ -178,12 +167,10 @@
     <string name="progress_channel">Notificacions de progrés</string>
     <string name="download_complete">Baixada completada</string>
     <string name="download_file_error">Error en baixar l\'arxiu</string>
-    <string name="magisk_update_title">Actualització de Magisk disponible!</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Sí</string>
     <string name="no">No</string>
-    <string name="repo_install_title">Instal·lar %1$s %2$s(%3$d)</string>
     <string name="download">Baixar</string>
     <string name="reboot">Reiniciar</string>
     <string name="release_notes">Notes de llançament</string>

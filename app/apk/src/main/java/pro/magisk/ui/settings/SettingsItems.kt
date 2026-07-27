@@ -10,7 +10,6 @@ import pro.magisk.BR
 import pro.magisk.R
 import pro.magisk.core.Config
 import pro.magisk.core.Const
-import pro.magisk.core.Info
 import pro.magisk.core.ktx.activity
 import pro.magisk.core.tasks.AppMigration
 import pro.magisk.core.utils.LocaleSetting
@@ -19,7 +18,6 @@ import pro.magisk.core.utils.TextHolder
 import pro.magisk.core.utils.asText
 import pro.magisk.databinding.DialogSettingsAppNameBinding
 import pro.magisk.databinding.DialogSettingsDownloadPathBinding
-import pro.magisk.databinding.DialogSettingsUpdateChannelBinding
 import pro.magisk.databinding.set
 import pro.magisk.view.MagiskDialog
 import com.topjohnwu.superuser.Shell
@@ -139,52 +137,6 @@ object DownloadPath : BaseSettingsItem.Input() {
 
     override fun getView(context: Context) = DialogSettingsDownloadPathBinding
         .inflate(LayoutInflater.from(context)).also { it.data = this }.root
-}
-
-object UpdateChannel : BaseSettingsItem.Selector() {
-    override var value
-        get() = Config.updateChannel
-        set(value) {
-            Config.updateChannel = value
-            Info.resetUpdate()
-        }
-
-    override val title = CoreR.string.settings_update_channel_title.asText()
-    override val entryRes = CoreR.array.update_channel
-}
-
-object UpdateChannelUrl : BaseSettingsItem.Input() {
-    override val title = CoreR.string.settings_update_custom.asText()
-    override val description get() = value.asText()
-    override var value
-        get() = Config.customChannelUrl
-        set(value) {
-            Config.customChannelUrl = value
-            Info.resetUpdate()
-            notifyPropertyChanged(BR.description)
-        }
-
-    override var inputResult: String = value
-        set(value) = set(value, field, { field = it }, BR.inputResult)
-
-    override fun refresh() {
-        isEnabled = UpdateChannel.value == Config.Value.CUSTOM_CHANNEL
-    }
-
-    override fun getView(context: Context) = DialogSettingsUpdateChannelBinding
-        .inflate(LayoutInflater.from(context)).also { it.data = this }.root
-}
-
-object UpdateChecker : BaseSettingsItem.Toggle() {
-    override val title = CoreR.string.settings_check_update_title.asText()
-    override val description = CoreR.string.settings_check_update_summary.asText()
-    override var value by Config::checkUpdate
-}
-
-object DoHToggle : BaseSettingsItem.Toggle() {
-    override val title = CoreR.string.settings_doh_title.asText()
-    override val description = CoreR.string.settings_doh_description.asText()
-    override var value by Config::doh
 }
 
 object SystemlessHosts : BaseSettingsItem.Blank() {

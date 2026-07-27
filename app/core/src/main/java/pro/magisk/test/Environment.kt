@@ -10,6 +10,7 @@ import pro.magisk.core.Const
 import pro.magisk.core.download.DownloadNotifier
 import pro.magisk.core.download.DownloadProcessor
 import pro.magisk.core.ktx.cachedFile
+import pro.magisk.core.ktx.writeTo
 import pro.magisk.core.model.module.LocalModule
 import pro.magisk.core.tasks.AppMigration
 import pro.magisk.core.tasks.FlashZip
@@ -225,11 +226,9 @@ class Environment : BaseTest {
 
         val shamiko = appContext.cachedFile("shamiko.zip")
         runBlocking {
-            testContext.assets.open("shamiko.zip").use {
-                processor.handleModule(it, shamiko.toUri())
+            testContext.assets.open("shamiko.zip").use { stream ->
+                stream.writeTo(shamiko)
             }
-            checkModuleZip(shamiko)
-            if (shamiko()) {
                 assertTrue(
                     "Shamiko installation failed",
                     FlashZip(shamiko.toUri(), TimberLog, TimberLog).exec()
@@ -239,10 +238,9 @@ class Environment : BaseTest {
 
         val lsp = appContext.cachedFile("lsposed.zip")
         runBlocking {
-            testContext.assets.open("lsposed.zip").use {
-                processor.handleModule(it, lsp.toUri())
+            testContext.assets.open("lsposed.zip").use { stream ->
+                stream.writeTo(lsp)
             }
-            checkModuleZip(lsp)
             if (lsposed()) {
                 assertTrue(
                     "LSPosed installation failed",

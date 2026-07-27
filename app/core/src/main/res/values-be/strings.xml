@@ -10,7 +10,6 @@
     <string name="section_theme">Тэмы</string>
     <!--Home-->
     <string name="no_connection">Злучэнне адсутнічае</string>
-    <string name="app_changelog">Спіс змен</string>
     <string name="loading">Загрузка…</string>
     <string name="update">Абнавіць</string>
     <string name="not_available">Не</string>
@@ -23,7 +22,6 @@
     <string name="home_support_content">Magisk ёсць і заўсёды будзе бясплатным праектам з адкрытым зыходным кодам. Але вы заўсёды можаце ахвяраваць нам на распрацоўку.</string>
     <string name="home_installed_version">Усталявана</string>
     <string name="home_latest_version">Апошні</string>
-    <string name="invalid_update_channel">Хібны канал абнаўлення</string>
     <string name="uninstall_magisk_title">Выдаліць Magisk</string>
     <string name="uninstall_magisk_msg">Усе модулі будуць адключаныя/выдаленыя!\nRoot будзе выдалены!\nВашыя даныя будуць зашыфраваныя!</string>
     <!--Install-->
@@ -34,7 +32,6 @@
     <string name="install_method_title">Метад</string>
     <string name="install_next">Далей</string>
     <string name="install_start">Усталяваць</string>
-    <string name="manager_download_install">Націсніце, каб спампаваць і ўсталяваць</string>
     <string name="direct_install">Непасрэдная ўсталёўка (рэкамендуецца)</string>
     <string name="install_inactive_slot">Усталяваць у неактыўны слот (пасля OTA)</string>
     <string name="install_inactive_slot_msg">Ваша прылада ПРЫМУСОВА перазапусціцца ў неактыўны слот!\nВыкарыстоўвайце гэты параметр толькі пасля завяршэння OTA.\nПрацягнуць?</string>
@@ -96,7 +93,6 @@
     <string name="module_state_remove">Выдаліць</string>
     <string name="module_state_restore">Аднавіць</string>
     <string name="module_action_install_external">Усталяваць са сховішча</string>
-    <string name="update_available">Даступныя абнаўленні</string>
     <!--Settings-->
     <string name="settings_dark_mode_title">Рэжым афармлення</string>
     <string name="settings_dark_mode_message">Абярыце рэжым, які вам больш даспадобы!</string>
@@ -111,13 +107,6 @@
     <string name="settings_restore_app_summary">Вярнуць праграму да зыходнага стану</string>
     <string name="language">Мова</string>
     <string name="system_default">(Сістэмная)</string>
-    <string name="settings_check_update_title">Правяраць на абнаўленні</string>
-    <string name="settings_check_update_summary">Перыядычна правяраць наяўнасць абнаўленняў ў фонавым рэжыме</string>
-    <string name="settings_update_channel_title">Канал абнаўлення</string>
-    <string name="settings_update_stable">Стабільны</string>
-    <string name="settings_update_beta">Бэта</string>
-    <string name="settings_update_custom">Адвольны канал</string>
-    <string name="settings_update_custom_msg">Устаўце URL</string>
     <string name="settings_hosts_title">Пазасістэмны файл hosts</string>
     <string name="settings_hosts_summary">Падтрымка пазасістэмнага файла hosts для праграм, якія блакуюць рэкламу</string>
     <string name="settings_hosts_toast">Дададзены модуль пазасістэмнага файла hosts</string>
@@ -165,11 +154,9 @@
     <string name="progress_channel">Апавяшчэнні пра ход выканання</string>
     <string name="download_complete">Спампоўка завершаная</string>
     <string name="download_file_error">Не атрымалася спампаваць файл</string>
-    <string name="magisk_update_title">Даступна абнаўленне Magisk!</string>
     <!--Toasts, Dialogs-->
     <string name="yes">Так</string>
     <string name="no">Не</string>
-    <string name="repo_install_title">Усталяваць %1$s %2$s(%3$d)</string>
     <string name="download">Спампаваць</string>
     <string name="reboot">Перазапуск</string>
     <string name="release_notes">Пра выпуск</string>

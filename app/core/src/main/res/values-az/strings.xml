@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Bağlantı yoxdur</string>
-    <string name="app_changelog">Dəyişikliklər</string>
     <string name="loading">Yüklənir…</string>
     <string name="update">Yenilə</string>
     <string name="not_available">Yüklü deyil</string>
@@ -27,7 +26,6 @@
     <string name="home_support_content">Magisk pulsuzdur və həmişə belə qalacaq. Amma istəsən bizə dəstək ola bilərsən.</string>
     <string name="home_installed_version">Qurulan</string>
     <string name="home_latest_version">Ən son versiya</string>
-    <string name="invalid_update_channel">Keçərsiz yeniləmə kanalı</string>
     <string name="uninstall_magisk_title">Magisk\'i sil</string>
     <string name="uninstall_magisk_msg">Bütün modullar ləğv olunacaq/silinəcək. Root silinəcək, və əgər hal-hazırda deyilsə, bütün məlumatlarınız potensiyal olaraq şifrələnəcək.</string>
 
@@ -39,7 +37,6 @@
     <string name="install_method_title">Metod</string>
     <string name="install_next">Növbəti</string>
     <string name="install_start">Başlat</string>
-    <string name="manager_download_install">Endirmək və quraşdırmaq üçün bas</string>
     <string name="direct_install">Birbaşa Quraşdır (Tövsiyyə olunur)</string>
     <string name="install_inactive_slot">Aktiv olmayan Slot\'a quraşdır (OTA\'dan sonra)</string>
     <string name="install_inactive_slot_msg">Cihazınız yenidən başladıqdan sonra aktiv olmayan slotda başlamağa MƏCBUR ediləcək!\nBu seçimi ancaq OTA bitdikdən sonra tətbiq edin.\nDavam edilsin?</string>
@@ -109,7 +106,6 @@
     <string name="module_state_remove">Sil</string>
     <string name="module_state_restore">Bərpa et</string>
     <string name="module_action_install_external">Yaddaşdan yüklə</string>
-    <string name="update_available">Yeniləmə Mövcuddur</string>
     <string name="suspend_text_riru">%1$s açıq olduğundan Magisk modulu dayandırıldı</string>
     <string name="suspend_text_zygisk">%1$s qapalı olduğu üçün Magisk modulu dayandırıldı</string>
     <string name="zygisk_module_unloaded">Zygisk modulu uyğunsuzluq səbəbindən açılmadı</string>
@@ -131,13 +127,6 @@
     <string name="settings_restore_app_summary">Tətbiqi üzə çıxar və orijinal APKnı bərpa et</string>
     <string name="language">Dil</string>
     <string name="system_default">(Sistem Dili)</string>
-    <string name="settings_check_update_title">Yeniləməni Yoxla</string>
-    <string name="settings_check_update_summary">Vaxtaşırı arxaplanda yeniləmələri yoxla</string>
-    <string name="settings_update_channel_title">Yeniləmə Kanalı</string>
-    <string name="settings_update_stable">Sabit</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_custom">Özəl</string>
-    <string name="settings_update_custom_msg">Özəl kanal URL\'si daxil et</string>
     <string name="settings_zygisk_summary">Magiskin bəzi hissələrini zygote daemonda aç</string>
     <string name="settings_denylist_title">İstisnaları Məcbur İşlət</string>
     <string name="settings_denylist_summary">İstisnalar siyahısındakı proseslər Magisk əlavələrini tərsinə çevirəcək</string>
@@ -191,17 +180,12 @@
     <!--Notifications-->
     <string name="update_channel">Magisk Yeniləmələri</string>
     <string name="progress_channel">İrəliləmə Bildirişləri</string>
-    <string name="updated_channel">Yeniləmə Bitdi</string>
     <string name="download_complete">Endirmə Bitdi</string>
     <string name="download_file_error">Faylı endirmək münkün olmadı</string>
-    <string name="magisk_update_title">Magisk Yeniləməsi Var!</string>
-    <string name="updated_title">Magisk Yeniləndi</string>
-    <string name="updated_text">Tətbiqi açmaq üçün toxun</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Mövcud</string>
     <string name="no">Mövcud Deyil</string>
-    <string name="repo_install_title">Quraşdır %1$s %2$s(%3$d)</string>
     <string name="download">Endir</string>
     <string name="reboot">Yenidən başlat</string>
     <string name="release_notes">Yeniliklər</string>

@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Žiadne pripojenie</string>
-    <string name="app_changelog">Zoznam zmien</string>
     <string name="loading">Načítava sa…</string>
     <string name="update">Aktualizovať</string>
     <string name="not_available">N/A</string>
@@ -27,7 +26,6 @@
     <string name="home_support_content">Magisk je a vždy bude slobodný a s otvoreným kódom. Môžete nám však dať najavo, že vám na nás záleží, tým, že nám prispejete.</string>
     <string name="home_installed_version">Nainštalované</string>
     <string name="home_latest_version">Posledná</string>
-    <string name="invalid_update_channel">Neplatný aktualizačný kanál</string>
     <string name="uninstall_magisk_title">Odinštalovať Magisk</string>
     <string name="uninstall_magisk_msg">Všetky moduly budú zakázané/odstránené!\nRoot bude odstránený!\nAkékoľvek interné úložisko nešifrované pomocou Magisku bude znovu zašifrované!</string>
 
@@ -39,7 +37,6 @@
     <string name="install_method_title">Metóda</string>
     <string name="install_next">Ďalej</string>
     <string name="install_start">Poďme na to</string>
-    <string name="manager_download_install">Stlačte pre stiahnutie a inštaláciu</string>
     <string name="direct_install">Priama inštalácia (Odporúča sa)</string>
     <string name="install_inactive_slot">Inštalovať na neaktívny slot (Po OTA)</string>
     <string name="install_inactive_slot_msg">Vaše zariadenie bude po reštarte PRINÚTENÉ nabootovať do aktuálne neaktívneho slotu!\nTúto voľbu použite iba po skončení OTA.\nPokračovať?</string>
@@ -111,7 +108,6 @@
     <string name="module_state_remove">Odstrániť</string>
     <string name="module_state_restore">Obnoviť</string>
     <string name="module_action_install_external">Inštalácia z úložiska</string>
-    <string name="update_available">Dostupná aktualizácia</string>
     <string name="suspend_text_riru">Modul bol pozastavený, lebo %1$s je povolené</string>
     <string name="suspend_text_zygisk">Modul bol pozastavený, lebo %1$s nie je povolené</string>
     <string name="zygisk_module_unloaded">Modul Zygisk sa nenačítal z dôvodu nekompatibility</string>
@@ -133,13 +129,6 @@
     <string name="settings_restore_app_summary">Odkryť aplikáciu a obnoviť pôvodný súbor APK</string>
     <string name="language">Jazyk</string>
     <string name="system_default">(Predvolený systémom)</string>
-    <string name="settings_check_update_title">Kontrolovať aktualizácie</string>
-    <string name="settings_check_update_summary">Aktualizácie sa budú pravidelne kontrolovať na pozadí</string>
-    <string name="settings_update_channel_title">Aktualizačný kanál</string>
-    <string name="settings_update_stable">Stabilný</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_custom">Vlastný kanál</string>
-    <string name="settings_update_custom_msg">Zadajte vlastnú URL</string>
     <string name="settings_zygisk_summary">Spustiť časti Magisku v démonovi zygote</string>
     <string name="settings_denylist_title">Vynútiť zoznam zamietnutých</string>
     <string name="settings_denylist_summary">Pre procesy na zozname zamietnutých budú všetky úpravy Magiskom vrátené</string>
@@ -198,17 +187,12 @@
     <!--Notifications-->
     <string name="update_channel">Aktualizácie Magisku</string>
     <string name="progress_channel">Upozornenia o priebehu</string>
-    <string name="updated_channel">Aktualizácia dokončená</string>
     <string name="download_complete">Sťahovanie ukončené</string>
     <string name="download_file_error">Chyba sťahovania súboru</string>
-    <string name="magisk_update_title">Je dostupná aktualizácia Magisku!</string>
-    <string name="updated_title">Magisk aktualizovaný</string>
-    <string name="updated_text">Ťuknutím otvoríte apku</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Áno</string>
     <string name="no">Nie</string>
-    <string name="repo_install_title">Nainštalovať %1$s %2$s(%3$d)</string>
     <string name="download">Stiahnuť</string>
     <string name="reboot">Reštartovať</string>
     <string name="release_notes">Poznámky k vydaniu</string>

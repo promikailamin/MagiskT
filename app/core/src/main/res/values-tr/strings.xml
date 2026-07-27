@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Bağlantı yok</string>
-    <string name="app_changelog">Değişiklik Günlüğü</string>
     <string name="loading">Yükleniyor…</string>
     <string name="update">Güncelle</string>
     <string name="not_available">Yok</string>
@@ -33,7 +32,6 @@
     <string name="home_status_title">Durum</string>
     <string name="home_installed_version">Yüklü</string>
     <string name="home_latest_version">En Son</string>
-    <string name="invalid_update_channel">Geçersiz güncelleme kanalı</string>
     <string name="uninstall">Kaldır</string>
     <string name="uninstall_magisk_title">Magisk\'i Kaldır</string>
     <string name="uninstall_magisk_msg">Tüm modüller devre dışı bırakılacak/kaldırılacak!\nRoot kaldırılacak!\nMagisk kullanımıyla şifresi çözülen tüm dahili depolama birimleri yeniden şifrelenecek!</string>
@@ -46,7 +44,6 @@
     <string name="install_method_title">Yöntem</string>
     <string name="install_next">İleri</string>
     <string name="install_start">Başlayalım</string>
-    <string name="manager_download_install">İndirmek ve yüklemek için dokunun</string>
     <string name="direct_install">Doğrudan kurulum (Önerilen)</string>
     <string name="direct_install_summary">Magisk\'i doğrudan boot (ön yükleme) bölümüne kurun</string>
     <string name="install_inactive_slot">Etkin olmayan slota kur (OTA\'dan sonra)</string>
@@ -136,7 +133,6 @@
     <string name="module_action">Eylem</string>
     <string name="module_state_restore">Geri Yükle</string>
     <string name="module_action_install_external">Depolamadan yükle</string>
-    <string name="update_available">Güncelleme mevcut</string>
     <string name="suspend_text_riru">%1$s etkinleştirildiği için modül askıya alındı</string>
     <string name="suspend_text_zygisk">%1$s etkinleştirilmediği için modül askıya alındı</string>
     <string name="zygisk_module_unloaded">Zygisk modülü uyumsuzluk nedeniyle yüklenmedi</string>
@@ -158,14 +154,6 @@
     <string name="settings_restore_app_summary">Uygulamayı görünür yapın ve orijinal APK\'yı geri yükleyin</string>
     <string name="language">Dil</string>
     <string name="system_default">(Sistem varsayılanı)</string>
-    <string name="settings_check_update_title">Güncellemeleri kontrol et</string>
-    <string name="settings_check_update_summary">Arka planda güncellemeleri periyodik olarak kontrol edin</string>
-    <string name="settings_update_channel_title">Güncelleme kanalı</string>
-    <string name="settings_update_stable">Kararlı</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_debug">Hata Ayıklama (Debug)</string>
-    <string name="settings_update_custom">Özel</string>
-    <string name="settings_update_custom_msg">Özel bir kanal URL\'si girin</string>
     <string name="settings_zygisk_summary">Magisk\'in bazı kısımlarını Zygote arka plan yordamında çalıştırın</string>
     <string name="settings_denylist_title">Reddetme Listesini Zorla</string>
     <string name="settings_denylist_summary">Reddetme listesindeki işlemler için tüm Magisk değişiklikleri geri alınacaktır</string>
@@ -231,17 +219,12 @@
     <!--Notifications-->
     <string name="update_channel">Magisk güncellemeleri</string>
     <string name="progress_channel">İlerleme bildirimleri</string>
-    <string name="updated_channel">Güncelleme tamamlandı</string>
     <string name="download_complete">İndirme tamamlandı</string>
     <string name="download_file_error">Dosya indirilirken hata oluştu</string>
-    <string name="magisk_update_title">Magisk güncellemesi mevcut!</string>
-    <string name="updated_title">Magisk güncellendi</string>
-    <string name="updated_text">Uygulamayı açmak için dokunun</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Evet</string>
     <string name="no">Hayır</string>
-    <string name="repo_install_title">Yükle: %1$s %2$s(%3$d)</string>
     <string name="download">İndir</string>
     <string name="reboot">Yeniden Başlat</string>
     <string name="close">Kapat</string>

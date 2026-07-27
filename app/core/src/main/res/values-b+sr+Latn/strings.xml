@@ -13,7 +13,6 @@
 
     <!--Home-->
     <string name="no_connection">Nedostupna konekcija</string>
-    <string name="app_changelog">Promene u aplikaciji</string>
     <string name="loading">Učitavanje…</string>
     <string name="update">Ažuriranje</string>
     <string name="not_available">N/A</string>
@@ -34,7 +33,6 @@
     <string name="home_status_title">Status</string>
     <string name="home_installed_version">Instalirano</string>
     <string name="home_latest_version">Najnovije</string>
-    <string name="invalid_update_channel">Nevalidan kanal ažuriranja</string>
     <string name="uninstall">Deinstaliraj</string>
     <string name="uninstall_magisk_title">Deinstaliraj Magisk</string>
     <string name="uninstall_magisk_msg">Svi moduli će biti onemogućeni/uklonjeni!\nKoren će biti uklonjen!\nSvako neenkriptovano interno skladište će upotrebom Magisk-a biti ponovo enkriptovano!</string>
@@ -47,7 +45,6 @@
     <string name="install_method_title">Metod</string>
     <string name="install_next">Naredno</string>
     <string name="install_start">Počnimo</string>
-    <string name="manager_download_install">Pritisni da preuzmeš i instaliraš</string>
     <string name="direct_install">Direktna instalacija (Preporučeno)</string>
     <string name="direct_install_summary">Direktno instaliraj Magisk na boot particiju</string>
     <string name="install_inactive_slot">Instalacija na neaktivan slot (Nakon OTA)</string>
@@ -142,7 +139,6 @@
     <string name="module_action">Akcija</string>
     <string name="module_state_restore">Povrati</string>
     <string name="module_action_install_external">Instaliraj iz skladišta</string>
-    <string name="update_available">Ažuriranje dostupno</string>
     <string name="suspend_text_riru">Modul je suspendovan jer je %1$s omogućeno</string>
     <string name="suspend_text_zygisk">Modul je suspendovan jer %1$s nije omogućeno</string>
     <string name="zygisk_module_unloaded">Zygisk modul nije učitan zbog nekompatibilnosti</string>
@@ -164,14 +160,6 @@
     <string name="settings_restore_app_summary">Otkrij apl. i povrati originalni APK</string>
     <string name="language">Jezik</string>
     <string name="system_default">(Podrazumevano sistemski)</string>
-    <string name="settings_check_update_title">Proveri ažuriranja</string>
-    <string name="settings_check_update_summary">Periodično proveri ažuriranja u pozadini</string>
-    <string name="settings_update_channel_title">Kanal ažuriranja</string>
-    <string name="settings_update_stable">Stabilno</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_debug">Debug</string>
-    <string name="settings_update_custom">Prilagođeno</string>
-    <string name="settings_update_custom_msg">Unesi prilagođeni URL kanala</string>
     <string name="settings_zygisk_summary">Pokreni delove Magisk-a u Zygote daemon-u</string>
     <string name="settings_denylist_title">Sprovedi listu zabrana</string>
     <string name="settings_denylist_summary">Procesi na listi zabrana će povratiti sve Magisk izmene</string>
@@ -237,17 +225,12 @@
     <!--Notifications-->
     <string name="update_channel">Ažuriranja Magisk-a</string>
     <string name="progress_channel">Notifikacije o progresu</string>
-    <string name="updated_channel">Ažuriranje završeno</string>
     <string name="download_complete">Preuzimanje završeno</string>
     <string name="download_file_error">Greška pri preuzimanju fajla</string>
-    <string name="magisk_update_title">Ažuriranje Magisk-a dostupno!</string>
-    <string name="updated_title">Magisk je ažuriran</string>
-    <string name="updated_text">Klikni da otvoriš aplikaciju</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Da</string>
     <string name="no">Ne</string>
-    <string name="repo_install_title">Instaliraj %1$s %2$s(%3$d)</string>
     <string name="download">Preuzmi</string>
     <string name="reboot">Ponovo pokreni</string>
     <string name="close">Zatvori</string>

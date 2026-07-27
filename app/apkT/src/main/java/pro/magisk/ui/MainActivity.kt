@@ -96,12 +96,6 @@ class MainActivity : ComponentActivity(), SplashScreenHost {
         showUnsupportedMessage()
         askForHomeShortcut()
 
-        if (Config.checkUpdate) {
-            extension.withPermission(Manifest.permission.POST_NOTIFICATIONS) {
-                Config.checkUpdate = it
-            }
-        }
-
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         val initialTab = getInitialTab(intent)

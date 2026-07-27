@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Žádné připojení</string>
-    <string name="app_changelog">Seznam změn</string>
     <string name="loading">Načítání…</string>
     <string name="update">Aktualizovat</string>
     <string name="not_available">N/A</string>
@@ -27,7 +26,6 @@
     <string name="home_support_content">Magisk je a vždy bude svobodný s otevřeným kódem. Můžete nám však zaslat malý dar jako poděkování.</string>
     <string name="home_installed_version">Nainstalováno</string>
     <string name="home_latest_version">Poslední</string>
-    <string name="invalid_update_channel">Neplatný kanál aktualizace</string>
     <string name="uninstall_magisk_title">Odinstalovat Magisk</string>
     <string name="uninstall_magisk_msg">Všechny moduly budou zakázány/odstraněny!\nROOT bude odstraněn!\nPokud jsou data dešifrována, můžou být zašifrována!</string>
 
@@ -39,7 +37,6 @@
     <string name="install_method_title">Způsob</string>
     <string name="install_next">Další</string>
     <string name="install_start">Spustit</string>
-    <string name="manager_download_install">Stiskněte pro stažení a instalaci</string>
     <string name="direct_install">Přímá instalace (doporučeno)</string>
     <string name="install_inactive_slot">Instalace do druhého slotu (po OTA)</string>
     <string name="install_inactive_slot_msg">Vaše zařízení bude po restartu VYNUCENĚ spuštěno do aktuálního neaktivního slotu!\nTuto možnost použijte pouze po dokončení OTA.\nChcete pokračovat?</string>
@@ -110,7 +107,6 @@
     <string name="module_state_remove">Odstranit</string>
     <string name="module_state_restore">Obnovit</string>
     <string name="module_action_install_external">Instalace z úložiště</string>
-    <string name="update_available">Dostupná aktualizace</string>
     <string name="suspend_text_riru">Modul byl pozastaven, protože je povolen %1$s</string>
     <string name="suspend_text_zygisk">Modul byl pozastaven, protože %1$s není povoleno</string>
     <string name="zygisk_module_unloaded">Modul Zygisk nebyl načten z důvodu nekompatibility</string>
@@ -132,13 +128,6 @@
     <string name="settings_restore_app_summary">Obnoví aplikaci zpět do původního APK</string>
     <string name="language">Jazyk</string>
     <string name="system_default">(výchozí podle systému)</string>
-    <string name="settings_check_update_title">Zkontrolovat aktualizace</string>
-    <string name="settings_check_update_summary">Povolí pravidelnou kontrolu aktualizace na pozadí</string>
-    <string name="settings_update_channel_title">Kanál aktualizace</string>
-    <string name="settings_update_stable">Stabilní</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_custom">Vlastní</string>
-    <string name="settings_update_custom_msg">Vložte vlastní URL</string>
     <string name="settings_zygisk_summary">Spustí části Magisku v démonu Zygote</string>
     <string name="settings_denylist_title">Vynutit DenyList</string>
     <string name="settings_denylist_summary">Na procesy v Denylistu nebudou aplikovány žádné změny, nebo modifikace způsobené Magiskem</string>
@@ -192,17 +181,12 @@
     <!--Notifications-->
     <string name="update_channel">Aktualizace Magisk</string>
     <string name="progress_channel">Oznámení o průběhu</string>
-    <string name="updated_channel">Aktualizace dokončena</string>
     <string name="download_complete">Stahování dokončeno</string>
     <string name="download_file_error">Chyba při stahování souboru</string>
-    <string name="magisk_update_title">Aktualizace Magisk je dostupná!</string>
-    <string name="updated_title">Magisk aktualizován</string>
-    <string name="updated_text">Klepnutím otevřete aplikaci</string>
 
 <!--Toasts, Dialogs-->
     <string name="yes">Ano</string>
     <string name="no">Ne</string>
-    <string name="repo_install_title">Instalovat %1$s %2$s(%3$d)</string>
     <string name="download">Stáhnout</string>
     <string name="reboot">Restartovat</string>
     <string name="release_notes">Seznam změn</string>

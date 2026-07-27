@@ -12,7 +12,6 @@ import pro.magisk.core.BuildConfig.APP_PACKAGE_NAME
 import pro.magisk.core.Config
 import pro.magisk.core.Const
 import pro.magisk.core.Info
-import pro.magisk.core.JobService
 import pro.magisk.core.R
 import pro.magisk.core.di.ServiceLocator
 import pro.magisk.core.isRunningAsStub
@@ -149,7 +148,6 @@ class SplashController<T>(private val activity: T)
         }
 
         Notifications.setup()
-        JobService.schedule(this)
         Shortcuts.setupDynamic(this)
 
         // Pre-fetch network services

@@ -4,23 +4,16 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.PendingIntent
-import android.app.job.JobInfo
-import android.app.job.JobScheduler
 import android.content.Context
 import android.os.Build
-import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.collection.SparseArrayCompat
 import androidx.collection.isNotEmpty
-import androidx.core.content.getSystemService
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import pro.magisk.core.AppContext
-import pro.magisk.core.Const
-import pro.magisk.core.JobService
 import pro.magisk.core.R
 import pro.magisk.core.base.IActivityExtension
-import pro.magisk.core.cmp
 import pro.magisk.core.di.ServiceLocator
 import pro.magisk.core.intent
 import pro.magisk.core.ktx.set
@@ -72,35 +65,20 @@ class DownloadEngine(session: DownloadSession) : DownloadSession by session, Dow
             }
         }
 
-        private fun createBroadcastIntent(context: Context, subject: Subject) =
-            context.intent<pro.magisk.core.Receiver>()
-                .setAction(ACTION)
-                .putExtra(SUBJECT_KEY, subject)
-
         private fun createServiceIntent(context: Context, subject: Subject) =
             context.intent<pro.magisk.core.Service>()
                 .setAction(ACTION)
                 .putExtra(SUBJECT_KEY, subject)
 
-        @SuppressLint("InlinedApi")
         fun getPendingIntent(context: Context, subject: Subject): PendingIntent {
             val flag = PendingIntent.FLAG_IMMUTABLE or
                 PendingIntent.FLAG_UPDATE_CURRENT or
                 PendingIntent.FLAG_ONE_SHOT
-            return if (Build.VERSION.SDK_INT >= 34) {
-                // On API 34+, download tasks are handled with a user-initiated job.
-                // However, there is no way to schedule a new job directly with a pending intent.
-                // As a workaround, we send the subject to a broadcast receiver and have it
-                // schedule the job for us.
-                val intent = createBroadcastIntent(context, subject)
-                PendingIntent.getBroadcast(context, REQUEST_CODE, intent, flag)
+            val intent = createServiceIntent(context, subject)
+            return if (Build.VERSION.SDK_INT >= 26) {
+                PendingIntent.getForegroundService(context, REQUEST_CODE, intent, flag)
             } else {
-                val intent = createServiceIntent(context, subject)
-                if (Build.VERSION.SDK_INT >= 26) {
-                    PendingIntent.getForegroundService(context, REQUEST_CODE, intent, flag)
-                } else {
-                    PendingIntent.getService(context, REQUEST_CODE, intent, flag)
-                }
+                PendingIntent.getService(context, REQUEST_CODE, intent, flag)
             }
         }
 
@@ -110,31 +88,17 @@ class DownloadEngine(session: DownloadSession) : DownloadSession by session, Dow
             subject: Subject
         ) where T : ComponentActivity, T : IActivityExtension {
             activity.withPermission(Manifest.permission.POST_NOTIFICATIONS) {
-                // Always download regardless of notification permission status
                 start(activity.applicationContext, subject)
             }
         }
 
         @SuppressLint("MissingPermission")
         fun start(context: Context, subject: Subject) {
-            if (Build.VERSION.SDK_INT >= 34) {
-                val scheduler = context.getSystemService<JobScheduler>()!!
-                val cmp = JobService::class.java.cmp(context.packageName)
-                val extras = Bundle()
-                extras.putParcelable(SUBJECT_KEY, subject)
-                val info = JobInfo.Builder(Const.ID.DOWNLOAD_JOB_ID, cmp)
-                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                    .setUserInitiated(true)
-                    .setTransientExtras(extras)
-                    .build()
-                scheduler.schedule(info)
+            val intent = createServiceIntent(context, subject)
+            if (Build.VERSION.SDK_INT >= 26) {
+                context.startForegroundService(intent)
             } else {
-                val intent = createServiceIntent(context, subject)
-                if (Build.VERSION.SDK_INT >= 26) {
-                    context.startForegroundService(intent)
-                } else {
-                    context.startService(intent)
-                }
+                context.startService(intent)
             }
         }
     }

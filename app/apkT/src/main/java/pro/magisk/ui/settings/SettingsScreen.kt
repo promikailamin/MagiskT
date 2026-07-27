@@ -149,70 +149,9 @@ private fun CustomizationSection(viewModel: SettingsViewModel) {
 @Composable
 private fun AppSettingsSection() {
     val context = LocalContext.current
-    val resources = LocalResources.current
 
     SmallTitle(text = stringResource(CoreR.string.home_app_title))
     Card(modifier = Modifier.fillMaxWidth()) {
-        // Update Channel
-        val updateChannelEntries = remember {
-            resources.getStringArray(CoreR.array.update_channel).toList()
-        }
-        var updateChannel by remember {
-            mutableIntStateOf(Config.updateChannel.coerceIn(0, updateChannelEntries.size - 1))
-        }
-        var showUrlDialog by remember { mutableStateOf(false) }
-
-        SettingsDropdown(
-            title = stringResource(CoreR.string.settings_update_channel_title),
-            items = updateChannelEntries,
-            selectedIndex = updateChannel,
-            onSelectedIndexChange = { index ->
-                updateChannel = index
-                Config.updateChannel = index
-                Info.resetUpdate()
-                if (index == Config.Value.CUSTOM_CHANNEL && Config.customChannelUrl.isBlank()) {
-                    showUrlDialog = true
-                }
-            }
-        )
-
-        // Update Channel URL (for custom channel)
-        if (updateChannel == Config.Value.CUSTOM_CHANNEL) {
-            UpdateChannelUrlDialog(
-                show = showUrlDialog,
-                onDismiss = { showUrlDialog = false }
-            )
-            SettingsArrow(
-                title = stringResource(CoreR.string.settings_update_custom),
-                summary = Config.customChannelUrl.ifBlank { null },
-                onClick = { showUrlDialog = true }
-            )
-        }
-
-        // DoH Toggle
-        var doh by remember { mutableStateOf(Config.doh) }
-        SettingsSwitch(
-            title = stringResource(CoreR.string.settings_doh_title),
-            summary = stringResource(CoreR.string.settings_doh_description),
-            checked = doh,
-            onCheckedChange = {
-                doh = it
-                Config.doh = it
-            }
-        )
-
-        // Update Checker
-        var checkUpdate by remember { mutableStateOf(Config.checkUpdate) }
-        SettingsSwitch(
-            title = stringResource(CoreR.string.settings_check_update_title),
-            summary = stringResource(CoreR.string.settings_check_update_summary),
-            checked = checkUpdate,
-            onCheckedChange = { newValue ->
-                checkUpdate = newValue
-                Config.checkUpdate = newValue
-            }
-        )
-
         // Download Path
         var showDownloadDialog by remember { mutableStateOf(false) }
         DownloadPathDialog(
@@ -467,38 +406,6 @@ private fun SuperuserSection(viewModel: SettingsViewModel) {
 }
 
 // --- Dialogs ---
-
-@Composable
-private fun UpdateChannelUrlDialog(show: Boolean, onDismiss: () -> Unit) {
-    val showState = rememberSaveable { mutableStateOf(show) }
-    showState.value = show
-    var url by rememberSaveable { mutableStateOf(Config.customChannelUrl) }
-
-    if (showState.value) {
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text(stringResource(CoreR.string.settings_update_custom_msg)) },
-            text = {
-                OutlinedTextField(
-                    value = url,
-                    onValueChange = { url = it },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        Config.customChannelUrl = url
-                        Info.resetUpdate()
-                        onDismiss()
-                    }
-                ) {
-                    Text(stringResource(android.R.string.ok))
-                }
-            }
-        )
-    }
-}
 
 @Composable
 private fun DownloadPathDialog(show: Boolean, onDismiss: () -> Unit) {
