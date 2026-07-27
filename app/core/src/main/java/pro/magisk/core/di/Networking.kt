@@ -15,6 +15,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.io.File
+import java.net.InetAddress
 
 private object SystemDns : Dns {
     override fun lookup(hostname: String): List<InetAddress> {
