@@ -33,6 +33,10 @@ class HomeViewModel(
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
+    enum class State {
+        LOADING, INVALID, OUTDATED, UP_TO_DATE
+    }
+
     val magiskState
         get() = when {
             Info.isRooted && Info.env.isUnsupported -> State.OUTDATED

@@ -34,6 +34,10 @@ class HomeViewModel(
     private val svc: NetworkService
 ) : AsyncLoadViewModel() {
 
+    enum class State {
+        LOADING, INVALID, OUTDATED, UP_TO_DATE
+    }
+
     val magiskTitleBarrierIds =
         intArrayOf(R.id.home_magisk_icon, R.id.home_magisk_title, R.id.home_magisk_button)
     @get:Bindable

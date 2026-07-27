@@ -1,14 +1,11 @@
 package pro.magisk.test
 
-import android.app.Notification
 import android.os.Build
 import androidx.annotation.Keep
 import androidx.core.net.toUri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import pro.magisk.core.BuildConfig.APP_PACKAGE_NAME
 import pro.magisk.core.Const
-import pro.magisk.core.download.DownloadNotifier
-import pro.magisk.core.download.DownloadProcessor
 import pro.magisk.core.ktx.cachedFile
 import pro.magisk.core.ktx.writeTo
 import pro.magisk.core.model.module.LocalModule
@@ -218,17 +215,12 @@ class Environment : BaseTest {
             )
         }
 
-        val notify = object : DownloadNotifier {
-            override val context = appContext
-            override fun notifyUpdate(id: Int, editor: (Notification.Builder) -> Unit) {}
-        }
-        val processor = DownloadProcessor(notify)
-
         val shamiko = appContext.cachedFile("shamiko.zip")
         runBlocking {
             testContext.assets.open("shamiko.zip").use { stream ->
                 stream.writeTo(shamiko)
             }
+            if (shamiko()) {
                 assertTrue(
                     "Shamiko installation failed",
                     FlashZip(shamiko.toUri(), TimberLog, TimberLog).exec()
