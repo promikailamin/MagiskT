@@ -207,6 +207,10 @@ impl MagiskD {
         if self.uid_granted_root(uid) {
             flags |= ZygiskStateFlags::ProcessGrantedRoot.repr
         }
+        // Auto-enable root hider when denylist is enforced
+        if flags & ZygiskStateFlags::DenyListEnforced.repr != 0 {
+            flags |= ZygiskStateFlags::RootHiderEnabled.repr
+        }
 
         // First send flags
         client.write_pod(&flags)?;

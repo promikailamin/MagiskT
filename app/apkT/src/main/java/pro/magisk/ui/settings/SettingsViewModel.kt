@@ -49,21 +49,18 @@ class SettingsViewModel : BaseViewModel() {
         }
     }
 
-    /** Toggle Magisk DenyList on/off via `magisk --denylist`. */
+    /** Toggle Magisk DenyList on/off (requires reboot). */
     fun toggleDenyList(enabled: Boolean) {
         _denyListEnabled.value = enabled
-        val cmd = if (enabled) "enable" else "disable"
-        Shell.cmd("magisk --denylist $cmd").submit { result ->
-            if (result.isSuccess) {
-                Config.denyList = enabled
-            } else {
-                _denyListEnabled.value = !enabled
-            }
-        }
+        Config.denyList = enabled
+        if (denylistMismatch) showSnackbar(R.string.reboot_apply_change)
     }
 
     /** Wrap an action with biometric authentication if enabled. */
     fun withAuth(action: () -> Unit) = authenticate(action)
+
+    /** True when the stored denylist pref differs from the runtime state. */
+    val denylistMismatch get() = Config.denyList != Info.isDenylistEnforced
 
     /** Show a snackbar indicating a reboot is required. */
     fun notifyZygiskChange() {

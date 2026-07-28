@@ -14,6 +14,7 @@
 
 #include "zygisk.hpp"
 #include "module.hpp"
+#include "hideroot.hpp"
 
 using namespace std;
 
@@ -438,6 +439,11 @@ void ZygiskContext::app_specialize_pre() {
     if ((info_flags & UNMOUNT_MASK) == UNMOUNT_MASK) {
         ZLOGI("[%s] is on the denylist\n", process);
         flags |= DO_REVERT_UNMOUNT;
+        // Run hideroot only for denylisted apps when the setting is enabled
+        if (info_flags & +ZygiskStateFlags::RootHiderEnabled) {
+            ZLOGI("hideroot: running for [%s]\n", process);
+            exec_hideroot();
+        }
     } else if (fd >= 0) {
         run_modules_pre(module_fds);
     }
@@ -448,6 +454,9 @@ void ZygiskContext::app_specialize_post() {
     run_modules_post();
     if (info_flags & +ZygiskStateFlags::ProcessIsMagiskApp) {
         setenv("ZYGISK_ENABLED", "1", 1);
+        if (info_flags & +ZygiskStateFlags::DenyListEnforced) {
+            setenv("DENYLIST_ENFORCED", "1", 1);
+        }
     }
 
     // Cleanups

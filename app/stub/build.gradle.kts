@@ -15,7 +15,7 @@ android {
     namespace = "pro.magisk"
     enableKotlin = false
 
-    val base = "https://github.com/promikailamin/Magisk/releases/download/"
+    val base = "https://github.com/promikailamin/MagiskT/releases/download/"
     val url = base + "build/app-release.apk"
 
     defaultConfig {

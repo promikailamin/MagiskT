@@ -27,7 +27,6 @@ class HomeViewModel : AsyncLoadViewModel() {
     data class UiState(
         val isNoticeVisible: Boolean = Config.safetyNotice,
         val showUninstall: Boolean = false,
-        val showHideRestore: Boolean = false,
         val envFixCode: Int = 0,
     )
 
@@ -83,15 +82,6 @@ class HomeViewModel : AsyncLoadViewModel() {
 
     fun onUninstallConsumed() {
         _uiState.update { it.copy(showUninstall = false) }
-    }
-
-    /** User tapped the hide/restore button. */
-    fun onHideRestorePressed() {
-        _uiState.update { it.copy(showHideRestore = true) }
-    }
-
-    fun onHideRestoreConsumed() {
-        _uiState.update { it.copy(showHideRestore = false) }
     }
 
     fun onEnvFixConsumed() {

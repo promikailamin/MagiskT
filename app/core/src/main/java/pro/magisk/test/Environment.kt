@@ -17,12 +17,10 @@ import android.os.Build
 import androidx.annotation.Keep
 import androidx.core.net.toUri
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import pro.magisk.core.BuildConfig.APP_PACKAGE_NAME
 import pro.magisk.core.Const
 import pro.magisk.core.ktx.cachedFile
 import pro.magisk.core.ktx.writeTo
 import pro.magisk.core.model.module.LocalModule
-import pro.magisk.core.tasks.AppMigration
 import pro.magisk.core.tasks.FlashZip
 import pro.magisk.core.tasks.MagiskInstaller
 import pro.magisk.core.utils.RootUtils
@@ -278,29 +276,4 @@ class Environment : BaseTest {
         setupUpgradeModule(root, update)
     }
 
-    /** Tests the app hiding (repackaging) feature. */
-    @Test
-    fun setupAppHide() {
-        runBlocking {
-            assertTrue(
-                "App hiding failed",
-                AppMigration.patchAndHide(
-                    context = appContext,
-                    label = "Settings",
-                    pkg = "repackaged.$APP_PACKAGE_NAME"
-                )
-            )
-        }
-    }
-
-    /** Tests the app restoration feature. */
-    @Test
-    fun setupAppRestore() {
-        runBlocking {
-            assertTrue(
-                "App restoration failed",
-                AppMigration.restoreApp(appContext)
-            )
-        }
-    }
 }

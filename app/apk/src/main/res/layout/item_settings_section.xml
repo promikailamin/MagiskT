@@ -15,7 +15,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingTop="@dimen/l1"
-        android:paddingBottom="@dimen/l_50">
+        android:paddingBottom="@dimen/l_50"
+        android:paddingHorizontal="4dp">
 
         <TextView
             gone="@{item.title.empty}"

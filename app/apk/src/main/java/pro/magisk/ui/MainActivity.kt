@@ -22,7 +22,6 @@ import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.view.forEach
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDirections
 import pro.magisk.MainDirections
 import pro.magisk.R
@@ -38,13 +37,11 @@ import pro.magisk.core.base.SplashScreenHost
 import pro.magisk.core.isRunningAsStub
 import pro.magisk.core.ktx.toast
 import pro.magisk.core.model.module.LocalModule
-import pro.magisk.core.tasks.AppMigration
 import pro.magisk.databinding.ActivityMainMd2Binding
 import pro.magisk.ui.home.HomeFragmentDirections
 import pro.magisk.ui.theme.Theme
 import pro.magisk.view.MagiskDialog
 import pro.magisk.view.Shortcuts
-import kotlinx.coroutines.launch
 import java.io.File
 import pro.magisk.core.R as CoreR
 
@@ -203,10 +200,6 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
                         if (!it) {
                             toast(CoreR.string.install_unknown_denied, Toast.LENGTH_SHORT)
                             showInvalidStateMessage()
-                        } else {
-                            lifecycleScope.launch {
-                                AppMigration.restore(this@MainActivity)
-                            }
                         }
                     }
                 }
