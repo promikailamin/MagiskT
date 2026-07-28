@@ -2,6 +2,7 @@
 
 ## Build
 - **Primary**: `python build.py [all|native|app|app-ng|stub]`
+- **`-t` / `--apkT`**: When set, builds the Jetpack Compose variant (`:apkT`) instead of the DataBinding variant (`:apk`). Works with any action (`all`, `app`, etc.). Combine with `-r`/`-v` (e.g. `python build.py -vrt all`).
 - **Android**: Gradle multi-module under `app/` (Kotlin DSL + custom `MagiskPlugin`)
 - **Config**: `config.prop` (version/ABI/keystore), `app/gradle.properties` (magisk.* prefix)
 - **Native**: Rust (Cargo workspace `native/src/`) + legacy C++ (NDK via `Android.mk`)

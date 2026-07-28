@@ -356,30 +356,42 @@ def build_apk(module: str):
 
 
 def build_app():
-    """Build the main Magisk app APK (apk module) and copy stub APK into output dir."""
-    header("* Building the Magisk app")
-    apk = build_apk(":apk")
+    """Build the Magisk app APK.
+
+    When ``-t`` / ``--apkT`` is set, builds the next-generation Jetpack Compose
+    variant (``:apkT``); otherwise builds the current DataBinding variant (``:apk``).
+    """
+    is_apkT = getattr(args, "apkT", False)
+    module = ":apkT" if is_apkT else ":apk"
+    label = "apkT" if is_apkT else "app"
+    header(f"* Building the Magisk {label} ({module})")
+    apk = build_apk(module)
 
     build_type = "release" if args.release else "debug"
 
-    # Rename apk-variant.apk to app-variant.apk
-    source = apk
-    target = apk.parent / apk.name.replace("apk-", "app-")
-    mv(source, target)
-    header(f"Output: {target}")
+    if is_apkT:
+        header(f"Output: {apk}")
+    else:
+        # Rename apk-variant.apk to app-variant.apk
+        source = apk
+        target = apk.parent / apk.name.replace("apk-", "app-")
+        mv(source, target)
+        header(f"Output: {target}")
 
-    # Stub building is directly integrated into the main app
-    # build process. Copy the stub APK into output directory.
-    source = Path("app", "core", "src", build_type, "assets", "stub.apk")
-    target = config["outdir"] / f"stub-{build_type}.apk"
-    cp(source, target)
+        # Stub building is directly integrated into the main app
+        # build process. Copy the stub APK into output directory.
+        source = Path("app", "core", "src", build_type, "assets", "stub.apk")
+        target = config["outdir"] / f"stub-{build_type}.apk"
+        cp(source, target)
 
 
 def build_apkT():
-    """Build the next-generation Magisk app APK (apkT module, Jetpack Compose)."""
-    header("* Building the Magisk apkT")
-    apk = build_apk(":apkT")
-    header(f"Output: {apk}")
+    """Build the next-generation Magisk app APK (apkT module, Jetpack Compose).
+
+    Delegates to :func:`build_app` with the ``--apkT`` flag forced on.
+    """
+    args.apkT = True
+    build_app()
 
 
 def build_stub():
@@ -431,10 +443,9 @@ def cleanup():
 
 
 def build_all():
-    """Build native binaries, then both app variants (app + apkT)."""
+    """Build native binaries, then the app (apk or apkT depending on ``-t``)."""
     build_native()
     build_app()
-    build_apkT()
 
 ############
 # Utilities
@@ -739,6 +750,13 @@ def parse_args():
     )
     parser.add_argument(
         "-v", "--verbose", action="count", default=0, help="verbose output"
+    )
+    parser.add_argument(
+        "-t",
+        "--apkT",
+        action="store_true",
+        default=False,
+        help="build next-gen Compose app (apkT) instead of the current app (apk)",
     )
     parser.add_argument(
         "-c",
