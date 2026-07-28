@@ -38,6 +38,7 @@ pub enum Token<'a> {
     CM,
     ST,
     TL,
+    #[allow(dead_code)]
     HP,
     HX(u16),
     ID(&'a str),

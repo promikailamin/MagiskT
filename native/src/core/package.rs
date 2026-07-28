@@ -6,11 +6,11 @@
 
 use crate::consts::{APP_PACKAGE_NAME, MAGISK_VER_CODE};
 use crate::daemon::{AID_APP_END, AID_APP_START, AID_USER_OFFSET, MagiskD, to_app_id};
-use crate::ffi::{DbEntryKey, get_magisk_tmp, install_apk, uninstall_pkg};
+use crate::ffi::{DbEntryKey, get_magisk_tmp, install_apk};
 use base::WalkResult::{Abort, Continue, Skip};
 use base::{
     BufReadExt, Directory, FsPathBuilder, LoggedResult, ReadExt, ResultExt, Utf8CStrBuf,
-    Utf8CString, cstr, error, fd_get_attr, warn,
+    Utf8CString, cstr, fd_get_attr, warn,
 };
 use bit_set::BitSet;
 use nix::fcntl::OFlag;
@@ -179,8 +179,9 @@ fn find_apk_path(pkg: &str) -> LoggedResult<Utf8CString> {
 }
 
 enum Status {
-    Installed,
     NotInstalled,
+    Installed,
+    #[allow(dead_code)]
     CertMismatch,
 }
 
@@ -254,7 +255,7 @@ impl ManagerInfo {
             .join_path("dyn")
             .join_path("current.apk");
         let uid: i32;
-        let cert = match apk.open(OFlag::O_RDONLY | OFlag::O_CLOEXEC) {
+        let _cert = match apk.open(OFlag::O_RDONLY | OFlag::O_CLOEXEC) {
             Ok(mut fd) => {
                 uid = fd_get_attr(fd.as_raw_fd())
                     .map(|attr| attr.st.st_uid as i32)
@@ -266,15 +267,6 @@ impl ManagerInfo {
                 return Status::NotInstalled;
             }
         };
-/*
-        if cert.is_empty() || cert != self.trusted_cert {
-            error!("pkg: dyn APK signature mismatch: {}", apk);
-            #[cfg(all(feature = "check-signature", not(debug_assertions)))]
-            {
-                return Status::CertMismatch;
-            }
-        }
-*/
         self.repackaged_app_id = to_app_id(uid);
         self.tracked_files
             .insert(user, TrackedFile::new(apk.to_owned()));
@@ -286,7 +278,7 @@ impl ManagerInfo {
             return Status::NotInstalled;
         };
 
-        let cert = match apk.open(OFlag::O_RDONLY | OFlag::O_CLOEXEC) {
+        let _cert = match apk.open(OFlag::O_RDONLY | OFlag::O_CLOEXEC) {
             Ok(mut fd) => read_certificate(&mut fd, -1),
             Err(_) => return Status::NotInstalled,
         };
@@ -299,7 +291,7 @@ impl ManagerInfo {
 */
         self.repackaged_pkg.clear();
         self.repackaged_pkg.push_str(pkg);
-        self.repackaged_cert = cert;
+        self.repackaged_cert = _cert;
         self.tracked_files.insert(user, TrackedFile::new(apk));
         Status::Installed
     }
@@ -309,7 +301,7 @@ impl ManagerInfo {
             return Status::NotInstalled;
         };
 
-        let cert = match apk.open(OFlag::O_RDONLY | OFlag::O_CLOEXEC) {
+        let _cert = match apk.open(OFlag::O_RDONLY | OFlag::O_CLOEXEC) {
             Ok(mut fd) => read_certificate(&mut fd, MAGISK_VER_CODE),
             Err(_) => return Status::NotInstalled,
         };

@@ -108,6 +108,7 @@ class MainActivity : ComponentActivity(), SplashScreenHost {
         showUnsupportedMessage()
         askForHomeShortcut()
 
+        @Suppress("DEPRECATION")
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         val initialTab = getInitialTab(intent)

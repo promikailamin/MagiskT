@@ -245,6 +245,7 @@ private fun RebootButton() {
     var safeModeEnabled by remember { mutableIntStateOf(Config.bootloop) }
 
     val showUserspace = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+        @Suppress("DEPRECATION")
         context.getSystemService<PowerManager>()?.isRebootingUserspaceSupported == true
     val showSafeMode = Const.Version.atLeast_28_0()
 

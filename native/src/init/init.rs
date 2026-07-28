@@ -13,15 +13,15 @@ use base::{LibcReturn, LoggedResult, ResultExt, cstr, info, raw_cstr};
 use std::ffi::{CStr, c_char};
 use std::ptr::null;
 
-//! `magiskinit` — Magisk's init replacement.
-//!
-//! This binary replaces `/init` on devices with a patched boot image.
-//! It handles first-stage (ramdisk) and second-stage (switch-root) init,
-//! legacy system-as-root, and rootfs-based boot flows.
-//!
-//! The main entry point detects the boot mode via kernel cmdline and
-//! device state, then calls the appropriate initialisation path before
-//! handing control back to the real `system/bin/init`.
+// `magiskinit` — Magisk's init replacement.
+//
+// This binary replaces `/init` on devices with a patched boot image.
+// It handles first-stage (ramdisk) and second-stage (switch-root) init,
+// legacy system-as-root, and rootfs-based boot flows.
+//
+// The main entry point detects the boot mode via kernel cmdline and
+// device state, then calls the appropriate initialisation path before
+// handing control back to the real `system/bin/init`.
 
 impl MagiskInit {
     /// Create a new `MagiskInit` instance with default configuration.

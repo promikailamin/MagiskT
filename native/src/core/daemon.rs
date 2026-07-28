@@ -42,14 +42,14 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::nonpoison::Mutex;
 use std::time::Duration;
 
-//! `magiskd` — the Magisk daemon.
-//!
-//! This is the core userspace daemon responsible for:
-//! - Hosting a Unix domain socket (`magisk.sock`) for IPC.
-//! - Handling SU requests, denylist operations, and boot-stage callbacks
-//!   (PostFsData, LateStart, BootComplete).
-//! - Managing Zygisk state, the SQLite database, and module mounting.
-//! - Running as a long-lived root process forked from any Magisk client.
+// `magiskd` — the Magisk daemon.
+//
+// This is the core userspace daemon responsible for:
+// - Hosting a Unix domain socket (`magisk.sock`) for IPC.
+// - Handling SU requests, denylist operations, and boot-stage callbacks
+//   (PostFsData, LateStart, BootComplete).
+// - Managing Zygisk state, the SQLite database, and module mounting.
+// - Running as a long-lived root process forked from any Magisk client.
 
 /// Global magiskd singleton, initialised once in [`daemon_entry`].
 pub static MAGISKD: OnceLock<MagiskD> = OnceLock::new();

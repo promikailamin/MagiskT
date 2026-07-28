@@ -13,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContract
 
 class RequestAuthentication: ActivityResultContract<Unit, Boolean>() {
 
+    @Suppress("DEPRECATION")
     override fun createIntent(context: Context, input: Unit) =
         context.getSystemService(KeyguardManager::class.java)
             .createConfirmDeviceCredentialIntent(null, null)

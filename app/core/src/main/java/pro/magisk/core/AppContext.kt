@@ -130,6 +130,7 @@ object AppContext : ContextWrapper(null),
     override fun onActivityStopped(activity: Activity) {}
     override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
     override fun onActivityDestroyed(activity: Activity) {}
+    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
     override fun onLowMemory() {}
     override fun onTrimMemory(level: Int) {}
 }

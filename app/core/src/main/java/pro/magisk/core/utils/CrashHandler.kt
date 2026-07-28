@@ -70,6 +70,7 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
         pw.println("Type: ${Build.TYPE}")
         pw.println()
         pw.println("--- THREAD INFO ---")
+        @Suppress("DEPRECATION")
         pw.println("Thread: ${thread.name} (id=${thread.id})")
         pw.println("Priority: ${thread.priority}")
         pw.println("Daemon: ${thread.isDaemon}")
@@ -88,7 +89,9 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
         pw.println("--- ALL THREADS ---")
         val threadMap = Thread.getAllStackTraces()
         threadMap.forEach { (t, stack) ->
+            @Suppress("DEPRECATION")
             if (t.id != thread.id) {
+                @Suppress("DEPRECATION")
                 pw.println("Thread: ${t.name} (id=${t.id}, state=${t.state})")
                 stack.forEach { element ->
                     pw.println("\tat $element")

@@ -90,6 +90,7 @@ class ActivityExtension(private val activity: ComponentActivity) {
 
     fun onCreate(savedInstanceState: Bundle?) {
         contentCallback = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            @Suppress("DEPRECATION")
             savedInstanceState?.getParcelable(CONTENT_CALLBACK_KEY)
         } else {
             savedInstanceState

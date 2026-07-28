@@ -24,12 +24,12 @@ use std::os::unix::net::UnixStream;
 use std::process::{Command, Stdio};
 use std::sync::atomic::Ordering;
 
-//! Boot stage state machine and callback handlers.
-//!
-//! Defines the [`BootState`] bitflags that track which init stages have
-//! completed (PostFsData, LateStart, BootComplete), and implements the
-//! per-stage handlers on [`MagiskD`] for environment setup, module loading,
-//! script execution, and Zygisk initialisation.
+// Boot stage state machine and callback handlers.
+//
+// Defines the [`BootState`] bitflags that track which init stages have
+// completed (PostFsData, LateStart, BootComplete), and implements the
+// per-stage handlers on [`MagiskD`] for environment setup, module loading,
+// script execution, and Zygisk initialisation.
 
 bitflags! {
     /// Tracks the current boot stage and whether safe mode is active.
