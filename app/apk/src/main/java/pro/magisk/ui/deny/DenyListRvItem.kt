@@ -1,3 +1,12 @@
+/**
+ * RecyclerView items for the DenyList screen.
+ *
+ * - [DenyListRvItem]: represents an app with expandable per-process toggles.
+ *   The checkbox state is tri-state (all/some/none) computed from sub-process states.
+ * - [ProcessRvItem]: represents a single process entry within an app's denylist.
+ *
+ * Changes to process states are immediately applied via `magisk --denylist add/rm`.
+ */
 package pro.magisk.ui.deny
 
 import android.view.View
@@ -13,6 +22,7 @@ import pro.magisk.databinding.set
 import com.topjohnwu.superuser.Shell
 import kotlin.math.roundToInt
 
+/** An app entry with a checkbox (tri-state) and an expandable list of processes. */
 class DenyListRvItem(
     val info: AppProcessInfo
 ) : ObservableRvItem(), DiffItem<DenyListRvItem>, Comparable<DenyListRvItem> {
@@ -41,11 +51,13 @@ class DenyListRvItem(
         get() = _state
         set(value) = set(value, _state, { _state = it }, BR.state) {
             if (value == true) {
+                // Enable all default or visible processes
                 processes
                     .filterNot { it.isEnabled }
                     .filter { isExpanded || it.defaultSelection }
                     .forEach { it.toggle() }
             } else {
+                // Remove the entire package from denylist
                 Shell.cmd("magisk --denylist rm ${info.packageName}").submit()
                 processes.filter { it.isEnabled }.forEach {
                     if (it.process.isIsolated) {
@@ -69,6 +81,7 @@ class DenyListRvItem(
         isExpanded = !isExpanded
     }
 
+    /** Recalculates the checked count and tri-state from sub-process states. */
     private fun recalculateChecked() {
         itemsChecked = processes.count { it.isEnabled }
         _state = if (isExpanded) {
@@ -98,6 +111,7 @@ class DenyListRvItem(
 
 }
 
+/** A single process entry within an app's denylist. */
 class ProcessRvItem(
     val process: ProcessInfo
 ) : ObservableRvItem(), DiffItem<ProcessRvItem> {

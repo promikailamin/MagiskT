@@ -1,3 +1,10 @@
+//! Crate root for `boot-rs` — the Rust portion of magiskboot.
+//!
+//! Defines the [`cxx::bridge`] FFI boundary (`pub mod ffi`) with the
+//! [`FileFormat`] enum, [`BootImage`] type, and all exported functions
+//! used by the C++ magiskboot core (compress/decompress, sign, unpack/
+//! repack, split DTB, etc.).
+
 #![feature(format_args_nl)]
 #![feature(iter_intersperse)]
 

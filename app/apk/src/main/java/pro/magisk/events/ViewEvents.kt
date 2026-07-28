@@ -1,3 +1,9 @@
+/**
+ * Concrete [ViewEvent] subclasses used throughout the app.
+ *
+ * Each event implements an executor interface ([ActivityExecutor], [ContextExecutor]) so the
+ * receiving Activity/Fragment can dispatch it to the right scope without boilerplate.
+ */
 package pro.magisk.events
 
 import android.content.Context
@@ -17,6 +23,7 @@ import pro.magisk.core.utils.asText
 import pro.magisk.view.MagiskDialog
 import pro.magisk.view.Shortcuts
 
+/** Requests a runtime permission from the user. */
 class PermissionEvent(
     private val permission: String,
     private val callback: (Boolean) -> Unit
@@ -26,18 +33,21 @@ class PermissionEvent(
         activity.withPermission(permission, callback)
 }
 
+/** Triggers the system back button. */
 class BackPressEvent : ViewEvent(), ActivityExecutor {
     override fun invoke(activity: UIActivity<*>) {
         activity.onBackPressed()
     }
 }
 
+/** Finishes the current activity. */
 class DieEvent : ViewEvent(), ActivityExecutor {
     override fun invoke(activity: UIActivity<*>) {
         activity.finish()
     }
 }
 
+/** Inflates the content view and optionally sets an accessibility delegate. */
 class ShowUIEvent(private val delegate: View.AccessibilityDelegate?)
     : ViewEvent(), ActivityExecutor {
     override fun invoke(activity: UIActivity<*>) {
@@ -46,12 +56,14 @@ class ShowUIEvent(private val delegate: View.AccessibilityDelegate?)
     }
 }
 
+/** Triggers a full activity recreate (e.g. after theme change). */
 class RecreateEvent : ViewEvent(), ActivityExecutor {
     override fun invoke(activity: UIActivity<*>) {
         activity.relaunch()
     }
 }
 
+/** Requests biometric / device-auth before proceeding. */
 class AuthEvent(
     private val callback: () -> Unit
 ) : ViewEvent(), ActivityExecutor {
@@ -61,6 +73,7 @@ class AuthEvent(
     }
 }
 
+/** Opens the system file-picker (ActivityResultContract-based). */
 class GetContentEvent(
     private val type: String,
     private val callback: ContentResultCallback
@@ -70,6 +83,7 @@ class GetContentEvent(
     }
 }
 
+/** Navigates to a new destination, optionally popping the back-stack first. */
 class NavigationEvent(
     private val directions: NavDirections,
     private val pop: Boolean
@@ -82,12 +96,14 @@ class NavigationEvent(
     }
 }
 
+/** Requests a home-screen shortcut to be added. */
 class AddHomeIconEvent : ViewEvent(), ContextExecutor {
     override fun invoke(context: Context) {
         Shortcuts.addHomeIcon(context)
     }
 }
 
+/** Displays a Snackbar with the given message, length, and optional customisation. */
 class SnackbarEvent(
     private val msg: TextHolder,
     private val length: Int = Snackbar.LENGTH_SHORT,
@@ -111,6 +127,7 @@ class SnackbarEvent(
     }
 }
 
+/** Shows a [MagiskDialog] built from the provided [DialogBuilder]. */
 class DialogEvent(
     private val builder: DialogBuilder
 ) : ViewEvent(), ActivityExecutor {
@@ -119,6 +136,7 @@ class DialogEvent(
     }
 }
 
+/** Implemented by objects that configure a [MagiskDialog] declaratively. */
 interface DialogBuilder {
     fun build(dialog: MagiskDialog)
 }

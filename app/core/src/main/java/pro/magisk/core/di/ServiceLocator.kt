@@ -1,3 +1,13 @@
+/**
+ * Manual service-locator (no DI framework).
+ *
+ * Owns long-lived singletons — shell-backed MagiskDB DAOs,
+ * Room database for SU logs, and a pre-configured Markwon
+ * instance for rendering Markdown in-app.
+ *
+ * All properties are lazy so nothing is initialised before
+ * it is first needed.
+ */
 package pro.magisk.core.di
 
 import android.annotation.SuppressLint
@@ -17,16 +27,20 @@ import io.noties.markwon.utils.NoCopySpannableFactory
 @SuppressLint("StaticFieldLeak")
 object ServiceLocator {
 
+    /** Device-protected context – survives reboots. */
     val deContext by lazy { AppContext.deviceProtectedContext }
     val timeoutPrefs by lazy { deContext.getSharedPreferences("su_timeout", 0) }
 
-    // Database
+    // ---- Shell-backed MagiskDB DAOs ----
     val policyDB = PolicyDao()
     val settingsDB = SettingsDao()
     val stringDB = StringDao()
+
+    // ---- Room (SU access logs) ----
     val sulogDB by lazy { createSuLogDatabase(deContext).suLogDao() }
     val logRepo by lazy { LogRepository(sulogDB) }
 
+    // ---- Markdown renderer ----
     val markwon by lazy { createMarkwon(AppContext) }
 }
 

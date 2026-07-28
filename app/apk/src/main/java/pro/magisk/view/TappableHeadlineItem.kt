@@ -1,3 +1,9 @@
+/**
+ * A tappable headline item used in settings-like screens.
+ *
+ * Currently used for the "Dark Mode" theme selector on the theme picker screen.
+ * The [Listener] interface allows the hosting ViewModel to handle taps.
+ */
 package pro.magisk.view
 
 import pro.magisk.R
@@ -5,6 +11,7 @@ import pro.magisk.databinding.DiffItem
 import pro.magisk.databinding.RvItem
 import pro.magisk.core.R as CoreR
 
+/** Base class for a tappable headline row with an icon and title. */
 sealed class TappableHeadlineItem : RvItem(), DiffItem<TappableHeadlineItem> {
 
     abstract val title: Int
@@ -12,15 +19,9 @@ sealed class TappableHeadlineItem : RvItem(), DiffItem<TappableHeadlineItem> {
 
     override val layoutRes = R.layout.item_tappable_headline
 
-    // --- listener
-
     interface Listener {
-
         fun onItemPressed(item: TappableHeadlineItem)
-
     }
-
-    // --- objects
 
     object ThemeMode : TappableHeadlineItem() {
         override val title = CoreR.string.settings_dark_mode_title

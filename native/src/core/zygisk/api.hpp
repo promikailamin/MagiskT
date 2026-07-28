@@ -1,3 +1,9 @@
+/**
+ * Public Zygisk module API header.
+ * This is the stable API that Zygisk module developers include.
+ * Defines zygisk::ModuleBase, zygisk::Api, REGISTER_ZYGISK_MODULE,
+ * and REGISTER_ZYGISK_COMPANION macros. This file must not be modified.
+ */
 /* Copyright 2022-2023 John "topjohnwu" Wu
  *
  * Permission to use, copy, modify, and/or distribute this software for any
@@ -183,28 +189,20 @@ template <class T> void entry_impl(api_table *, JNIEnv *);
 }
 
 // These values are used in Api::setOption(Option)
+/** Module options configurable via Api::setOption(). */
 enum Option : int {
-    // Force Magisk's denylist unmount routines to run on this process.
-    //
-    // Setting this option only makes sense in preAppSpecialize.
-    // The actual unmounting happens during app process specialization.
-    //
-    // Set this option to force all Magisk and modules' files to be unmounted from the
-    // mount namespace of the process, regardless of the denylist enforcement status.
+    /** Force Magisk's denylist unmount routines to run on this process regardless of denylist state. */
     FORCE_DENYLIST_UNMOUNT = 0,
-
-    // When this option is set, your module's library will be dlclose-ed after post[XXX]Specialize.
-    // Be aware that after dlclose-ing your module, all of your code will be unmapped from memory.
-    // YOU MUST NOT ENABLE THIS OPTION AFTER HOOKING ANY FUNCTIONS IN THE PROCESS.
+    /** Unload the module library via dlclose after post[XXX]Specialize. Do not enable after hooking. */
     DLCLOSE_MODULE_LIBRARY = 1,
 };
 
 // Bit masks of the return value of Api::getFlags()
+/** Bit flags returned by Api::getFlags(). */
 enum StateFlag : uint32_t {
-    // The user has granted root access to the current process
+    /** The user has granted root access to the current process. */
     PROCESS_GRANTED_ROOT = (1u << 0),
-
-    // The current process was added on the denylist
+    /** The current process is on the denylist. */
     PROCESS_ON_DENYLIST = (1u << 1),
 };
 
@@ -316,6 +314,7 @@ void zygisk_companion_entry(int client) { func(client); }
 
 namespace internal {
 
+/** Internal module ABI struct passed between the module and Zygisk at registration time. */
 struct module_abi {
     long api_version;
     ModuleBase *impl;
@@ -333,6 +332,7 @@ struct module_abi {
     }
 };
 
+/** Internal API table: function pointers that Zygisk fills in for the module to call. */
 struct api_table {
     // Base
     void *impl;
@@ -348,6 +348,7 @@ struct api_table {
     uint32_t (*getFlags)(void * /* impl */);
 };
 
+/** Module entry point implementation: create the Api instance and the module object, register it, and call onLoad. */
 template <class T>
 void entry_impl(api_table *table, JNIEnv *env) {
     static Api api;
@@ -361,27 +362,35 @@ void entry_impl(api_table *table, JNIEnv *env) {
 
 } // namespace internal
 
+/** Connect to the module's root companion daemon process for IPC. Returns fd or -1. */
 inline int Api::connectCompanion() {
     return tbl->connectCompanion ? tbl->connectCompanion(tbl->impl) : -1;
 }
+/** Get the file descriptor for the module's root directory. Returns fd or -1. */
 inline int Api::getModuleDir() {
     return tbl->getModuleDir ? tbl->getModuleDir(tbl->impl) : -1;
 }
+/** Set a module option (e.g., FORCE_DENYLIST_UNMOUNT). */
 inline void Api::setOption(Option opt) {
     if (tbl->setOption) tbl->setOption(tbl->impl, opt);
 }
+/** Get zygisk state flags (PROCESS_GRANTED_ROOT, PROCESS_ON_DENYLIST). */
 inline uint32_t Api::getFlags() {
     return tbl->getFlags ? tbl->getFlags(tbl->impl) : 0;
 }
+/** Exempt a file descriptor from being auto-closed during app specialization. */
 inline bool Api::exemptFd(int fd) {
     return tbl->exemptFd != nullptr && tbl->exemptFd(fd);
 }
+/** Hook JNI native methods for a class, saving original function pointers. */
 inline void Api::hookJniNativeMethods(JNIEnv *env, const char *className, JNINativeMethod *methods, int numMethods) {
     if (tbl->hookJniNativeMethods) tbl->hookJniNativeMethods(env, className, methods, numMethods);
 }
+/** Register a PLT hook: replace `symbol` in the ELF identified by (dev, inode) with `newFunc`. */
 inline void Api::pltHookRegister(dev_t dev, ino_t inode, const char *symbol, void *newFunc, void **oldFunc) {
     if (tbl->pltHookRegister) tbl->pltHookRegister(dev, inode, symbol, newFunc, oldFunc);
 }
+/** Commit all registered PLT hooks. Returns false if an error occurred. */
 inline bool Api::pltHookCommit() {
     return tbl->pltHookCommit != nullptr && tbl->pltHookCommit();
 }

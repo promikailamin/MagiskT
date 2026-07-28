@@ -1,3 +1,10 @@
+/**
+ * ViewModel for the module list screen.
+ *
+ * Loads installed modules from [LocalModule], exposes a merged observable list
+ * (install-button item + module items), and handles the "install from storage"
+ * file-picker flow via [GetContentEvent].
+ */
 package pro.magisk.ui.module
 
 import android.net.Uri
@@ -23,6 +30,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import pro.magisk.core.R as CoreR
 
+/** ViewModel for the module list — loading, display, and install flows. */
 class ModuleViewModel : AsyncLoadViewModel() {
 
     val bottomBarBarrierIds = intArrayOf(R.id.module_remove)

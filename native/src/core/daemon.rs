@@ -1,3 +1,9 @@
+//! The `magisk` daemon — socket-based IPC server for root, modules, and policy.
+//!
+//! Provides the [`MagiskD`] singleton that manages boot stages (`post-fs-data`,
+//! `late_start`, `boot_complete`), handles `su` requests, loads/unloads
+//! modules, and communicates with the Magisk app via Unix domain sockets.
+
 use crate::bootstages::BootState;
 use crate::consts::{
     MAGISK_FILE_CON, MAGISK_FULL_VER, MAGISK_PROC_CON, MAGISK_VER_CODE, MAGISK_VERSION,
@@ -36,47 +42,86 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::nonpoison::Mutex;
 use std::time::Duration;
 
-// Global magiskd singleton
+//! `magiskd` — the Magisk daemon.
+//!
+//! This is the core userspace daemon responsible for:
+//! - Hosting a Unix domain socket (`magisk.sock`) for IPC.
+//! - Handling SU requests, denylist operations, and boot-stage callbacks
+//!   (PostFsData, LateStart, BootComplete).
+//! - Managing Zygisk state, the SQLite database, and module mounting.
+//! - Running as a long-lived root process forked from any Magisk client.
+
+/// Global magiskd singleton, initialised once in [`daemon_entry`].
 pub static MAGISKD: OnceLock<MagiskD> = OnceLock::new();
 
+/// UID of the root user.
 pub const AID_ROOT: i32 = 0;
+/// UID of the shell user.
 pub const AID_SHELL: i32 = 2000;
+/// First UID assigned to Android applications.
 pub const AID_APP_START: i32 = 10000;
+/// Last UID assigned to Android applications.
 pub const AID_APP_END: i32 = 19999;
+/// Per-user UID offset in Android's multi-user model.
 pub const AID_USER_OFFSET: i32 = 100000;
 
+/// Extract the app ID from a full UID (strip the user ID).
 pub const fn to_app_id(uid: i32) -> i32 {
     uid % AID_USER_OFFSET
 }
 
+/// Extract the user ID from a full UID.
 pub const fn to_user_id(uid: i32) -> i32 {
     uid / AID_USER_OFFSET
 }
 
+/// Global daemon state singleton.
+///
+/// Holds all runtime state that needs to be accessible across the process:
+/// the SQLite connection, Magisk Manager info, boot stage, module list,
+/// Zygisk state, cached SU policy, and device properties.
 #[derive(Default)]
 pub struct MagiskD {
+    /// Shared SQLite3 database connection.
     pub sql_connection: Mutex<Option<Sqlite3>>,
+    /// Information about the installed Magisk Manager package.
     pub manager_info: Mutex<ManagerInfo>,
+    /// Current boot stage (PostFsData / LateStart / BootComplete).
     pub boot_stage_lock: Mutex<BootState>,
+    /// List of loaded Magisk modules and their info.
     pub module_list: OnceLock<Vec<ModuleInfo>>,
+    /// Whether Zygisk is enabled for this boot session.
     pub zygisk_enabled: AtomicBool,
+    /// Zygisk state (injected, companion pid, etc.).
     pub zygisk: Mutex<ZygiskState>,
+    /// Cached SU policy info for fast access.
     pub cached_su_info: AtomicArc<SuInfo>,
+    /// Android SDK API level.
     pub sdk_int: i32,
+    /// Whether the device is running inside an emulator.
     pub is_emulator: bool,
+    /// Whether the daemon was started from recovery mode.
     is_recovery: bool,
+    /// Device/inode of the daemon executable (used for client identity checks).
     exe_attr: FileAttr,
 }
 
 impl MagiskD {
+    /// Returns a reference to the global daemon singleton.
+    ///
+    /// # Safety
+    /// Panics if called before [`MAGISKD`] has been initialised.
     pub fn get() -> &'static MagiskD {
         unsafe { MAGISKD.get().unwrap_unchecked() }
     }
 
+    /// Returns the Android SDK API level detected at boot.
     pub fn sdk_int(&self) -> i32 {
         self.sdk_int
     }
 
+    /// Returns the app data directory prefix (`/data/user_de` or `/data/user`)
+    /// depending on the SDK level.
     pub fn app_data_dir(&self) -> &'static Utf8CStr {
         if self.sdk_int >= 24 {
             cstr!("/data/user_de")
@@ -85,6 +130,10 @@ impl MagiskD {
         }
     }
 
+    /// Handle a synchronous request on the main thread.
+    ///
+    /// These are simple queries (version checks, log setup, daemon stop)
+    /// that complete instantly without blocking.
     fn handle_request_sync(&self, mut client: UnixStream, code: RequestCode) {
         match code {
             RequestCode::CHECK_VERSION => {
@@ -117,6 +166,10 @@ impl MagiskD {
         }
     }
 
+    /// Handle an asynchronous request on a worker thread.
+    ///
+    /// These include denylist operations, SU requests, zygote restart
+    /// handling, SQLite commands, module removal, and Zygisk dispatch.
     fn handle_request_async(&self, mut client: UnixStream, code: RequestCode, cred: UCred) {
         match code {
             RequestCode::DENYLIST => {
@@ -151,6 +204,7 @@ impl MagiskD {
         }
     }
 
+    /// Reboot the device (optionally into recovery).
     fn reboot(&self) {
         if self.is_recovery {
             Command::new("/system/bin/reboot").arg("recovery").status()
@@ -160,6 +214,8 @@ impl MagiskD {
         .ok();
     }
 
+    /// Check whether the process identified by `pid` shares the same
+    /// executable as the daemon (i.e. is a Magisk client).
     #[cfg(feature = "check-client")]
     fn is_client(&self, pid: i32) -> bool {
         let mut buf = cstr::buf::new::<32>();
@@ -171,11 +227,18 @@ impl MagiskD {
         }
     }
 
+    /// When client identity checking is disabled, all callers are accepted.
     #[cfg(not(feature = "check-client"))]
     fn is_client(&self, pid: i32) -> bool {
         true
     }
 
+    /// Main per-connection dispatch loop.
+    ///
+    /// Reads the peer credentials and SELinux context, performs permission
+    /// checks, reads the [`RequestCode`], then dispatches to the synchronous
+    /// handler, asynchronous handler, or boot-stage handler depending on the
+    /// code's position relative to the sync and stage barriers.
     fn handle_requests(&'static self, mut client: UnixStream) {
         let Ok(cred) = client.peer_cred() else {
             // Client died
@@ -267,6 +330,8 @@ impl MagiskD {
     }
 }
 
+/// Write the current process PID into a cgroup's `cgroup.procs` file,
+/// effectively moving it out of the default cgroup.
 fn switch_cgroup(cgroup: &str, pid: i32) {
     let mut buf = cstr::buf::new::<64>()
         .join_path(cgroup)
@@ -281,6 +346,11 @@ fn switch_cgroup(cgroup: &str, pid: i32) {
     }
 }
 
+/// Entry point for the forked magiskd process.
+///
+/// Sets up signal handling, logging, SELinux context, reads device
+/// properties, cleans up pre-init mounts & cgroups, then binds the
+/// Unix domain socket and enters the accept loop.
 fn daemon_entry() {
     set_nice_name(cstr!("magiskd"));
     android_logging();
@@ -427,6 +497,11 @@ fn daemon_entry() {
     }
 }
 
+/// Connect to the magiskd daemon's Unix socket.
+///
+/// If the daemon is not running and `create` is true, the calling process
+/// will fork and exec `daemon_entry()` in the child, then retry the
+/// connection in the parent.
 pub fn connect_daemon(code: RequestCode, create: bool) -> LoggedResult<UnixStream> {
     let sock_path = cstr::buf::new::<64>()
         .join_path(get_magisk_tmp())
@@ -483,6 +558,8 @@ pub fn connect_daemon(code: RequestCode, create: bool) -> LoggedResult<UnixStrea
     }
 }
 
+/// CXX-friendly wrapper that returns a raw file descriptor instead of a
+/// `LoggedResult`. Returns -1 on failure.
 pub fn connect_daemon_for_cxx(code: RequestCode, create: bool) -> RawFd {
     connect_daemon(code, create)
         .map(IntoRawFd::into_raw_fd)

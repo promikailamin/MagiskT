@@ -1,3 +1,9 @@
+/**
+ * Represents a Magisk module installed on the device.
+ *
+ * Reads metadata from `module.prop` and exposes state files
+ * (`remove`, `disable`, `update`, `zygisk/`) as properties.
+ */
 package pro.magisk.core.model.module
 
 import pro.magisk.core.Const
@@ -54,6 +60,7 @@ data class LocalModule(
             }
         }
 
+    /** Parse module.prop into the model fields. */
     @Throws(NumberFormatException::class)
     private fun parseProps(props: List<String>) {
         for (line in props) {
@@ -93,8 +100,10 @@ data class LocalModule(
 
     companion object {
 
+        /** Check whether the module path exists. */
         fun loaded() = RootUtils.fs.getFile(Const.MODULE_PATH).exists()
 
+        /** List all installed modules, sorted by name. */
         suspend fun installed() = withContext(Dispatchers.IO) {
             RootUtils.fs.getFile(Const.MODULE_PATH)
                 .listFiles()

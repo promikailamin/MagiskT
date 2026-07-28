@@ -1,3 +1,6 @@
+// :core module - Shared logic library for the Magisk apps.
+// Provides DI (ServiceLocator), Room database, networking (OkHttp/Retrofit),
+// flash/install logic, SU handling, and the download engine.
 plugins {
     alias(libs.plugins.android.library)
     kotlin("plugin.parcelize")

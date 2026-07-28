@@ -1,3 +1,10 @@
+/**
+ * Simple HTTP networking utility based on {@link java.net.HttpURLConnection}.
+ *
+ * Provides convenience methods for GET requests and network connectivity checks.
+ * Uses a background thread pool for async requests and posts results back to the
+ * main thread via a Handler.
+ */
 package pro.magisk.net;
 
 import android.content.Context;
@@ -14,8 +21,10 @@ public class Networking {
 
     private static final int READ_TIMEOUT = 15000;
     private static final int CONNECT_TIMEOUT = 15000;
+    /** Handler for posting callbacks to the main thread. */
     static Handler mainHandler = new Handler(Looper.getMainLooper());
 
+    /** Creates a Request for the given URL and HTTP method. Returns a BadRequest on connection failure. */
     private static Request request(String url, String method) {
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
@@ -28,10 +37,12 @@ public class Networking {
         }
     }
 
+    /** Convenience: creates a GET request for the given URL. */
     public static Request get(String url) {
         return request(url, "GET");
     }
 
+    /** Returns true if the device currently has an active network connection. */
     public static boolean checkNetworkStatus(Context context) {
         ConnectivityManager manager = (ConnectivityManager)
                 context.getSystemService(Context.CONNECTIVITY_SERVICE);

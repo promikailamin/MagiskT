@@ -1,3 +1,7 @@
+/**
+ * ViewModel for the home screen. Tracks Magisk installation state (up-to-date / outdated /
+ * invalid), manages visibility of the safety notice, and triggers environment checks.
+ */
 package pro.magisk.ui.home
 
 import android.content.ActivityNotFoundException
@@ -34,6 +38,7 @@ class HomeViewModel : AsyncLoadViewModel() {
         LOADING, INVALID, OUTDATED, UP_TO_DATE
     }
 
+    /** Computed Magisk installation state based on environment and app version. */
     val magiskState
         get() = when {
             Info.isRooted && Info.env.isUnsupported -> State.OUTDATED
@@ -42,6 +47,7 @@ class HomeViewModel : AsyncLoadViewModel() {
             else -> State.UP_TO_DATE
         }
 
+    /** Human-readable version string with optional debug marker. */
     val magiskInstalledVersion: String
         get() = Info.env.run {
             if (isActive)
@@ -51,6 +57,7 @@ class HomeViewModel : AsyncLoadViewModel() {
         }
 
     companion object {
+        /** Only run the env check once per process lifetime. */
         private var checkedEnv = false
     }
 
@@ -58,6 +65,7 @@ class HomeViewModel : AsyncLoadViewModel() {
         ensureEnv()
     }
 
+    /** Open a URL in an external browser. */
     fun onLinkPressed(link: String) {
         val intent = Intent(Intent.ACTION_VIEW, link.toUri())
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -68,6 +76,7 @@ class HomeViewModel : AsyncLoadViewModel() {
         }
     }
 
+    /** User tapped the uninstall button. */
     fun onDeletePressed() {
         _uiState.update { it.copy(showUninstall = true) }
     }
@@ -76,6 +85,7 @@ class HomeViewModel : AsyncLoadViewModel() {
         _uiState.update { it.copy(showUninstall = false) }
     }
 
+    /** User tapped the hide/restore button. */
     fun onHideRestorePressed() {
         _uiState.update { it.copy(showHideRestore = true) }
     }
@@ -88,11 +98,13 @@ class HomeViewModel : AsyncLoadViewModel() {
         _uiState.update { it.copy(envFixCode = 0) }
     }
 
+    /** Dismiss the safety notice permanently. */
     fun hideNotice() {
         Config.safetyNotice = false
         _uiState.update { it.copy(isNoticeVisible = false) }
     }
 
+    /** Run `env_check` via shell to verify the Magisk environment is consistent. */
     private suspend fun ensureEnv() {
         if (magiskState == State.INVALID || checkedEnv) return
         val cmd = "env_check ${Info.env.versionString} ${Info.env.versionCode}"

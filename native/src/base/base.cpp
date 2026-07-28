@@ -1,3 +1,8 @@
+/**
+ * Core utility functions for all Magisk native components.
+ * Provides memory patching, process forking, command execution,
+ * logging, string utilities, mmap wrappers, and file I/O helpers.
+ */
 #include <sys/wait.h>
 #include <sys/prctl.h>
 #include <sys/mman.h>
@@ -20,17 +25,26 @@ static_assert(BLKGETSIZE64 == 0x80081272);
 static_assert(BLKGETSIZE64 == 0x80041272);
 #endif
 
-// Override libc++ new implementation to optimize final build size
+// Override libc++ new/delete to redirect all allocations to malloc/free, reducing final binary size
 
+/** Allocate memory via malloc. */
 void* operator new(std::size_t s) { return std::malloc(s); }
+/** Allocate array memory via malloc. */
 void* operator new[](std::size_t s) { return std::malloc(s); }
+/** Free memory via free. */
 void  operator delete(void *p) { std::free(p); }
+/** Free array memory via free. */
 void  operator delete[](void *p) { std::free(p); }
+/** Non-throwing allocate via malloc. */
 void* operator new(std::size_t s, const std::nothrow_t&) noexcept { return std::malloc(s); }
+/** Non-throwing array allocate via malloc. */
 void* operator new[](std::size_t s, const std::nothrow_t&) noexcept { return std::malloc(s); }
+/** Non-throwing free via free. */
 void  operator delete(void *p, const std::nothrow_t&) noexcept { std::free(p); }
+/** Non-throwing array free via free. */
 void  operator delete[](void *p, const std::nothrow_t&) noexcept { std::free(p); }
 
+/** Search-and-replace byte patterns in-place. Returns list of offsets where replacements occurred. */
 rust::Vec<size_t> byte_data::patch(byte_view from, byte_view to) const {
     rust::Vec<size_t> v;
     if (ptr == nullptr)
@@ -49,11 +63,13 @@ rust::Vec<size_t> byte_data::patch(byte_view from, byte_view to) const {
     return v;
 }
 
+/** Patch a Rust mutable byte slice by replacing all occurrences of a byte pattern. Exported FFI. */
 rust::Vec<size_t> mut_u8_patch(MutByteSlice buf, ByteSlice from, ByteSlice to) {
     byte_data data(buf);
     return data.patch(from, to);
 }
 
+/** Fork a grandchild, wait for the child, and return 0 in the grandchild (orphaned to init). */
 int fork_dont_care() {
     if (int pid = xfork()) {
         waitpid(pid, nullptr, 0);
@@ -64,6 +80,7 @@ int fork_dont_care() {
     return 0;
 }
 
+/** Fork and set PR_SET_PDEATHSIG so the child dies if the parent dies. */
 int fork_no_orphan() {
     int pid = xfork();
     if (pid)
@@ -74,6 +91,7 @@ int fork_no_orphan() {
     return 0;
 }
 
+/** Execute a command with optional pipe capture, pre-exec callback, and custom fork behaviour. */
 int exec_command(exec_t &exec) {
     auto pipefd = array<int, 2>{-1, -1};
     int outfd = -1;
@@ -120,6 +138,7 @@ int exec_command(exec_t &exec) {
     exit(-1);
 }
 
+/** Execute a command synchronously and return its exit status. */
 int exec_command_sync(exec_t &exec) {
     int pid = exec_command(exec);
     if (pid < 0)
@@ -129,6 +148,7 @@ int exec_command_sync(exec_t &exec) {
     return WEXITSTATUS(status);
 }
 
+/** Create a new detached daemon thread. Returns 0 on success, errno on failure. */
 int new_daemon_thread(thread_entry entry, void *arg) {
     pthread_t thread;
     pthread_attr_t attr;
@@ -143,11 +163,13 @@ int new_daemon_thread(thread_entry entry, void *arg) {
 
 static char *argv0;
 static size_t name_len;
+/** Store argv[0] and its buffer size so set_nice_name can overwrite the process name in-place. */
 void init_argv0(int argc, char **argv) {
     argv0 = argv[0];
     name_len = (argv[argc - 1] - argv[0]) + strlen(argv[argc - 1]) + 1;
 }
 
+/** Overwrite argv[0] and call PR_SET_NAME to change the process name. */
 void set_nice_name(Utf8CStr name) {
     memset(argv0, 0, name_len);
     strscpy(argv0, name.c_str(), name_len);
@@ -178,14 +200,17 @@ static T parse_num(string_view s) {
  * Bionic's atoi runs through strtol().
  * Use our own implementation for faster conversion.
  */
+/** Parse a decimal integer from a string_view (bypasses Bionic's strtol for speed). */
 int parse_int(string_view s) {
     return parse_num<int, 10>(s);
 }
 
+/** Parse a hex uint32 from a string_view. */
 uint32_t parse_uint32_hex(string_view s) {
     return parse_num<uint32_t, 16>(s);
 }
 
+/** Switch the current process into the mount namespace of another process. */
 int switch_mnt_ns(int pid) {
     int ret = -1;
     int fd = syscall(__NR_pidfd_open, pid, 0);
@@ -206,6 +231,7 @@ int switch_mnt_ns(int pid) {
     return ret;
 }
 
+/** Replace all occurrences of a substring in a string. */
 string &replace_all(string &str, string_view from, string_view to) {
     size_t pos = 0;
     while((pos = str.find(from, pos)) != string::npos) {
@@ -230,11 +256,13 @@ static auto split_impl(string_view s, string_view delims) {
     return result;
 }
 
+/** Split a string_view by any of the delimiter characters. */
 vector<string> split(string_view s, string_view delims) {
     return split_impl<string>(s, delims);
 }
 
 #undef vsnprintf
+/** vsnprintf wrapper that returns bytes written (capped at size-1), or -1 if size is 0. */
 int vssprintf(char *dest, size_t size, const char *fmt, va_list ap) {
     if (size > 0) {
         *dest = 0;
@@ -243,6 +271,7 @@ int vssprintf(char *dest, size_t size, const char *fmt, va_list ap) {
     return -1;
 }
 
+/** snprintf wrapper that returns bytes written (capped at size-1). */
 int ssprintf(char *dest, size_t size, const char *fmt, ...) {
     va_list va;
     va_start(va, fmt);
@@ -252,11 +281,13 @@ int ssprintf(char *dest, size_t size, const char *fmt, ...) {
 }
 
 #undef strlcpy
+/** Safely copy a string with truncation; returns bytes written (capped at size-1). */
 size_t strscpy(char *dest, const char *src, size_t size) {
     return std::min(strlcpy(dest, src, size), size - 1);
 }
 
 #undef vsnprintf
+/** Format a log message using vsnprintf and pass it to Rust's log_with_rs. */
 static int fmt_and_log_with_rs(LogLevel level, const char *fmt, va_list ap) {
     constexpr int sz = 4096;
     char buf[sz];
@@ -268,6 +299,7 @@ static int fmt_and_log_with_rs(LogLevel level, const char *fmt, va_list ap) {
 }
 
 // Used to override external C library logging
+/** Override point for external C libraries to log through Magisk's logging system. */
 extern "C" int magisk_log_print(int prio, const char *tag, const char *fmt, ...) {
     LogLevel level;
     switch (prio) {
@@ -312,19 +344,25 @@ extern "C" int magisk_log_print(int prio, const char *tag, const char *fmt, ...)
 
 // LTO will optimize out the NOP function
 #if MAGISK_DEBUG
+/** Debug log (only compiled in debug builds; LTO removes the NOP stub). */
 void LOGD(const char *fmt, ...) { LOG_BODY(Debug) }
 #else
 void LOGD(const char *fmt, ...) {}
 #endif
+/** Info log. */
 void LOGI(const char *fmt, ...) { LOG_BODY(Info) }
+/** Warning log. */
 void LOGW(const char *fmt, ...) { LOG_BODY(Warn) }
+/** Error log. */
 void LOGE(const char *fmt, ...) { LOG_BODY(Error) }
 
 // Export raw symbol to fortify compat
+/** va_list-based error logging, exported for fortify compat. */
 extern "C" void __vloge(const char* fmt, va_list ap) {
     fmt_and_log_with_rs(LogLevel::Error, fmt, ap);
 }
 
+/** Read the entire contents of an open file descriptor into a string. */
 string full_read(int fd) {
     string str;
     char buf[4096];
@@ -333,6 +371,7 @@ string full_read(int fd) {
     return str;
 }
 
+/** Open and read the entire contents of a file into a string. */
 string full_read(const char *filename) {
     string str;
     if (int fd = xopen(filename, O_RDONLY | O_CLOEXEC); fd >= 0) {
@@ -342,6 +381,7 @@ string full_read(const char *filename) {
     return str;
 }
 
+/** Write `size` zero bytes to a file descriptor (e.g., for sparse file allocation). */
 void write_zero(int fd, size_t size) {
     char buf[4096] = {0};
     size_t len;
@@ -352,14 +392,17 @@ void write_zero(int fd, size_t size) {
     }
 }
 
+/** Wrap a raw DIR pointer in a unique_ptr with custom deleter (closedir). */
 sDIR make_dir(DIR *dp) {
     return sDIR(dp, [](DIR *dp){ return dp ? closedir(dp) : 1; });
 }
 
+/** Wrap a raw FILE pointer in a unique_ptr with custom deleter (fclose). */
 sFILE make_file(FILE *fp) {
     return sFILE(fp, [](FILE *fp){ return fp ? fclose(fp) : 1; });
 }
 
+/** Memory-map a file by path. */
 mmap_data::mmap_data(const char *name, bool rw) {
     auto slice = rust::map_file(name, rw);
     if (!slice.empty()) {
@@ -368,6 +411,7 @@ mmap_data::mmap_data(const char *name, bool rw) {
     }
 }
 
+/** Memory-map a file relative to a directory fd. */
 mmap_data::mmap_data(int dirfd, const char *name, bool rw) {
     auto slice = rust::map_file_at(dirfd, name, rw);
     if (!slice.empty()) {
@@ -376,6 +420,7 @@ mmap_data::mmap_data(int dirfd, const char *name, bool rw) {
     }
 }
 
+/** Memory-map an open fd with known size. */
 mmap_data::mmap_data(int fd, size_t sz, bool rw) {
     auto slice = rust::map_fd(fd, sz, rw);
     if (!slice.empty()) {
@@ -384,15 +429,18 @@ mmap_data::mmap_data(int fd, size_t sz, bool rw) {
     }
 }
 
+/** Unmap the memory when the mmap_data goes out of scope. */
 mmap_data::~mmap_data() {
     if (ptr) munmap(ptr, sz);
 }
 
+/** Swap the mapped memory pointers/sizes with another mmap_data. */
 void mmap_data::swap(mmap_data &o) {
     std::swap(ptr, o.ptr);
     std::swap(sz, o.sz);
 }
 
+/** Resolve the pre-init directory by probing for known subdirectory conventions (unencrypted/adb/watchdog/magisk). */
 string resolve_preinit_dir(const char *base_dir) {
     string dir = base_dir;
     if (access((dir + "/unencrypted").data(), F_OK) == 0) {
@@ -413,14 +461,17 @@ extern "C" void cxx$utf8str$new(Utf8CStr *self, const void *s, size_t len);
 extern "C" const char *cxx$utf8str$ptr(const Utf8CStr *self);
 extern "C" size_t cxx$utf8str$len(const Utf8CStr *self);
 
+/** Construct a Utf8CStr from a raw pointer and length (calls Rust cxx string constructor). */
 Utf8CStr::Utf8CStr(const char *s, size_t len) : repr{} {
     cxx$utf8str$new(this, s, len);
 }
 
+/** Return a pointer to the underlying C string. */
 const char *Utf8CStr::data() const {
     return cxx$utf8str$ptr(this);
 }
 
+/** Return the length of the string, including the null terminator. */
 size_t Utf8CStr::length() const {
     return cxx$utf8str$len(this);
 }

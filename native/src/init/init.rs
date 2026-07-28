@@ -1,3 +1,9 @@
+//! `magiskinit` — early-init binary that replaces Android's init.
+//!
+//! Handles sepolicy loading, early mount (tmpfs, selinuxfs, devices),
+//! root directory overlay, and second-stage init patching. Entry
+//! point via [`start`] → [`MagiskInit`] method dispatch.
+
 use crate::ffi::{BootConfig, MagiskInit, backup_init, magisk_proxy_main};
 use crate::logging::setup_klog;
 use crate::mount::is_rootfs;
@@ -7,7 +13,18 @@ use base::{LibcReturn, LoggedResult, ResultExt, cstr, info, raw_cstr};
 use std::ffi::{CStr, c_char};
 use std::ptr::null;
 
+//! `magiskinit` — Magisk's init replacement.
+//!
+//! This binary replaces `/init` on devices with a patched boot image.
+//! It handles first-stage (ramdisk) and second-stage (switch-root) init,
+//! legacy system-as-root, and rootfs-based boot flows.
+//!
+//! The main entry point detects the boot mode via kernel cmdline and
+//! device state, then calls the appropriate initialisation path before
+//! handing control back to the real `system/bin/init`.
+
 impl MagiskInit {
+    /// Create a new `MagiskInit` instance with default configuration.
     fn new(argv: *mut *mut c_char) -> Self {
         Self {
             preinit_dev: String::new(),
@@ -30,6 +47,10 @@ impl MagiskInit {
         }
     }
 
+    /// First-stage init (ramdisk).
+    ///
+    /// Calls `prepare_data()`, then either sets up a switch-root hijack
+    /// or falls back to hexpatching the real init for two-stage boot.
     fn first_stage(&self) {
         info!("First Stage Init");
         self.prepare_data();
@@ -44,6 +65,11 @@ impl MagiskInit {
         }
     }
 
+    /// Second-stage init (after switch-root).
+    ///
+    /// Cleans up bind-mounts of the Magisk init files, patches argv
+    /// so dmesg shows `/system/bin/init`, then patches either a
+    /// read-write or read-only root filesystem depending on the device.
     fn second_stage(&mut self) {
         info!("Second Stage Init");
 
@@ -70,6 +96,11 @@ impl MagiskInit {
         }
     }
 
+    /// Legacy system-as-root initialisation.
+    ///
+    /// Used on devices with `skip_initramfs` in the kernel cmdline.
+    /// Prepares data, mounts the system root, and optionally hexpatches
+    /// init for two-stage boot.
     fn legacy_system_as_root(&mut self) {
         info!("Legacy SAR Init");
         self.prepare_data();
@@ -81,6 +112,7 @@ impl MagiskInit {
         }
     }
 
+    /// RootFS-based boot (no initramfs / no SAR).
     fn rootfs(&mut self) {
         info!("RootFS Init");
         self.prepare_data();
@@ -88,12 +120,18 @@ impl MagiskInit {
         self.patch_rw_root();
     }
 
+    /// Recovery or charger mode detected — abort and restore the original init.
     fn recovery_or_charger(&self) {
         info!("Charger mode or ramdisk is recovery, abort");
         self.restore_ramdisk_init();
         cstr!("/.backup").remove_all().ok();
     }
 
+    /// Restore the original `/init` binary.
+    ///
+    /// Removes the Magisk symlink and renames the backed-up init back
+    /// into place. If no backup exists, creates a symlink to
+    /// `/system/bin/init`.
     fn restore_ramdisk_init(&self) {
         cstr!("/init").remove().ok();
 
@@ -111,6 +149,12 @@ impl MagiskInit {
         }
     }
 
+    /// Top-level boot flow dispatcher.
+    ///
+    /// Mounts `/proc` and `/sys` if necessary, sets up kernel logging,
+    /// parses the boot configuration from the kernel cmdline, then
+    /// selects one of: second stage, legacy SAR, first stage (2SI),
+    /// recovery/charger abort, or rootfs mode.
     fn start(&mut self) -> LoggedResult<()> {
         if !cstr!("/proc/cmdline").exists() {
             cstr!("/proc").mkdir(0o755)?;
@@ -170,6 +214,11 @@ impl MagiskInit {
     }
 }
 
+/// C entry point for magiskinit.
+///
+/// If invoked as `magisk` (symlinked), proxies to `magisk_proxy_main`.
+/// Otherwise, if PID == 1 (i.e. running as init), starts the Magisk init
+/// flow. Returns 1 on failure.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn main(
     argc: i32,

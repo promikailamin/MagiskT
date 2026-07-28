@@ -1,3 +1,15 @@
+//! Magisk CLI (`magisk`) — the main userspace binary entry point.
+//!
+//! Handles all command-line actions: `-c`/`-v`/`-V` version queries,
+//! `--daemon`/`--stop` daemon management, `--post-fs-data`/`--service`/
+//! `--boot-complete`/`--zygote-restart` init triggers, `--install-module`,
+//! `--remove-modules`, `--denylist`, `--sqlite`, `--path`, `--unlock-blocks`,
+//! `--restorecon`, `--clone`, `--clone-attr`, and `--preinit-device`.
+//!
+//! The entry point [`magisk_main`] is called from the CXX bridge after
+//! `magiskinit` detects that the binary was invoked as `magisk` rather than
+//! as `init`.
+
 use crate::consts::{APPLET_NAMES, MAGISK_VER_CODE, MAGISK_VERSION, POST_FS_DATA_WAIT_TIME};
 use crate::daemon::connect_daemon;
 use crate::ffi::{RequestCode, denylist_cli, get_magisk_tmp, install_module, unlock_blocks};

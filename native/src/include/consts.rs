@@ -1,3 +1,8 @@
+//! Magisk constants — paths, SELinux labels, version strings.
+//!
+//! Included into every crate via `#[path = "../include/consts.rs"] mod consts;`.
+//! Version data comes from the build-generated `out/generated/flags.rs`.
+
 #![allow(dead_code)]
 use base::const_format::concatcp;
 

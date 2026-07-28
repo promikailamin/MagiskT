@@ -1,3 +1,9 @@
+/**
+ * An empty, immutable [AbstractList] that silently ignores all mutation
+ * attempts. Used as a no-op console/log sink when caller-supplied lists
+ * are not needed (e.g. [MagiskInstallImpl] subclasses that only exec
+ * callbacks).
+ */
 package pro.magisk.core.utils
 
 object DummyList : java.util.AbstractList<String>() {
@@ -14,3 +20,5 @@ object DummyList : java.util.AbstractList<String>() {
 
     override fun clear() {}
 }
+
+

@@ -1,3 +1,10 @@
+/**
+ * Manages all notifications posted by the Magisk app.
+ *
+ * Currently only a single channel is used — SU request notifications
+ * — but the object is designed to be extended for other notification
+ * types.
+ */
 package pro.magisk.view
 
 import android.annotation.SuppressLint
@@ -24,6 +31,7 @@ object Notifications {
 
     private val nextId = AtomicInteger(0)
 
+    /** Create notification channels (no-op before API 26). */
     fun setup() {
         AppContext.apply {
             if (SDK_INT >= Build.VERSION_CODES.O) {
@@ -36,6 +44,7 @@ object Notifications {
 
     private const val SU_NOTIFICATION_TIMEOUT_MS = 3_000L
 
+    /** Post a notification informing the user of an SU grant / deny. */
     @SuppressLint("InlinedApi")
     fun suNotification(granted: Boolean, appName: String) {
         AppContext.apply {

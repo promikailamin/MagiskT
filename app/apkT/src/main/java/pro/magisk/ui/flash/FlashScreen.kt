@@ -1,3 +1,8 @@
+/**
+ * Flash/progress screen. Displays either a live [TerminalScreen] (for zip flashing)
+ * or a monospace log output (for direct install / patch-file operations) with
+ * save-log and reboot action buttons visible on completion.
+ */
 package pro.magisk.ui.flash
 
 import androidx.compose.foundation.horizontalScroll

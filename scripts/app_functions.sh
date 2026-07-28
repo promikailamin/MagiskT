@@ -1,15 +1,21 @@
 ##################################
 # Magisk app internal scripts
+#
+# Functions used by the Magisk app (Java/Kotlin invokes these via shell).
+# Covers env setup, boot image flashing, OTA, module actions, install/restore.
 ##################################
 
-# $1 = delay
+# Run a command after a delay in the background
+# $1 = delay (seconds)
 # $2 = command
 run_delay() {
   (sleep $1; $2)&
 }
 
+# Verify that the Magisk environment is properly installed and matches given version
 # $1 = version string
 # $2 = version code
+# Returns: 0 on match, 1 if files missing, 2 if preinit block missing, 3 if version mismatch
 env_check() {
   for file in busybox magiskboot magiskinit util_functions.sh boot_patch.sh; do
     [ -f "$MAGISKBIN/$file" ] || return 1
@@ -25,8 +31,9 @@ env_check() {
   return 0
 }
 
+# Copy a directory resolving all symlinks to their real file targets
 # $1 = dir to copy
-# $2 = destination (optional)
+# $2 = destination (optional, defaults to $1 then cd into it)
 cp_readlink() {
   if [ -z $2 ]; then
     cd $1
@@ -45,6 +52,7 @@ cp_readlink() {
   cd /
 }
 
+# Replace the Magisk environment with files from a given install directory
 # $1 = install dir
 fix_env() {
   # Cleanup and make dirs
@@ -56,8 +64,10 @@ fix_env() {
   chown -R 0:0 $MAGISKBIN
 }
 
+# Flash a new boot image directly from the install dir's new-boot.img
 # $1 = install dir
 # $2 = boot partition
+# Returns: 0 on success, 1 if partition too small, 2 if read-only
 direct_install() {
   echo "- Flashing new boot image"
   flash_image $1/new-boot.img $2
@@ -79,6 +89,7 @@ direct_install() {
   return 0
 }
 
+# Run the Magisk uninstaller from a zip file
 # $1 = uninstaller zip
 run_uninstaller() {
   rm -rf /dev/tmp
@@ -87,7 +98,9 @@ run_uninstaller() {
   INSTALLER=/dev/tmp/install sh /dev/tmp/install/assets/uninstaller.sh dummy 1 "$1"
 }
 
+# Restore stock boot image from backup
 # $1 = boot partition
+# Returns: 1 if no backup found
 restore_imgs() {
   local SHA1=$(grep_prop SHA1 $MAGISKTMP/.magisk/config)
   local BACKUPDIR=/data/magisk_backup_$SHA1
@@ -96,6 +109,7 @@ restore_imgs() {
   flash_image $BACKUPDIR/boot.img.gz $1
 }
 
+# Handle post-OTA slot switch using bootctl
 # $1 = path to bootctl executable
 post_ota() {
   cd /data/adb
@@ -118,8 +132,9 @@ EOF
   cd /
 }
 
-# $1 = APK
-# $2 = package name
+# Install an APK via package manager with root escalation
+# $1 = APK path
+# $2 = package name (for appops after install)
 adb_pm_install() {
   local tmp=/data/local/tmp/temp.apk
   cp -f "$1" $tmp
@@ -133,6 +148,8 @@ adb_pm_install() {
   return $res
 }
 
+# Determine if the device has a ramdisk on the boot partition
+# Sets ISAB, RECOVERYMODE as side effects
 check_boot_ramdisk() {
   # Create boolean ISAB
   ISAB=true
@@ -151,6 +168,8 @@ check_boot_ramdisk() {
   return 0
 }
 
+# Detect device encryption type: block (FDE), file (FBE), or N/A
+# Sets CRYPTOTYPE as a side effect
 check_encryption() {
   if $ISENCRYPTED; then
     if [ $SDK_INT -lt 24 ]; then
@@ -174,10 +193,14 @@ check_encryption() {
   fi
 }
 
+# Print a variable name and its value
 printvar() {
   eval echo $1=\$$1
 }
 
+# Execute a module's action.sh script
+# $1 = module ID
+# Returns: exit code from action.sh
 run_action() {
   local MODID="$1"
   cd "/data/adb/modules/$MODID"
@@ -190,6 +213,8 @@ run_action() {
 ##########################
 # Non-root util_functions
 ##########################
+
+# Non-root drop-in replacements for util_functions.sh (used by the app directly)
 
 mount_partitions() {
   [ "$(getprop ro.build.ab_update)" = "true" ] && SLOT=$(getprop ro.boot.slot_suffix)
@@ -217,14 +242,17 @@ get_flags() {
   [ -z $VENDORBOOT ] && VENDORBOOT=false
 }
 
+# Stub: migrations are handled by the native daemon
 run_migrations() { return; }
 
+# Stub: prop grepping is handled by magisk binary
 grep_prop() { return; }
 
 #############
 # Initialize
 #############
 
+# Collect and print device state info for the Magisk app
 app_init() {
   mount_partitions >/dev/null
   RAMDISKEXIST=false

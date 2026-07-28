@@ -1,3 +1,8 @@
+/**
+ * Log screen with two tabs: "Superuser" (SU access logs from Room) and "Magisk"
+ * (logcat-style logs from the daemon). Supports save-to-file and clear operations
+ * for the Magisk log tab.
+ */
 package pro.magisk.ui.log
 
 import androidx.compose.foundation.Image

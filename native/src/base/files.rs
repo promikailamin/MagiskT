@@ -1,3 +1,11 @@
+//! File I/O, memory-mapped files, file attributes (mode/owner/SELinux context),
+//! `MountInfo` parsing from `/proc/*/mountinfo`, and helper traits
+//! for reading/writing binary data (`ReadExt`, `WriteExt`, `BufReadExt`).
+//!
+//! Extends [`Utf8CStr`] with high-level operations: `copy_to`, `move_to`,
+//! `link_to`, `remove_all`, `mkdirs`, `realpath`. Also provides the
+//! [`MappedFile`] wrapper around `mmap`.
+
 use crate::{
     Directory, FsPathFollow, LibcReturn, LoggedResult, OsError, OsResult, Utf8CStr, Utf8CStrBuf,
     cstr, errno, error,

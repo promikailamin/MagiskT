@@ -1,3 +1,7 @@
+/**
+ * Settings screen organized in sections: Customization (theme, language), App Settings,
+ * Magisk (hosts, Zygisk, DenyList), and Superuser (access control, timeout, notifications).
+ */
 package pro.magisk.ui.settings
 
 import android.os.Build

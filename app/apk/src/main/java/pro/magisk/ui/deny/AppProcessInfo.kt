@@ -1,3 +1,13 @@
+/**
+ * Data models for the DenyList app/process resolution.
+ *
+ * [CmdlineListItem] parses a single `magisk --denylist ls` output line.
+ * [AppProcessInfo] resolves an installed app's manifest to discover its processes
+ * (activities, services, receivers, providers) and cross-references them with the
+ * current denylist. Falls back to parsing the APK directly when PackageManager
+ * queries exceed the binder transaction limit.
+ * [ProcessInfo] is a simple data holder for a single process entry.
+ */
 package pro.magisk.ui.deny
 
 import android.annotation.SuppressLint
@@ -19,6 +29,7 @@ import pro.magisk.core.ktx.getLabel
 import java.util.Locale
 import java.util.TreeSet
 
+/** Parses a denylist entry line in the format `packageName|processName`. */
 class CmdlineListItem(line: String) {
     val packageName: String
     val process: String
@@ -30,8 +41,10 @@ class CmdlineListItem(line: String) {
     }
 }
 
+/** Magic package name used for isolated processes in the denylist. */
 const val ISOLATED_MAGIC = "isolated"
 
+/** Resolves an installed app's processes and their denylist status. */
 @SuppressLint("InlinedApi")
 class AppProcessInfo(
     private val info: ApplicationInfo,
@@ -82,13 +95,13 @@ class AppProcessInfo(
         }
     }
 
+    /** Discovers all processes declared in the app manifest. Falls back to APK parsing on binder overflow. */
     private fun fetchProcesses(pm: PackageManager): Collection<ProcessInfo> {
         val flag = MATCH_DISABLED_COMPONENTS or MATCH_UNINSTALLED_PACKAGES or
             GET_ACTIVITIES or GET_SERVICES or GET_RECEIVERS or GET_PROVIDERS
         val packageInfo = try {
             pm.getPackageInfo(info.packageName, flag)
         } catch (e: Exception) {
-            // Exceed binder data transfer limit, parse the package locally
             pm.getPackageArchiveInfo(info.sourceDir, flag) ?: return emptyList()
         }
 
@@ -108,6 +121,7 @@ class AppProcessInfo(
     }
 }
 
+/** A single process entry with its denylist status. */
 data class ProcessInfo(
     val name: String,
     val packageName: String,

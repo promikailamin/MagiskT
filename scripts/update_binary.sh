@@ -1,9 +1,13 @@
 #!/sbin/sh
+# Magisk update-binary entry point for recovery flashing.
+# Extracts busybox and installer assets from the zip, then delegates to
+# the uninstaller script or updater-script.
 
 TMPDIR=/dev/tmp
 rm -rf $TMPDIR
 mkdir -p $TMPDIR 2>/dev/null
 
+# Find a working busybox from the APK and extract installer assets
 export BBBIN=$TMPDIR/busybox
 for arch in "x86_64" "x86" "arm64-v8a" "armeabi-v7a"; do
   unzip -o "$3" "lib/$arch/libbusybox.so" -d $TMPDIR >&2
@@ -20,6 +24,7 @@ export INSTALLER=$TMPDIR/install
 $BBBIN mkdir -p $INSTALLER
 $BBBIN unzip -o "$3" "assets/*" "lib/*" "META-INF/com/google/*" -x "lib/*/libbusybox.so" -d $INSTALLER >&2
 export ASH_STANDALONE=1
+# Route to uninstaller or updater-script based on zip filename
 if echo "$3" | $BBBIN grep -q "uninstall"; then
   exec $BBBIN sh "$INSTALLER/assets/uninstaller.sh" "$@"
 else

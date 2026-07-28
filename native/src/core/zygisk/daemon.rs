@@ -1,3 +1,10 @@
+//! Zygisk daemon state and IPC handler.
+//!
+//! Implements [`ZygiskState`] (native bridge property, socket pairs to
+//! zygiskd companion processes, restart-count tracking) and the
+//! [`MagiskD`] methods that handle the three Zygisk request types:
+//! `GetInfo`, `ConnectCompanion`, and `GetModDir`.
+
 use crate::consts::MODULEROOT;
 use crate::daemon::{MagiskD, to_user_id};
 use crate::ffi::{ZygiskRequest, ZygiskStateFlags, get_magisk_tmp, update_deny_flags};

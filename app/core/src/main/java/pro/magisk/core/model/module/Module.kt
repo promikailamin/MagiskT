@@ -1,3 +1,8 @@
+/**
+ * Abstract base for Magisk module metadata.
+ *
+ * Modules are compared by their [id] for sorting.
+ */
 package pro.magisk.core.model.module
 
 abstract class Module : Comparable<Module> {

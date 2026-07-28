@@ -1,3 +1,7 @@
+/**
+ * ViewModel for the settings screen. Manages DenyList toggle state, language/theme preferences,
+ * hosts file creation, and authenticates sensitive operations via biometric prompt.
+ */
 package pro.magisk.ui.settings
 
 import android.widget.Toast
@@ -22,18 +26,22 @@ class SettingsViewModel : BaseViewModel() {
     private val _denyListEnabled = MutableStateFlow(Config.denyList)
     val denyListEnabled: StateFlow<Boolean> = _denyListEnabled.asStateFlow()
 
+    /** True when the stored zygisk pref differs from the actually active state. */
     val zygiskMismatch get() = Config.zygisk != Info.isZygiskEnabled
 
+    /** Set by [MainActivity] to enable biometric authentication before sensitive actions. */
     var authenticate: (onSuccess: () -> Unit) -> Unit = { it() }
 
     fun navigateToDenyList() {
         navigateTo(Route.DenyList)
     }
 
+    /** Pin a home-screen shortcut. */
     fun requestAddShortcut() {
         Shortcuts.addHomeIcon(AppContext)
     }
 
+    /** Create the systemless hosts file via root. */
     fun createHosts() {
         viewModelScope.launch {
             RootUtils.addSystemlessHosts()
@@ -41,6 +49,7 @@ class SettingsViewModel : BaseViewModel() {
         }
     }
 
+    /** Toggle Magisk DenyList on/off via `magisk --denylist`. */
     fun toggleDenyList(enabled: Boolean) {
         _denyListEnabled.value = enabled
         val cmd = if (enabled) "enable" else "disable"
@@ -53,8 +62,10 @@ class SettingsViewModel : BaseViewModel() {
         }
     }
 
+    /** Wrap an action with biometric authentication if enabled. */
     fun withAuth(action: () -> Unit) = authenticate(action)
 
+    /** Show a snackbar indicating a reboot is required. */
     fun notifyZygiskChange() {
         if (zygiskMismatch) showSnackbar(R.string.reboot_apply_change)
     }

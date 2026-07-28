@@ -1,3 +1,9 @@
+/**
+ * Utility functions for the magisk daemon.
+ * Provides IPC serialization (read/write string/int),
+ * magisk tmp path resolution, block device unlocking,
+ * and volume-down key combo detection for safe mode.
+ */
 #include <csignal>
 #include <libgen.h>
 #include <sys/mount.h>
@@ -11,6 +17,7 @@
 
 using namespace std;
 
+/** Read a length-prefixed string from a file descriptor into the given string. */
 bool read_string(int fd, std::string &str) {
     str.clear();
     int len = read_int(fd);
@@ -18,18 +25,21 @@ bool read_string(int fd, std::string &str) {
     return xxread(fd, str.data(), len) == len;
 }
 
+/** Read a length-prefixed string from a file descriptor, returned by value. */
 string read_string(int fd) {
     string str;
     read_string(fd, str);
     return str;
 }
 
+/** Write a length-prefixed string to a file descriptor. */
 void write_string(int fd, string_view str) {
     if (fd < 0) return;
     write_int(fd, str.size());
     xwrite(fd, str.data(), str.size());
 }
 
+/** Get the Magisk tmp directory path. Result is cached after first lookup. */
 const char *get_magisk_tmp() {
     static const char *path = nullptr;
     if (path == nullptr) {
@@ -44,6 +54,7 @@ const char *get_magisk_tmp() {
     return path;
 }
 
+/** Disable read-locking (BLKROSET) on all block devices in /dev/block. */
 void unlock_blocks() {
     int fd, dev, OFF = 0;
 
@@ -65,6 +76,7 @@ void unlock_blocks() {
 
 #define test_bit(bit, array) (array[bit / 8] & (1 << (bit % 8)))
 
+/** Check if the volume-down key is held continuously for more than 3 seconds (safe mode). */
 bool check_key_combo() {
     uint8_t bitmask[(KEY_MAX + 1) / 8];
     vector<owned_fd> events;

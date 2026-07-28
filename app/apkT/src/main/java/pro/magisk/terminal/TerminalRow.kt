@@ -1,3 +1,8 @@
+/**
+ * A single row of the terminal display. Stores character data, per-column styles,
+ * line-wrap state, and handles wide/combining character insertion with efficient
+ * in-place char array manipulation.
+ */
 package pro.magisk.terminal
 
 import java.util.Arrays

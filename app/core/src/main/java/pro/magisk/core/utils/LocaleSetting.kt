@@ -1,3 +1,12 @@
+/**
+ * Manages per-app locale overrides across API levels.
+ *
+ * Three implementation tiers handle the platform evolution from
+ * [Locale.setDefault] (API 23) through [LocaleList] (API 24+) to
+ * the system [LocaleManager] (API 33+). When a [LocaleManager] is
+ * available the app delegates to Settings, otherwise it applies
+ * overrides manually and triggers an Activity relaunch.
+ */
 package pro.magisk.core.utils
 
 import android.annotation.SuppressLint

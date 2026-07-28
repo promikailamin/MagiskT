@@ -1,3 +1,9 @@
+//! Crate root for `init-rs` — the Rust portion of magiskinit.
+//!
+//! Defines the [`cxx::bridge`] FFI boundary (`pub mod ffi`) between Rust
+//! and C++ magiskinit code. Shares the [`BootConfig`], [`MagiskInit`],
+//! and [`KeyValue`] types, and declares all internal submodules.
+
 #![allow(clippy::missing_safety_doc)]
 
 use logging::setup_klog;

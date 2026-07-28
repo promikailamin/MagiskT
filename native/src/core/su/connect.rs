@@ -1,3 +1,9 @@
+//! Communication with the Magisk Manager app for SU policy consent.
+//!
+//! Builds and executes `am start` / `content call` commands to open the
+//! manager's SU request dialog, then reads the user's decision from a
+//! named FIFO. Also handles logging and notification intents.
+
 use super::SuInfo;
 use super::db::RootSettings;
 use crate::consts::{INTERNAL_DIR, MAGISK_FILE_CON};

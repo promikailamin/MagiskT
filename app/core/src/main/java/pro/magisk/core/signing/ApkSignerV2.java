@@ -1,3 +1,13 @@
+/**
+ * APK Signature Scheme v2 implementation for signing APKs.
+ *
+ * <p>APK Signature Scheme v2 is a whole-file signature scheme which aims to protect every single
+ * bit of the APK, as opposed to the JAR Signature Scheme which protects only the names and
+ * uncompressed contents of ZIP entries. This implementation is adapted from AOSP libcore source.
+ *
+ * <p>The signature block is inserted into an APK Signing Block immediately before the ZIP Central
+ * Directory, allowing JAR/ZIP parsers to continue working on the signed APK.
+ */
 package pro.magisk.core.signing;
 
 import java.nio.BufferUnderflowException;

@@ -1,3 +1,11 @@
+/**
+ * ViewModel for the DenyList management screen.
+ *
+ * Loads all installed applications (excluding self) and cross-references them with the
+ * current denylist from `magisk --denylist ls`. Supports filtering by search query,
+ * system-app visibility, and OS-app visibility. Filtering is done via [FilterList]
+ * with background diff computation.
+ */
 package pro.magisk.ui.deny
 
 import android.annotation.SuppressLint
@@ -18,6 +26,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.toCollection
 import kotlinx.coroutines.withContext
 
+/** ViewModel for the Zygisk DenyList — app/process whitelist management. */
 class DenyListViewModel : AsyncLoadViewModel() {
 
     var isShowSystem = false
@@ -69,6 +78,7 @@ class DenyListViewModel : AsyncLoadViewModel() {
         doQuery(query)
     }
 
+    /** Applies the current filter (system/OS visibility + search query) to the item list. */
     private fun doQuery(s: String) {
         items.filter {
             fun filterSystem() = isShowSystem || !it.info.isSystemApp()

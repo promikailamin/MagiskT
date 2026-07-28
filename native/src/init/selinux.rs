@@ -1,3 +1,13 @@
+//! SELinux policy patching strategies for magiskinit.
+//!
+//! Implements three hijack strategies to intercept the boot process and
+//! load a patched sepolicy before init continues:
+//! - **LD_PRELOAD** (Android 10+ / 2SI): override `security_load_policy`.
+//! - **SelinuxFs** (Android 8+): mount selinuxfs and inject mock FIFO nodes.
+//! - **Legacy** (Android 6–7): block init on `/selinux_version` FIFO.
+//!
+//! After the patched policy is loaded, overlay contexts are restored.
+
 use crate::consts::{PREINITMIRR, SELINUXMOCK};
 use crate::ffi::{MagiskInit, preload_ack, preload_lib, preload_policy, split_plat_cil};
 use base::const_format::concatcp;

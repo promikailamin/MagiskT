@@ -1,3 +1,7 @@
+/**
+ * Terminal text style encoding (foreground/background color + effects packed into a Long),
+ * default 256-color scheme, and dynamic color override via OSC escape sequences.
+ */
 package pro.magisk.terminal
 
 import android.graphics.Color

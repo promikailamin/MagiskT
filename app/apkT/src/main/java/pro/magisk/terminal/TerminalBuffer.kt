@@ -1,3 +1,8 @@
+/**
+ * Circular buffer of [TerminalRow]s backing a [TerminalEmulator] screen and its scroll-back
+ * transcript. Maps between external (screen-relative) and internal (circular array) row
+ * coordinates and handles block copy/set/scroll operations for all display manipulation.
+ */
 package pro.magisk.terminal
 
 import java.util.Arrays

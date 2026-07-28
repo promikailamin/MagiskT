@@ -1,3 +1,9 @@
+//! Built-in Magisk SEPolicy rules applied via `magiskpolicy --magisk`.
+//!
+//! The [`rules!`] macro provides a compact DSL for calling SELinux policy
+//! methods. [`SePolicy::magisk_rules`] applies the stock Magisk rule set:
+//! unconstrained root domain, Zygisk hooks, binder access, logging pipes, etc.
+
 use crate::SePolicy;
 use crate::consts::{SEPOL_FILE_TYPE, SEPOL_LOG_TYPE, SEPOL_PROC_DOMAIN};
 use crate::ffi::Xperm;

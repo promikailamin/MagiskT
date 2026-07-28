@@ -1,3 +1,11 @@
+/**
+ * Utilities for streaming data and performing APK installations via the
+ * {@link android.content.pm.PackageInstaller} API.
+ *
+ * Provides a simple session-based install flow: create a session, open a write
+ * stream, transfer the APK bytes, commit the session, and optionally wait for
+ * the user to confirm the installation.
+ */
 package pro.magisk.utils;
 
 import static android.content.pm.PackageInstaller.EXTRA_SESSION_ID;
@@ -27,15 +35,25 @@ import java.util.concurrent.TimeUnit;
 
 public final class APKInstall {
 
+    /** Buffer size for IO stream copying. */
+    private static final int TRANSFER_BUFFER_SIZE = 8192;
+
+    /**
+     * Copies all data from the input stream to the output stream using an 8 KB buffer.
+     * Does not close either stream.
+     */
     public static void transfer(InputStream in, OutputStream out) throws IOException {
-        int size = 8192;
-        var buffer = new byte[size];
+        var buffer = new byte[TRANSFER_BUFFER_SIZE];
         int read;
-        while ((read = in.read(buffer, 0, size)) >= 0) {
+        while ((read = in.read(buffer, 0, TRANSFER_BUFFER_SIZE)) >= 0) {
             out.write(buffer, 0, read);
         }
     }
 
+    /**
+     * Registers a BroadcastReceiver safely across API levels.
+     * On API 26+ uses {@link Context#RECEIVER_NOT_EXPORTED} for security.
+     */
     public static void registerReceiver(
             Context context, BroadcastReceiver receiver, IntentFilter filter) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -46,16 +64,26 @@ public final class APKInstall {
         }
     }
 
+    /** Starts a PackageInstaller session without tracking a specific package. */
     public static Session startSession(Context context) {
         return startSession(context, null, null, null);
     }
 
+    /**
+     * Starts a PackageInstaller session and optionally monitors for a package added event.
+     *
+     * @param context   the context
+     * @param pkg       if non-null, the receiver will also listen for ACTION_PACKAGE_ADDED
+     *                  for this package and invoke onSuccess on that event
+     * @param onFailure runnable invoked on installation failure
+     * @param onSuccess runnable invoked on successful installation completion
+     * @return a Session for writing APK data and waiting for the result
+     */
     public static Session startSession(Context context, String pkg,
-                                       Runnable onFailure, Runnable onSuccess) {
+                                        Runnable onFailure, Runnable onSuccess) {
         var receiver = new InstallReceiver(pkg, onSuccess, onFailure);
         context = context.getApplicationContext();
         if (pkg != null) {
-            // If pkg is not null, look for package added event
             var filter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
             filter.addDataScheme("package");
             registerReceiver(context, receiver, filter);
@@ -64,13 +92,22 @@ public final class APKInstall {
         return receiver;
     }
 
+    /** Represents an ongoing PackageInstaller session. */
     public interface Session {
-        // @WorkerThread
+        /** Opens an OutputStream to write the APK content into the install session. */
         OutputStream openStream(Context context) throws IOException;
-        // @WorkerThread @Nullable
+        /**
+         * Waits (up to 5 seconds) for the installation result and returns a
+         * PendingIntent for user confirmation, or null if not needed.
+         */
         Intent waitIntent();
     }
 
+    /**
+     * BroadcastReceiver that doubles as a Session implementation.
+     * Listens for PackageInstaller status broadcasts and optionally for
+     * ACTION_PACKAGE_ADDED to detect when a specific package was installed.
+     */
     private static class InstallReceiver extends BroadcastReceiver implements Session {
         private final String packageName;
         private final Runnable onSuccess;
@@ -78,6 +115,7 @@ public final class APKInstall {
         private final CountDownLatch latch = new CountDownLatch(1);
         private Intent userAction = null;
 
+        /** Unique identifier used as the custom broadcast action for this session. */
         final String sessionId = UUID.randomUUID().toString();
 
         private InstallReceiver(String packageName, Runnable onSuccess, Runnable onFailure) {
@@ -135,6 +173,7 @@ public final class APKInstall {
             }
         }
 
+        /** Waits up to 5 seconds for the install result broadcast. */
         @Override
         public Intent waitIntent() {
             try {
@@ -144,6 +183,10 @@ public final class APKInstall {
             return userAction;
         }
 
+        /**
+         * Creates a PackageInstaller session, opens a write stream, and returns
+         * a FilterOutputStream that commits the session on close.
+         */
         @Override
         public OutputStream openStream(Context context) throws IOException {
             // noinspection InlinedApi

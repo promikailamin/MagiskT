@@ -1,3 +1,11 @@
+/**
+ * ContentProvider that acts as a callback bridge from the Magisk
+ * daemon (running as root) to the Java process.
+ *
+ * The daemon invokes [call] with methods `"log"` or `"notify"` to
+ * report SU request results. Arguments are passed as a [Bundle]
+ * and dispatched to [SuCallbackHandler].
+ */
 package pro.magisk.core
 
 import android.os.Bundle

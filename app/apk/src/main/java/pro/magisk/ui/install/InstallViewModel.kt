@@ -1,3 +1,10 @@
+/**
+ * ViewModel for the install method selection screen.
+ *
+ * Determines available installation methods based on device state (rooted, emulator,
+ * SAR, A/B slots) and handles method selection (Direct, Patch, Inactive Slot).
+ * The installation flow is multi-step; state is saved/restored across config changes.
+ */
 package pro.magisk.ui.install
 
 import android.net.Uri
@@ -30,6 +37,7 @@ import java.io.File
 import java.io.IOException
 import pro.magisk.core.R as CoreR
 
+/** ViewModel for selecting and configuring the Magisk installation method. */
 class InstallViewModel : BaseViewModel() {
 
     val isRooted get() = Info.isRooted

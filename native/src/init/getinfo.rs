@@ -1,3 +1,9 @@
+//! Device boot information helpers.
+//!
+//! Implements [`BootConfig::print`] for debug-logging the parsed kernel
+//! cmdline configuration, and [`MagiskInit::check_two_stage`] for
+//! detecting whether the device uses a two-stage init (2SI) boot flow.
+
 use crate::ffi::{BootConfig, MagiskInit, backup_init};
 use base::{BytesExt, MappedFile, cstr};
 

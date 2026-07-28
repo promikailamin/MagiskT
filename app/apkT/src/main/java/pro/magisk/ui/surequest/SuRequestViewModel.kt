@@ -1,3 +1,8 @@
+/**
+ * ViewModel for the superuser request dialog. Manages the grant/deny flow with
+ * a configurable timeout countdown, tapjack protection flag, per-package timeout
+ * preference persistence, and optional authentication gate.
+ */
 package pro.magisk.ui.surequest
 
 import android.content.Intent

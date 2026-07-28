@@ -1,3 +1,8 @@
+/**
+ * Home screen composable. Displays Magisk version card, Zygisk/Ramdisk status, a safety notice,
+ * support/developer links, and buttons for install, uninstall, and reboot. Manages
+ * hide/restore/env-fix dialogs and the install bottom sheet.
+ */
 package pro.magisk.ui.home
 
 import android.content.Intent
@@ -85,6 +90,7 @@ import pro.magisk.ui.install.InstallViewModel
 import kotlinx.coroutines.launch
 import pro.magisk.core.R as CoreR
 
+/** Top-level home screen composable. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: HomeViewModel, installVm: InstallViewModel) {

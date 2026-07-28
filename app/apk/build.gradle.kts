@@ -1,3 +1,5 @@
+// :apk module - Current Magisk app built with DataBinding + MVVM.
+// Uses Navigation Fragments, kapt annotation processing, and classic AndroidX views.
 plugins {
     alias(libs.plugins.android.application)
     kotlin("plugin.parcelize")

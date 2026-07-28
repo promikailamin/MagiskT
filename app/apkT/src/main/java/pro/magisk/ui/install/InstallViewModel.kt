@@ -1,3 +1,8 @@
+/**
+ * ViewModel for the install bottom sheet. Manages the method selection (Direct /
+ * Inactive Slot / Patch File) and tracks the build note + option step state before
+ * navigating to [Route.Flash].
+ */
 package pro.magisk.ui.install
 
 import android.net.Uri

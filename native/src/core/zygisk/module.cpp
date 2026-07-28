@@ -1,3 +1,9 @@
+/**
+ * Zygisk module lifecycle and ZygiskContext process specialization.
+ * Implements module loading via android_dlopen_ext, PLT hook
+ * registration with regex-based executable matching, FD sanitization,
+ * and the pre/post specialization callbacks for app and server processes.
+ */
 #include <sys/mman.h>
 #include <android/dlext.h>
 #include <dlfcn.h>
@@ -11,6 +17,7 @@
 
 using namespace std;
 
+/** Connect to the magisk daemon and send a Zygisk request. Returns the connection fd. */
 static int zygisk_request(int req) {
     int fd = connect_daemon(RequestCode::ZYGISK);
     if (fd < 0) return fd;
@@ -18,6 +25,7 @@ static int zygisk_request(int req) {
     return fd;
 }
 
+/** Construct a ZygiskModule wrapping a dlopen'd module library with its entry function. */
 ZygiskModule::ZygiskModule(int id, void *handle, void *entry)
     : id(id), handle(handle), entry{entry}, api{}, mod{nullptr} {
     // Make sure all pointers are null
@@ -26,6 +34,7 @@ ZygiskModule::ZygiskModule(int id, void *handle, void *entry)
     api.base.registerModule = &ZygiskModule::RegisterModuleImpl;
 }
 
+/** Register a module with Zygisk: validate its API version, install function pointers into the ApiTable. */
 bool ZygiskModule::RegisterModuleImpl(ApiTable *api, long *module) {
     if (api == nullptr || module == nullptr)
         return false;
@@ -68,6 +77,7 @@ bool ZygiskModule::RegisterModuleImpl(ApiTable *api, long *module) {
     return true;
 }
 
+/** Check if the module has a supported API version and all required callbacks are non-null. */
 bool ZygiskModule::valid() const {
     if (mod.api_version == nullptr)
         return false;
@@ -84,6 +94,7 @@ bool ZygiskModule::valid() const {
     }
 }
 
+/** Connect to the module's root companion daemon via the magisk daemon socket. Returns fd or -1. */
 int ZygiskModule::connectCompanion() const {
     if (int fd = zygisk_request(+ZygiskRequest::ConnectCompanion); fd >= 0) {
 #ifdef __LP64__
@@ -97,6 +108,7 @@ int ZygiskModule::connectCompanion() const {
     return -1;
 }
 
+/** Request the module's root directory fd from the magisk daemon. Returns fd or -1. */
 int ZygiskModule::getModuleDir() const {
     if (owned_fd fd = zygisk_request(+ZygiskRequest::GetModDir); fd >= 0) {
         write_int(fd, id);
@@ -105,6 +117,7 @@ int ZygiskModule::getModuleDir() const {
     return -1;
 }
 
+/** Set a Zygisk option for this module (e.g., FORCE_DENYLIST_UNMOUNT, DLCLOSE_MODULE_LIBRARY). */
 void ZygiskModule::setOption(zygisk::Option opt) {
     if (g_ctx == nullptr)
         return;
@@ -118,10 +131,12 @@ void ZygiskModule::setOption(zygisk::Option opt) {
     }
 }
 
+/** Return the current zygisk state flags (ProcessGrantedRoot, ProcessOnDenyList) masked to public values. */
 uint32_t ZygiskModule::getFlags() {
     return g_ctx ? (g_ctx->info_flags & ~PRIVATE_MASK) : 0;
 }
 
+/** Unload the module library via dlclose if the DLCLOSE_MODULE_LIBRARY option was set. */
 void ZygiskModule::tryUnload() const {
     if (unload) dlclose(handle);
 }
@@ -143,24 +158,29 @@ case 5:                                \
     break;                             \
 }
 
+/** Call the module's preAppSpecialize with ABI-version-appropriate argument wrapping. */
 void ZygiskModule::preAppSpecialize(AppSpecializeArgs_v5 *args) const {
     call_app(preAppSpecialize)
 }
 
+/** Call the module's postAppSpecialize with ABI-version-appropriate argument wrapping. */
 void ZygiskModule::postAppSpecialize(const AppSpecializeArgs_v5 *args) const {
     call_app(postAppSpecialize)
 }
 
+/** Call the module's preServerSpecialize. */
 void ZygiskModule::preServerSpecialize(ServerSpecializeArgs_v1 *args) const {
     mod.v1->preServerSpecialize(mod.v1->impl, args);
 }
 
+/** Call the module's postServerSpecialize. */
 void ZygiskModule::postServerSpecialize(const ServerSpecializeArgs_v1 *args) const {
     mod.v1->postServerSpecialize(mod.v1->impl, args);
 }
 
 // -----------------------------------------------------------------
 
+/** Register a PLT hook with regex-based ELF matching. */
 void ZygiskContext::plt_hook_register(const char *regex, const char *symbol, void *fn, void **backup) {
     if (regex == nullptr || symbol == nullptr || fn == nullptr)
         return;
@@ -171,6 +191,7 @@ void ZygiskContext::plt_hook_register(const char *regex, const char *symbol, voi
     register_info.emplace_back(RegisterInfo{re, symbol, fn, backup});
 }
 
+/** Register a PLT hook exclusion pattern: skip matching ELFs when processing hooks. */
 void ZygiskContext::plt_hook_exclude(const char *regex, const char *symbol) {
     if (!regex) return;
     regex_t re;
@@ -180,6 +201,7 @@ void ZygiskContext::plt_hook_exclude(const char *regex, const char *symbol) {
     ignore_info.emplace_back(IgnoreInfo{re, symbol ?: ""});
 }
 
+/** Walk all loaded ELF maps and apply registered PLT hooks against regex-matched paths. */
 void ZygiskContext::plt_hook_process_regex() {
     if (register_info.empty())
         return;
@@ -204,6 +226,7 @@ void ZygiskContext::plt_hook_process_regex() {
     }
 }
 
+/** Process all pending regex-based hooks, clean up regex storage, and commit via lsplt. */
 bool ZygiskContext::plt_hook_commit() {
     {
         mutex_guard lock(hook_info_lock);
@@ -222,6 +245,7 @@ bool ZygiskContext::plt_hook_commit() {
 
 // -----------------------------------------------------------------
 
+/** Request module info and file descriptors for a given UID from the magisk daemon. */
 int ZygiskContext::get_module_info(int uid, rust::Vec<int> &fds) {
     if (int fd = zygisk_request(+ZygiskRequest::GetInfo); fd >= 0) {
         write_int(fd, uid);
@@ -240,6 +264,7 @@ int ZygiskContext::get_module_info(int uid, rust::Vec<int> &fds) {
     return -1;
 }
 
+/** Close all forbidden file descriptors (except exempted ones) to prevent leaking into app processes. */
 void ZygiskContext::sanitize_fds() {
     zygisk_close_logd();
 
@@ -293,6 +318,7 @@ void ZygiskContext::sanitize_fds() {
     }
 }
 
+/** Add an fd to the exemption list so it won't be closed during sanitization. */
 bool ZygiskContext::exempt_fd(int fd) {
     if ((flags & POST_SPECIALIZE) || (flags & SKIP_CLOSE_LOG_PIPE))
         return true;
@@ -302,10 +328,12 @@ bool ZygiskContext::exempt_fd(int fd) {
     return true;
 }
 
+/** Check whether FD exemption is possible (must be in app fork-and-specialize with fds_to_ignore available). */
 bool ZygiskContext::can_exempt_fd() const {
     return (flags & APP_FORK_AND_SPECIALIZE) && args.app->fds_to_ignore;
 }
 
+/** Convenience wrapper around sigprocmask for blocking/unblocking a single signal. */
 static int sigmask(int how, int signum) {
     sigset_t set;
     sigemptyset(&set);
@@ -313,6 +341,7 @@ static int sigmask(int how, int signum) {
     return sigprocmask(how, &set, nullptr);
 }
 
+/** Pre-fork hook: block SIGCHLD, record all currently-open file descriptors in the child. */
 void ZygiskContext::fork_pre() {
     // Do our own fork before loading any 3rd party code
     // First block SIGCHLD, unblock after original fork is done
@@ -340,11 +369,13 @@ void ZygiskContext::fork_pre() {
     }
 }
 
+/** Post-fork hook: unblock SIGCHLD. */
 void ZygiskContext::fork_post() {
     // Unblock SIGCHLD in case the original method didn't
     sigmask(SIG_UNBLOCK, SIGCHLD);
 }
 
+/** Load module shared objects, call onLoad(), and invoke pre-specialize callbacks. */
 void ZygiskContext::run_modules_pre(rust::Vec<int> &fds) {
     for (int i = 0; i < fds.size(); ++i) {
         owned_fd fd = fds[i];
@@ -385,6 +416,7 @@ void ZygiskContext::run_modules_pre(rust::Vec<int> &fds) {
     }
 }
 
+/** Invoke post-specialize callbacks on all modules and try to unload if requested. */
 void ZygiskContext::run_modules_post() {
     flags |= POST_SPECIALIZE;
     for (const auto &m : modules) {
@@ -397,6 +429,7 @@ void ZygiskContext::run_modules_post() {
     }
 }
 
+/** Pre-app-specialize: get module info from daemon and run module pre-specialize callbacks. */
 void ZygiskContext::app_specialize_pre() {
     flags |= APP_SPECIALIZE;
 
@@ -410,6 +443,7 @@ void ZygiskContext::app_specialize_pre() {
     }
 }
 
+/** Post-app-specialize: run module post-specialize callbacks and set env for Magisk app. */
 void ZygiskContext::app_specialize_post() {
     run_modules_post();
     if (info_flags & +ZygiskStateFlags::ProcessIsMagiskApp) {
@@ -420,6 +454,7 @@ void ZygiskContext::app_specialize_post() {
     env->ReleaseStringUTFChars(args.app->nice_name, process);
 }
 
+/** Pre-server-specialize: get module info for system_server and run module pre-specialize. */
 void ZygiskContext::server_specialize_pre() {
     rust::Vec<int> module_fds;
     if (owned_fd fd = get_module_info(1000, module_fds); fd >= 0) {
@@ -440,12 +475,14 @@ void ZygiskContext::server_specialize_pre() {
     }
 }
 
+/** Post-server-specialize: run module post-specialize callbacks. */
 void ZygiskContext::server_specialize_post() {
     run_modules_post();
 }
 
 // -----------------------------------------------------------------
 
+/** Pre nativeSpecializeAppProcess hook: extract process name and run app_specialize_pre. */
 void ZygiskContext::nativeSpecializeAppProcess_pre() {
     process = env->GetStringUTFChars(args.app->nice_name, nullptr);
     ZLOGV("pre  specialize [%s]\n", process);
@@ -454,11 +491,13 @@ void ZygiskContext::nativeSpecializeAppProcess_pre() {
     app_specialize_pre();
 }
 
+/** Post nativeSpecializeAppProcess hook: run app_specialize_post. */
 void ZygiskContext::nativeSpecializeAppProcess_post() {
     ZLOGV("post specialize [%s]\n", process);
     app_specialize_post();
 }
 
+/** Pre nativeForkSystemServer hook: set server flags, fork, and run server_specialize_pre in child. */
 void ZygiskContext::nativeForkSystemServer_pre() {
     ZLOGV("pre  forkSystemServer\n");
     flags |= SERVER_FORK_AND_SPECIALIZE;
@@ -471,6 +510,7 @@ void ZygiskContext::nativeForkSystemServer_pre() {
     sanitize_fds();
 }
 
+/** Post nativeForkSystemServer hook: run server_specialize_post in child and unblock SIGCHLD. */
 void ZygiskContext::nativeForkSystemServer_post() {
     if (is_child()) {
         ZLOGV("post forkSystemServer\n");
@@ -479,6 +519,7 @@ void ZygiskContext::nativeForkSystemServer_post() {
     fork_post();
 }
 
+/** Pre nativeForkAndSpecialize hook: extract process name, fork, and run app_specialize_pre in child. */
 void ZygiskContext::nativeForkAndSpecialize_pre() {
     process = env->GetStringUTFChars(args.app->nice_name, nullptr);
     ZLOGV("pre  forkAndSpecialize [%s]\n", process);
@@ -491,6 +532,7 @@ void ZygiskContext::nativeForkAndSpecialize_pre() {
     sanitize_fds();
 }
 
+/** Post nativeForkAndSpecialize hook: run app_specialize_post in child and unblock SIGCHLD. */
 void ZygiskContext::nativeForkAndSpecialize_post() {
     if (is_child()) {
         ZLOGV("post forkAndSpecialize [%s]\n", process);

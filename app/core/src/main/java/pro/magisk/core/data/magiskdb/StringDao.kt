@@ -1,3 +1,6 @@
+/**
+ * DAO for the `strings` table in MagiskDB (string-valued settings).
+ */
 package pro.magisk.core.data.magiskdb
 
 class StringDao : MagiskDB() {

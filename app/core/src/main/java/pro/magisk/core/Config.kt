@@ -1,3 +1,15 @@
+/**
+ * Central configuration hub for Magisk.
+ *
+ * Exposes every user-facing setting as a delegated property
+ * backed by either [android.content.SharedPreferences] (via
+ * [PreferenceConfig]) or Magisk's own shell-backed key-value
+ * store (via [DBConfig] / MagiskDB).
+ *
+ * The setting keys and allowed values are standardised in the
+ * nested [Key] and [Value] objects so that callers never need
+ * to hard-code strings.
+ */
 package pro.magisk.core
 
 import android.os.Bundle
@@ -16,8 +28,8 @@ object Config : PreferenceConfig, DBConfig {
     @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
     override val coroutineScope get() = GlobalScope
 
+    /** Setting keys that are persisted through MagiskDB (shell-backed). */
     object Key {
-        // db configs
         const val ROOT_ACCESS = "root_access"
         const val SU_MULTIUSER_MODE = "multiuser_mode"
         const val SU_MNT_NS = "mnt_ns"
@@ -27,7 +39,7 @@ object Config : PreferenceConfig, DBConfig {
         const val SU_MANAGER = "requester"
         const val KEYSTORE = "keystore"
 
-        // prefs
+        /** Setting keys that are persisted via SharedPreferences. */
         const val SU_REQUEST_TIMEOUT = "su_request_timeout"
         const val SU_AUTO_RESPONSE = "su_auto_response"
         const val SU_NOTIFICATION = "su_notification"
@@ -43,46 +55,44 @@ object Config : PreferenceConfig, DBConfig {
         const val DOH = "doh"
         const val RAND_NAME = "rand_name"
 
+        /** Keys excluded from the config-bundle migration path. */
         val NO_MIGRATION = setOf(ASKED_HOME, SU_REQUEST_TIMEOUT,
             SU_AUTO_RESPONSE, SU_REAUTH, SU_TAPJACK)
     }
 
+    /** Enumerated integer constants used by settings. */
     object Value {
-        // root access mode
         const val ROOT_ACCESS_DISABLED = 0
         const val ROOT_ACCESS_APPS_ONLY = 1
         const val ROOT_ACCESS_ADB_ONLY = 2
         const val ROOT_ACCESS_APPS_AND_ADB = 3
 
-        // su multiuser
         const val MULTIUSER_MODE_OWNER_ONLY = 0
         const val MULTIUSER_MODE_OWNER_MANAGED = 1
         const val MULTIUSER_MODE_USER = 2
 
-        // su mnt ns
         const val NAMESPACE_MODE_GLOBAL = 0
         const val NAMESPACE_MODE_REQUESTER = 1
         const val NAMESPACE_MODE_ISOLATE = 2
 
-        // su notification
         const val NO_NOTIFICATION = 0
         const val NOTIFICATION_TOAST = 1
         const val NOTIFICATION_STATUS_BAR = 2
 
-        // su auto response
         const val SU_PROMPT = 0
         const val SU_AUTO_DENY = 1
         const val SU_AUTO_ALLOW = 2
 
-        // su timeout
         val TIMEOUT_LIST = longArrayOf(0, -1, 10, 20, 30, 60)
     }
 
+    /** Boot-image flags set during init, read-only after boot. */
     @JvmField var keepVerity = false
     @JvmField var keepEnc = false
     @JvmField var recovery = false
     var denyList = false
 
+    // ---- Preference-backed settings ----
     var askedHome by preference(Key.ASKED_HOME, false)
     var bootloop by dbSettings(Key.BOOTLOOP, 0)
 
@@ -100,6 +110,7 @@ object Config : PreferenceConfig, DBConfig {
             LocaleSetting.instance.setLocale(value)
         }
 
+    // ---- MagiskDB-backed settings ----
     var zygisk by dbSettings(Key.ZYGISK, Info.isEmulator)
     var suManager by dbStrings(Key.SU_MANAGER, "", true)
     var keyStoreRaw by dbStrings(Key.KEYSTORE, "", true)
@@ -120,6 +131,8 @@ object Config : PreferenceConfig, DBConfig {
     var suTapjack by preference(Key.SU_TAPJACK, true)
     var suRestrict by preference(Key.SU_RESTRICT, false)
 
+    /** Serialises current prefs (minus [Key.NO_MIGRATION]) into a Bundle
+     *  for cross-process hand-off (stub → real APK). */
     fun toBundle(): Bundle {
         val map = prefs.all - Key.NO_MIGRATION
         return Bundle().apply {
@@ -133,6 +146,8 @@ object Config : PreferenceConfig, DBConfig {
         }
     }
 
+    /** Restores prefs from a Bundle. Only runs on first install
+     *  (when [prefs] is empty) to avoid overwriting user changes. */
     @Suppress("DEPRECATION")
     private fun fromBundle(bundle: Bundle) {
         val keys = bundle.keySet().apply { removeAll(Key.NO_MIGRATION) }
@@ -147,11 +162,10 @@ object Config : PreferenceConfig, DBConfig {
         }
     }
 
+    /** Initialise config from a previously saved bundle. */
     fun init(bundle: Bundle?) {
-        // Only try to load prefs when fresh install
         if (bundle != null && prefs.all.isEmpty()) {
             fromBundle(bundle)
         }
-
     }
 }

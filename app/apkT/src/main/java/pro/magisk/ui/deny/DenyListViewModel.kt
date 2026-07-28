@@ -1,3 +1,8 @@
+/**
+ * ViewModel for the DenyList screen. Loads all installed apps, queries the current
+ * Magisk denylist via shell, and exposes reactive filter/sort flows for the UI.
+ * Each app's process-level deny state is toggled via `magisk --denylist add/rm`.
+ */
 package pro.magisk.ui.deny
 
 import android.annotation.SuppressLint

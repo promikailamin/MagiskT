@@ -1,3 +1,8 @@
+/**
+ * DenyList CLI interface and daemon request handler.
+ * Processes enable/disable/add/rm/ls/status/exec commands
+ * from both command-line and daemon IPC.
+ */
 #include <sys/wait.h>
 #include <sys/mount.h>
 
@@ -7,6 +12,7 @@
 
 using namespace std;
 
+/** Print usage information and exit. */
 [[noreturn]] static void usage() {
     fprintf(stderr,
 R"EOF(DenyList Config CLI
@@ -26,6 +32,7 @@ Actions:
     exit(1);
 }
 
+/** Handle a denylist IPC request (enable/disable/add/rm/ls/status) from the daemon. */
 void denylist_handler(int client) {
     if (client < 0) {
         revert_unmount();
@@ -62,6 +69,7 @@ void denylist_handler(int client) {
     close(client);
 }
 
+/** CLI entry point for denylist commands: parse args, send IPC to daemon, and print response. */
 int denylist_cli(rust::Vec<rust::String> &args) {
     if (args.empty())
         usage();

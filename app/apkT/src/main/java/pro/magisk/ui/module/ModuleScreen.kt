@@ -1,3 +1,8 @@
+/**
+ * Module list screen. Shows installed Magisk modules in a scrollable list with enable/disable
+ * toggles, a remove/restore action, and optional action buttons for modules that expose them.
+ * Supports local ZIP installation via a file picker FAB.
+ */
 package pro.magisk.ui.module
 
 import android.provider.OpenableColumns

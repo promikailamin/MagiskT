@@ -1,3 +1,8 @@
+/**
+ * Entry point of the Magisk app. A single-activity architecture using Jetpack Compose and the
+ * navigation3 library for screen transitions. Manages the tab-based home shell and handles
+ * incoming flash/shortcut intents as well as invalid-state or unsupported-environment dialogs.
+ */
 package pro.magisk.ui
 
 import android.Manifest
@@ -59,11 +64,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import pro.magisk.core.R as CoreR
 
+/**
+ * Root activity hosting the Compose UI. Implements [SplashScreenHost] for a branded splash,
+ * then renders a navigation3 [NavDisplay] shell with tab-based [MainScreen] and push-based
+ * sub-screens (flash, su detail, deny list, action).
+ */
 class MainActivity : ComponentActivity(), SplashScreenHost {
 
     override val extension = ActivityExtension(this)
     override val splashController = SplashController(this)
 
+    /** Incremented each time a new [Intent] arrives so that [HandleFlashIntent] can react. */
     private val intentState = MutableStateFlow(0)
     internal val showInvalidState = MutableStateFlow(false)
     internal val showUnsupported = MutableStateFlow<List<Pair<Int, Int>>>(emptyList())
@@ -91,6 +102,7 @@ class MainActivity : ComponentActivity(), SplashScreenHost {
         extension.onSaveInstanceState(outState)
     }
 
+    /** Build the full Compose UI tree. Called once the splash screen has completed. */
     @SuppressLint("InlinedApi")
     override fun onCreateUi(savedInstanceState: Bundle?) {
         showUnsupportedMessage()
@@ -165,6 +177,10 @@ class MainActivity : ComponentActivity(), SplashScreenHost {
         }
     }
 
+    /**
+     * Observe incoming intents and navigate to the flash screen when
+     * [FlashUtils.INTENT_FLASH] is detected (e.g. from a notification or external app).
+     */
     @Composable
     private fun HandleFlashIntent(navigator: Navigator) {
         val intentVersion by intentState.collectAsState()
@@ -186,6 +202,7 @@ class MainActivity : ComponentActivity(), SplashScreenHost {
         intentState.value += 1
     }
 
+    /** Determine which tab to open first based on the intent extras or action. */
     private fun getInitialTab(intent: Intent?): Int {
         val section = if (intent?.action == Intent.ACTION_APPLICATION_PREFERENCES) {
             Const.Nav.SETTINGS
@@ -200,11 +217,13 @@ class MainActivity : ComponentActivity(), SplashScreenHost {
         }
     }
 
+    /** Called by the splash controller when the app is in an invalid (non-root stub) state. */
     @SuppressLint("InlinedApi")
     override fun showInvalidStateMessage() {
         showInvalidState.value = true
     }
 
+    /** Attempt to restore the hidden app after the user grants the install-permission. */
     internal fun handleInvalidStateInstall() {
         extension.withPermission(REQUEST_INSTALL_PACKAGES) {
             if (!it) {
@@ -220,6 +239,7 @@ class MainActivity : ComponentActivity(), SplashScreenHost {
         }
     }
 
+    /** Collect warnings about unsupported environments and surface them as dialogs. */
     private fun showUnsupportedMessage() {
         val messages = mutableListOf<Pair<Int, Int>>()
 
@@ -244,6 +264,7 @@ class MainActivity : ComponentActivity(), SplashScreenHost {
         }
     }
 
+    /** Prompt first-time stub users to pin a home-screen shortcut. */
     private fun askForHomeShortcut() {
         if (isRunningAsStub && !Config.askedHome &&
             ShortcutManagerCompat.isRequestPinShortcutSupported(this)) {

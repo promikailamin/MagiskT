@@ -1,21 +1,15 @@
+//! Rustup wrapper for the Magisk custom Rust toolchain.
+//!
+//! The `rustup component list` command fails with custom toolchains
+//! ("toolchain 'magisk' does not support components"), but several IDEs
+//! use it to check component availability (clippy, rustfmt, etc.).
+//! This wrapper retries failed component commands with the nightly channel.
+
 use std::env;
 use std::path::Path;
 use std::process::{Command, Stdio};
 
 use home::cargo_home;
-
-/********************************
- * Why do we need this wrapper?
- ********************************
- *
- * The command `rustup component list` does not work with custom toolchains:
- * > error: toolchain 'magisk' does not support components
- *
- * However, this command is used by several IDEs to determine component
- * availability, such as clippy, rustfmt etc.
- * In this program, we use the output of the command with the nightly
- * channel if any `component` command failed.
-*/
 
 fn main() -> std::io::Result<()> {
     let exe = env::args().next().unwrap();

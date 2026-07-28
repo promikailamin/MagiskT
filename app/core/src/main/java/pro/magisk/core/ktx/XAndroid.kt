@@ -1,3 +1,11 @@
+/**
+ * Android framework extension functions.
+ *
+ * Covers bitmap rendering, context unwrapping, device-protected
+ * storage, keyboard hiding, package info lookup (with UID/PID
+ * resolution via [RootUtils]), broadcast receiver registration, and
+ * toast / intent helpers.
+ */
 package pro.magisk.core.ktx
 
 import android.annotation.SuppressLint
@@ -28,6 +36,7 @@ import pro.magisk.utils.APKInstall
 import com.topjohnwu.superuser.internal.UiThreadHandler
 import java.io.File
 
+/** Rasterize a drawable resource into a [Bitmap]. */
 fun Context.getBitmap(id: Int): Bitmap {
     var drawable = getDrawable(id)!!
     if (drawable is BitmapDrawable)
@@ -45,13 +54,16 @@ fun Context.getBitmap(id: Int): Bitmap {
     return bitmap
 }
 
+/** Device-protected storage context (or self on pre-N). */
 val Context.deviceProtectedContext: Context get() =
     if (SDK_INT >= Build.VERSION_CODES.N) {
         createDeviceProtectedStorageContext()
     } else { this }
 
+/** Shortcut for `File(cacheDir, name)`. */
 fun Context.cachedFile(name: String) = File(cacheDir, name)
 
+/** Resolve the application label, respecting locale overrides. */
 fun ApplicationInfo.getLabel(pm: PackageManager): String {
     runCatching {
         if (labelRes > 0) {
@@ -64,6 +76,7 @@ fun ApplicationInfo.getLabel(pm: PackageManager): String {
     return loadLabel(pm).toString()
 }
 
+/** Unwrap nested [ContextWrapper]s to reach the base context. */
 fun Context.unwrap(): Context {
     var context = this
     while (context is ContextWrapper)
@@ -71,6 +84,7 @@ fun Context.unwrap(): Context {
     return context
 }
 
+/** Hide the software keyboard. */
 fun Activity.hideKeyboard() {
     val view = currentFocus ?: return
     getSystemService<InputMethodManager>()
@@ -78,6 +92,7 @@ fun Activity.hideKeyboard() {
     view.clearFocus()
 }
 
+/** Resolve the [Activity] hosting this [View] by walking the context chain. */
 val View.activity: Activity get() {
     var context = context
     while(true) {
@@ -89,6 +104,7 @@ val View.activity: Activity get() {
     }
 }
 
+/** Read a system property via reflection (`android.os.SystemProperties`). */
 @SuppressLint("PrivateApi")
 fun getProperty(key: String, def: String): String {
     runCatching {
@@ -99,6 +115,13 @@ fun getProperty(key: String, def: String): String {
     return def
 }
 
+/**
+ * Resolve a [PackageInfo] for a given UID / PID pair.
+ *
+ * When multiple packages share a UID the PID is used to disambiguate
+ * via [RootUtils.getAppProcess]. Shell UID falls back to
+ * `com.android.shell`.
+ */
 @SuppressLint("InlinedApi")
 @Throws(PackageManager.NameNotFoundException::class)
 fun PackageManager.getPackageInfo(uid: Int, pid: Int): PackageInfo? {
@@ -108,13 +131,9 @@ fun PackageManager.getPackageInfo(uid: Int, pid: Int): PackageInfo? {
         if (pid <= 0) {
             return null
         }
-        // Try to find package name from PID
         val proc = RootUtils.getAppProcess(pid)
         if (proc == null) {
             if (uid == Process.SHELL_UID) {
-                // It is possible that some apps installed are sharing UID with shell.
-                // We will not be able to find a package from the active process list,
-                // because the client is forked from ADB shell, not any app process.
                 return getPackageInfo("com.android.shell", flag)
             }
         } else if (uid == proc.uid) {
@@ -129,10 +148,12 @@ fun PackageManager.getPackageInfo(uid: Int, pid: Int): PackageInfo? {
     throw PackageManager.NameNotFoundException()
 }
 
+/** Register a [BroadcastReceiver] at runtime (works around API limits on stub APKs). */
 fun Context.registerRuntimeReceiver(receiver: BroadcastReceiver, filter: IntentFilter) {
     APKInstall.registerReceiver(this, receiver, filter)
 }
 
+/** Build an intent that launches the app's own launcher activity. */
 fun Context.selfLaunchIntent(): Intent {
     val pm = packageManager
     val intent = pm.getLaunchIntentForPackage(packageName)!!
@@ -140,10 +161,12 @@ fun Context.selfLaunchIntent(): Intent {
     return intent
 }
 
+/** Show a toast on the UI thread. */
 fun Context.toast(msg: CharSequence, duration: Int) {
     UiThreadHandler.run { Toast.makeText(this, msg, duration).show() }
 }
 
+/** Show a toast from a string resource on the UI thread. */
 fun Context.toast(resId: Int, duration: Int) {
     UiThreadHandler.run { Toast.makeText(this, resId, duration).show() }
 }

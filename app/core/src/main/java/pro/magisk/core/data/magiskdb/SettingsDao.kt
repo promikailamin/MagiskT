@@ -1,3 +1,6 @@
+/**
+ * DAO for the `settings` table in MagiskDB (integer-valued settings).
+ */
 package pro.magisk.core.data.magiskdb
 
 class SettingsDao : MagiskDB() {

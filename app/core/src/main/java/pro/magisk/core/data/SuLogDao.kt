@@ -1,3 +1,10 @@
+/**
+ * Room database and DAO for SU access logs.
+ *
+ * [SuLogDatabase] is the Room database (version 2) with a single
+ * [SuLogDao] that provides fetch, insert, delete-all, and automatic
+ * cleanup of entries older than two weeks.
+ */
 package pro.magisk.core.data
 
 import androidx.room.Dao
@@ -36,6 +43,7 @@ abstract class SuLogDao(private val db: SuLogDatabase) {
 
     suspend fun deleteAll() = withContext(Dispatchers.IO) { db.clearAllTables() }
 
+    /** Fetch all log entries (deleting outdated ones first). */
     suspend fun fetchAll(): MutableList<SuLog> {
         deleteOutdated()
         return fetch()

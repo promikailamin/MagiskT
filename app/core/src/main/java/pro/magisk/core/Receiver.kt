@@ -1,3 +1,15 @@
+/**
+ * BroadcastReceiver that reacts to package lifecycle events and
+ * system configuration changes.
+ *
+ * Actions handled:
+ * - [ACTION_PACKAGE_REPLACED] — optionally wipes SU policy for the
+ *   replaced package (pre-O).
+ * - [ACTION_UID_REMOVED] — cleans up SU policy for the removed UID.
+ * - [ACTION_PACKAGE_FULLY_REMOVED] — removes the package from the
+ *   denylist.
+ * - [ACTION_LOCALE_CHANGED] — refreshes dynamic shortcuts.
+ */
 package pro.magisk.core
 
 import android.annotation.SuppressLint
@@ -36,7 +48,6 @@ open class Receiver : BaseReceiver() {
 
         when (intent.action ?: return) {
             Intent.ACTION_PACKAGE_REPLACED -> {
-                // This will only work pre-O
                 if (Config.suReAuth)
                     getUid(intent)?.let { rmPolicy(it) }
             }

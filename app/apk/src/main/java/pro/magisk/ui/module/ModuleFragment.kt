@@ -1,3 +1,9 @@
+/**
+ * Module list screen — displays installed Magisk modules and the "Install from storage" button.
+ *
+ * Observes the ViewModel's [ModuleViewModel.data] LiveData for incoming module ZIP URIs
+ * (selected via the file picker) and triggers the install confirmation dialog.
+ */
 package pro.magisk.ui.module
 
 import android.os.Bundle
@@ -13,6 +19,7 @@ import rikka.recyclerview.addItemSpacing
 import rikka.recyclerview.fixEdgeEffect
 import pro.magisk.core.R as CoreR
 
+/** Fragment that shows installed Magisk modules and handles local module installs. */
 class ModuleFragment : BaseFragment<FragmentModuleMd2Binding>() {
 
     override val layoutRes = R.layout.fragment_module_md2

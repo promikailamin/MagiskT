@@ -1,3 +1,5 @@
+// :stub module - Thin proxy APK that downloads and classloads the real Magisk app.
+// Uses LSParanoid for string obfuscation and is minified with ProGuard.
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.lsparanoid)

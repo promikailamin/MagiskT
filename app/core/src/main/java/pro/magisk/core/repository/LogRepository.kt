@@ -1,3 +1,10 @@
+/**
+ * Repository that aggregates SU access logs (via Room DAO) and
+ * Magisk daemon logs (via shell commands).
+ *
+ * SU logs are persisted in a local Room database; Magisk logs are
+ * read from `MAGISK_LOG` or pulled from `logcat` as a fallback.
+ */
 package pro.magisk.core.repository
 
 import pro.magisk.core.Const
@@ -14,6 +21,7 @@ class LogRepository(
 
     suspend fun fetchSuLogs() = logDao.fetchAll()
 
+    /** Fetch Magisk daemon logs (from file or logcat). */
     suspend fun fetchMagiskLogs(): String {
         val list = object : AbstractMutableList<String>() {
             val buf = StringBuilder()

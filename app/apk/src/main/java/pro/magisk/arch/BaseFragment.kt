@@ -1,3 +1,14 @@
+/**
+ * Base Fragment for all screens using DataBinding and ViewModel event dispatching.
+ *
+ * Handles:
+ * - DataBinding inflation with ViewModel and lifecycle-owner wiring
+ * - MenuProvider registration for fragments that host options menus
+ * - ViewModel state save/restore
+ * - Delegation of [ViewEvent] to executor interfaces ([ContextExecutor], [ActivityExecutor], [FragmentExecutor])
+ * - Navigation action safety check before navigating
+ * - Snackbar anchor/view delegates (overridable by subclasses)
+ */
 package pro.magisk.arch
 
 import android.os.Bundle
@@ -14,6 +25,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavDirections
 import pro.magisk.BR
 
+/** Shared base Fragment for all DataBinding-backed screens. */
 abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), ViewModelHolder {
 
     val activity get() = getActivity() as? NavigationActivity<*>
@@ -51,6 +63,7 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), ViewModelHo
 
     override fun onStart() {
         super.onStart()
+        // Clear any subtitle left by a previous destination
         activity?.supportActionBar?.subtitle = null
     }
 
@@ -66,7 +79,6 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), ViewModelHo
     }
 
     open fun onBackPressed(): Boolean = false
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -90,6 +102,7 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), ViewModelHo
         (binding.root as? ViewGroup)?.startAnimations()
     }
 
+    /** Navigates via this [NavDirections] action only if the destination exists in the nav graph. */
     fun NavDirections.navigate() {
         navigation?.currentDestination?.getAction(actionId)?.let { navigation!!.navigate(this) }
     }

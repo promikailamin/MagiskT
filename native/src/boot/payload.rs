@@ -1,3 +1,10 @@
+//! ChromeOS update payload (`.bin`) partition extraction.
+//!
+//! Parses the `CrAU`-format delta update manifests (version 2),
+//! finds the `boot` or `init_boot` partition, and extracts it by
+//! seeking through and decompressing `REPLACE` / `REPLACE_BZ` /
+//! `REPLACE_XZ` / `ZERO` operations.
+
 use crate::compress::get_decoder;
 use crate::ffi::check_fmt;
 use crate::proto::update_metadata::DeltaArchiveManifest;

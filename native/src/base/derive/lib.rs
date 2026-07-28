@@ -1,3 +1,7 @@
+//! Proc-macro crate for the `base` library — provides `#[derive(FromArgs)]`
+//! (fork of the `argh` crate) and `#[derive(Decodable)]` (socket message
+//! serialisation).
+
 #![recursion_limit = "256"]
 
 use proc_macro::TokenStream;

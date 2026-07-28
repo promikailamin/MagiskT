@@ -1,3 +1,16 @@
+/**
+ * Base activity for all Magisk app screens.
+ *
+ * Provides:
+ * - DataBinding setup ([setContentView]) with ViewModel and lifecycle owner binding
+ * - ViewModel event observation ([startObserveLiveData])
+ * - Window insets handling (RikkaX insets) and edge-to-edge configuration
+ * - Snackbar display helper ([showSnackbar])
+ * - Dark-theme initialisation from [Config]
+ * - Workarounds for stub-APK edge cases (reflection-hack for config flags)
+ * - Navigation bar transparency on gesture-nav devices
+ * - [ViewGroup.startAnimations] extension for layout transition animations
+ */
 package pro.magisk.arch
 
 import android.content.Context
@@ -28,6 +41,7 @@ import pro.magisk.core.wrap
 import rikka.insets.WindowInsetsHelper
 import rikka.layoutinflater.view.LayoutInflaterFactory
 
+/** Shared base Activity for all UI screens. */
 abstract class UIActivity<Binding : ViewDataBinding>
     : AppCompatActivity(), ViewModelHolder, IActivityExtension {
 
@@ -54,7 +68,8 @@ abstract class UIActivity<Binding : ViewDataBinding>
 
         extension.onCreate(savedInstanceState)
         if (isRunningAsStub) {
-            // Overwrite private members to avoid nasty "false" stack traces being logged
+            // Suppress spurious "false" stack traces logged by AppCompatDelegateImpl
+            // when the stub APK's delegate doesn't have the expected config-flags fields.
             val delegate = delegate
             val clz = delegate.javaClass
             clz.reflectField("mActivityHandlesConfigFlagsChecked").set(delegate, true)
@@ -65,19 +80,18 @@ abstract class UIActivity<Binding : ViewDataBinding>
 
         startObserveLiveData()
 
-        // We need to set the window background explicitly since for whatever reason it's not
-        // propagated upstream
+        // Explicitly propagate the windowBackground drawable (not always inherited)
         obtainStyledAttributes(intArrayOf(android.R.attr.windowBackground))
             .use { it.getDrawable(0) }
             .also { window.setBackgroundDrawable(it) }
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
+        // On gesture-nav devices the navbar is short → make it fully transparent
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             window?.decorView?.post {
-                // If navigation bar is short enough (gesture navigation enabled), make it transparent
-                if ((window.decorView.rootWindowInsets?.systemWindowInsetBottom
-                        ?: 0) < Resources.getSystem().displayMetrics.density * 40) {
+                val insetBottom = window.decorView.rootWindowInsets?.systemWindowInsetBottom ?: 0
+                if (insetBottom < Resources.getSystem().displayMetrics.density * 40) {
                     window.navigationBarColor = Color.TRANSPARENT
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         window.navigationBarDividerColor = Color.TRANSPARENT
@@ -96,6 +110,7 @@ abstract class UIActivity<Binding : ViewDataBinding>
         extension.onSaveInstanceState(outState)
     }
 
+    /** Inflates the layout via DataBinding and wires [viewModel] and lifecycle owner. */
     fun setContentView() {
         binding = DataBindingUtil.setContentView<Binding>(this, layoutRes).also {
             it.setVariable(BR.viewModel, viewModel)
@@ -116,6 +131,7 @@ abstract class UIActivity<Binding : ViewDataBinding>
 
     override fun onResume() {
         super.onResume()
+        // Trigger async loading for screens that need it
         viewModel.let {
             if (it is AsyncLoadViewModel)
                 it.startLoading()
@@ -129,6 +145,7 @@ abstract class UIActivity<Binding : ViewDataBinding>
     }
 }
 
+/** Applies an [AutoTransition] animation to this [ViewGroup] for layout changes. */
 fun ViewGroup.startAnimations() {
     val transition = AutoTransition()
         .setInterpolator(FastOutSlowInInterpolator())

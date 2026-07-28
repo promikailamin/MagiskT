@@ -1,3 +1,9 @@
+/**
+ * Base dialog for displaying Markdown content.
+ *
+ * Subclasses override [getMarkdownText] to provide the source text (e.g. from a file or
+ * network). The text is parsed and rendered by Markwon on a background thread.
+ */
 package pro.magisk.dialog
 
 import android.view.LayoutInflater
@@ -15,6 +21,7 @@ import timber.log.Timber
 import java.io.IOException
 import pro.magisk.core.R as CoreR
 
+/** Abstract dialog that renders Markdown content using Markwon. */
 abstract class MarkDownDialog : DialogBuilder {
 
     abstract suspend fun getMarkdownText(): String

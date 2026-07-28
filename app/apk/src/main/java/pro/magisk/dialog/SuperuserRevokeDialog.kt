@@ -1,9 +1,15 @@
+/**
+ * Confirmation dialog for revoking a superuser permission from an app.
+ *
+ * Requires explicit user confirmation before the policy is removed.
+ */
 package pro.magisk.dialog
 
 import pro.magisk.core.R
 import pro.magisk.events.DialogBuilder
 import pro.magisk.view.MagiskDialog
 
+/** Dialog confirming the revocation of root access for [appName]. */
 class SuperuserRevokeDialog(
     private val appName: String,
     private val onSuccess: () -> Unit

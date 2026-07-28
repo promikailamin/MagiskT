@@ -1,3 +1,7 @@
+/**
+ * Manual ViewModel factory (no Hilt/Dagger). Resolves ViewModel dependencies from the
+ * [ServiceLocator] singleton for those ViewModels that require injected services.
+ */
 package pro.magisk.arch
 
 import androidx.lifecycle.ViewModel

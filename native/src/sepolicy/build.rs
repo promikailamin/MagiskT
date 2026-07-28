@@ -1,3 +1,5 @@
+//! Build script for the `sepolicy` crate — generates CXX FFI bindings.
+
 use crate::codegen::gen_cxx_binding;
 
 #[path = "../include/codegen.rs"]

@@ -1,3 +1,8 @@
+/**
+ * Reusable dialog components: loading dialog, confirmation dialog (both coroutine-based
+ * fire-and-forget and suspend/await variants), and Markdown rendering via [AndroidView]
+ * backed by Markwon.
+ */
 package pro.magisk.ui.component
 
 import android.widget.TextView

@@ -1,3 +1,8 @@
+//! Kernel message (kmsg) logging for magiskinit.
+//!
+//! Sets up `/dev/kmsg` output early in boot, before Android's logd is
+//! available. Also redirects stdin/stdout/stderr to `/dev/null`.
+
 use base::nix::fcntl::OFlag;
 use base::{LogLevel, SilentLogExt, Utf8CStr, cstr, libc, raw_cstr, update_logger};
 use libc::{

@@ -1,3 +1,9 @@
+/**
+ * Zygisk PLT hook engine and JNI method hooking.
+ * Implements the full Zygisk bootstrap lifecycle: PLT hook installation
+ * in libandroid_runtime and libnativebridge, native bridge reloading,
+ * JNI method replacement in Zygote, and process specialization callbacks.
+ */
 #include <sys/mman.h>
 #include <sys/mount.h>
 #include <sys/resource.h>
@@ -131,6 +137,7 @@ private:
 ZygiskContext *g_ctx;
 static HookContext *g_hook;
 
+/** Return the global HookContext cast to JniHookDefinitions for access to the method arrays. */
 static JniHookDefinitions *get_defs() {
     return g_hook;
 }
@@ -141,6 +148,7 @@ static JniHookDefinitions *get_defs() {
 ret (*old_##func)(__VA_ARGS__);       \
 ret new_##func(__VA_ARGS__)
 
+/** PLT hook for strdup: intercept the call for "com.android.internal.os.ZygoteInit" to hook Zygote JNI methods. */
 DCL_HOOK_FUNC(static char *, strdup, const char * str) {
     if (strcmp(kZygoteInit, str) == 0) {
         g_hook->hook_zygote_jni();
@@ -148,12 +156,12 @@ DCL_HOOK_FUNC(static char *, strdup, const char * str) {
     return old_strdup(str);
 }
 
-// Skip actual fork and return cached result if applicable
+/** PLT hook for fork: if a cached ZygiskContext pid is available, return it instead of forking (used for cached forks). */
 DCL_HOOK_FUNC(int, fork) {
     return (g_ctx && g_ctx->pid >= 0) ? g_ctx->pid : old_fork();
 }
 
-// Unmount stuffs in the process's private mount namespace
+/** PLT hook for unshare: after CLONE_NEWNS, run revert_unmount if the DO_REVERT_UNMOUNT flag is set. */
 DCL_HOOK_FUNC(static int, unshare, int flags) {
     int res = old_unshare(flags);
     if (g_ctx && (flags & CLONE_NEWNS) != 0 && res == 0) {
@@ -166,7 +174,7 @@ DCL_HOOK_FUNC(static int, unshare, int flags) {
     return res;
 }
 
-// This is the last moment before the secontext of the process changes
+/** PLT hook for selinux_android_setcontext: pre-fetch logd before SELinux context transition (last moment before sandboxing). */
 DCL_HOOK_FUNC(static int, selinux_android_setcontext,
               uid_t uid, bool isSystemServer, const char *seinfo, const char *pkgname) {
     // Pre-fetch logd before secontext transition
@@ -174,7 +182,7 @@ DCL_HOOK_FUNC(static int, selinux_android_setcontext,
     return old_selinux_android_setcontext(uid, isSystemServer, seinfo, pkgname);
 }
 
-// Close file descriptors to prevent crashing
+/** PLT hook for __android_log_close: skip closing the log pipe if SKIP_CLOSE_LOG_PIPE is set. */
 DCL_HOOK_FUNC(static void, android_log_close) {
     if (g_ctx == nullptr || !(g_ctx->flags & SKIP_CLOSE_LOG_PIPE)) {
         // This happens during forks like nativeForkApp, nativeForkUsap,
@@ -184,7 +192,7 @@ DCL_HOOK_FUNC(static void, android_log_close) {
     old_android_log_close();
 }
 
-// It should be safe to assume all dlclose's in libnativebridge are for zygisk_loader
+/** PLT hook for dlclose in libnativebridge: intercept the dlclose of our own loader to trigger post_native_bridge_load. */
 DCL_HOOK_FUNC(static int, dlclose, void *handle) {
     if (!g_hook->self_handle) {
         ZLOGV("dlclose zygisk_loader\n");
@@ -193,9 +201,7 @@ DCL_HOOK_FUNC(static int, dlclose, void *handle) {
     return 0;
 }
 
-// We cannot directly call `dlclose` to unload ourselves, otherwise when `dlclose` returns,
-// it will return to our code which has been unmapped, causing segmentation fault.
-// Instead, we hook `pthread_attr_destroy` which will be called when VM daemon threads start.
+/** PLT hook for pthread_attr_destroy: used as a safe point to dlclose ourselves (avoiding return-into-unmapped-code). */
 DCL_HOOK_FUNC(static int, pthread_attr_destroy, void *target) {
     int res = old_pthread_attr_destroy((pthread_attr_t *)target);
 
@@ -226,16 +232,19 @@ DCL_HOOK_FUNC(static int, pthread_attr_destroy, void *target) {
 
 // -----------------------------------------------------------------
 
+/** Get the maximum number of file descriptors (RLIMIT_NOFILE), defaulting to 32768 if unset. */
 static size_t get_fd_max() {
     rlimit r{32768, 32768};
     getrlimit(RLIMIT_NOFILE, &r);
     return r.rlim_max;
 }
 
+/** Construct a new ZygiskContext for the current process specialization. Sets the global g_ctx. */
 ZygiskContext::ZygiskContext(JNIEnv *env, void *args) :
     env(env), args{args}, process(nullptr), pid(-1), flags(0), info_flags(0),
     allowed_fds(get_fd_max()), hook_info_lock(PTHREAD_MUTEX_INITIALIZER) { g_ctx = this; }
 
+/** Destroy the ZygiskContext: clear g_ctx, clean up modules, restore zygote hooks, and schedule self-unload. */
 ZygiskContext::~ZygiskContext() {
     // This global pointer points to a variable on the stack.
     // Set this to nullptr to prevent leaking local variable.
@@ -261,6 +270,7 @@ ZygiskContext::~ZygiskContext() {
 
 // -----------------------------------------------------------------
 
+/** Get the function start address from unwind context, handling ARM Thumb mode. */
 inline void *unwind_get_region_start(_Unwind_Context *ctx) {
     auto fp = _Unwind_GetRegionStart(ctx);
 #if defined(__arm__)
@@ -283,6 +293,7 @@ inline void *unwind_get_region_start(_Unwind_Context *ctx) {
 // argument, which is the pointer to NativeBridgeRuntimeCallbacks.
 // For x86, whose abi uses stack to pass arguments, we can directly get the pointer to
 // NativeBridgeRuntimeCallbacks from the stack.
+/** Search callee-saved registers (or stack on x86) for the NativeBridgeRuntimeCallbacks pointer in libart.so's writable region. */
 static const NativeBridgeRuntimeCallbacks* find_runtime_callbacks(struct _Unwind_Context *ctx) {
     // Find the writable memory region of libart.so, where the NativeBridgeRuntimeCallbacks is located.
     auto [start, end] = []()-> tuple<uintptr_t, uintptr_t> {
@@ -343,6 +354,7 @@ static const NativeBridgeRuntimeCallbacks* find_runtime_callbacks(struct _Unwind
     return nullptr;
 }
 
+/** After libnativebridge dlclose's our loader: unwind to find LoadNativeBridge and NativeBridgeRuntimeCallbacks, then reload the real native bridge. */
 void HookContext::post_native_bridge_load(void *handle) {
     self_handle = handle;
     using method_sig = const bool (*)(const char *, const NativeBridgeRuntimeCallbacks *);
@@ -382,6 +394,7 @@ void HookContext::post_native_bridge_load(void *handle) {
 
 // -----------------------------------------------------------------
 
+/** Register a single PLT hook via lsplt and track it in plt_backup for later restoration. */
 void HookContext::register_hook(
         dev_t dev, ino_t inode, const char *symbol, void *new_func, void **old_func) {
     if (!lsplt::RegisterHook(dev, inode, symbol, new_func, old_func)) {
@@ -398,6 +411,7 @@ void HookContext::register_hook(
 #define PLT_HOOK_REGISTER(DEV, INODE, NAME) \
     PLT_HOOK_REGISTER_SYM(DEV, INODE, #NAME, NAME)
 
+/** Install all bootstrap PLT hooks (dlclose, fork, unshare, selinux_android_setcontext, strdup, __android_log_close). */
 void HookContext::hook_plt() {
     ino_t android_runtime_inode = 0;
     dev_t android_runtime_dev = 0;
@@ -428,6 +442,7 @@ void HookContext::hook_plt() {
     std::erase_if(plt_backup, [](auto &t) { return *std::get<3>(t) == nullptr; });
 }
 
+/** Install a PLT hook on pthread_attr_destroy in libart.so to enable safe self-unloading. */
 void HookContext::hook_unloader() {
     ino_t art_inode = 0;
     dev_t art_dev = 0;
@@ -445,6 +460,7 @@ void HookContext::hook_unloader() {
         ZLOGE("plt_hook failed\n");
 }
 
+/** Restore all PLT hooks by re-registering the original function pointers. */
 void HookContext::restore_plt_hook() {
     // Unhook plt_hook
     for (const auto &[dev, inode, sym, old_func] : plt_backup) {
@@ -461,6 +477,7 @@ void HookContext::restore_plt_hook() {
 
 // -----------------------------------------------------------------
 
+/** Get all registered JNI native methods for a class via NativeBridgeRuntimeCallbacks. */
 JNIMethodsDyn HookContext::get_jni_methods(JNIEnv *env, jclass clazz) const {
     size_t total = runtime_callbacks->getNativeMethodCount(env, clazz);
     auto methods = std::make_unique_for_overwrite<JNINativeMethod[]>(total);
@@ -468,6 +485,7 @@ JNIMethodsDyn HookContext::get_jni_methods(JNIEnv *env, jclass clazz) const {
     return std::make_pair(std::move(methods), total);
 }
 
+/** Register JNI native methods via env->RegisterNatives. Null fnPtr entries are skipped. */
 static void register_jni_methods(JNIEnv *env, jclass clazz, JNIMethods methods) {
     for (auto &method : methods) {
         // It's useful to allow nullptr function pointer for restoring hook
@@ -481,6 +499,7 @@ static void register_jni_methods(JNIEnv *env, jclass clazz, JNIMethods methods) 
     }
 }
 
+/** Replace JNI native methods: backup originals, register new ones, then find and return old function pointers. */
 int HookContext::hook_jni_methods(JNIEnv *env, jclass clazz, JNIMethods methods) const {
     // Backup existing methods
     auto o = get_jni_methods(env, clazz);
@@ -522,6 +541,7 @@ int HookContext::hook_jni_methods(JNIEnv *env, jclass clazz, JNIMethods methods)
 }
 
 
+/** Look up a class by name and hook its JNI native methods. Sets fnPtr to nullptr if the class is not found. */
 void HookContext::hook_jni_methods(JNIEnv *env, const char *clz, JNIMethods methods) const {
     jclass clazz;
     if (!runtime_callbacks || !env || !clz || !((clazz = env->FindClass(clz)))) {
@@ -531,6 +551,7 @@ void HookContext::hook_jni_methods(JNIEnv *env, const char *clz, JNIMethods meth
     hook_jni_methods(env, clazz, methods);
 }
 
+/** Hook the Zygote class's native specialization methods (nativeForkAndSpecialize, nativeSpecializeAppProcess, nativeForkSystemServer) with our pre/post wrappers. */
 void HookContext::hook_zygote_jni() {
     using method_sig = jint(*)(JavaVM **, jsize, jsize *);
     auto get_created_vms = reinterpret_cast<method_sig>(
@@ -608,6 +629,7 @@ void HookContext::hook_zygote_jni() {
     }
 }
 
+/** Restore all Zygote JNI methods to their original function pointers. */
 void HookContext::restore_zygote_hook(JNIEnv *env) {
     jclass clazz = env->FindClass(kZygote);
     register_jni_methods(env, clazz, fork_app_methods);
@@ -617,11 +639,13 @@ void HookContext::restore_zygote_hook(JNIEnv *env) {
 
 // -----------------------------------------------------------------
 
+/** Zygisk entry point: create the global HookContext and install bootstrap PLT hooks. */
 void hook_entry() {
     default_new(g_hook);
     g_hook->hook_plt();
 }
 
+/** Public entry point: hook JNI native methods for a class via the global HookContext. */
 void hookJniNativeMethods(JNIEnv *env, const char *clz, JNINativeMethod *methods, int numMethods) {
     g_hook->hook_jni_methods(env, clz, { methods, static_cast<size_t>(numMethods) });
 }

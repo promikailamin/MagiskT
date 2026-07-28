@@ -1,4 +1,7 @@
-// This file hosts shared build script logic
+//! Shared build script logic — generates CXX FFI bindings.
+//!
+//! Used by every crate's `build.rs` via `#[path = "../include/codegen.rs"] mod codegen;`.
+//! Calls `cxx-gen` to produce `<name>.cpp` and `<name>.hpp` from `lib.rs`.
 
 use std::fmt::Display;
 use std::fs::File;

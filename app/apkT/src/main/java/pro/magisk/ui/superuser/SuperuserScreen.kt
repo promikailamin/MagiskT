@@ -1,3 +1,7 @@
+/**
+ * Superuser permissions list screen. Displays every app that has a stored SU policy
+ * with toggle enable/disable and navigation to per-app detail settings.
+ */
 package pro.magisk.ui.superuser
 
 import androidx.compose.foundation.Image

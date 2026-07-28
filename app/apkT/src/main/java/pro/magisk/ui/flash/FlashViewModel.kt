@@ -1,3 +1,9 @@
+/**
+ * ViewModel for the flash/install screen. Supports multiple installation modes:
+ * direct install, module ZIP flashing (via terminal emulator), uninstall, patch file,
+ * and inactive-slot install. Collects console output either from a PTY terminal or
+ * from a [CallbackList] emitted by [MagiskInstaller].
+ */
 package pro.magisk.ui.flash
 
 import android.net.Uri
@@ -62,6 +68,7 @@ class FlashViewModel : BaseViewModel() {
 
     // --- LazyColumn mode (MagiskInstaller) ---
 
+    /** Console lines displayed in the simple text-based flash UI. */
     val consoleItems = mutableStateListOf<String>()
     private val logItems = mutableListOf<String>().synchronized()
     private val outItems = object : CallbackList<String>() {
@@ -74,6 +81,7 @@ class FlashViewModel : BaseViewModel() {
 
     // --- Shared ---
 
+    /** Dispatch to the correct flash handler based on [flashAction]. */
     fun startFlashing() {
         val action = flashAction
         val uri = flashUri
@@ -119,6 +127,10 @@ class FlashViewModel : BaseViewModel() {
         _flashState.value = if (success) State.SUCCESS else State.FAILED
     }
 
+    /**
+     * Flash a module ZIP. Copies the zip to cache, extracts the installer script from assets,
+     * then runs it in a root PTY via busybox script.
+     */
     private suspend fun flashZip(uri: Uri) {
         val emu = emulatorReady.await()
 
@@ -176,6 +188,7 @@ class FlashViewModel : BaseViewModel() {
         _flashState.value = if (success) State.SUCCESS else State.FAILED
     }
 
+    /** Save the flash/install log to a file in the MediaStore. */
     fun saveLog() {
         viewModelScope.launch(Dispatchers.IO) {
             val name = "magisk_install_log_%s.log".format(
@@ -199,5 +212,6 @@ class FlashViewModel : BaseViewModel() {
         }
     }
 
+    /** Initiate a reboot. */
     fun restartPressed() = reboot()
 }

@@ -1,3 +1,7 @@
+/**
+ * Constants and helpers for the flash intent-based workflow. Provides a [PendingIntent] factory
+ * used by external file managers / download notifications to launch the flash screen.
+ */
 package pro.magisk.ui.flash
 
 import android.app.PendingIntent
@@ -14,6 +18,7 @@ object FlashUtils {
     const val EXTRA_FLASH_ACTION = "flash_action"
     const val EXTRA_FLASH_URI = "flash_uri"
 
+    /** Create a [PendingIntent] that opens [MainActivity] on the flash screen for a given zip file. */
     fun installIntent(context: Context, file: Uri): PendingIntent {
         val intent = Intent(context, MainActivity::class.java).apply {
             component = MainActivity::class.java.cmp(context.packageName)

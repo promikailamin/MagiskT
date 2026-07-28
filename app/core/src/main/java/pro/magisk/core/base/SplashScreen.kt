@@ -1,3 +1,12 @@
+/**
+ * Splash-screen lifecycle integration.
+ *
+ * [SplashController] manages the one-shot initialisation that runs
+ * before the main UI is created: it waits for a shell, initialises
+ * [Config] and [Notifications], validates the stub APK, and migrates
+ / package state if needed. Once done it hands off to the host
+ * activity via [SplashScreenHost.onCreateUi].
+ */
 package pro.magisk.core.base
 
 import android.Manifest.permission.REQUEST_INSTALL_PACKAGES
@@ -26,6 +35,7 @@ import timber.log.Timber
 import java.io.File
 import java.io.IOException
 
+/** Interface that an activity must implement to work with [SplashController]. */
 interface SplashScreenHost : IActivityExtension {
     val splashController: SplashController<*>
 
@@ -33,6 +43,13 @@ interface SplashScreenHost : IActivityExtension {
     fun showInvalidStateMessage()
 }
 
+/**
+ * Manages the one-time initialisation that runs before the main UI.
+ *
+ * On first launch it waits for a shell, runs [initializeApp],
+ * sets up notifications and shortcuts, and hands off to
+ * [SplashScreenHost.onCreateUi].
+ */
 class SplashController<T>(private val activity: T)
     where T: ComponentActivity, T: SplashScreenHost {
 
@@ -44,7 +61,6 @@ class SplashController<T>(private val activity: T)
 
     fun preOnCreate() {
         if (isRunningAsStub && !splashShown) {
-            // Manually apply splash theme for stub
             activity.theme.applyStyle(R.style.StubSplashTheme, true)
         }
     }
@@ -67,7 +83,6 @@ class SplashController<T>(private val activity: T)
                 activity.runOnUiThread {
                     splashShown = true
                     if (isRunningAsStub) {
-                        // Re-launch main activity without splash theme
                         activity.relaunch()
                     } else {
                         if (activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
@@ -92,6 +107,7 @@ class SplashController<T>(private val activity: T)
         activity.onCreateUi(savedInstanceState)
     }
 
+    /** One-time startup initialisation (shell, config, stub validation). */
     private fun T.initializeApp() {
         val prevPkg = launchPackage
         val prevConfig = intent.getBundleExtra(Const.Key.PREV_CONFIG)
@@ -101,7 +117,6 @@ class SplashController<T>(private val activity: T)
 
         if (packageName != APP_PACKAGE_NAME) {
             runCatching {
-                // Hidden, remove pro.magisk if exist as it could be malware
                 packageManager.getApplicationInfo(APP_PACKAGE_NAME, 0)
                 Shell.cmd("(pm uninstall $APP_PACKAGE_NAME)& >/dev/null 2>&1").exec()
             }
@@ -116,17 +131,13 @@ class SplashController<T>(private val activity: T)
 
         if (isPackageMigration) {
             runOnUiThread {
-                // Relaunch the process after package migration
                 StubApk.restartProcess(this)
             }
             return
         }
 
-        // Validate stub APK
         if (isRunningAsStub && (
-                // Version mismatch
                 Info.stub!!.version != BuildConfig.STUB_VERSION ||
-                // Not properly patched
                 intent.component!!.className.contains(AppMigration.PLACEHOLDER))
         ) {
             withPermission(REQUEST_INSTALL_PACKAGES) { granted ->
@@ -150,7 +161,6 @@ class SplashController<T>(private val activity: T)
         Notifications.setup()
         Shortcuts.setupDynamic(this)
 
-        // Wait for root service
         RootUtils.Connection.await()
     }
 }

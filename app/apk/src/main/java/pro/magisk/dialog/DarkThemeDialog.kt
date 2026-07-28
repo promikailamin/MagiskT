@@ -1,3 +1,9 @@
+/**
+ * Dialog for choosing the dark-theme mode (Light / System / Dark).
+ *
+ * Persists the selection to [Config.darkTheme] and applies it immediately via the
+ * AppCompat delegate so the change takes effect without a recreate.
+ */
 package pro.magisk.dialog
 
 import android.app.Activity
@@ -9,6 +15,7 @@ import pro.magisk.events.DialogBuilder
 import pro.magisk.view.MagiskDialog
 import pro.magisk.core.R as CoreR
 
+/** Dialog presenting Light / System / Dark theme options. */
 class DarkThemeDialog : DialogBuilder {
 
     override fun build(dialog: MagiskDialog) {

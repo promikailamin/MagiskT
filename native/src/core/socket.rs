@@ -1,3 +1,10 @@
+//! IPC encoding/decoding and Unix socket file-descriptor passing.
+//!
+//! Defines [`Encodable`] / [`Decodable`] traits for serialising primitive
+//! types, strings, vectors, and custom types over the daemon's Unix socket.
+//! Also provides [`UnixSocketExt`] for sending and receiving file descriptors
+//! via `SCM_RIGHTS` ancillary messages.
+
 use base::{ReadExt, ResultExt, WriteExt, libc, warn};
 use bytemuck::{Zeroable, bytes_of, bytes_of_mut};
 use std::io;

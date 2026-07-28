@@ -1,3 +1,11 @@
+/**
+ * ViewModel for the Superuser management screen.
+ *
+ * Loads all SU policies from [PolicyDao], resolves package names and icons, groups
+ * entries by UID, and supports per-app actions: delete/revoke, toggle notification,
+ * toggle logging, and change policy level (Allow/Restrict/Deny). Deletion of outdated
+ * or uninstalled entries is handled automatically.
+ */
 package pro.magisk.ui.superuser
 
 import android.annotation.SuppressLint
@@ -31,6 +39,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
+/** ViewModel for managing Superuser permission grants. */
 class SuperuserViewModel(
     private val db: PolicyDao
 ) : AsyncLoadViewModel() {
@@ -103,8 +112,6 @@ class SuperuserViewModel(
             itemsHelpers.add(itemNoData)
         loading = false
     }
-
-    // ---
 
     fun deletePressed(item: PolicyRvItem) {
         fun updateState() = viewModelScope.launch {

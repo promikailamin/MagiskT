@@ -1,3 +1,10 @@
+/**
+ * RecyclerView item for a Superuser policy entry.
+ *
+ * Displays the app icon, name (prefixes "[SharedUID]" for shared-UID apps), and
+ * expandable details with toggles for notification, logging, and a three-position
+ * slider (Deny / Restrict / Allow). Changes are dispatched to [SuperuserViewModel].
+ */
 package pro.magisk.ui.superuser
 
 import android.graphics.drawable.Drawable
@@ -12,6 +19,7 @@ import pro.magisk.databinding.ObservableRvItem
 import pro.magisk.databinding.set
 import pro.magisk.core.R as CoreR
 
+/** A single Superuser policy entry with action toggles and a policy slider. */
 class PolicyRvItem(
     private val viewModel: SuperuserViewModel,
     override val item: SuPolicy,

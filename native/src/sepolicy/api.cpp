@@ -1,3 +1,13 @@
+/**
+ * High-level SELinux policy manipulation API.
+ * Implements the public SePolicy methods (allow, deny, permissive, type, etc.)
+ * that it expand wildcard vectors and delegate to the sepol_impl backend.
+ *
+ * The `expand` template machinery recursively iterates over all combinations
+ * of vector arguments, calling the underlying sepol_impl method for each
+ * concrete (source, target, class, permission) tuple. Empty vectors act
+ * as wildcards, expanding to all possible values in the policy.
+ */
 #include <base.hpp>
 
 #include "include/sepolicy.hpp"
@@ -16,7 +26,7 @@ std::string as_str(const Arg &arg) {
     }
 }
 
-// Print out all rules going through public API for debugging
+/** Debug helper: print all rules passing through the public API */
 template<typename ...Args>
 static void print_rule(const char *action, Args ...args) {
     std::string s;
@@ -27,17 +37,23 @@ static void print_rule(const char *action, Args ...args) {
 #define print_rule(...) ((void) 0)
 #endif
 
+/** Base case: invoke the callable with accumulated arguments */
 template<typename F, typename ...T>
 requires(std::invocable<F, T...>)
 static inline void expand(F &&f, T &&...args) {
     f(std::forward<T>(args)...);
 }
 
+/** Single string argument: pass through as-is */
 template<typename ...T>
 static inline void expand(Str s, T &&...args) {
     expand(std::forward<T>(args)..., s);
 }
 
+/**
+ * Vector of strings: if empty, pass a single empty Str (wildcard);
+ * otherwise, recurse for each element.
+ */
 template<typename ...T>
 static inline void expand(const StrVec &vec, T &&...args) {
     if (vec.empty()) {
@@ -49,6 +65,7 @@ static inline void expand(const StrVec &vec, T &&...args) {
     }
 }
 
+/** Vector of Xperm values: recurse for each element */
 template<typename ...T>
 static inline void expand(const Xperms &vec, T &&...args) {
     for (auto &p : vec) {
@@ -56,6 +73,7 @@ static inline void expand(const Xperms &vec, T &&...args) {
     }
 }
 
+/** Add allow rules (AVTAB_ALLOWED, non-inverted) */
 void SePolicy::allow(StrVec src, StrVec tgt, StrVec cls, StrVec perm) noexcept {
     expand(src, tgt, cls, perm, [this](auto ...args) {
         print_rule("allow", args...);
@@ -63,6 +81,7 @@ void SePolicy::allow(StrVec src, StrVec tgt, StrVec cls, StrVec perm) noexcept {
     });
 }
 
+/** Add deny rules by inverting allow bits (AVTAB_ALLOWED, inverted) */
 void SePolicy::deny(StrVec src, StrVec tgt, StrVec cls, StrVec perm) noexcept {
     expand(src, tgt, cls, perm, [this](auto ...args) {
         print_rule("deny", args...);
@@ -70,6 +89,7 @@ void SePolicy::deny(StrVec src, StrVec tgt, StrVec cls, StrVec perm) noexcept {
     });
 }
 
+/** Add auditallow rules (allow + audit logging) */
 void SePolicy::auditallow(StrVec src, StrVec tgt, StrVec cls, StrVec perm) noexcept {
     expand(src, tgt, cls, perm, [this](auto ...args) {
         print_rule("auditallow", args...);
@@ -77,6 +97,7 @@ void SePolicy::auditallow(StrVec src, StrVec tgt, StrVec cls, StrVec perm) noexc
     });
 }
 
+/** Add dontaudit rules (suppress audit logging for denied perms) */
 void SePolicy::dontaudit(StrVec src, StrVec tgt, StrVec cls, StrVec perm) noexcept {
     expand(src, tgt, cls, perm, [this](auto ...args) {
         print_rule("dontaudit", args...);
@@ -84,6 +105,7 @@ void SePolicy::dontaudit(StrVec src, StrVec tgt, StrVec cls, StrVec perm) noexce
     });
 }
 
+/** Set domains to permissive mode (in the permissive_map) */
 void SePolicy::permissive(StrVec types) noexcept {
     expand(types, [this](auto ...args) {
         print_rule("permissive", args...);
@@ -91,6 +113,7 @@ void SePolicy::permissive(StrVec types) noexcept {
     });
 }
 
+/** Set domains to enforcing mode */
 void SePolicy::enforce(StrVec types) noexcept {
     expand(types, [this](auto ...args) {
         print_rule("enforce", args...);
@@ -98,6 +121,7 @@ void SePolicy::enforce(StrVec types) noexcept {
     });
 }
 
+/** Assign attributes to one or more types */
 void SePolicy::typeattribute(StrVec types, StrVec attrs) noexcept {
     expand(types, attrs, [this](auto ...args) {
         print_rule("typeattribute", args...);
@@ -105,6 +129,7 @@ void SePolicy::typeattribute(StrVec types, StrVec attrs) noexcept {
     });
 }
 
+/** Declare a new type and optionally assign it to attributes */
 void SePolicy::type(Str type, StrVec attrs) noexcept {
     expand(type, attrs, [this](auto name, auto attr) {
         print_rule("type", name, attr);
@@ -112,6 +137,7 @@ void SePolicy::type(Str type, StrVec attrs) noexcept {
     });
 }
 
+/** Declare a new attribute type */
 void SePolicy::attribute(Str name) noexcept {
     expand(name, [this](auto ...args) {
         print_rule("attribute", args...);
@@ -119,6 +145,11 @@ void SePolicy::attribute(Str name) noexcept {
     });
 }
 
+/**
+ * Add type_transition rules.
+ * If an object name (filename) is provided, adds a filename-based type_transition;
+ * otherwise adds a regular type_transition rule.
+ */
 void SePolicy::type_transition(Str src, Str tgt, Str cls, Str def, Str obj) noexcept {
     expand(src, tgt, cls, def, obj, [this](auto s, auto t, auto c, auto d, auto o) {
         if (!o.empty()) {
@@ -131,6 +162,7 @@ void SePolicy::type_transition(Str src, Str tgt, Str cls, Str def, Str obj) noex
     });
 }
 
+/** Add type_change rules (relabel-to on re-label operations) */
 void SePolicy::type_change(Str src, Str tgt, Str cls, Str def) noexcept {
     expand(src, tgt, cls, def, [this](auto ...args) {
         print_rule("type_change", args...);
@@ -138,6 +170,7 @@ void SePolicy::type_change(Str src, Str tgt, Str cls, Str def) noexcept {
     });
 }
 
+/** Add type_member rules (polyinstantiated directory membership) */
 void SePolicy::type_member(Str src, Str tgt, Str cls, Str def) noexcept {
     expand(src, tgt, cls, def, [this](auto ...args) {
         print_rule("type_member", args...);
@@ -145,6 +178,7 @@ void SePolicy::type_member(Str src, Str tgt, Str cls, Str def) noexcept {
     });
 }
 
+/** Add genfscon rules (filesystem label mapping for pseudo/GPFS FS) */
 void SePolicy::genfscon(Str fs_name, Str path, Str ctx) noexcept {
     expand(fs_name, path, ctx, [this](auto ...args) {
         print_rule("genfscon", args...);
@@ -152,6 +186,7 @@ void SePolicy::genfscon(Str fs_name, Str path, Str ctx) noexcept {
     });
 }
 
+/** Add allowxperm rules (extended ioctl permission ranges) */
 void SePolicy::allowxperm(StrVec src, StrVec tgt, StrVec cls, Xperms xperm) noexcept {
     expand(src, tgt, cls, xperm, [this](auto ...args) {
         print_rule("allowxperm", args...);
@@ -159,6 +194,7 @@ void SePolicy::allowxperm(StrVec src, StrVec tgt, StrVec cls, Xperms xperm) noex
     });
 }
 
+/** Add auditallowxperm rules */
 void SePolicy::auditallowxperm(StrVec src, StrVec tgt, StrVec cls, Xperms xperm) noexcept {
     expand(src, tgt, cls, xperm, [this](auto ...args) {
         print_rule("auditallowxperm", args...);
@@ -166,6 +202,7 @@ void SePolicy::auditallowxperm(StrVec src, StrVec tgt, StrVec cls, Xperms xperm)
     });
 }
 
+/** Add dontauditxperm rules */
 void SePolicy::dontauditxperm(StrVec src, StrVec tgt, StrVec cls, Xperms xperm) noexcept {
     expand(src, tgt, cls, xperm, [this](auto ...args) {
         print_rule("dontauditxperm", args...);

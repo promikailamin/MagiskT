@@ -1,3 +1,10 @@
+/**
+ * Log viewer screen — shows both Superuser access logs and the Magisk daemon log.
+ *
+ * Uses a toggle (via [MotionRevealHelper]) to switch between the two views.
+ * When showing the Magisk log, the bottom navigation is hidden and an up-indicator
+ * is shown so the user can dismiss the detail view.
+ */
 package pro.magisk.ui.log
 
 import android.os.Bundle
@@ -20,6 +27,7 @@ import rikka.recyclerview.addItemSpacing
 import rikka.recyclerview.fixEdgeEffect
 import pro.magisk.core.R as CoreR
 
+/** Fragment displaying Superuser logs and Magisk daemon logs. */
 class LogFragment : BaseFragment<FragmentLogMd2Binding>(), MenuProvider {
 
     override val layoutRes = R.layout.fragment_log_md2
@@ -65,7 +73,6 @@ class LogFragment : BaseFragment<FragmentLogMd2Binding>(), MenuProvider {
         }
     }
 
-
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_log_md2, menu)
         actionSave = menu.findItem(R.id.action_save)?.also {
@@ -83,9 +90,9 @@ class LogFragment : BaseFragment<FragmentLogMd2Binding>(), MenuProvider {
         return super.onOptionsItemSelected(item)
     }
 
-
     override fun onPreBind(binding: FragmentLogMd2Binding) = Unit
 
+    // Dismiss the Magisk log view when back is pressed
     override fun onBackPressed(): Boolean {
         if (binding.logFilter.isVisible) {
             isMagiskLogVisible = false

@@ -1,3 +1,8 @@
+//! File format helpers for magiskboot.
+//!
+//! Implements [`Display`], [`FromStr`], extension, compression detection,
+//! and human-readable name for the [`FileFormat`] enum.
+
 use crate::ffi::FileFormat;
 use base::{Utf8CStr, cstr, libc};
 use std::fmt::{Display, Formatter};

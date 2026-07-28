@@ -1,3 +1,17 @@
+/**
+ * Additional integration tests that run after {@link Environment} has set up
+ * the test environment. Validates Magisk module functionality:
+ *
+ * <ul>
+ *   <li>Module count matches expected</li>
+ *   <li>LSPosed manager launches correctly</li>
+ *   <li>Mount test: files added/replaced/deleted via magic mount</li>
+ *   <li>Sepolicy rule applied</li>
+ *   <li>Empty and invalid zygisk modules are unloaded</li>
+ *   <li>Module removal (uninstaller script executed)</li>
+ *   <li>Module upgrade (files from old + new module)</li>
+ * </ul>
+ */
 package pro.magisk.test
 
 import android.os.ParcelFileDescriptor.AutoCloseInputStream
@@ -50,11 +64,13 @@ class AdditionalTest : BaseTest {
         }
     }
 
+    /** Press home after each test to reset the UI state. */
     @After
     fun teardown() {
         device.pressHome()
     }
 
+    /** Verifies the expected number of installed modules. */
     @Test
     fun testModuleCount() {
         var expected = 4
@@ -65,6 +81,7 @@ class AdditionalTest : BaseTest {
         assertEquals("Module count incorrect", expected, modules.size)
     }
 
+    /** Launches the LSPosed manager and verifies it appears on screen. */
     @Test
     fun testLsposed() {
         assumeTrue(Environment.lsposed())
@@ -86,6 +103,7 @@ class AdditionalTest : BaseTest {
         )
     }
 
+    /** Verifies magic mount: new file exists, deleted file gone, directory replaced. */
     @Test
     fun testModuleMount() {
         assumeTrue(Environment.mount())
@@ -107,6 +125,7 @@ class AdditionalTest : BaseTest {
         )
     }
 
+    /** Verifies that a module's sepolicy.rule was applied at boot. */
     @Test
     fun testSepolicyRule() {
         assumeTrue(Environment.preinit())
@@ -118,6 +137,7 @@ class AdditionalTest : BaseTest {
         )
     }
 
+    /** Verifies that a module with an empty zygisk folder is unloaded. */
     @Test
     fun testEmptyZygiskModule() {
         val module = modules.find { it.id == EMPTY_ZYGISK }
@@ -126,6 +146,7 @@ class AdditionalTest : BaseTest {
         assertTrue("$EMPTY_ZYGISK should be zygisk unloaded", module.zygiskUnloaded)
     }
 
+    /** Verifies that a module with invalid zygisk libraries is unloaded. */
     @Test
     fun testInvalidZygiskModule() {
         val module = modules.find { it.id == INVALID_ZYGISK }
@@ -134,6 +155,7 @@ class AdditionalTest : BaseTest {
         assertTrue("$INVALID_ZYGISK should be zygisk unloaded", module.zygiskUnloaded)
     }
 
+    /** Verifies that a module marked for removal was removed and its uninstaller script ran. */
     @Test
     fun testRemoveModule() {
         assertNull("$REMOVE_TEST should be removed", modules.find { it.id == REMOVE_TEST })
@@ -143,6 +165,7 @@ class AdditionalTest : BaseTest {
         )
     }
 
+    /** Verifies that a module upgrade merges files from old and new versions correctly. */
     @Test
     fun testModuleUpgrade() {
         val module = modules.find { it.id == UPGRADE_TEST }

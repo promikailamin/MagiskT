@@ -1,3 +1,16 @@
+/**
+ * Base activity infrastructure.
+ *
+ * Provides reusable interfaces and helpers:
+ * - [ActivityExtension] — lightweight runtime-permission, install
+ *   permission, authentication, and content-picker requests via
+ *   `ActivityResult` contracts.
+ * - [UntrackedActivity] — marker interface that prevents
+ *   [AppContext] from tracking the activity as foreground.
+ * - [launchPackage] — reflection-based access to the package that
+ *   launched this activity (needed pre-API 34).
+ * - [relaunch] — restarts the activity with a clean intent.
+ */
 package pro.magisk.core.base
 
 import android.Manifest.permission.POST_NOTIFICATIONS
@@ -21,14 +34,16 @@ import pro.magisk.core.ktx.toast
 import pro.magisk.core.utils.RequestAuthentication
 import pro.magisk.core.utils.RequestInstall
 
+/** Callback for content-picker results that is also [Parcelable] for state saving. */
 interface ContentResultCallback: ActivityResultCallback<Uri>, Parcelable {
     fun onActivityLaunch() {}
-    // Make the result type explicitly non-null
     override fun onActivityResult(result: Uri)
 }
 
+/** Marker interface — activities implementing this are not tracked by [AppContext]. */
 interface UntrackedActivity
 
+/** Interface for activities that delegate runtime-request logic to [ActivityExtension]. */
 interface IActivityExtension {
     val extension: ActivityExtension
     fun withPermission(permission: String, callback: (Boolean) -> Unit) {
@@ -42,6 +57,11 @@ interface IActivityExtension {
     }
 }
 
+/**
+ * Delegate that manages Activity Result API contracts for
+ * permissions, install requests, authentication, and content
+ * picking.
+ */
 class ActivityExtension(private val activity: ComponentActivity) {
 
     private var permissionCallback: ((Boolean) -> Unit)? = null
@@ -86,13 +106,11 @@ class ActivityExtension(private val activity: ComponentActivity) {
     fun withPermission(permission: String, callback: (Boolean) -> Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
             permission == WRITE_EXTERNAL_STORAGE) {
-            // We do not need external rw on R+
             callback(true)
             return
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU &&
             permission == POST_NOTIFICATIONS) {
-            // All apps have notification permissions before T
             callback(true)
             return
         }
@@ -125,6 +143,7 @@ class ActivityExtension(private val activity: ComponentActivity) {
     }
 }
 
+/** The package that launched this activity (reflection fallback pre-API 34). */
 val Activity.launchPackage: String? get() {
     return if (Build.VERSION.SDK_INT >= 34) {
         launchedFromPackage
@@ -133,6 +152,7 @@ val Activity.launchPackage: String? get() {
     }
 }
 
+/** Relaunch the activity with a clean intent. */
 fun Activity.relaunch() {
     startActivity(Intent(intent).setFlags(0))
     finish()

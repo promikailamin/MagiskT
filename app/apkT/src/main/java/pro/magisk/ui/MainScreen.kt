@@ -1,3 +1,8 @@
+/**
+ * Tab-based main screen layout. Hosts a [HorizontalPager] of five pages (Home, Modules, Superuser,
+ * Log, Settings) with a floating bottom navigation bar. Visibility of each tab depends on the
+ * runtime environment (e.g. Superuser hidden when MagiskSU is unavailable).
+ */
 package pro.magisk.ui
 
 import androidx.compose.animation.animateColorAsState
@@ -62,6 +67,10 @@ import pro.magisk.ui.superuser.SuperuserViewModel
 import kotlinx.coroutines.launch
 import pro.magisk.core.R as CoreR
 
+/**
+ * The five tabs available in the main navigation. Order here determines the order in the pager,
+ * but [MainScreen] may filter out some tabs depending on device state.
+ */
 enum class Tab(val titleRes: Int, val iconRes: Int) {
     MODULES(CoreR.string.modules, R.drawable.ic_module),
     SUPERUSER(CoreR.string.superuser, CoreR.drawable.ic_superuser),
@@ -70,6 +79,10 @@ enum class Tab(val titleRes: Int, val iconRes: Int) {
     SETTINGS(CoreR.string.settings, R.drawable.ic_settings);
 }
 
+/**
+ * Root tab scaffold. Creates the ViewModels for each page and wires navigation events through
+ * [CollectNavEvents]. Only tabs that are relevant in the current environment are shown.
+ */
 @Composable
 fun MainScreen(initialTab: Int = Tab.HOME.ordinal) {
     val navigator = LocalNavigator.current
@@ -145,6 +158,7 @@ fun MainScreen(initialTab: Int = Tab.HOME.ordinal) {
     }
 }
 
+/** Floating pill-shaped bottom navigation bar that overlays the pager content. */
 @Composable
 private fun FloatingNavigationBar(
     pagerState: PagerState,
@@ -180,6 +194,7 @@ private fun FloatingNavigationBar(
     }
 }
 
+/** A single clickable icon+label item inside the floating navigation bar. */
 @Composable
 private fun FloatingNavItem(
     icon: ImageVector,

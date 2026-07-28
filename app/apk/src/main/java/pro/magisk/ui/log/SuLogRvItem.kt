@@ -1,3 +1,10 @@
+/**
+ * A single Superuser access log entry displayed in the log viewer.
+ *
+ * Renders a formatted string showing: timestamp, target UID, source PID, target PID,
+ * SELinux context, supplemental groups, and the command that triggered the request.
+ * [isTop] and [isBottom] drive dividers in the list for visual grouping.
+ */
 package pro.magisk.ui.log
 
 import androidx.databinding.Bindable
@@ -12,6 +19,7 @@ import pro.magisk.databinding.ObservableRvItem
 import pro.magisk.databinding.set
 import pro.magisk.core.R as CoreR
 
+/** A RecyclerView item representing one Superuser access log entry. */
 class SuLogRvItem(val log: SuLog) : ObservableRvItem(), DiffItem<SuLogRvItem> {
 
     override val layoutRes = R.layout.item_log_access_md2
@@ -28,6 +36,7 @@ class SuLogRvItem(val log: SuLog) : ObservableRvItem(), DiffItem<SuLogRvItem> {
 
     override fun itemSameAs(other: SuLogRvItem) = log.appName == other.log.appName
 
+    /** Builds the human-readable log line from [SuLog] fields. */
     private fun genInfo(): String {
         val res = AppContext.resources
         val sb = StringBuilder()

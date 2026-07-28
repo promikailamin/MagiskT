@@ -1,3 +1,9 @@
+//! AVB 1.0 (Android Verified Boot) signing and verification.
+//!
+//! Provides SHA1/SHA256 hashing, RSA/ECDSA (P-256, P-384, P-521) signature
+//! generation and verification, and DER encoding/decoding of the
+//! `BootSignature` ASN.1 structure used by AVB 1.0.
+
 use der::referenced::OwnedToRef;
 use der::{Decode, DecodePem, Encode, Sequence, SliceReader};
 use digest::DynDigest;

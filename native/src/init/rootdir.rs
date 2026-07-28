@@ -1,3 +1,10 @@
+//! Root directory overlay mounting and init.rc injection.
+//!
+//! Handles overlay filesystem mounting for pre-init files, parses the
+//! `.magisk` config file for the pre-init device, injects the Magisk
+//! `init.rc` fragment that triggers `post-fs-data`/`service`/`boot-complete`,
+//! and restores overlay file contexts after sepolicy is loaded.
+
 use crate::consts::{ROOTMNT, ROOTOVL};
 use crate::ffi::MagiskInit;
 use base::nix::fcntl::OFlag;

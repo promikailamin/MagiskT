@@ -1,3 +1,11 @@
+/**
+ * Runtime device / environment information.
+ *
+ * [init] queries the Magisk daemon and the `app_init` shell helper
+ * to populate partition layout, root status, and daemon version.
+ * Everything here is populated once at startup and is read-only
+ * afterwards (private setters).
+ */
 package pro.magisk.core
 
 import android.app.KeyguardManager
@@ -11,19 +19,23 @@ import com.topjohnwu.superuser.ShellUtils.fastCmd
 import com.topjohnwu.superuser.ShellUtils.fastCmdResult
 import kotlinx.coroutines.Runnable
 
+/** `true` while the real APK is hosted inside the stub wrapper. */
 val isRunningAsStub get() = Info.stub != null
 
 object Info {
 
+    /** Reference to stub-wrapper metadata (non-null only in stub mode). */
     var stub: StubApk.Data? = null
 
-
+    /** Whether a rooted shell was obtained. */
     var isRooted = false
     var noDataExec = false
     var patchBootVbmeta = false
 
+    /** Magisk daemon version envelope. */
     @JvmStatic var env = Env()
         private set
+    /** System-as-root (SAR) flag. */
     @JvmStatic var isSAR = false
         private set
     var legacySAR = false
@@ -40,11 +52,13 @@ object Info {
         private set
     private var crypto = ""
 
+    /** Detects emulator environments through device property heuristics. */
     val isEmulator =
         Build.DEVICE.contains("vsoc")
             || getProperty("ro.kernel.qemu", "0") == "1"
             || getProperty("ro.boot.qemu", "0") == "1"
 
+    /** Whether the SuperUser tab should be visible. */
     val showSuperUser: Boolean get() {
         return env.isActive && (Const.USER_ID == 0
                 || Config.suMultiuserMode == Config.Value.MULTIUSER_MODE_USER)
@@ -53,6 +67,7 @@ object Info {
     val isDeviceSecure get() =
         AppContext.getSystemService(KeyguardManager::class.java).isDeviceSecure
 
+    /** Snapshot of the running Magisk daemon version. */
     class Env(
         val versionString: String = "",
         val isDebug: Boolean = false,
@@ -67,6 +82,7 @@ object Info {
         val isActive = versionCode > 0
     }
 
+    /** Queries the daemon for its version and partition metadata. */
     fun init(shell: Shell) {
         if (shell.isRoot) {
             val v = fastCmd(shell, "magisk -v").split(":")
@@ -100,7 +116,6 @@ object Info {
         legacySAR = getBool("LEGACYSAR")
         isVendorBoot = getBool("VENDORBOOT")
 
-        // Default presets
         Config.recovery = getBool("RECOVERYMODE")
         Config.keepVerity = getBool("KEEPVERITY")
         Config.keepEnc = getBool("KEEPFORCEENCRYPT")

@@ -1,3 +1,8 @@
+/**
+ * [ActivityResultContract] that prompts the user for device
+ * credentials (PIN / pattern / password) via the system
+ * [KeyguardManager]. Returns `true` when authentication succeeds.
+ */
 package pro.magisk.core.utils
 
 import android.app.Activity

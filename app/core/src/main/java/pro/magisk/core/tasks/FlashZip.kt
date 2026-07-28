@@ -1,3 +1,10 @@
+/**
+ * Flashes a Magisk module ZIP by extracting the installer script
+ * (`module_installer.sh`) and passing the ZIP to it via shell.
+ *
+ * The ZIP is copied to a temp directory unless it is already a local
+ * file. Console and log output are collected in the provided lists.
+ */
 package pro.magisk.core.tasks
 
 import android.net.Uri
@@ -15,6 +22,14 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 
+/**
+ * Flashes a module ZIP by invoking the legacy
+ * `update-binary` protocol via shell.
+ *
+ * @param mUri  URI of the ZIP to flash.
+ * @param console Output list for user-facing console messages.
+ * @param logs    Output list for detailed log entries.
+ */
 open class FlashZip(
     private val mUri: Uri,
     private val console: MutableList<String>,
@@ -60,6 +75,7 @@ open class FlashZip(
             .to(console, logs).exec().isSuccess
     }
 
+    /** Execute the flash operation on [Dispatchers.IO]. */
     open suspend fun exec() = withContext(Dispatchers.IO) {
         try {
             if (!flash()) {

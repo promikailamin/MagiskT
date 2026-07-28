@@ -1,3 +1,10 @@
+/**
+ * RecyclerView items for the module list screen.
+ *
+ * - [InstallModule]: a placeholder item that triggers the "Install from storage" flow.
+ * - [LocalModuleRvItem]: wraps a [LocalModule] with observable enable/remove properties
+ *   and shows compatibility notices (Zygisk vs Riru, Zygisk unloaded).
+ */
 package pro.magisk.ui.module
 
 import androidx.databinding.Bindable
@@ -14,10 +21,12 @@ import pro.magisk.databinding.RvItem
 import pro.magisk.databinding.set
 import pro.magisk.core.R as CoreR
 
+/** A clickable "Install from storage" item at the top of the module list. */
 object InstallModule : RvItem(), DiffItem<InstallModule> {
     override val layoutRes = R.layout.item_module_download
 }
 
+/** An installed module item with enable/remove toggles and compatibility notices. */
 class LocalModuleRvItem(
     override val item: LocalModule
 ) : ObservableRvItem(), DiffItem<LocalModuleRvItem>, ItemWrapper<LocalModule> {
@@ -33,6 +42,7 @@ class LocalModuleRvItem(
         val isRiru = item.isRiru
         val zygiskUnloaded = isZygisk && item.zygiskUnloaded
 
+        // Show a compatibility notice if the module targets the wrong environment
         showNotice = zygiskUnloaded ||
             (Info.isZygiskEnabled && isRiru) ||
             (!Info.isZygiskEnabled && isZygisk)

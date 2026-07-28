@@ -1,3 +1,11 @@
+/**
+ * Delegate-based property bindings for Android [SharedPreferences].
+ *
+ * [PreferenceConfig] provides factory methods that return
+ * [ReadWriteProperty] delegates for boolean, int, and string prefs.
+ * All delegates use the property name as the preference key by
+ * default, falling back to an explicit [name].
+ */
 package pro.magisk.core.repository
 
 import android.content.Context

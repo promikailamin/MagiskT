@@ -1,15 +1,35 @@
 #!/usr/bin/env python3
+"""
+Generates jni_hooks.hpp — a C++ header containing JNINativeMethod arrays for
+all known Zygote#nativeForkAndSpecialize / nativeSpecializeAppProcess /
+nativeForkSystemServer variants across Android API levels and OEM forks.
+
+Each method entry is an inline lambda that:
+  1. Constructs a typed args struct (AppSpecializeArgs / ServerSpecializeArgs)
+  2. Calls the Zygisk pre-hook
+  3. Forwards to the original JNI function via the stored fnPtr
+  4. Calls the Zygisk post-hook
+  5. Returns the original return value
+
+Supported variants:
+  - AOSP:   l, o, p, q_alt, r, u, b
+  - Samsung: samsung_m, samsung_n, samsung_o, samsung_p, samsung_q
+  - Nubia:   nubia_u
+  - XR:      xr_u
+"""
 
 primitives = ["jint", "jboolean", "jlong"]
 
 
 class JType:
+    """Represents a JNI type with its C++ and JNI signature forms."""
     def __init__(self, cpp: str, jni: str):
         self.cpp = cpp
         self.jni = jni
 
 
 class JArray(JType):
+    """Represents a JNI array type (e.g. jintArray, jobjectArray)."""
     def __init__(self, type: JType):
         if type.cpp in primitives:
             name = type.cpp + "Array"
@@ -19,6 +39,7 @@ class JArray(JType):
 
 
 class Argument:
+    """Describes a JNI method argument with name, type, and whether it must be set via set_arg."""
     def __init__(self, name: str, type: JType, set_arg=False):
         self.name = name
         self.type = type
@@ -28,8 +49,9 @@ class Argument:
         return f"{self.type.cpp} {self.name}"
 
 
-# Args we don't care, give it an auto generated name
+# Args we don't care about — auto-generated name
 class Anon(Argument):
+    """An argument whose name is auto-generated (for OEM-specific params we ignore)."""
     cnt = 0
 
     def __init__(self, type: JType):
@@ -38,53 +60,64 @@ class Anon(Argument):
 
 
 class Return:
+    """Describes a JNI method return type and an optional C++ expression for the return value."""
     def __init__(self, value: str, type: JType):
         self.value = value
         self.type = type
 
 
 class JNIMethod:
+    """Describes a JNI method: name, return type, and argument list."""
     def __init__(self, name: str, ret: Return, args: list[Argument]):
         self.name = name
         self.ret = ret
         self.args = args
 
     def arg_list_name(self) -> str:
+        """Returns the argument list as comma-separated names (env, clazz, ...)."""
         return "env, clazz, " + ", ".join(map(lambda x: x.name, self.args))
 
     def arg_list_cpp(self) -> str:
+        """Returns the argument list as C++ declarations (JNIEnv *env, jclass clazz, ...)."""
         return "JNIEnv *env, jclass clazz, " + ", ".join(
             map(lambda x: x.cpp(), self.args)
         )
 
     def cpp_fn_type(self) -> str:
+        """Returns a C++ function-pointer type for the JNI method."""
         return f"{self.ret.type.cpp}(*)({self.arg_list_cpp()}"
 
     def cpp_lambda_sig(self) -> str:
+        """Returns the lambda signature with [[clang::no_stack_protector]] attribute."""
         return f"[] [[clang::no_stack_protector]] ({self.arg_list_cpp()}) static -> {self.ret.type.cpp}"
 
     def jni_sig(self):
+        """Returns the JNI signature string (e.g. (II)V)."""
         args = "".join(map(lambda x: x.type.jni, self.args))
         return f"({args}){self.ret.type.jni}"
 
 
 class JNIHook(JNIMethod):
+    """A JNI hook method that wraps an original JNI function with Zygisk pre/post callbacks."""
     def __init__(self, ver: str, ret: Return, args: list[Argument]):
         name = f"{self.hook_target()}_{ver}"
         super().__init__(name, ret, args)
 
     def hook_target(self):
+        """Returns the name of the JNI function being hooked (overridden by subclasses)."""
         return ""
 
     def body(self, orig_fn_ptr: str):
+        """Returns the lambda body that invokes pre/post hooks around the original call."""
         return ""
 
 
 def ind(i):
+    """Returns a newline + i*4 spaces for indentation."""
     return "\n" + "    " * i
 
 
-# Common types
+# Common JNI types used in Zygote methods
 jint = JType("jint", "I")
 jintArray = JArray(jint)
 jstring = JType("jstring", "Ljava/lang/String;")
@@ -94,6 +127,7 @@ void = JType("void", "V")
 
 
 class ForkApp(JNIHook):
+    """Hook for nativeForkAndSpecialize (returns pid)."""
     def __init__(self, ver, args):
         super().__init__(ver, Return("ctx.pid", jint), args)
 
@@ -121,6 +155,7 @@ class ForkApp(JNIHook):
 
 
 class SpecializeApp(ForkApp):
+    """Hook for nativeSpecializeAppProcess (returns void)."""
     def __init__(self, ver: str, args: list[Argument]):
         super().__init__(ver, args)
         self.ret = Return("", void)
@@ -130,6 +165,7 @@ class SpecializeApp(ForkApp):
 
 
 class ForkServer(ForkApp):
+    """Hook for nativeForkSystemServer (returns pid, uses ServerSpecializeArgs)."""
     def hook_target(self):
         return "nativeForkSystemServer"
 
@@ -137,7 +173,7 @@ class ForkServer(ForkApp):
         return "ServerSpecializeArgs_v1 args(uid, gid, gids, runtime_flags, permitted_capabilities, effective_capabilities);"
 
 
-# Common args
+# Common named arguments for Zygote fork/specialize methods
 uid = Argument("uid", jint)
 gid = Argument("gid", jint)
 gids = Argument("gids", jintArray)
@@ -150,19 +186,19 @@ fds_to_close = Argument("fds_to_close", jintArray)
 instruction_set = Argument("instruction_set", jstring)
 app_data_dir = Argument("app_data_dir", jstring)
 
-# o
+# API o: fds_to_ignore
 fds_to_ignore = Argument("fds_to_ignore", jintArray, True)
 
-# p
+# API p: is_child_zygote
 is_child_zygote = Argument("is_child_zygote", jboolean, True)
 
-# q_alt
+# API q_alt: is_top_app
 is_top_app = Argument("is_top_app", jboolean, True)
 
-# q running on xr
+# API q on XR: is_perception_app (not forwarded to args)
 is_perception_app = Argument("is_perception_app", jboolean, False)
 
-# r
+# API r: package data / whitelisted data / mount dirs
 pkg_data_info_list = Argument("pkg_data_info_list", JArray(jstring), True)
 whitelisted_data_info_list = Argument(
     "whitelisted_data_info_list", JArray(jstring), True
@@ -170,17 +206,18 @@ whitelisted_data_info_list = Argument(
 mount_data_dirs = Argument("mount_data_dirs", jboolean, True)
 mount_storage_dirs = Argument("mount_storage_dirs", jboolean, True)
 
-# u qpr2
+# API u (QPR2): mount_sysprop_overrides
 mount_sysprop_overrides = Argument("mount_sysprop_overrides", jboolean, True)
 
-# b qpr2
+# API b (QPR2): use_fifo_ui (not forwarded to args)
 use_fifo_ui = Argument("use_fifo_ui", jboolean, False)
 
-# server
+# Server-specific: capabilities
 permitted_capabilities = Argument("permitted_capabilities", jlong)
 effective_capabilities = Argument("effective_capabilities", jlong)
 
-# Method definitions
+# JNI method definitions — one per known API variant.
+# Each captures the exact parameter list for that API level / OEM fork.
 fas_l = ForkApp(
     "l",
     [
@@ -613,6 +650,7 @@ server_samsung_q = ForkServer(
 
 
 def gen_jni_def(field: str, methods: list[JNIHook]):
+    """Generates a C++ std::array<JNINativeMethod> initializer for the given hooks."""
     decl = ""
     decl += ind(0) + f"std::array<JNINativeMethod, {len(methods)}> {field} = {{{{"
     for i, m in enumerate(methods):

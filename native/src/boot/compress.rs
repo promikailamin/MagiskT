@@ -1,3 +1,9 @@
+//! Compression/decompression support for magiskboot.
+//!
+//! Provides encoder/decoder factory functions for Gzip, Zopfli, XZ, LZMA,
+//! BZip2, LZ4 (frame, legacy block, LG), and command-line entry points
+//! for `compress` and `decompress` subcommands.
+
 use crate::ffi::{FileFormat, check_fmt};
 use base::nix::fcntl::OFlag;
 use base::{Chunker, FileOrStd, LoggedResult, ReadExt, Utf8CStr, Utf8CString, WriteExt, log_err};

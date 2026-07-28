@@ -1,3 +1,10 @@
+//! Directory walking and manipulation.
+//!
+//! Provides [`Directory`] (an `opendir`-based directory handle),
+//! [`DirEntry`] (individual entries with type dispatch), and
+//! high-level operations: recursive copy/move/link, permission
+//! cloning, and pre-order/post-order traversal.
+
 use crate::cxx_extern::readlinkat;
 use crate::{
     FsPathBuilder, LibcReturn, LoggedResult, OsError, OsResult, Utf8CStr, Utf8CStrBuf, cstr, errno,

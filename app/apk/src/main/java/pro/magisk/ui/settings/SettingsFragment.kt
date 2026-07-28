@@ -1,3 +1,9 @@
+/**
+ * Settings screen — a scrollable list of configurable options.
+ *
+ * Settings are modelled as [BaseSettingsItem] objects. Each item is refreshed on
+ * `onResume` to reflect latest state (e.g. device-lock status for the auth toggle).
+ */
 package pro.magisk.ui.settings
 
 import android.os.Bundle
@@ -11,6 +17,7 @@ import rikka.recyclerview.addItemSpacing
 import rikka.recyclerview.fixEdgeEffect
 import pro.magisk.core.R as CoreR
 
+/** Settings screen — categories and toggles for customisation, Magisk, and Superuser. */
 class SettingsFragment : BaseFragment<FragmentSettingsMd2Binding>() {
 
     override val layoutRes = R.layout.fragment_settings_md2

@@ -1,3 +1,9 @@
+/**
+ * Logcat-based DenyList monitoring thread.
+ * Watches LOG_ID_MAIN and LOG_ID_EVENTS for new app process starts
+ * (am_proc_start, AppZygoteInit) and triggers unmount operations
+ * on matching denylist targets before they become restricted.
+ */
 #include <unistd.h>
 #include <android/log.h>
 #include <sys/syscall.h>
@@ -90,12 +96,14 @@ extern "C" {
 static map<int, struct stat> zygote_map;
 bool logcat_exit;
 
+/** Stat the mount namespace for a given PID. */
 static int read_ns(const int pid, struct stat *st) {
     char path[32];
     sprintf(path, "/proc/%d/ns/mnt", pid);
     return stat(path, st);
 }
 
+/** Parse the parent PID from /proc/<pid>/stat. */
 static int parse_ppid(int pid) {
     char path[32];
     int ppid;
@@ -107,6 +115,7 @@ static int parse_ppid(int pid) {
     return ppid;
 }
 
+/** Scan /proc for zygote processes (u:r:zygote:s0, PPID=1) and record their mount namespaces. */
 static void check_zygote() {
     zygote_map.clear();
     int proc = open("/proc", O_RDONLY | O_CLOEXEC);
@@ -127,6 +136,7 @@ static void check_zygote() {
     }
 }
 
+/** Process a LOG_ID_MAIN message: watch for AppZygoteInit events and unmatch denylist targets. */
 static void process_main_buffer(struct log_msg *msg) {
     AndroidLogEntry entry{};
     if (android_log_processLogBuffer(&msg->entry, &entry) < 0) return;
@@ -170,6 +180,7 @@ static void process_main_buffer(struct log_msg *msg) {
     }
 }
 
+/** Process a LOG_ID_EVENTS message: watch am_proc_start (tag 30014) and soft reboot (tag 3040). */
 static void process_events_buffer(struct log_msg *msg) {
     if (msg->entry.uid != 1000) return;
     auto event_data = &msg->buf[msg->entry.hdr_size];
@@ -231,6 +242,7 @@ static void process_events_buffer(struct log_msg *msg) {
     }
 }
 
+/** Main logcat monitoring loop: open log buffers and dispatch events until denylist is disabled. */
 [[noreturn]] void run() {
     while (true) {
         const unique_ptr<logger_list, decltype(&android_logger_list_free)> logger_list{
@@ -273,6 +285,7 @@ static void process_events_buffer(struct log_msg *msg) {
     pthread_exit(nullptr);
 }
 
+/** Thread entry point: initialise zygote tracking and start the monitoring loop. */
 void *logcat(void *) {
     check_zygote();
     run();

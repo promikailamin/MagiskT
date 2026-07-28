@@ -1,3 +1,10 @@
+//! Persistent property storage backend.
+//!
+//! On modern Android, persistent properties are stored in a protobuf file
+//! (`/data/property/persistent_properties`). On older devices they are
+//! individual flat files under `/data/property/`. This module abstracts
+//! over both formats.
+
 use nix::fcntl::OFlag;
 use quick_protobuf::{BytesReader, MessageRead, MessageWrite, Writer};
 use std::fs::File;

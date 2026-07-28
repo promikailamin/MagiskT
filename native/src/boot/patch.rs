@@ -1,3 +1,9 @@
+//! Binary patching utilities.
+//!
+//! Provides [`patch_verity`] and [`patch_encryption`] for stripping AVB/
+//! force-encrypt flags from fstab files, and [`hexpatch`] for arbitrary
+//! binary find-and-replace in boot images.
+
 use base::{LoggedResult, MappedFile, MutBytesExt, Utf8CStr};
 
 // SAFETY: assert(buf.len() >= 1) && assert(len <= buf.len())

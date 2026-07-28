@@ -1,3 +1,13 @@
+//! Module filesystem mounting infrastructure.
+//!
+//! This is the heart of Magisk's module system. It:
+//! 1. Collects the union of all module file trees into a virtual `FsNodeMap`.
+//! 2. Injects Magisk binaries (`magisk`, `magiskpolicy`) and Zygisk native
+//!    bridges into the virtual tree.
+//! 3. Compares the virtual tree against the real filesystem and produces
+//!    bind-mount / tmpfs-mount operations via `FsNode::commit`.
+//! 4. Handles module upgrades, removal, disable, and uninstall scripts.
+
 use crate::consts::{MODULEMNT, MODULEROOT, MODULEUPGRADE, WORKERDIR};
 use crate::daemon::MagiskD;
 use crate::ffi::{ModuleInfo, exec_module_scripts, exec_script, get_magisk_tmp};

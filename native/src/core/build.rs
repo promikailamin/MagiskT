@@ -1,3 +1,8 @@
+//! Build script for `core-rs`.
+//!
+//! Generates CXX bindings via [`gen_cxx_binding`] and compiles the
+//! protobuf definition for persistent properties.
+
 use pb_rs::ConfigBuilder;
 use pb_rs::types::FileDescriptor;
 

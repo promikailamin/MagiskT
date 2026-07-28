@@ -1,3 +1,9 @@
+//! Boot stage execution — the lifecycle of the Magisk daemon.
+//!
+//! Defines [`BootState`] flags and the [`MagiskD`] methods
+//! `post_fs_data`, `late_start`, `boot_complete`, and `boot_stage_handler`
+//! which orchestrate module loading, script execution, and denylist setup.
+
 use crate::consts::{APP_PACKAGE_NAME, BBPATH, DATABIN, MODULEROOT, SECURE_DIR};
 use crate::daemon::MagiskD;
 use crate::ffi::{
@@ -18,7 +24,15 @@ use std::os::unix::net::UnixStream;
 use std::process::{Command, Stdio};
 use std::sync::atomic::Ordering;
 
+//! Boot stage state machine and callback handlers.
+//!
+//! Defines the [`BootState`] bitflags that track which init stages have
+//! completed (PostFsData, LateStart, BootComplete), and implements the
+//! per-stage handlers on [`MagiskD`] for environment setup, module loading,
+//! script execution, and Zygisk initialisation.
+
 bitflags! {
+    /// Tracks the current boot stage and whether safe mode is active.
     #[derive(Default)]
     pub struct BootState : u32 {
         const PostFsDataDone = 1 << 0;
@@ -29,6 +43,9 @@ bitflags! {
 }
 
 impl MagiskD {
+    /// Copy Magisk binaries and busybox from `/data/adb` into the tmpfs,
+    /// create required directories, install busybox applets, and restore
+    /// SELinux contexts. Returns `false` if busybox is missing.
     fn setup_magisk_env(&self) -> bool {
         info!("* Initializing Magisk environment");
 
@@ -107,6 +124,11 @@ impl MagiskD {
         true
     }
 
+    /// Handle the `PostFsData` boot stage.
+    ///
+    /// Sets up the Magisk environment, checks safe mode, executes
+    /// `post-fs-data` scripts, loads modules, and initialises denylist.
+    /// Returns `true` if boot should be short-circuited (safe mode / error).
     fn post_fs_data(&self) -> bool {
         setup_logfile();
         info!("** post-fs-data mode running");
@@ -161,6 +183,9 @@ impl MagiskD {
         false
     }
 
+    /// Handle the `LateStart` boot stage.
+    ///
+    /// Executes `service` scripts for both common and per-module scripts.
     fn late_start(&self) {
         setup_logfile();
         info!("** late_start service mode running");
@@ -171,6 +196,11 @@ impl MagiskD {
         }
     }
 
+    /// Handle the `BootComplete` trigger.
+    ///
+    /// Resets the bootloop counter, ensures the secure directory exists,
+    /// sets up the pre-init directory, checks for the manager APK, and
+    /// (re-)injects Zygisk if enabled.
     fn boot_complete(&self) {
         setup_logfile();
         info!("** boot-complete triggered");
@@ -191,6 +221,11 @@ impl MagiskD {
         }
     }
 
+    /// Serialised boot stage dispatcher.
+    ///
+    /// Acquires the [`BootState`] lock and runs the handler for the given
+    /// [`RequestCode`] (`POST_FS_DATA`, `LATE_START`, or `BOOT_COMPLETE`),
+    /// ensuring each stage only runs once.
     pub fn boot_stage_handler(&self, client: UnixStream, code: RequestCode) {
         // Make sure boot stage execution is always serialized
         let mut state = self.boot_stage_lock.lock();
@@ -224,6 +259,8 @@ impl MagiskD {
     }
 }
 
+/// Check whether `/data` is mounted, accessible, and (if encrypted) that
+/// vold has already started.
 fn check_data() -> bool {
     if let Ok(file) = cstr!("/proc/mounts").open(OFlag::O_RDONLY | OFlag::O_CLOEXEC) {
         let mut mnt = false;

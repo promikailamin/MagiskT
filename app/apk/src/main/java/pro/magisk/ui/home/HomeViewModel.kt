@@ -1,3 +1,10 @@
+/**
+ * ViewModel for the home screen.
+ *
+ * Determines the Magisk installation state (LOADING / INVALID / OUTDATED / UP_TO_DATE),
+ * runs an environment check via shell, and offers actions for links, uninstall, and
+ * Magisk installation navigation. The safety notice visibility is backed by [Config].
+ */
 package pro.magisk.ui.home
 
 import android.content.ActivityNotFoundException
@@ -28,6 +35,7 @@ import com.topjohnwu.superuser.Shell
 import kotlin.math.roundToInt
 import pro.magisk.core.R as CoreR
 
+/** ViewModel for the home tab — Magisk version/status and actions. */
 class HomeViewModel : AsyncLoadViewModel() {
 
     enum class State {
@@ -88,6 +96,7 @@ class HomeViewModel : AsyncLoadViewModel() {
 
     private var checkedEnv = false
 
+    /** Runs `env_check` via shell; shows [EnvFixDialog] on non-zero exit. */
     private suspend fun ensureEnv() {
         if (magiskState == State.INVALID || checkedEnv) return
         val cmd = "env_check ${Info.env.versionString} ${Info.env.versionCode}"

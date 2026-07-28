@@ -1,3 +1,17 @@
+/**
+ * Global application context and lifecycle hub.
+ *
+ * [AppContext] is a [ContextWrapper] that replaces the normal
+ * Application instance so that all code paths (including third-party
+ * libraries) see the same resource-patched, locale-aware context.
+ *
+ * Responsibilities:
+ * - Registers the uncaught exception handler ([CrashHandler]).
+ * - Bootstraps the Shell library with Magisk's [ShellInit].
+ * - Binds the [RootUtils] root service for IPC.
+ * - Tracks the foreground [Activity] via lifecycle callbacks.
+ * - Pre-heats the root shell on startup.
+ */
 package pro.magisk.core
 
 import android.app.Activity
@@ -40,7 +54,6 @@ object AppContext : ContextWrapper(null),
     private lateinit var application: Application
 
     init {
-        // Always log full stack trace with Timber
         Timber.plant(Timber.DebugTree())
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
 
@@ -91,11 +104,9 @@ object AppContext : ContextWrapper(null),
             UiThreadHandler.executor,
             RootUtils.Connection
         )
-        // Pre-heat the shell ASAP
         Shell.getShell(null) {}
 
         if (SDK_INT >= 34 && isRunningAsStub) {
-            // Send over the locale config manually
             val lm = getSystemService(LocaleManager::class.java)
             lm.overrideLocaleConfig = LocaleSetting.localeConfig
         }

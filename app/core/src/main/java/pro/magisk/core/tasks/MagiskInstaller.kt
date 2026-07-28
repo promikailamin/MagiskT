@@ -1,3 +1,16 @@
+/**
+ * Magisk installation / patching engine.
+ *
+ * [MagiskInstallImpl] is the abstract base that handles the full
+ * pipeline: finding the boot image, extracting binaries from the APK,
+ * processing payload / tar / factory-image formats, patching the boot
+ * image with `boot_patch.sh`, and writing output to a file or
+ * flashing it directly.
+ *
+ * Concrete operations are exposed through [MagiskInstaller] inner
+ * classes: [Direct], [Patch], [SecondSlot], [Emulator], [Uninstall],
+ * [Restore], and [FixEnv].
+ */
 package pro.magisk.core.tasks
 
 import android.net.Uri
@@ -49,6 +62,12 @@ import java.security.SecureRandom
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 
+/**
+ * Abstract base for Magisk installation operations.
+ *
+ * Subclasses implement [operations] to perform a specific task
+ * (direct install, patch file, OTA second-slot, etc.).
+ */
 abstract class MagiskInstallImpl protected constructor(
     protected val console: MutableList<String>,
     private val logs: MutableList<String>
@@ -80,6 +99,7 @@ abstract class MagiskInstallImpl protected constructor(
         }
     }
 
+    /** Locate the boot image for the given slot. */
     private fun findImage(slot: String): Boolean {
         val cmd =
             "RECOVERYMODE=${Config.recovery} " +
@@ -96,6 +116,7 @@ abstract class MagiskInstallImpl protected constructor(
         return true
     }
 
+    /** Locate the boot image for the current slot. */
     private fun findImage(): Boolean {
         return findImage(Info.slot)
     }
@@ -516,7 +537,11 @@ abstract class MagiskInstallImpl protected constructor(
     }
 }
 
-abstract class ConsoleInstaller(
+    /**
+     * [MagiskInstallImpl] variant that prints a final "All done!"
+     * or "Installation failed" message to the console.
+     */
+    abstract class ConsoleInstaller(
     console: MutableList<String>,
     logs: MutableList<String>
 ) : MagiskInstallImpl(console, logs) {
@@ -531,6 +556,7 @@ abstract class ConsoleInstaller(
     }
 }
 
+/** [MagiskInstallImpl] variant that invokes a callback on completion. */
 abstract class CallBackInstaller : MagiskInstallImpl(DummyList, DummyList) {
     suspend fun exec(callback: (Boolean) -> Unit): Boolean {
         val success = exec()
@@ -539,6 +565,18 @@ abstract class CallBackInstaller : MagiskInstallImpl(DummyList, DummyList) {
     }
 }
 
+/**
+ * Concrete installation operations.
+ *
+ * Each inner class maps to a user-visible action in the app UI:
+ * - [Direct] — flash directly to the current boot partition.
+ * - [Patch] — patch a boot image file and save the result.
+ * - [SecondSlot] — flash to the inactive slot (for OTA).
+ * - [Emulator] — fix the environment (used by emulators).
+ * - [Uninstall] — remove Magisk and optionally the app.
+ * - [Restore] — restore stock boot image.
+ * - [FixEnv] — fix environment without flashing.
+ */
 class MagiskInstaller {
 
     class Patch(

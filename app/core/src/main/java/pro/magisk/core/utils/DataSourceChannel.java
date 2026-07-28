@@ -1,3 +1,18 @@
+/**
+ * A read-only {@link SeekableByteChannel} over a slice of a {@link FileChannel} with
+ * an adaptive two-tier caching strategy.
+ *
+ * <p>The cache switches between:
+ * <ul>
+ *   <li><b>Random-access cache</b> (16 KB) — centered around the read position for small,
+ *       non-sequential reads.</li>
+ *   <li><b>Sequential cache</b> (1 MB) — loaded forward from the current position when
+ *       sequential access is detected.</li>
+ * </ul>
+ *
+ * <p>Reads larger than 512 KB bypass the cache entirely and go directly to the backing channel.
+ * Slices can be created via {@link #slice} without allocating new channel resources.
+ */
 package pro.magisk.core.utils;
 
 import org.apache.commons.io.input.BoundedInputStream;
@@ -34,10 +49,15 @@ public class DataSourceChannel implements SeekableByteChannel {
         this.size = size;
     }
 
+    /** Wraps the entire {@link FileChannel} as a readable channel. */
     public DataSourceChannel(FileChannel fileChannel) throws IOException {
         this(fileChannel, 0, fileChannel.size());
     }
 
+    /**
+     * Creates a logical slice of this channel without opening a new file descriptor.
+     * Returns {@code this} if the slice covers the entire range.
+     */
     public DataSourceChannel slice(long offset, long sliceSize) {
         if (offset == 0 && sliceSize == size) {
             return this;
@@ -55,6 +75,10 @@ public class DataSourceChannel implements SeekableByteChannel {
         return bytesRead;
     }
 
+    /**
+     * Reads up to {@code dst.remaining()} bytes starting at the given absolute position.
+     * Uses the adaptive cache for small/moderate reads and direct I/O for large reads.
+     */
     public int read(ByteBuffer dst, long position) throws IOException {
         if (!open) throw new ClosedChannelException();
         if (position < 0) {
@@ -165,6 +189,10 @@ public class DataSourceChannel implements SeekableByteChannel {
         }
     }
 
+    /**
+     * Opens a bounded {@link InputStream} over the specified range of data.
+     * The returned stream reads from the backing {@link FileChannel} directly.
+     */
     public InputStream streamRead(long position, long length) throws IOException {
         long endPosition = Math.min(position + length, size) + startOffset;
         var startPosition = startOffset + position;

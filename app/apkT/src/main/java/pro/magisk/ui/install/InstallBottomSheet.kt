@@ -1,3 +1,8 @@
+/**
+ * Modal bottom sheet for selecting an install method (Direct, Inactive Slot, Patch File)
+ * and configuring installation options (keep DM-verity, force encryption, recovery mode).
+ * Uses coroutine-based confirmation dialog for the inactive-slot warning.
+ */
 package pro.magisk.ui.install
 
 import android.net.Uri

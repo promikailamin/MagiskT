@@ -1,3 +1,8 @@
+/**
+ * Theme configuration for the Magisk app. Supports five modes:
+ * 0 - Follow system, 1 - Light, 2 - Dark, 3 - Dynamic follow system, 4 - Dynamic light,
+ * 5 - Dynamic dark. Dynamic (Material You) requires Android 12+.
+ */
 package pro.magisk.ui
 
 import android.os.Build
@@ -14,10 +19,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import pro.magisk.core.Config
 
+/** Singleton holding the current color mode so it can be observed across recompositions. */
 object ThemeState {
     var colorMode by mutableIntStateOf(Config.colorMode)
 }
 
+/** Composable wrapper that picks the correct Material 3 color scheme based on [ThemeState.colorMode]. */
 @Composable
 fun MagiskTheme(
     content: @Composable () -> Unit

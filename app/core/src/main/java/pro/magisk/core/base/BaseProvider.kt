@@ -1,3 +1,10 @@
+/**
+ * Base [ContentProvider] that patches the context (locale + stub
+ * assets) before any other lifecycle method runs.
+ *
+ * All content-provider methods return no-op defaults; subclasses
+ * override [call] to handle daemon callbacks.
+ */
 package pro.magisk.core.base
 
 import android.content.ContentProvider

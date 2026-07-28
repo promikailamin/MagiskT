@@ -1,3 +1,6 @@
+# Common setup and test functions for AVD and Cuttlefish test harnesses.
+# Sources this file to get shared tool paths, timing, device interaction helpers, and test runner logic.
+
 if [ -z $ANDROID_HOME ]; then
   export ANDROID_HOME=$ANDROID_SDK_ROOT
 fi
@@ -20,16 +23,20 @@ if [ $core_count -gt 8 ]; then
   core_count=8
 fi
 
+# Print a blue title banner
 print_title() {
   echo -e "\n\033[44;39m${1}\033[0m\n"
 }
 
+# Print a red error banner to stderr
 print_error() {
   echo -e "\n\033[41;39m${1}\033[0m\n" >&2
 }
 
+# Run an Android instrumentation test via am instrument
 # $1 = TestClass#method
-# $2 = component
+# $2 = component (package/runner)
+# Returns: 0 if tests pass, 1 otherwise
 am_instrument() {
   set +x
   local out=$(adb shell am instrument -w --user 0 -e class "$1" "$2")
@@ -43,6 +50,7 @@ am_instrument() {
   fi
 }
 
+# Install the Magisk APK and test APK on the device, then run environment setup
 run_setup() {
   local apk=$1
   adb shell 'PATH=$PATH:/debug_ramdisk magisk -v'
@@ -59,6 +67,7 @@ run_setup() {
   am_instrument '.Environment#setupEnvironment' $app
 }
 
+# List available APK files from the out/ directory or use positional arguments
 print_apks() {
   if [ "$#" -eq 0 ]; then
     find out -maxdepth 1 -type f -name "app-*.apk" -or -name "apk-*.apk"
@@ -67,6 +76,7 @@ print_apks() {
   fi
 }
 
+# Run full test suite: app tests, hide test, verification on hidden app, restore test
 run_tests() {
   local pkg='pro.magisk.test'
   local self="$pkg/$pkg.TestRunner"

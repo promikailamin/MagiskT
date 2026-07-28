@@ -1,3 +1,9 @@
+/**
+ * Default uncaught-exception handler that writes a detailed crash
+ * report (device info, thread state, full stack trace, and all live
+ * threads) to a file in the cache dir and then launches
+ * [DebugActivity] to display it before killing the process.
+ */
 package pro.magisk.core.utils
 
 import android.content.Intent

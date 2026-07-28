@@ -1,3 +1,10 @@
+//! CLI frontend for `resetprop`.
+//!
+//! Parses command-line arguments with `argh` and dispatches to get/set/
+//! delete/load-file/wait operations. Also exposes the internal helper
+//! functions [`set_prop`], [`get_prop`], and [`load_prop_file`] used by
+//! other Magisk components.
+
 use super::persist::{
     persist_delete_prop, persist_get_all_props, persist_get_prop, persist_set_prop,
 };

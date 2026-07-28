@@ -1,3 +1,9 @@
+/**
+ * DenyList screen — manages the list of apps/processes subject to Zygisk denylist.
+ *
+ * Provides search/filter, show-system-apps and show-OS-apps toggles, and scroll-to-hide-keyboard
+ * behaviour. Each app entry can be expanded to toggle individual processes on/off.
+ */
 package pro.magisk.ui.deny
 
 import android.os.Bundle
@@ -18,6 +24,7 @@ import rikka.recyclerview.addItemSpacing
 import rikka.recyclerview.fixEdgeEffect
 import pro.magisk.core.R as CoreR
 
+/** Fragment for managing the Zygisk DenyList. */
 class DenyListFragment : BaseFragment<FragmentDenyMd2Binding>(), MenuProvider {
 
     override val layoutRes = R.layout.fragment_deny_md2
@@ -49,6 +56,7 @@ class DenyListFragment : BaseFragment<FragmentDenyMd2Binding>(), MenuProvider {
     override fun onPreBind(binding: FragmentDenyMd2Binding) = Unit
 
     override fun onBackPressed(): Boolean {
+        // Collapse the search view on back-press instead of navigating away
         if (searchView.isIconfiedByDefault && !searchView.isIconified) {
             searchView.isIconified = true
             return true

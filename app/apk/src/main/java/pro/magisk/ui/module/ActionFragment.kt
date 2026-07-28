@@ -1,3 +1,10 @@
+/**
+ * Action screen — executes a module's custom action script and streams the console output.
+ *
+ * Similar to [pro.magisk.ui.flash.FlashFragment] but for module-provided actions.
+ * Locks orientation, captures volume keys, and disables back-press during execution.
+ * On success, auto-navigates away after the window loses focus (user switched away).
+ */
 package pro.magisk.ui.module
 
 import android.annotation.SuppressLint
@@ -19,6 +26,7 @@ import pro.magisk.core.ktx.toast
 import pro.magisk.databinding.FragmentActionMd2Binding
 import pro.magisk.core.R as CoreR
 
+/** Fragment that runs a module action script and shows its output. */
 class ActionFragment : BaseFragment<FragmentActionMd2Binding>(), MenuProvider {
 
     override val layoutRes = R.layout.fragment_action_md2
@@ -40,12 +48,14 @@ class ActionFragment : BaseFragment<FragmentActionMd2Binding>(), MenuProvider {
         }
 
         viewModel.state.observe(this) {
+            // Show the close button once execution finishes
             if (it != ActionViewModel.State.RUNNING) {
                 binding.closeBtn.apply {
                     if (!this.isVisible) this.show()
                     if (!this.isFocused) this.requestFocus()
                 }
             }
+            // On success, navigate back when the user leaves the app
             if (it != ActionViewModel.State.SUCCESS) return@observe
             view?.viewTreeObserver?.addOnWindowFocusChangeListener(
                 object : ViewTreeObserver.OnWindowFocusChangeListener {

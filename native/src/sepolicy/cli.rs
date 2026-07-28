@@ -1,3 +1,10 @@
+//! CLI entry point for `magiskpolicy` — loads, patches, and saves SELinux policies.
+//!
+//! Parses command-line arguments with [`Cli`] (argh-based), loads a
+//! monolithic or split policy, applies built-in Magisk rules and/or
+//! user-supplied statements, then optionally loads into the kernel
+//! or saves to file.
+
 use crate::ffi::SePolicy;
 use crate::statement::format_statement_help;
 use argh::FromArgs;
@@ -9,32 +16,42 @@ use base::{
 use std::ffi::c_char;
 use std::io::stderr;
 
+/// CLI options for `magiskpolicy`.
 #[derive(FromArgs)]
 struct Cli {
+    /// immediately load the modified policy into the running kernel
     #[argh(switch)]
     live: bool,
 
+    /// apply the built-in Magisk SELinux rules
     #[argh(switch)]
     magisk: bool,
 
+    /// compile split CIL policies into a monolithic policy
     #[argh(switch)]
     compile_split: bool,
 
+    /// load from precompiled sepolicy or compile split CIL policies
     #[argh(switch)]
     load_split: bool,
 
+    /// print all rules in the loaded policy and exit
     #[argh(switch)]
     print_rules: bool,
 
+    /// load a monolithic sepolicy from a file
     #[argh(option)]
     load: Option<Utf8CString>,
 
+    /// dump the modified policy to a file
     #[argh(option)]
     save: Option<Utf8CString>,
 
+    /// apply rules from a file (one statement per line, repeatable)
     #[argh(option)]
     apply: Vec<Utf8CString>,
 
+    /// inline policy statements on the command line
     #[argh(positional)]
     polices: Vec<String>,
 }

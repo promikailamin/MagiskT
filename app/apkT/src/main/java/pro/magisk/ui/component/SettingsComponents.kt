@@ -1,3 +1,8 @@
+/**
+ * Reusable Material 3 setting row composables used across settings and install screens:
+ * [SettingsArrow] (clickable row with right arrow), [SettingsSwitch] (toggle row),
+ * [SettingsDropdown] (dropdown selector), and [SmallTitle] (section header).
+ */
 package pro.magisk.ui.component
 
 import androidx.compose.foundation.clickable

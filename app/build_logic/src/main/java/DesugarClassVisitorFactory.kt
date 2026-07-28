@@ -1,3 +1,14 @@
+/**
+ * ASM class visitor factory that rewrites bytecode to replace API 26+ {@link java.util.zip.ZipEntry}
+ * time methods ({@code getLastModifiedTime}, {@code getLastAccessTime}, {@code getCreationTime})
+ * with calls to {@link pro.magisk.core.utils.Desugar} for backward compatibility.
+ *
+ * <p>Additionally patches {@code ZipArchiveOutputStream.copyFromZipInputStream} to skip the
+ * {@code ZipUtil.checkRequestedFeatures} validation, allowing raw-copy of entries using
+ * unsupported compression methods.
+ *
+ * <p>Applied at build time via Gradle instrumentation ({@code transformClassesWith}).
+ */
 import com.android.build.api.instrumentation.AsmClassVisitorFactory
 import com.android.build.api.instrumentation.ClassContext
 import com.android.build.api.instrumentation.ClassData
@@ -7,6 +18,7 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Opcodes.ASM9
 
+// Internal class name constants for instrumentation targets
 private const val DESUGAR_CLASS_NAME = "pro.magisk.core.utils.Desugar"
 private const val ZIP_ENTRY_CLASS_NAME = "java.util.zip.ZipEntry"
 private const val ZIP_OUT_STREAM_CLASS_NAME = "org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream"

@@ -1,3 +1,9 @@
+//! APK certificate extraction and Magisk Manager detection.
+//!
+//! Parses Android APK v2/v3 signing blocks to extract X.509 certificates,
+//! locates the Magisk Manager package on disk, validates its signature,
+//! and tracks installed/stub/dyn APKs per user profile.
+
 use crate::consts::{APP_PACKAGE_NAME, MAGISK_VER_CODE};
 use crate::daemon::{AID_APP_END, AID_APP_START, AID_USER_OFFSET, MagiskD, to_app_id};
 use crate::ffi::{DbEntryKey, get_magisk_tmp, install_apk, uninstall_pkg};
@@ -178,12 +184,22 @@ enum Status {
     CertMismatch,
 }
 
+/// Tracks Magisk Manager installation state per user.
+///
+/// Holds the trusted certificate, the repackaged (stub) APK info, and
+/// a map of tracked APK files keyed by user ID.
 pub struct ManagerInfo {
+    /// File descriptor to the embedded stub APK.
     stub_apk_fd: Option<File>,
+    /// Certificate extracted from the trusted (original) APK.
     trusted_cert: Vec<u8>,
+    /// App ID of the repackaged manager.
     repackaged_app_id: i32,
+    /// Package name of the repackaged manager.
     repackaged_pkg: String,
+    /// Certificate of the repackaged manager.
     repackaged_cert: Vec<u8>,
+    /// Per-user tracked APK files (path + timestamp).
     tracked_files: BTreeMap<i32, TrackedFile>,
 }
 

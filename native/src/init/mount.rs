@@ -1,3 +1,10 @@
+//! init-stage mount operations.
+//!
+//! Provides [`switch_root`] (move all mounts to a new root then pivot),
+//! [`is_device_mounted`], [`is_rootfs`] (detect ramfs/tmpfs root), and
+//! [`MagiskInit`] methods for preparing the `/data` tmpfs and executing
+//! the real init.
+
 use crate::ffi::MagiskInit;
 use base::{
     Directory, FsPathBuilder, LibcReturn, LoggedResult, ResultExt, Utf8CStr, cstr, debug, libc,

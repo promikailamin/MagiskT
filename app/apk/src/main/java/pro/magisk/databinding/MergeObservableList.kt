@@ -1,3 +1,10 @@
+/**
+ * An [ObservableList] that merges multiple sub-lists (plain or observable) into one
+ * flat view. Changes to any observable sub-list are automatically forwarded.
+ *
+ * Used by the module and Superuser screens to combine a static header/helper item
+ * with a dynamic diff-based list.
+ */
 package pro.magisk.databinding
 
 import androidx.databinding.ListChangeRegistry
@@ -36,7 +43,6 @@ class MergeObservableList<T> : AbstractList<T>(), ObservableList<T> {
 
     override val size: Int
         get() = lists.fold(0) { i, it -> i + it.size }
-
 
     fun insertItem(obj: T): MergeObservableList<T> {
         val idx = size
@@ -100,6 +106,7 @@ class MergeObservableList<T> : AbstractList<T>(), ObservableList<T> {
             listeners.notifyRemoved(this, 0, sz)
     }
 
+    /** Translates a position within a sub-list to the flat merged index. */
     private fun subIndexToIndex(subList: List<*>, index: Int): Int {
         if (index < 0)
             throw IndexOutOfBoundsException()
@@ -113,6 +120,7 @@ class MergeObservableList<T> : AbstractList<T>(), ObservableList<T> {
         throw IllegalArgumentException()
     }
 
+    /** Forwards change notifications from observable sub-lists with translated indices. */
     inner class Callback<T> : OnListChangedCallback<ObservableList<T>>() {
         override fun onChanged(sender: ObservableList<T>) {
             ++modCount

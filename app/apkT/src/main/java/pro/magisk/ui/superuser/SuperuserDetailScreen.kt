@@ -1,3 +1,8 @@
+/**
+ * Per-app superuser detail screen. Shows app icon/name/UID, toggles for notification,
+ * logging, and (if enabled) restrictive mode, plus a revoke button that requires
+ * authentication when [Config.suAuth] is on.
+ */
 package pro.magisk.ui.superuser
 
 import androidx.compose.foundation.Image

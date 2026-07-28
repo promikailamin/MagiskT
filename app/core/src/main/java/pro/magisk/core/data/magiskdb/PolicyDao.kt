@@ -1,3 +1,10 @@
+/**
+ * DAO for the `policies` table in MagiskDB.
+ *
+ * Provides CRUD operations for [SuPolicy] entries, including
+ * automatic cleanup of expired entries and backwards-compatible
+ * `package_name` column handling.
+ */
 package pro.magisk.core.data.magiskdb
 
 import pro.magisk.core.AppContext
@@ -8,37 +15,42 @@ private const val SELECT_QUERY = "SELECT (until - strftime(\"%s\", \"now\")) AS 
 
 class PolicyDao : MagiskDB() {
 
+    /** Remove expired and negative-`until` entries. */
     suspend fun deleteOutdated() {
         val query = "DELETE FROM ${Table.POLICY} WHERE " +
             "(until > 0 AND until < strftime(\"%s\", \"now\")) OR until < 0"
         exec(query)
     }
 
+    /** Delete the policy for a given [uid]. */
     suspend fun delete(uid: Int) {
         val query = "DELETE FROM ${Table.POLICY} WHERE uid=$uid"
         exec(query)
     }
 
+    /** Fetch the policy for a given [uid], or null if none exists. */
     suspend fun fetch(uid: Int): SuPolicy? {
         val query = "$SELECT_QUERY FROM ${Table.POLICY} WHERE uid=$uid LIMIT 1"
         return exec(query, ::toPolicy).firstOrNull()
     }
 
+    /** Insert or replace the given [policy]. */
     suspend fun update(policy: SuPolicy) {
         val map = policy.toMap()
         if (!Const.Version.atLeast_25_0()) {
-            // Put in package_name for old database
             map["package_name"] = AppContext.packageManager.getNameForUid(policy.uid)!!
         }
         val query = "REPLACE INTO ${Table.POLICY} ${map.toQuery()}"
         exec(query)
     }
 
+    /** Fetch all policies for the current user. */
     suspend fun fetchAll(): List<SuPolicy> {
         val query = "$SELECT_QUERY FROM ${Table.POLICY} WHERE uid/100000=${Const.USER_ID}"
         return exec(query, ::toPolicy).filterNotNull()
     }
 
+    /** Map a row map to a [SuPolicy] instance. */
     private fun toPolicy(map: Map<String, String>): SuPolicy? {
         val uid = map["uid"]?.toInt() ?: return null
         val policy = SuPolicy(uid)

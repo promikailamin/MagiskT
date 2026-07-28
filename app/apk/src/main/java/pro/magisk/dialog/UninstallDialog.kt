@@ -1,3 +1,10 @@
+/**
+ * Dialog for uninstalling Magisk.
+ *
+ * Offers two options:
+ * - Restore stock boot images (removes Magisk but keeps the app)
+ * - Complete uninstall (removes everything, including the app)
+ */
 package pro.magisk.dialog
 
 import android.app.ProgressDialog
@@ -13,6 +20,7 @@ import pro.magisk.ui.flash.FlashFragment
 import pro.magisk.view.MagiskDialog
 import kotlinx.coroutines.launch
 
+/** Dialog with Restore / Complete Uninstall options for Magisk removal. */
 class UninstallDialog : DialogBuilder {
 
     override fun build(dialog: MagiskDialog) {

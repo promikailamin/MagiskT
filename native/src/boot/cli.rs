@@ -1,3 +1,12 @@
+//! `magiskboot` — Boot Image Modification Tool CLI.
+//!
+//! This is the command-line entry point for all magiskboot operations:
+//! unpack, repack, sign, verify, hexpatch, cpio, dtb, split, sha1,
+//! cleanup, compress, and decompress.
+//!
+//! Uses the `argh` derive-attribute parser to define subcommand structs,
+//! then dispatches to the corresponding handler in submodules.
+
 use crate::compress::{compress_cmd, decompress_cmd};
 use crate::cpio::{cpio_commands, print_cpio_usage};
 use crate::dtb::{DtbAction, dtb_commands, print_dtb_usage};
@@ -16,12 +25,14 @@ use std::ffi::c_char;
 use std::io::{Seek, SeekFrom, Write};
 use std::str::FromStr;
 
+/// Top-level CLI argument container.
 #[derive(FromArgs)]
 struct Cli {
     #[argh(subcommand)]
     action: Action,
 }
 
+/// All supported magiskboot subcommands.
 #[derive(FromArgs)]
 #[argh(subcommand)]
 enum Action {
@@ -40,110 +51,150 @@ enum Action {
     Decompress(Decompress),
 }
 
+/// Unpack a boot image into its components.
 #[derive(FromArgs)]
 #[argh(subcommand, name = "unpack")]
 struct Unpack {
+    /// skip decompression of components
     #[argh(switch, short = 'n', long = none)]
     no_decompress: bool,
+    /// dump the header to a `header` file
     #[argh(switch, short = 'h', long = none)]
     dump_header: bool,
+    /// path to the boot image
     #[argh(positional)]
     img: Utf8CString,
 }
 
+/// Repack components back into a boot image.
 #[derive(FromArgs)]
 #[argh(subcommand, name = "repack")]
 struct Repack {
+    /// skip compression of components
     #[argh(switch, short = 'n', long = none)]
     no_compress: bool,
+    /// original boot image (used to detect formats)
     #[argh(positional)]
     img: Utf8CString,
+    /// output file (default: new-boot.img)
     #[argh(positional)]
     out: Option<Utf8CString>,
 }
 
+/// Verify AVB 1.0 signature on a boot image.
 #[derive(FromArgs)]
 #[argh(subcommand, name = "verify")]
 struct Verify {
+    /// path to the boot image
     #[argh(positional)]
     img: Utf8CString,
+    /// optional certificate to verify against
     #[argh(positional)]
     cert: Option<Utf8CString>,
 }
 
+/// Sign a boot image with AVB 1.0.
 #[derive(FromArgs)]
 #[argh(subcommand, name = "sign")]
 struct Sign {
+    /// path to the boot image
     #[argh(positional)]
     img: Utf8CString,
+    /// image name (default: /boot)
     #[argh(positional)]
     name: Option<Utf8CString>,
+    /// x509 certificate path
     #[argh(positional)]
     cert: Option<Utf8CString>,
+    /// private key path (PK8)
     #[argh(positional)]
     key: Option<Utf8CString>,
 }
 
+/// Extract a partition image from a payload.bin.
 #[derive(FromArgs)]
 #[argh(subcommand, name = "extract")]
 struct Extract {
+    /// path to payload.bin
     #[argh(positional)]
     payload: Utf8CString,
+    /// partition name (e.g. boot, init_boot)
     #[argh(positional)]
     partition: Option<Utf8CString>,
+    /// output file path
     #[argh(positional)]
     outfile: Option<Utf8CString>,
 }
 
+/// Hex-edit a file (find-and-replace byte patterns).
 #[derive(FromArgs)]
 #[argh(subcommand, name = "hexpatch")]
 struct HexPatch {
+    /// file to patch
     #[argh(positional)]
     file: Utf8CString,
+    /// source hex pattern
     #[argh(positional)]
     src: Utf8CString,
+    /// destination hex pattern
     #[argh(positional)]
     dest: Utf8CString,
 }
 
+/// Perform cpio operations on a ramdisk image (in-place).
 #[derive(FromArgs)]
 #[argh(subcommand, name = "cpio")]
 struct Cpio {
+    /// path to the cpio archive
     #[argh(positional)]
     file: Utf8CString,
+    /// list of commands to execute
     #[argh(positional)]
     cmds: Vec<String>,
 }
 
+/// Perform DTB-related operations.
 #[derive(FromArgs)]
 #[argh(subcommand, name = "dtb")]
 struct Dtb {
+    /// path to the dtb / dtbo file
     #[argh(positional)]
     file: Utf8CString,
+    /// sub-action (e.g. dump, patch)
     #[argh(subcommand)]
     action: DtbAction,
 }
 
+/// Split an image.*-dtb into kernel + kernel_dtb.
 #[derive(FromArgs)]
 #[argh(subcommand, name = "split")]
 struct Split {
+    /// skip decompression
     #[argh(switch, short = 'n', long = none)]
     no_decompress: bool,
+    /// path to the combined image
     #[argh(positional)]
     file: Utf8CString,
 }
 
+/// Print the SHA1 hash of a file.
 #[derive(FromArgs)]
 #[argh(subcommand, name = "sha1")]
 struct Sha1 {
+    /// file to hash
     #[argh(positional)]
     file: Utf8CString,
 }
 
+/// Cleanup the working directory (remove intermediate files).
 #[derive(FromArgs)]
 #[argh(subcommand, name = "cleanup")]
 struct Cleanup {}
 
+/// Compress a file with a specified format.
+///
+/// The format is encoded in the subcommand name: `compress=gzip`,
+/// `compress=lzma`, etc. Defaults to gzip.
 struct Compress {
     format: FileFormat,
     file: Utf8CString,
@@ -177,15 +228,20 @@ impl SubCommand for Compress {
     };
 }
 
+/// Decompress a file (auto-detect format).
 #[derive(FromArgs)]
 #[argh(subcommand, name = "decompress")]
 struct Decompress {
+    /// file to decompress
     #[argh(positional)]
     file: Utf8CString,
+    /// output file (optional)
     #[argh(positional)]
     out: Option<Utf8CString>,
 }
 
+/// Print the full magiskboot usage message, listing every subcommand and
+/// its arguments.
 fn print_usage(cmd: &str) {
     eprintln!(
         r#"MagiskBoot - Boot Image Modification Tool
@@ -288,6 +344,8 @@ Supported actions:
     );
 }
 
+/// Verify the AVB 1.0 signature on a boot image. If a certificate is
+/// given, verify against it; otherwise just check that a signature exists.
 fn verify_cmd(image: &Utf8CStr, cert: Option<&Utf8CStr>) -> bool {
     let image = BootImage::new(image);
     match cert {
@@ -302,6 +360,8 @@ fn verify_cmd(image: &Utf8CStr, cert: Option<&Utf8CStr>) -> bool {
     }
 }
 
+/// Sign a boot image with AVB 1.0, writing the signature to the tail of
+/// the file and zeroing out any trailing data.
 fn sign_cmd(
     image: &Utf8CStr,
     name: Option<&Utf8CStr>,
@@ -326,6 +386,10 @@ fn sign_cmd(
     Ok(())
 }
 
+/// Main magiskboot dispatch function.
+///
+/// Parses the CLI arguments into the appropriate subcommand and calls
+/// the corresponding handler from the submodules.
 fn boot_main(cmds: CmdArgs) -> LoggedResult<i32> {
     let mut cmds = cmds.0;
     if cmds.len() < 2 {
@@ -437,6 +501,10 @@ fn boot_main(cmds: CmdArgs) -> LoggedResult<i32> {
     Ok(0)
 }
 
+/// C entry point for magiskboot.
+///
+/// Sets up command-line logging, resets umask, parses arguments, and
+/// dispatches to `boot_main`. Returns 0 on success, 1 on failure.
 #[unsafe(no_mangle)]
 pub extern "C" fn main(argc: i32, argv: *const *const c_char, _envp: *const *const c_char) -> i32 {
     cmdline_logging();

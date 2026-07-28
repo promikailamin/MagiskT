@@ -1,3 +1,10 @@
+/**
+ * Concrete [BaseSettingsItem] instances for all settings screen options.
+ *
+ * Organised in sections: Customization, App, Magisk, Superuser.
+ * Each object encapsulates its own value binding (toggle, selector, blank action, etc.)
+ * and the behaviour triggered on press/action.
+ */
 package pro.magisk.ui.settings
 
 import android.content.Context
