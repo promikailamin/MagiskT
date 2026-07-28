@@ -44,6 +44,8 @@ object Config {
     val stubVersion: String get() = get("magisk.stubVersion")!!
     /** Comma-separated list of target ABIs. */
     val abiList: List<String> get() = get("abiList")!!.split(",")
+    /** Git commit hash at build time, or "local" if git was unavailable. */
+    val buildCommit: String? get() = get("buildCommit")
 }
 
 /**

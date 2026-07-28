@@ -314,10 +314,11 @@ def build_native():
 
 
 def dump_flags_app():
-    """Generate a flags.prop file with ABI list, version, and versionCode for the Android app."""
+    """Generate a flags.prop file with ABI list, version, versionCode, and buildCommit for the Android app."""
     flag_txt = f"abiList={','.join(build_abis.keys())}\n"
     flag_txt += f"version={config['version']}\n"
     flag_txt += f"versionCode={config['versionCode']}\n"
+    flag_txt += f"buildCommit={config.get('buildCommit', 'local')}\n"
 
     app_build_dir = Path("app", "build")
     app_build_dir.mkdir(parents=True, exist_ok=True)
@@ -696,6 +697,9 @@ def set_build_abis(abis: set[str]):
 def load_config():
     """Load version, versionCode, ABI list, and outdir from config.prop and app/gradle.properties."""
     commit_hash = cmd_out(["git", "rev-parse", "--short=8", "HEAD"])
+    if isinstance(commit_hash, bytes):
+        commit_hash = commit_hash.decode()
+    config["buildCommit"] = commit_hash if commit_hash else "local"
 
     # Default values
     config["version"] = commit_hash

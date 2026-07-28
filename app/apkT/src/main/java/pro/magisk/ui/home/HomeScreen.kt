@@ -401,6 +401,11 @@ private fun CoreCard(
                         text = version.ifEmpty { stringResource(CoreR.string.not_available) },
                         style = MaterialTheme.typography.bodyMedium,
                     )
+                    Text(
+                        text = BuildConfig.BUILD_COMMIT,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
 
