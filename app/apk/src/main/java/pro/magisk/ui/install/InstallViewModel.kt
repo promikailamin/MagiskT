@@ -19,13 +19,10 @@ import pro.magisk.core.Config
 import pro.magisk.core.Info
 import pro.magisk.core.base.ContentResultCallback
 import pro.magisk.core.ktx.toast
-import pro.magisk.core.repository.NetworkService
 import pro.magisk.databinding.set
-import pro.magisk.dialog.DownloadDialog
 import pro.magisk.dialog.SecondSlotWarningDialog
 import pro.magisk.events.GetContentEvent
 import pro.magisk.ui.flash.FlashFragment
-import io.noties.markwon.Markwon
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import timber.log.Timber
@@ -33,7 +30,7 @@ import java.io.File
 import java.io.IOException
 import pro.magisk.core.R as CoreR
 
-class InstallViewModel(@Suppress("UNUSED_PARAMETER") svc: NetworkService, @Suppress("UNUSED_PARAMETER") markwon: Markwon) : BaseViewModel() {
+class InstallViewModel : BaseViewModel() {
 
     val isRooted get() = Info.isRooted
     val skipOptions = Info.isEmulator || (Info.isSAR && !Info.isFDE && Info.ramdisk)
@@ -53,9 +50,6 @@ class InstallViewModel(@Suppress("UNUSED_PARAMETER") svc: NetworkService, @Suppr
                 R.id.method_patch -> {
                     GetContentEvent("*/*", UriCallback()).publish()
                 }
-                R.id.method_download -> {
-                    DownloadDialog { url -> uri.value = url }.show()
-                }
                 R.id.method_inactive_slot -> {
                     SecondSlotWarningDialog().show()
                 }
@@ -71,7 +65,6 @@ class InstallViewModel(@Suppress("UNUSED_PARAMETER") svc: NetworkService, @Suppr
     fun install() {
         when (method) {
             R.id.method_patch -> FlashFragment.patch(data.value!!).navigate(true)
-            R.id.method_download -> FlashFragment.download(data.value!!).navigate(true)
             R.id.method_direct -> FlashFragment.flash(false).navigate(true)
             R.id.method_inactive_slot -> FlashFragment.flash(true).navigate(true)
             else -> error("Unknown value")

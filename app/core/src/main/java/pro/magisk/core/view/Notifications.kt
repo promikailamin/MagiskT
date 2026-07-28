@@ -20,7 +20,6 @@ object Notifications {
 
     val mgr by lazy { AppContext.getSystemService<NotificationManager>()!! }
 
-    private const val PROGRESS_CHANNEL = "progress"
     private const val SU_CHANNEL = "su_notification"
 
     private val nextId = AtomicInteger(0)
@@ -28,28 +27,11 @@ object Notifications {
     fun setup() {
         AppContext.apply {
             if (SDK_INT >= Build.VERSION_CODES.O) {
-                val channel2 = NotificationChannel(PROGRESS_CHANNEL,
-                    getString(R.string.progress_channel), NotificationManager.IMPORTANCE_LOW)
                 val channel4 = NotificationChannel(SU_CHANNEL,
                     getString(R.string.su_notification_channel), NotificationManager.IMPORTANCE_HIGH)
-                mgr.createNotificationChannels(listOf(channel2, channel4))
+                mgr.createNotificationChannels(listOf(channel4))
             }
         }
-    }
-
-    fun startProgress(title: CharSequence): Notification.Builder {
-        val builder = if (SDK_INT >= Build.VERSION_CODES.O) {
-            Notification.Builder(AppContext, PROGRESS_CHANNEL)
-        } else {
-            Notification.Builder(AppContext).setPriority(Notification.PRIORITY_LOW)
-        }
-            .setSmallIcon(android.R.drawable.stat_sys_download)
-            .setContentTitle(title)
-            .setProgress(0, 0, true)
-            .setOngoing(true)
-        if (SDK_INT >= Build.VERSION_CODES.S)
-            builder.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
-        return builder
     }
 
     private const val SU_NOTIFICATION_TIMEOUT_MS = 3_000L

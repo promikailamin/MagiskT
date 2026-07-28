@@ -10,14 +10,13 @@ import pro.magisk.BR
 import pro.magisk.R
 import pro.magisk.core.Config
 import pro.magisk.core.Const
+import pro.magisk.core.Info
 import pro.magisk.core.ktx.activity
 import pro.magisk.core.tasks.AppMigration
 import pro.magisk.core.utils.LocaleSetting
-import pro.magisk.core.utils.MediaStoreUtils
 import pro.magisk.core.utils.TextHolder
 import pro.magisk.core.utils.asText
 import pro.magisk.databinding.DialogSettingsAppNameBinding
-import pro.magisk.databinding.DialogSettingsDownloadPathBinding
 import pro.magisk.databinding.set
 import pro.magisk.view.MagiskDialog
 import com.topjohnwu.superuser.Shell
@@ -116,27 +115,6 @@ object Restore : BaseSettingsItem.Blank() {
 object AddShortcut : BaseSettingsItem.Blank() {
     override val title = CoreR.string.add_shortcut_title.asText()
     override val description = CoreR.string.setting_add_shortcut_summary.asText()
-}
-
-object DownloadPath : BaseSettingsItem.Input() {
-    override var value
-        get() = Config.downloadDir
-        set(value) {
-            Config.downloadDir = value
-            notifyPropertyChanged(BR.description)
-        }
-
-    override val title = CoreR.string.settings_download_path_title.asText()
-    override val description get() = MediaStoreUtils.fullPath(value).asText()
-
-    override var inputResult: String = value
-        set(value) = set(value, field, { field = it }, BR.inputResult, BR.path)
-
-    @get:Bindable
-    val path get() = MediaStoreUtils.fullPath(inputResult)
-
-    override fun getView(context: Context) = DialogSettingsDownloadPathBinding
-        .inflate(LayoutInflater.from(context)).also { it.data = this }.root
 }
 
 object SystemlessHosts : BaseSettingsItem.Blank() {

@@ -28,7 +28,6 @@ abstract class BaseViewModel : ViewModel(), ObservableHost {
 
     open fun onSaveState(state: Bundle) {}
     open fun onRestoreState(state: Bundle) {}
-    open fun onNetworkChanged(network: Boolean) {}
 
     fun withPermission(permission: String, callback: (Boolean) -> Unit) {
         PermissionEvent(permission, callback).publish()

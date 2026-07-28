@@ -9,7 +9,6 @@ import pro.magisk.core.BuildConfig.APP_VERSION_CODE
 import pro.magisk.core.Const
 import pro.magisk.core.Info
 import pro.magisk.core.ktx.toast
-import pro.magisk.core.repository.NetworkService
 import pro.magisk.ui.navigation.Route
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,9 +17,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pro.magisk.core.R as CoreR
 
-class InstallViewModel(@Suppress("UNUSED_PARAMETER") svc: NetworkService) : BaseViewModel() {
+class InstallViewModel : BaseViewModel() {
 
-    enum class Method { NONE, PATCH, DIRECT, INACTIVE_SLOT, DOWNLOAD }
+    enum class Method { NONE, PATCH, DIRECT, INACTIVE_SLOT }
 
     data class UiState(
         val step: Int = 0,
@@ -29,7 +28,6 @@ class InstallViewModel(@Suppress("UNUSED_PARAMETER") svc: NetworkService) : Base
         val patchUri: Uri? = null,
         val requestFilePicker: Boolean = false,
         val showSecondSlotWarning: Boolean = false,
-        val showDownloadDialog: Boolean = false,
     )
 
     val isRooted get() = Info.isRooted
@@ -53,9 +51,6 @@ class InstallViewModel(@Suppress("UNUSED_PARAMETER") svc: NetworkService) : Base
             Method.INACTIVE_SLOT -> {
                 _uiState.update { it.copy(showSecondSlotWarning = true) }
             }
-            Method.DOWNLOAD -> {
-                _uiState.update { it.copy(showDownloadDialog = true) }
-            }
             else -> {}
         }
     }
@@ -68,20 +63,9 @@ class InstallViewModel(@Suppress("UNUSED_PARAMETER") svc: NetworkService) : Base
         _uiState.update { it.copy(showSecondSlotWarning = false) }
     }
 
-    fun onDownloadDialogConsumed() {
-        _uiState.update { it.copy(showDownloadDialog = false) }
-    }
-
     fun onPatchFileSelected(uri: Uri) {
         _uiState.update { it.copy(patchUri = uri) }
         if (_uiState.value.method == Method.PATCH) {
-            install()
-        }
-    }
-
-    fun onDownloadUrlSelected(uri: Uri) {
-        _uiState.update { it.copy(patchUri = uri) }
-        if (_uiState.value.method == Method.DOWNLOAD) {
             install()
         }
     }
@@ -90,10 +74,6 @@ class InstallViewModel(@Suppress("UNUSED_PARAMETER") svc: NetworkService) : Base
         when (_uiState.value.method) {
             Method.PATCH -> navigateTo(Route.Flash(
                 action = Const.Value.PATCH_FILE,
-                additionalData = _uiState.value.patchUri!!.toString()
-            ))
-            Method.DOWNLOAD -> navigateTo(Route.Flash(
-                action = Const.Value.DOWNLOAD,
                 additionalData = _uiState.value.patchUri!!.toString()
             ))
             Method.DIRECT -> navigateTo(Route.Flash(

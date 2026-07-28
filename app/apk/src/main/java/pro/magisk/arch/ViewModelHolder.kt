@@ -4,7 +4,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
-import pro.magisk.core.Info
 import pro.magisk.core.di.ServiceLocator
 import pro.magisk.ui.home.HomeViewModel
 import pro.magisk.ui.install.InstallViewModel
@@ -18,7 +17,6 @@ interface ViewModelHolder : LifecycleOwner, ViewModelStoreOwner {
 
     fun startObserveLiveData() {
         viewModel.viewEvents.observe(this, this::onEventDispatched)
-        Info.isConnected.observe(this, viewModel::onNetworkChanged)
     }
 
     /**
@@ -31,11 +29,10 @@ object VMFactory : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when (modelClass) {
-            HomeViewModel::class.java -> HomeViewModel(ServiceLocator.networkService)
+            HomeViewModel::class.java -> HomeViewModel()
             LogViewModel::class.java -> LogViewModel(ServiceLocator.logRepo)
             SuperuserViewModel::class.java -> SuperuserViewModel(ServiceLocator.policyDB)
-            InstallViewModel::class.java ->
-                InstallViewModel(ServiceLocator.networkService, ServiceLocator.markwon)
+            InstallViewModel::class.java -> InstallViewModel()
             SuRequestViewModel::class.java ->
                 SuRequestViewModel(ServiceLocator.policyDB, ServiceLocator.timeoutPrefs)
             else -> modelClass.newInstance()

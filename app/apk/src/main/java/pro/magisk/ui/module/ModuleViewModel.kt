@@ -25,7 +25,7 @@ import pro.magisk.core.R as CoreR
 
 class ModuleViewModel : AsyncLoadViewModel() {
 
-    val bottomBarBarrierIds = intArrayOf(R.id.module_update, R.id.module_remove)
+    val bottomBarBarrierIds = intArrayOf(R.id.module_remove)
 
     private val itemsInstalled = diffList<LocalModuleRvItem>()
 
@@ -53,8 +53,6 @@ class ModuleViewModel : AsyncLoadViewModel() {
         }
         loading = false
     }
-
-    override fun onNetworkChanged(network: Boolean) = startLoading()
 
     private suspend fun loadInstalled() {
         withContext(Dispatchers.Default) {

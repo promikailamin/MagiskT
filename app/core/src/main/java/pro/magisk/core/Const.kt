@@ -33,15 +33,9 @@ object Const {
         fun atLeast_30_1() = Info.env.versionCode >= 30100 || isCanary()
     }
 
-    object ID {
-        const val DOWNLOAD_JOB_ID = 6
-    }
-
     object Url {
         const val PATREON_URL = "https://www.patreon.com/topjohnwu"
         const val SOURCE_CODE_URL = "https://github.com/topjohnwu/Magisk"
-
-        const val INVALID_URL = "https://example.com/"
     }
 
     object Key {
@@ -53,7 +47,6 @@ object Const {
     object Value {
         const val FLASH_ZIP = "flash"
         const val PATCH_FILE = "patch"
-        const val DOWNLOAD = "download"
         const val FLASH_MAGISK = "magisk"
         const val FLASH_INACTIVE_SLOT = "slot"
         const val UNINSTALL = "uninstall"

@@ -11,7 +11,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import pro.magisk.core.AppContext
-import pro.magisk.core.Config
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -28,7 +27,7 @@ object MediaStoreUtils {
     fun fullPath(name: String): String =
         File(Environment.getExternalStorageDirectory(), relativePath(name)).canonicalPath
 
-    private val downloadPath get() = relativePath(Config.downloadDir)
+    private val downloadPath get() = relativePath("")
 
     @RequiresApi(api = 30)
     @Throws(IOException::class)

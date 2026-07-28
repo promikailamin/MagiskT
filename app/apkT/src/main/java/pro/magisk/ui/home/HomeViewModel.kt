@@ -11,7 +11,6 @@ import pro.magisk.core.Config
 import pro.magisk.core.Info
 import pro.magisk.core.ktx.await
 import pro.magisk.core.ktx.toast
-import pro.magisk.core.repository.NetworkService
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,9 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import pro.magisk.core.R as CoreR
 
-class HomeViewModel(
-    private val svc: NetworkService
-) : AsyncLoadViewModel() {
+class HomeViewModel : AsyncLoadViewModel() {
 
     data class UiState(
         val isNoticeVisible: Boolean = Config.safetyNotice,
@@ -59,17 +56,6 @@ class HomeViewModel(
 
     override suspend fun doLoadWork() {
         ensureEnv()
-    }
-
-    private val networkObserver: (Boolean) -> Unit = { startLoading() }
-
-    init {
-        Info.isConnected.observeForever(networkObserver)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Info.isConnected.removeObserver(networkObserver)
     }
 
     fun onLinkPressed(link: String) {

@@ -11,17 +11,12 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.NonWritableChannelException;
 import java.nio.channels.SeekableByteChannel;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-
 public class DataSourceChannel implements SeekableByteChannel {
     private static final int RANDOM_READ_CACHE_SIZE = 16 * 1024;
     private static final int SEQ_READ_CACHE_SIZE = 1024 * 1024;
     private static final int SEQ_READ_THRESHOLD = 1024;
     private static final int DIRECT_READ_THRESHOLD = 512 * 1024;
 
-    private final OkHttpClient client;
-    private final String url;
     private final FileChannel fileChannel;
     private final long startOffset;
     private final long size;
@@ -32,39 +27,15 @@ public class DataSourceChannel implements SeekableByteChannel {
     private byte[] cache = null;
     private long cacheStart = -1;
 
-    private DataSourceChannel(OkHttpClient client, String url, FileChannel fileChannel,
+    private DataSourceChannel(FileChannel fileChannel,
                               long startOffset, long size) {
-        this.client = client;
-        this.url = url;
         this.fileChannel = fileChannel;
         this.startOffset = startOffset;
         this.size = size;
     }
 
     public DataSourceChannel(FileChannel fileChannel) throws IOException {
-        this(null, null, fileChannel, 0, fileChannel.size());
-    }
-
-    public DataSourceChannel(OkHttpClient client, String url) throws IOException {
-        this(client, url, null, 0, fetchTotalSize(client, url));
-    }
-
-    private static long fetchTotalSize(OkHttpClient client, String url) throws IOException {
-        var request = new Request.Builder().url(url).head().build();
-        try (var response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                throw new IOException("Failed to connect to URL: " + response);
-            }
-            var contentLength = response.header("Content-Length");
-            if (contentLength == null) {
-                throw new IOException("Could not determine file size.");
-            }
-            var acceptRanges = response.header("Accept-Ranges");
-            if (acceptRanges == null || !acceptRanges.equalsIgnoreCase("bytes")) {
-                throw new IOException("Server does not support byte ranges: " + response);
-            }
-            return Long.parseLong(contentLength);
-        }
+        this(fileChannel, 0, fileChannel.size());
     }
 
     public DataSourceChannel slice(long offset, long sliceSize) {
@@ -74,7 +45,7 @@ public class DataSourceChannel implements SeekableByteChannel {
         if (offset < 0 || sliceSize <= 0 || offset + sliceSize >= size) {
             throw new IllegalArgumentException("Invalid slice parameters");
         }
-        return new DataSourceChannel(client, url, fileChannel, startOffset + offset, sliceSize);
+        return new DataSourceChannel(fileChannel, startOffset + offset, sliceSize);
     }
 
     @Override
@@ -208,17 +179,7 @@ public class DataSourceChannel implements SeekableByteChannel {
                     .get();
         }
 
-        var request = new Request.Builder()
-                .url(url)
-                .header("Range", "bytes=" + startPosition + "-" + (endPosition - 1))
-                .build();
-
-        var response = client.newCall(request).execute();
-        if (response.code() != 206) {
-            response.close();
-            throw new IOException("Unexpected response code " + response.code());
-        }
-        return response.body().byteStream();
+        return null;
     }
 
     @Override

@@ -38,7 +38,6 @@ import pro.magisk.core.Const
 import pro.magisk.core.Info
 import pro.magisk.core.isRunningAsStub
 import pro.magisk.core.utils.LocaleSetting
-import pro.magisk.core.utils.MediaStoreUtils
 import pro.magisk.ui.ThemeState
 import pro.magisk.ui.component.SettingsArrow
 import pro.magisk.ui.component.SettingsDropdown
@@ -148,24 +147,8 @@ private fun CustomizationSection(viewModel: SettingsViewModel) {
 
 @Composable
 private fun AppSettingsSection() {
-    val context = LocalContext.current
-
     SmallTitle(text = stringResource(CoreR.string.home_app_title))
     Card(modifier = Modifier.fillMaxWidth()) {
-        // Download Path
-        var showDownloadDialog by remember { mutableStateOf(false) }
-        DownloadPathDialog(
-            show = showDownloadDialog,
-            onDismiss = { showDownloadDialog = false }
-        )
-        SettingsArrow(
-            title = stringResource(CoreR.string.settings_download_path_title),
-            summary = MediaStoreUtils.fullPath(Config.downloadDir),
-            onClick = {
-                showDownloadDialog = true
-            }
-        )
-
         // Random Package Name
         var randName by remember { mutableStateOf(Config.randName) }
         SettingsSwitch(
@@ -405,41 +388,4 @@ private fun SuperuserSection(viewModel: SettingsViewModel) {
     }
 }
 
-// --- Dialogs ---
 
-@Composable
-private fun DownloadPathDialog(show: Boolean, onDismiss: () -> Unit) {
-    val showState = rememberSaveable { mutableStateOf(show) }
-    showState.value = show
-    var path by rememberSaveable { mutableStateOf(Config.downloadDir) }
-
-    if (showState.value) {
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text(stringResource(CoreR.string.settings_download_path_title)) },
-            text = {
-                Column {
-                    Text(
-                        text = stringResource(CoreR.string.settings_download_path_message, MediaStoreUtils.fullPath(path)),
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    OutlinedTextField(
-                        value = path,
-                        onValueChange = { path = it },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        Config.downloadDir = path
-                        onDismiss()
-                    }
-                ) {
-                    Text(stringResource(android.R.string.ok))
-                }
-            }
-        )
-    }
-}

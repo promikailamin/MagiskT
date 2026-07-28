@@ -7,13 +7,14 @@ import androidx.annotation.WorkerThread
 import androidx.core.os.postDelayed
 import pro.magisk.StubApk
 import pro.magisk.core.AppApkPath
+import pro.magisk.core.AppContext
 import pro.magisk.core.BuildConfig
 import pro.magisk.core.Config
 import pro.magisk.core.Const
 import pro.magisk.core.Info
-import pro.magisk.core.di.ServiceLocator
 import pro.magisk.core.isRunningAsStub
 import pro.magisk.core.ktx.copyAll
+import pro.magisk.core.ktx.deviceProtectedContext
 import pro.magisk.core.ktx.writeTo
 import pro.magisk.core.utils.DataSourceChannel
 import pro.magisk.core.utils.DummyList
@@ -58,7 +59,7 @@ abstract class MagiskInstallImpl protected constructor(
 
     private val shell = Shell.getShell()
     private val useRootDir = shell.isRoot && Info.noDataExec
-    protected val context get() = ServiceLocator.deContext
+    protected val context get() = AppContext.deviceProtectedContext
 
     private val rootFS get() = RootUtils.fs
     private val localFS get() = FileSystemManager.getLocal()
@@ -430,53 +431,6 @@ abstract class MagiskInstallImpl protected constructor(
         return true
     }
 
-    private fun processUrl(url: String): Boolean {
-        // Download image from url
-        try {
-            srcBoot = installDir.getChildFile("boot.img")
-            ExtractImage(srcBoot, console, logs)
-                .consume(DataSourceChannel(ServiceLocator.okhttp, url))
-        } catch (e: IOException) {
-            console.add("! Error: " + e.message)
-            Timber.e(e)
-            return false
-        }
-
-        // Patch file
-        if (!patchBoot()) {
-            return false
-        }
-
-        // Output file
-        val outFile = MediaStoreUtils.getFile("$destName.img")
-        try {
-            val newBoot = installDir.getChildFile("new-boot.img")
-            outFile.uri.outputStream().use { out ->
-                FileInputStream(newBoot).use { input ->
-                    input.copyTo(out)
-                }
-            }
-            newBoot.delete()
-
-            console.add("")
-            console.add("****************************")
-            console.add(" Output file is written to ")
-            console.add(" $outFile ")
-            console.add("****************************")
-        } catch (e: IOException) {
-            console.add("! Failed to output to $outFile")
-            outFile.delete()
-            Timber.e(e)
-            return false
-        }
-
-        // Fix up binaries
-        srcBoot.delete()
-        "cp_readlink $installDir".sh()
-
-        return true
-    }
-
     private fun patchBoot(): Boolean {
         val newBoot = installDir.getChildFile("new-boot.img")
         if (!useRootDir) {
@@ -527,8 +481,6 @@ abstract class MagiskInstallImpl protected constructor(
     private fun Array<String>.fsh() = ShellUtils.fastCmd(shell, *this)
 
     protected suspend fun patchFile(file: Uri) = extractFiles() && processFile(file)
-
-    protected suspend fun patchFile(url: String) = extractFiles() && processUrl(url)
 
     protected suspend fun direct() = findImage() && extractFiles() && patchBoot() && flashBoot()
 
@@ -595,14 +547,6 @@ class MagiskInstaller {
         logs: MutableList<String>
     ) : ConsoleInstaller(console, logs) {
         override suspend fun operations() = patchFile(uri)
-    }
-
-    class Download(
-        private val url: String,
-        console: MutableList<String>,
-        logs: MutableList<String>
-    ) : ConsoleInstaller(console, logs) {
-        override suspend fun operations() = patchFile(url)
     }
 
     class SecondSlot(

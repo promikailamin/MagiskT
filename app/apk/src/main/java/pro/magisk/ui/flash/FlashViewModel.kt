@@ -81,11 +81,6 @@ class FlashViewModel : BaseViewModel() {
                     showReboot = false
                     MagiskInstaller.Patch(uri, outItems, logItems).exec()
                 }
-                Const.Value.DOWNLOAD -> {
-                    uri ?: return@launch
-                    showReboot = false
-                    MagiskInstaller.Download(uri.toString(), outItems, logItems).exec()
-                }
                 else -> {
                     back()
                     return@launch

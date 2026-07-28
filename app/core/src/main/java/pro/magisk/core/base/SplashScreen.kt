@@ -17,8 +17,8 @@ import pro.magisk.core.di.ServiceLocator
 import pro.magisk.core.isRunningAsStub
 import pro.magisk.core.ktx.writeTo
 import pro.magisk.core.tasks.AppMigration
-import pro.magisk.core.utils.RootUtils
 import pro.magisk.view.Notifications
+import pro.magisk.core.utils.RootUtils
 import pro.magisk.view.Shortcuts
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.launch
@@ -149,9 +149,6 @@ class SplashController<T>(private val activity: T)
 
         Notifications.setup()
         Shortcuts.setupDynamic(this)
-
-        // Pre-fetch network services
-        ServiceLocator.networkService
 
         // Wait for root service
         RootUtils.Connection.await()

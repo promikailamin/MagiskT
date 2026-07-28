@@ -16,10 +16,8 @@ import pro.magisk.arch.ViewEvent
 import pro.magisk.core.BuildConfig
 import pro.magisk.core.Config
 import pro.magisk.core.Info
-import pro.magisk.core.download.Subject
 import pro.magisk.core.ktx.await
 import pro.magisk.core.ktx.toast
-import pro.magisk.core.repository.NetworkService
 import pro.magisk.core.utils.asText
 import pro.magisk.databinding.bindExtra
 import pro.magisk.databinding.set
@@ -30,14 +28,15 @@ import com.topjohnwu.superuser.Shell
 import kotlin.math.roundToInt
 import pro.magisk.core.R as CoreR
 
-class HomeViewModel(
-    private val svc: NetworkService
-) : AsyncLoadViewModel() {
+class HomeViewModel : AsyncLoadViewModel() {
 
     enum class State {
         LOADING, INVALID, OUTDATED, UP_TO_DATE
     }
 
+    val extraBindings = bindExtra {
+        it.put(BR.viewModel, this)
+    }
     val magiskTitleBarrierIds =
         intArrayOf(R.id.home_magisk_icon, R.id.home_magisk_title, R.id.home_magisk_button)
     @get:Bindable
@@ -64,8 +63,6 @@ class HomeViewModel(
         ensureEnv()
     }
 
-    override fun onNetworkChanged(network: Boolean) = startLoading()
-
     fun onLinkPressed(link: String) = object : ViewEvent(), ContextExecutor {
         override fun invoke(context: Context) {
             val intent = Intent(Intent.ACTION_VIEW, link.toUri())
@@ -88,6 +85,8 @@ class HomeViewModel(
         Config.safetyNotice = false
         isNoticeVisible = false
     }
+
+    private var checkedEnv = false
 
     private suspend fun ensureEnv() {
         if (magiskState == State.INVALID || checkedEnv) return

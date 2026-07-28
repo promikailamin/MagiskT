@@ -51,7 +51,7 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
         // Manager
         list.addAll(listOf(
             AppSettings,
-            DownloadPath, RandNameToggle
+            RandNameToggle
         ))
         if (Info.env.isActive && Const.USER_ID == 0) {
             if (hidden) list.add(Restore) else list.add(Hide)
@@ -93,7 +93,6 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
 
     override fun onItemPressed(view: View, item: BaseSettingsItem, doAction: () -> Unit) {
         when (item) {
-            DownloadPath -> withExternalRW(doAction)
             Authentication -> AuthEvent(doAction).publish()
             AutomaticResponse -> if (Config.suAuth) AuthEvent(doAction).publish() else doAction()
             else -> doAction()

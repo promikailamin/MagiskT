@@ -5,14 +5,12 @@ import android.content.Context
 import android.text.method.LinkMovementMethod
 import androidx.room.Room
 import pro.magisk.core.AppContext
-import pro.magisk.core.Const
 import pro.magisk.core.data.SuLogDatabase
 import pro.magisk.core.data.magiskdb.PolicyDao
 import pro.magisk.core.data.magiskdb.SettingsDao
 import pro.magisk.core.data.magiskdb.StringDao
 import pro.magisk.core.ktx.deviceProtectedContext
 import pro.magisk.core.repository.LogRepository
-import pro.magisk.core.repository.NetworkService
 import io.noties.markwon.Markwon
 import io.noties.markwon.utils.NoCopySpannableFactory
 
@@ -29,15 +27,7 @@ object ServiceLocator {
     val sulogDB by lazy { createSuLogDatabase(deContext).suLogDao() }
     val logRepo by lazy { LogRepository(sulogDB) }
 
-    // Networking
-    val okhttp by lazy { createOkHttpClient(AppContext) }
-    val retrofit by lazy { createRetrofit(okhttp) }
     val markwon by lazy { createMarkwon(AppContext) }
-    val networkService by lazy {
-        NetworkService(
-            createApiService(retrofit, Const.Url.INVALID_URL),
-        )
-    }
 }
 
 private fun createSuLogDatabase(context: Context) =

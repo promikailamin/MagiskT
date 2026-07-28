@@ -14,7 +14,6 @@ import pro.magisk.R
 import pro.magisk.arch.BaseFragment
 import pro.magisk.arch.viewModel
 import pro.magisk.core.Info
-import pro.magisk.core.download.DownloadEngine
 import pro.magisk.databinding.FragmentHomeMd2Binding
 import pro.magisk.core.R as CoreR
 import androidx.navigation.findNavController
@@ -28,7 +27,6 @@ class HomeFragment : BaseFragment<FragmentHomeMd2Binding>(), MenuProvider {
     override fun onStart() {
         super.onStart()
         activity?.setTitle(CoreR.string.section_home)
-        DownloadEngine.observeProgress(this, viewModel::onProgressUpdate)
     }
 
     private fun checkTitle(text: TextView, icon: ImageView) {
@@ -82,6 +80,5 @@ class HomeFragment : BaseFragment<FragmentHomeMd2Binding>(), MenuProvider {
 
     override fun onResume() {
         super.onResume()
-        viewModel.stateManagerProgress = 0
     }
 }
