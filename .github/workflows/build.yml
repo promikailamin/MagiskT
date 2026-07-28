@@ -20,9 +20,9 @@ jobs:
         build_type: [release, debug]
         include:
           - build_type: release
-            flag: "-vr"
+            flag: "-vrt"
           - build_type: debug
-            flag: "-v"
+            flag: "-vt"
 
     steps:
       - name: Check out
