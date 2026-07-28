@@ -14,6 +14,7 @@ import pro.magisk.R
 import pro.magisk.core.Config
 import pro.magisk.core.Const
 import pro.magisk.core.Info
+import com.topjohnwu.superuser.Shell
 import pro.magisk.core.utils.LocaleSetting
 import pro.magisk.core.utils.TextHolder
 import pro.magisk.core.utils.asText
@@ -107,6 +108,7 @@ object DenyList : BaseSettingsItem.Toggle() {
         get() = Config.denyList
         set(value) {
             Config.denyList = value
+            Shell.cmd("magisk --denylist ${if (value) "enable" else "disable"}").submit()
             notifyPropertyChanged(BR.description)
         }
     val mismatch get() = value != Info.isDenylistEnforced

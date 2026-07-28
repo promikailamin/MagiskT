@@ -49,11 +49,11 @@ class SettingsViewModel : BaseViewModel() {
         }
     }
 
-    /** Toggle Magisk DenyList on/off (requires reboot). */
+    /** Toggle Magisk DenyList on/off. */
     fun toggleDenyList(enabled: Boolean) {
         _denyListEnabled.value = enabled
         Config.denyList = enabled
-        if (denylistMismatch) showSnackbar(R.string.reboot_apply_change)
+        Shell.cmd("magisk --denylist ${if (enabled) "enable" else "disable"}").submit()
     }
 
     /** Wrap an action with biometric authentication if enabled. */
