@@ -35,6 +35,7 @@ object Config : PreferenceConfig, DBConfig {
         const val SU_MNT_NS = "mnt_ns"
         const val SU_BIOMETRIC = "su_biometric"
         const val ZYGISK = "zygisk"
+        const val DENYLIST = "denylist"
         const val BOOTLOOP = "bootloop"
         const val SU_MANAGER = "requester"
         const val KEYSTORE = "keystore"
@@ -90,7 +91,7 @@ object Config : PreferenceConfig, DBConfig {
     @JvmField var keepVerity = false
     @JvmField var keepEnc = false
     @JvmField var recovery = false
-    var denyList = false
+    var denyList by dbSettings(Key.DENYLIST, Info.isEmulator)
 
     // ---- Preference-backed settings ----
     var askedHome by preference(Key.ASKED_HOME, false)
