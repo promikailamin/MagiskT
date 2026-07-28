@@ -1,3 +1,12 @@
+/**
+ * ViewModel for the Superuser request dialog.
+ *
+ * Handles the full lifecycle of a root request: resolving the calling app's identity,
+ * showing a grant/deny dialog with a countdown timer, and persisting the response.
+ * Supports tapjacking protection (filtering obscured touches) and an empty accessibility
+ * delegate that makes the dialog invisible to accessibility services when tapjacking
+ * protection is enabled.
+ */
 package pro.magisk.ui.surequest
 
 import android.annotation.SuppressLint
@@ -36,6 +45,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit.SECONDS
 
+/** ViewModel for the floating Superuser grant/deny dialog. */
 class SuRequestViewModel(
     policyDB: PolicyDao,
     private val timeoutPrefs: SharedPreferences
@@ -56,9 +66,9 @@ class SuRequestViewModel(
     var grantEnabled = false
         set(value) = set(value, field, { field = it }, BR.grantEnabled)
 
+    /** Filters obscured touches (tapjacking protection). Consumes the event when obscured. */
     @SuppressLint("ClickableViewAccessibility")
     val grantTouchListener = View.OnTouchListener { _: View, event: MotionEvent ->
-        // Filter obscured touches by consuming them.
         if (event.flags and MotionEvent.FLAG_WINDOW_IS_OBSCURED != 0
             || event.flags and MotionEvent.FLAG_WINDOW_IS_PARTIALLY_OBSCURED != 0) {
             if (event.action == MotionEvent.ACTION_UP) {
@@ -107,8 +117,7 @@ class SuRequestViewModel(
         val app = info.applicationInfo
 
         if (app == null) {
-            // The request is not coming from an app process, and the UID is a
-            // shared UID. We have no way to know where this request comes from.
+            // Shared-UID request with no app info available
             icon = pm.defaultActivityIcon
             title = "[SharedUID] ${info.sharedUserId}"
             packageName = info.sharedUserId.toString()
@@ -121,19 +130,13 @@ class SuRequestViewModel(
 
         selectedItemPosition = timeoutPrefs.getInt(packageName, 0)
 
-        // Set timer
         timer.start()
-
-        // Actually show the UI
         ShowUIEvent(if (Config.suTapjack) EmptyAccessibilityDelegate else null).publish()
         initialized = true
     }
 
     private fun respond(action: Int) {
-        if (!initialized) {
-            // ignore the response until showDialog done
-            return
-        }
+        if (!initialized) return
 
         timer.cancel()
 
@@ -142,7 +145,6 @@ class SuRequestViewModel(
 
         viewModelScope.launch {
             handler.respond(action, Config.Value.TIMEOUT_LIST[pos])
-            // Kill activity after response
             DieEvent().publish()
         }
     }
@@ -152,6 +154,7 @@ class SuRequestViewModel(
         denyText.seconds = 0
     }
 
+    /** Counts down from the configured timeout; auto-denies on expiry. */
     private inner class SuTimer(
         private val millis: Long,
         interval: Long
@@ -171,6 +174,7 @@ class SuRequestViewModel(
 
     }
 
+    /** A [TextHolder] that appends the remaining seconds to the "Deny" label. */
     inner class DenyText : TextHolder() {
         var seconds = 0
             set(value) = set(value, field, { field = it }, BR.denyText)
@@ -183,7 +187,7 @@ class SuRequestViewModel(
         }
     }
 
-    // Invisible for accessibility services
+    /** No-op accessibility delegate — makes the dialog invisible to accessibility services. */
     object EmptyAccessibilityDelegate : View.AccessibilityDelegate() {
         override fun sendAccessibilityEvent(host: View, eventType: Int) {}
         override fun performAccessibilityAction(host: View, action: Int, args: Bundle?) = true

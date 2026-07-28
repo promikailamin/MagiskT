@@ -1,3 +1,10 @@
+//! Logging infrastructure for Magisk native code.
+//!
+//! Defines [`LogLevel`] (Error/Warn/Info/Debug), a global [`Logger`]
+//! with per-level enable/disable flags, and the [`error!`], [`warn!`],
+//! [`info!`], [`debug!`] macros. [`cmdline_logging`] sets the logger
+//! to write to stdout (info) or stderr (errors/warnings/debug).
+
 use crate::ffi::LogLevelCxx;
 use crate::{Utf8CStr, cstr};
 use bitflags::bitflags;

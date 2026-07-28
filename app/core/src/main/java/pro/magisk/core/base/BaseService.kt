@@ -1,3 +1,7 @@
+/**
+ * Base [Service] that patches the context (locale + stub assets)
+ * before any other lifecycle method runs.
+ */
 package pro.magisk.core.base
 
 import android.app.Service

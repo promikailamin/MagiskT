@@ -1,3 +1,11 @@
+/**
+ * Delegate-based property bindings for the MagiskDB-backed settings /
+ * string stores.
+ *
+ * [DBConfig] provides factory methods that return [ReadWriteProperty]
+ * delegates. Writes are dispatched to the corresponding DAO
+ * (asynchronously by default, synchronously when `sync = true`).
+ */
 package pro.magisk.core.repository
 
 import pro.magisk.core.data.magiskdb.SettingsDao
@@ -31,6 +39,7 @@ interface DBConfig {
 
 }
 
+/** Delegate that reads/writes an integer from/to [SettingsDao]. */
 class IntDBProperty(
     private val name: String,
     private val default: Int
@@ -55,6 +64,7 @@ class IntDBProperty(
     }
 }
 
+/** Delegate that reads/writes a boolean (stored as 0/1) from/to [SettingsDao]. */
 open class BoolDBProperty(
     name: String,
     default: Boolean
@@ -69,6 +79,7 @@ open class BoolDBProperty(
         base.setValue(thisRef, property, if (value) 1 else 0)
 }
 
+/** Delegate that reads/writes a string from/to [StringDao]. */
 class StringDBProperty(
     private val name: String,
     private val default: String,

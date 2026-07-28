@@ -1,3 +1,8 @@
+//! Build script for `boot-rs`.
+//!
+//! Generates CXX bindings and compiles the protobuf definition
+//! (`update_metadata.proto`) for payload extraction.
+
 use pb_rs::ConfigBuilder;
 use pb_rs::types::FileDescriptor;
 

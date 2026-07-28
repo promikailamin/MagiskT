@@ -1,3 +1,9 @@
+//! Derive macro for `Encodable` + `Decodable` socket message types.
+//!
+//! Generates encoding (field-by-field write) and decoding (field-by-field
+//! read) implementations for `struct` types. Used by the Magisk daemon
+//! IPC protocol.
+
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::spanned::Spanned;

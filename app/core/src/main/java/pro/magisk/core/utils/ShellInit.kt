@@ -1,3 +1,17 @@
+/**
+ * [Shell.Initializer] that sets up every root / non-root shell spawned
+ * by the app.
+ *
+ * Responsibilities:
+ * - Marks [Info.isRooted] when root access is confirmed.
+ * - Exports `ASH_STANDALONE=1` and points `sh` at Magisk's bundled
+ *   busybox.
+ * - Detects `no data exec` (Samsung) and copies busybox to a tmpfs or
+ *   `/dev` workaround.
+ * - Sources shell function libraries (`app_functions.sh`,
+ *   `util_functions.sh`).
+ * - Calls [Info.init] to populate runtime environment information.
+ */
 package pro.magisk.core.utils
 
 import android.content.Context
@@ -14,6 +28,13 @@ import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.jar.JarFile
 
+/**
+ * [Shell.Initializer] called once per shell process.
+ *
+ * Sets up the environment: exports `ASH_STANDALONE`, points `sh` at
+ * Magisk's bundled busybox, detects `no data exec` workarounds, and
+ * sources shell function libraries.
+ */
 class ShellInit : Shell.Initializer() {
     override fun onInit(context: Context, shell: Shell): Boolean {
         if (shell.isRoot) {
@@ -42,13 +63,11 @@ class ShellInit : Shell.Initializer() {
 
             if (shell.isRoot) {
                 add("export MAGISKTMP=\$(magisk --path)")
-                // Test if we can properly execute stuff in /data
                 Info.noDataExec = !shell.newJob()
                     .add("$localBB sh -c '$localBB true'").exec().isSuccess
             }
 
             if (Info.noDataExec) {
-                // Copy it out of /data to workaround Samsung bullshit
                 add(
                     "if [ -x \$MAGISKTMP/.magisk/busybox/busybox ]; then",
                     "  cp -af $localBB \$MAGISKTMP/.magisk/busybox/busybox",
@@ -59,7 +78,6 @@ class ShellInit : Shell.Initializer() {
                     "fi"
                 )
             } else {
-                // Directly execute the file
                 add("exec $localBB sh")
             }
 

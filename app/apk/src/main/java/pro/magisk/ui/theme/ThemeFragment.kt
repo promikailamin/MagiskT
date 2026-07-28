@@ -1,3 +1,10 @@
+/**
+ * Theme picker screen — displays available colour themes in a two-column grid.
+ *
+ * Each theme card is inflated with a themed [ContextThemeWrapper] so the preview
+ * accurately reflects the theme's actual colours. Selecting a theme persists it
+ * and triggers an activity recreate.
+ */
 package pro.magisk.ui.theme
 
 import android.os.Bundle
@@ -14,11 +21,13 @@ import pro.magisk.databinding.FragmentThemeMd2Binding
 import pro.magisk.databinding.ItemThemeBindingImpl
 import pro.magisk.core.R as CoreR
 
+/** Fragment for selecting the app colour theme. */
 class ThemeFragment : BaseFragment<FragmentThemeMd2Binding>() {
 
     override val layoutRes = R.layout.fragment_theme_md2
     override val viewModel by viewModel<ThemeViewModel>()
 
+    /** Pairs adjacent elements; if odd, the last pair has a null second element. */
     private fun <T> Array<T>.paired(): List<Pair<T, T?>> {
         val iterator = iterator()
         if (!iterator.hasNext()) return emptyList()

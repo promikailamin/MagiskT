@@ -1,3 +1,13 @@
+//! Shared utility crate — the `base` crate for all Magisk Rust binaries.
+//!
+//! Provides UTF-8 C string types ([`cstr`]), file I/O ([`files`]), directory
+//! walking ([`dir`]), mount helpers ([`mount`]), logging ([`logging`]),
+//! CLI argument parsing ([`argh`]), error handling ([`result`]), and
+//! safe libc wrappers ([`xwrap`] / [`cxx_extern`]).
+//!
+//! All other Magisk crates (`core`, `init`, `boot`, `sepolicy`) depend on
+//! this crate. The CXX bridge ([`ffi`]) exports Rust functions to C++.
+
 #![allow(clippy::missing_safety_doc)]
 
 pub use {const_format, libc, nix};

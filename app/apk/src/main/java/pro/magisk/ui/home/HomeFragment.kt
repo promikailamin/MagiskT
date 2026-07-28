@@ -1,3 +1,10 @@
+/**
+ * Home screen — the first tab of the main navigation.
+ *
+ * Displays Magisk version/status info and provides access to settings, reboot options,
+ * and installation. If the Magisk title is too long for the layout, the associated icon
+ * is hidden to avoid squishing.
+ */
 package pro.magisk.ui.home
 
 import android.os.Bundle
@@ -14,12 +21,12 @@ import pro.magisk.R
 import pro.magisk.arch.BaseFragment
 import pro.magisk.arch.viewModel
 import pro.magisk.core.Info
-import pro.magisk.core.download.DownloadEngine
 import pro.magisk.databinding.FragmentHomeMd2Binding
 import pro.magisk.core.R as CoreR
 import androidx.navigation.findNavController
 import pro.magisk.arch.NavigationActivity
 
+/** Home tab — status, version info, and primary actions. */
 class HomeFragment : BaseFragment<FragmentHomeMd2Binding>(), MenuProvider {
 
     override val layoutRes = R.layout.fragment_home_md2
@@ -28,9 +35,9 @@ class HomeFragment : BaseFragment<FragmentHomeMd2Binding>(), MenuProvider {
     override fun onStart() {
         super.onStart()
         activity?.setTitle(CoreR.string.section_home)
-        DownloadEngine.observeProgress(this, viewModel::onProgressUpdate)
     }
 
+    /** If the magisk title text is ellipsized, hide the icon to free space. */
     private fun checkTitle(text: TextView, icon: ImageView) {
         text.post {
             if (text.layout?.getEllipsisCount(0) != 0) {
@@ -50,12 +57,8 @@ class HomeFragment : BaseFragment<FragmentHomeMd2Binding>(), MenuProvider {
     ): View {
         super.onCreateView(inflater, container, savedInstanceState)
 
-        // If titles are squished, hide icons
         with(binding.homeMagiskWrapper) {
             checkTitle(homeMagiskTitle, homeMagiskIcon)
-        }
-        with(binding.homeManagerWrapper) {
-            checkTitle(homeManagerTitle, homeManagerIcon)
         }
 
         return binding.root
@@ -85,6 +88,5 @@ class HomeFragment : BaseFragment<FragmentHomeMd2Binding>(), MenuProvider {
 
     override fun onResume() {
         super.onResume()
-        viewModel.stateManagerProgress = 0
     }
 }

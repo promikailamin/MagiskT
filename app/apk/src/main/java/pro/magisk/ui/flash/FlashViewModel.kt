@@ -1,3 +1,11 @@
+/**
+ * ViewModel for the flash/console screen.
+ *
+ * Dispatches the flash action (install ZIP, uninstall, direct install, second-slot,
+ * or patch file) to the appropriate [MagiskInstaller] or [FlashZip] task. Live console
+ * output is collected via [CallbackList] and exposed as [ObservableArrayList] for the
+ * RecyclerView. The log can be saved to a file, and the device can be rebooted on success.
+ */
 package pro.magisk.ui.flash
 
 import android.os.Build
@@ -27,6 +35,7 @@ import com.topjohnwu.superuser.CallbackList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/** ViewModel that orchestrates Magisk flash/install/patch/uninstall operations. */
 class FlashViewModel : BaseViewModel() {
 
     enum class State {
@@ -81,11 +90,6 @@ class FlashViewModel : BaseViewModel() {
                     showReboot = false
                     MagiskInstaller.Patch(uri, outItems, logItems).exec()
                 }
-                Const.Value.DOWNLOAD -> {
-                    uri ?: return@launch
-                    showReboot = false
-                    MagiskInstaller.Download(uri.toString(), outItems, logItems).exec()
-                }
                 else -> {
                     back()
                     return@launch
@@ -106,6 +110,7 @@ class FlashViewModel : BaseViewModel() {
         return true
     }
 
+    /** Saves the console log to a file in the MediaStore. */
     private fun savePressed() = withExternalRW {
         viewModelScope.launch(Dispatchers.IO) {
             val name = "magisk_install_log_%s.log".format(

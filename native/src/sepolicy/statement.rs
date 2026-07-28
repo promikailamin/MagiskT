@@ -1,3 +1,11 @@
+//! SELinux policy statement tokeniser and parser.
+//!
+//! Tokenises textual policy statements (e.g. `allow source target class
+//! permission`) into [`Token`] sequences, then dispatches to the
+//! corresponding [`SePolicy`] FFI methods. Supports both inline strings
+//! and rule files (one statement per line). Also provides the help text
+//! formatted by [`format_statement_help`].
+
 use std::fmt::{Display, Formatter, Write};
 use std::io::{BufRead, BufReader, Cursor};
 use std::iter::Peekable;
@@ -30,6 +38,7 @@ pub enum Token<'a> {
     CM,
     ST,
     TL,
+    #[allow(dead_code)]
     HP,
     HX(u16),
     ID(&'a str),

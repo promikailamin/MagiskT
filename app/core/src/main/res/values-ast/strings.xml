@@ -11,7 +11,6 @@
     <string name="denylist">Llista d\'esclusión</string>
     <!--Home-->
     <string name="no_connection">L\'accesu a internet nun ta disponible</string>
-    <string name="app_changelog">Rexistru de cambeos</string>
     <string name="loading">Cargando…</string>
     <string name="update">Anovar</string>
     <string name="not_available">N/D</string>
@@ -25,7 +24,6 @@
     <string name="home_support_content">Magisk ye y va ser de códigu abiertu y gratuitu. Sicasí, pues ayudanos faciendo una donación o collaborando.</string>
     <string name="home_installed_version">Versión instalada</string>
     <string name="home_latest_version">Última versión</string>
-    <string name="invalid_update_channel">La canal d\'anovamientu nun ye válida</string>
     <string name="uninstall_magisk_title">Desinstalar Magisk</string>
     <string name="uninstall_magisk_msg">¡Van quitase y desactivase tolos módulos y l\'accesu root!\nCualesquier almacenamientu internu ensin cifrar pente l\'usu de Magisk va volver cifrase.</string>
     <!--Install-->
@@ -36,7 +34,6 @@
     <string name="install_method_title">Métodu</string>
     <string name="install_next">Siguiente</string>
     <string name="install_start">Siguir</string>
-    <string name="manager_download_install">Primi equí pa baxalu ya instalalu</string>
     <string name="direct_install">Instalación direuta (aconséyase)</string>
     <string name="install_inactive_slot">Instalar na ralura inactiva (darréu del OTA)</string>
     <string name="install_inactive_slot_msg">¡El preséu va arrincar OBLIGATORIAMENTE na ralura inactiva dempués de reaniciar!\nUsa esta opción namás dempués d\'acabar l\'anovamientu per OTA.\n¿Quies siguir?</string>
@@ -103,7 +100,6 @@
     <string name="module_action">Aición</string>
     <string name="module_state_restore">Restaurar</string>
     <string name="module_action_install_external">Instalar dende l\'almacenamientu</string>
-    <string name="update_available">Hai un anovamientu disponible</string>
     <string name="suspend_text_riru">Suspendióse\'l módulu porque s\'activó «%1$s»</string>
     <string name="suspend_text_zygisk">Suspendióse\'l módulu porque nun s\'activó «%1$s»</string>
     <string name="zygisk_module_unloaded">El módulu de Zygisk nun cargó por haber incompatibilidaes</string>
@@ -124,13 +120,6 @@
     <string name="settings_restore_app_summary">Fai que l\'aplicación orixinal vuelva ser visible</string>
     <string name="language">Llingua</string>
     <string name="system_default">(Lo predeterminao)</string>
-    <string name="settings_check_update_title">Comprobación d\'anovamientos</string>
-    <string name="settings_check_update_summary">Comprueba si hai anovamientos en segundu planu</string>
-    <string name="settings_update_channel_title">Canal d\'anovamientu</string>
-    <string name="settings_update_stable">Estable</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_custom">Canal personalizada</string>
-    <string name="settings_update_custom_msg">Inxerta la URL d\'una canal personalizada</string>
     <string name="settings_zygisk_summary">Executa partes de Magisk nel degorriu de Zygote</string>
     <string name="settings_denylist_title">Forciar la llista d\'esclusión</string>
     <string name="settings_denylist_summary">Los procesos de la llista d\'esclusión tienen toles modificaciones de Magisk anulaes</string>
@@ -186,16 +175,11 @@
     <!--Notifications-->
     <string name="update_channel">Anovamientos de Magisk</string>
     <string name="progress_channel">Avisos de progresos</string>
-    <string name="updated_channel">Anovamientu completáu</string>
     <string name="download_complete">Completóse la descarga</string>
     <string name="download_file_error">Hebo un fallu al baxar el ficheru</string>
-    <string name="magisk_update_title">¡Hai un anovamientu pa Magisk!</string>
-    <string name="updated_title">Magisk anovóse</string>
-    <string name="updated_text">Toca equí p\'abrir l\'aplicación</string>
     <!--Toasts, Dialogs-->
     <string name="yes">Sí</string>
     <string name="no">Non</string>
-    <string name="repo_install_title">Instalación de: %1$s %2$s (%3$d)</string>
     <string name="download">Baxar</string>
     <string name="reboot">Reaniciar</string>
     <string name="close">Zarrar</string>

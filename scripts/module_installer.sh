@@ -1,4 +1,6 @@
 #!/sbin/sh
+# Magisk module installer (updater-script).
+# Validates Magisk version, loads util_functions, and delegates to install_module.
 
 #################
 # Initialization
@@ -9,6 +11,7 @@ umask 022
 # echo before loading util_functions
 ui_print() { echo "$1"; }
 
+# Abort if Magisk is older than v20.4
 require_new_magisk() {
   ui_print "*******************************"
   ui_print " Please install Magisk v20.4+! "

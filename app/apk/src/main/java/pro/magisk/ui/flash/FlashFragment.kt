@@ -1,3 +1,11 @@
+/**
+ * Flash/console screen — shows live output of Magisk operations (install, patch,
+ * uninstall, module flash).
+ *
+ * Locks screen orientation during the operation, prevents back-press while flashing,
+ * and captures volume keys for interactive console prompts. When flashing succeeds
+ * and a reboot is appropriate, a "Restart" button is displayed.
+ */
 package pro.magisk.ui.flash
 
 import android.annotation.SuppressLint
@@ -23,6 +31,7 @@ import pro.magisk.databinding.FragmentFlashMd2Binding
 import pro.magisk.ui.MainActivity
 import pro.magisk.core.R as CoreR
 
+/** Fragment that streams console output for install/patch/uninstall operations. */
 class FlashFragment : BaseFragment<FragmentFlashMd2Binding>(), MenuProvider {
 
     override val layoutRes = R.layout.fragment_flash_md2
@@ -50,6 +59,7 @@ class FlashFragment : BaseFragment<FragmentFlashMd2Binding>(), MenuProvider {
                     FlashViewModel.State.FAILED -> CoreR.string.failure
                 }
             )
+            // Show restart button on success when user has root
             if (it == FlashViewModel.State.SUCCESS && viewModel.showReboot) {
                 binding.restartBtn.apply {
                     if (!this.isVisible) this.show()
@@ -85,6 +95,7 @@ class FlashFragment : BaseFragment<FragmentFlashMd2Binding>(), MenuProvider {
         super.onDestroyView()
     }
 
+    // Capture volume keys so the flashing script can use them for prompts
     override fun onKeyEvent(event: KeyEvent): Boolean {
         return when (event.keyCode) {
             KeyEvent.KEYCODE_VOLUME_UP,
@@ -93,6 +104,7 @@ class FlashFragment : BaseFragment<FragmentFlashMd2Binding>(), MenuProvider {
         }
     }
 
+    // Disable back-press while a flash operation is in progress
     override fun onBackPressed(): Boolean {
         if (viewModel.flashing.value == true)
             return true
@@ -124,13 +136,6 @@ class FlashFragment : BaseFragment<FragmentFlashMd2Binding>(), MenuProvider {
 
         fun patch(uri: Uri) = MainDirections.actionFlashFragment(
             action = Const.Value.PATCH_FILE,
-            additionalData = uri
-        )
-
-        // Downloading is understood as downloading file then patch */
-
-        fun download(uri: Uri) = MainDirections.actionFlashFragment(
-            action = Const.Value.DOWNLOAD,
             additionalData = uri
         )
 

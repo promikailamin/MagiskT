@@ -1,3 +1,7 @@
+/**
+ * ViewModel for the module action runner. Waits for the [TerminalEmulator] to be created
+ * (via [onEmulatorCreated]), then executes the module's action.sh script in a root PTY.
+ */
 package pro.magisk.ui.module
 
 import androidx.lifecycle.viewModelScope
@@ -29,13 +33,16 @@ class ActionViewModel : BaseViewModel() {
     var actionName: String = ""
 
     private var emulator: TerminalEmulator? = null
+    /** Deferred that resolves once the terminal emulator composable is ready. */
     private val emulatorReady = CompletableDeferred<TerminalEmulator>()
 
+    /** Called by the terminal composable once it finishes initialization. */
     fun onEmulatorCreated(emu: TerminalEmulator) {
         emulator = emu
         emulatorReady.complete(emu)
     }
 
+    /** Wait for the emulator and run the action script. */
     fun startRunAction() {
         viewModelScope.launch {
             val emu = emulatorReady.await()
@@ -51,6 +58,7 @@ class ActionViewModel : BaseViewModel() {
         }
     }
 
+    /** Save the terminal transcript to a file in the MediaStore. */
     fun saveLog() {
         viewModelScope.launch(Dispatchers.IO) {
             val name = "%s_action_log_%s.log".format(

@@ -1,3 +1,13 @@
+/**
+ * ChromeOS update payload parser (CrAU format, version 2).
+ *
+ * Reads the delta payload header and manifest, locates the `init_boot`
+ * or `boot` partition, applies [InstallOperation]s (REPLACE,
+ * REPLACE_BZ, REPLACE_XZ, ZERO) to reconstruct the partition image,
+ * and verifies the SHA-256 hash.
+ *
+ * Used by [ExtractImage] to extract boot images from OTA packages.
+ */
 package pro.magisk.core.tasks
 
 import chromeos_update_engine.DeltaArchiveManifest
@@ -22,6 +32,13 @@ class Payload(private val channel: DataSourceChannel) {
         manifest = readPayloadHeader()
     }
 
+    /**
+     * Extract the boot partition image from the payload.
+     *
+     * @param outputFile Destination file for the extracted image.
+     * @param console    Callback for progress messages.
+     * @param logger     Callback for diagnostic messages.
+     */
     @Throws(IOException::class)
     fun extract(outputFile: File, console: (String) -> Unit, logger: (String) -> Unit) {
         val partition = findPartition()
@@ -46,9 +63,9 @@ class Payload(private val channel: DataSourceChannel) {
         logger("Hash verification passed")
     }
 
+    /** Parse the payload header (magic, version, manifest, signature). */
     @Throws(IOException::class)
     private fun readPayloadHeader(): DeltaArchiveManifest {
-        // Read magic
         val magicBuffer = ByteBuffer.allocate(4)
         channel.read(magicBuffer)
         magicBuffer.flip()
@@ -57,7 +74,6 @@ class Payload(private val channel: DataSourceChannel) {
             throw IOException("Invalid payload: invalid magic")
         }
 
-        // Read version
         val versionBuffer = ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN)
         channel.read(versionBuffer)
         versionBuffer.flip()
@@ -66,7 +82,6 @@ class Payload(private val channel: DataSourceChannel) {
             throw IOException("Invalid payload: unsupported version: $version")
         }
 
-        // Read manifest length
         val manifestLenBuffer = ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN)
         channel.read(manifestLenBuffer)
         manifestLenBuffer.flip()
@@ -75,7 +90,6 @@ class Payload(private val channel: DataSourceChannel) {
             throw IOException("Invalid payload: manifest length is zero")
         }
 
-        // Read manifest signature length
         val manifestSigLenBuffer = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN)
         channel.read(manifestSigLenBuffer)
         manifestSigLenBuffer.flip()
@@ -84,13 +98,11 @@ class Payload(private val channel: DataSourceChannel) {
             throw IOException("Invalid payload: manifest signature length is zero")
         }
 
-        // Read manifest
         val manifestBuffer = ByteBuffer.allocate(manifestLen)
         channel.read(manifestBuffer)
         manifestBuffer.flip()
         val manifest = DeltaArchiveManifest.ADAPTER.decode(manifestBuffer.array())
 
-        // Skip manifest signature
         channel.position(channel.position() + manifestSigLen)
 
         dataBase = channel.position()
@@ -98,6 +110,7 @@ class Payload(private val channel: DataSourceChannel) {
         return manifest
     }
 
+    /** Find the `init_boot` or `boot` partition in the manifest. */
     @Throws(IOException::class)
     private fun findPartition(): PartitionUpdate {
         return manifest.partitions.find { it.partition_name == "init_boot" }
@@ -105,6 +118,7 @@ class Payload(private val channel: DataSourceChannel) {
             ?: throw IOException("boot partition not found in payload")
     }
 
+    /** Reconstruct the partition image by applying all operations. */
     @Throws(IOException::class)
     private fun extractPartition(
         outputFile: File,
@@ -136,6 +150,7 @@ class Payload(private val channel: DataSourceChannel) {
         }
     }
 
+    /** Apply a single [InstallOperation] to the output file. */
     @Throws(IOException::class)
     private fun processOperation(outChannel: FileChannel, operation: InstallOperation) {
         val dataType = operation.type

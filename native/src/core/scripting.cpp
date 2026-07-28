@@ -1,3 +1,8 @@
+/**
+ * Script execution engine for Magisk's boot-stage scripts.
+ * Handles post-fs-data, late_start (service) module scripts and
+ * common scripts with timeout guards. Provides install/uninstall helpers.
+ */
 #include <string>
 #include <vector>
 #include <sys/wait.h>
@@ -10,6 +15,7 @@ using namespace std;
 
 #define BBEXEC_CMD bbpath(), "sh"
 
+/** Return the path to the busybox binary, preferring the Magisk tmp dir over /data/adb. */
 static const char *bbpath() {
     static string path;
     path = get_magisk_tmp();
@@ -20,6 +26,7 @@ static const char *bbpath() {
     return path.data();
 }
 
+/** Set up the environment (ASH_STANDALONE, PATH, ZYGISK_ENABLED) before executing a script. */
 static void set_script_env() {
     setenv("ASH_STANDALONE", "1", 1);
     char new_path[4096];
@@ -29,6 +36,7 @@ static void set_script_env() {
         setenv("ZYGISK_ENABLED", "1", 1);
 };
 
+/** Execute a single script via busybox sh with the pre-exec environment set up. */
 void exec_script(Utf8CStr script) {
     exec_t exec {
         .pre_exec = set_script_env,
@@ -74,6 +82,7 @@ if (pfs) { \
     exit(0); \
 }
 
+/** Execute all executable common scripts from SECURE_DIR/<stage>.d with timeout for post-fs-data. */
 void exec_common_scripts(Utf8CStr stage) {
     LOGI("* Running %s.d scripts\n", stage.c_str());
     char path[4096];
@@ -110,12 +119,14 @@ void exec_common_scripts(Utf8CStr stage) {
     PFS_DONE()
 }
 
+/** Timespec comparison operator used to check post-fs-data timeout expiry. */
 static bool operator>(const timespec &a, const timespec &b) {
     if (a.tv_sec != b.tv_sec)
         return a.tv_sec > b.tv_sec;
     return a.tv_nsec > b.tv_nsec;
 }
 
+/** Execute per-module <stage>.sh scripts for each module, with optional PFS timeout guarding. */
 void exec_module_scripts(Utf8CStr stage, const rust::Vec<ModuleInfo> &module_list) {
     LOGI("* Running module %s scripts\n", stage.c_str());
     if (module_list.empty())
@@ -157,6 +168,7 @@ appops set %s REQUEST_INSTALL_PACKAGES allow
 rm -f $APK
 )EOF";
 
+/** Install an APK via pm install and grant REQUEST_INSTALL_PACKAGES app op. */
 void install_apk(Utf8CStr apk) {
     setfilecon(apk.c_str(), MAGISK_FILE_CON);
     char cmds[sizeof(install_script) + 4096];
@@ -170,6 +182,7 @@ log -t Magisk "pm_uninstall: $PKG"
 log -t Magisk "pm_uninstall: $(pm uninstall $PKG 2>&1)"
 )EOF";
 
+/** Uninstall a package via pm uninstall. */
 void uninstall_pkg(Utf8CStr pkg) {
     char cmds[sizeof(uninstall_script) + 256];
     ssprintf(cmds, sizeof(cmds), uninstall_script, pkg.c_str());
@@ -183,6 +196,7 @@ log -t Magisk "pm_clear: $PKG (user=$USER)"
 log -t Magisk "pm_clear: $(pm clear --user $USER $PKG 2>&1)"
 )EOF";
 
+/** Clear app data for a specific package/user via pm clear. */
 void clear_pkg(const char *pkg, int user_id) {
     char cmds[sizeof(clear_script) + 288];
     ssprintf(cmds, sizeof(cmds), clear_script, pkg, user_id);
@@ -190,6 +204,7 @@ void clear_pkg(const char *pkg, int user_id) {
 }
 
 [[noreturn]] __printflike(2, 3)
+/** Print a formatted error message to fp and exit with code 1. */
 static void abort(FILE *fp, const char *fmt, ...) {
     va_list valist;
     va_start(valist, fmt);
@@ -205,6 +220,7 @@ install_module
 exit 0
 )EOF";
 
+/** Install a Magisk module zip by sourcing util_functions.sh and calling install_module in a BusyBox shell. */
 void install_module(Utf8CStr file) {
     if (getuid() != 0)
         abort(stderr, "Run this command with root");

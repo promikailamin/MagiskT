@@ -1,3 +1,8 @@
+/**
+ * ViewModel for the install bottom sheet. Manages the method selection (Direct /
+ * Inactive Slot / Patch File) and tracks the build note + option step state before
+ * navigating to [Route.Flash].
+ */
 package pro.magisk.ui.install
 
 import android.net.Uri
@@ -9,23 +14,17 @@ import pro.magisk.core.BuildConfig.APP_VERSION_CODE
 import pro.magisk.core.Const
 import pro.magisk.core.Info
 import pro.magisk.core.ktx.toast
-import pro.magisk.core.repository.NetworkService
 import pro.magisk.ui.navigation.Route
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import timber.log.Timber
-import java.io.File
-import java.io.IOException
 import pro.magisk.core.R as CoreR
 
-class InstallViewModel(svc: NetworkService) : BaseViewModel() {
+class InstallViewModel : BaseViewModel() {
 
-    enum class Method { NONE, PATCH, DIRECT, INACTIVE_SLOT, DOWNLOAD }
+    enum class Method { NONE, PATCH, DIRECT, INACTIVE_SLOT }
 
     data class UiState(
         val step: Int = 0,
@@ -34,7 +33,6 @@ class InstallViewModel(svc: NetworkService) : BaseViewModel() {
         val patchUri: Uri? = null,
         val requestFilePicker: Boolean = false,
         val showSecondSlotWarning: Boolean = false,
-        val showDownloadDialog: Boolean = false,
     )
 
     val isRooted get() = Info.isRooted
@@ -43,28 +41,6 @@ class InstallViewModel(svc: NetworkService) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(UiState(step = if (skipOptions) 1 else 0))
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val noteFile = File(AppContext.cacheDir, "${APP_VERSION_CODE}.md")
-                val noteText = when {
-                    noteFile.exists() -> noteFile.readText()
-                    else -> {
-                        val note = svc.fetchUpdate(APP_VERSION_CODE)?.note.orEmpty()
-                        if (note.isEmpty()) return@launch
-                        noteFile.writeText(note)
-                        note
-                    }
-                }
-                withContext(Dispatchers.Main) {
-                    _uiState.update { it.copy(notes = noteText) }
-                }
-            } catch (e: IOException) {
-                Timber.e(e)
-            }
-        }
-    }
 
     fun nextStep() {
         _uiState.update { it.copy(step = 1) }
@@ -80,9 +56,6 @@ class InstallViewModel(svc: NetworkService) : BaseViewModel() {
             Method.INACTIVE_SLOT -> {
                 _uiState.update { it.copy(showSecondSlotWarning = true) }
             }
-            Method.DOWNLOAD -> {
-                _uiState.update { it.copy(showDownloadDialog = true) }
-            }
             else -> {}
         }
     }
@@ -95,20 +68,9 @@ class InstallViewModel(svc: NetworkService) : BaseViewModel() {
         _uiState.update { it.copy(showSecondSlotWarning = false) }
     }
 
-    fun onDownloadDialogConsumed() {
-        _uiState.update { it.copy(showDownloadDialog = false) }
-    }
-
     fun onPatchFileSelected(uri: Uri) {
         _uiState.update { it.copy(patchUri = uri) }
         if (_uiState.value.method == Method.PATCH) {
-            install()
-        }
-    }
-
-    fun onDownloadUrlSelected(uri: Uri) {
-        _uiState.update { it.copy(patchUri = uri) }
-        if (_uiState.value.method == Method.DOWNLOAD) {
             install()
         }
     }
@@ -117,10 +79,6 @@ class InstallViewModel(svc: NetworkService) : BaseViewModel() {
         when (_uiState.value.method) {
             Method.PATCH -> navigateTo(Route.Flash(
                 action = Const.Value.PATCH_FILE,
-                additionalData = _uiState.value.patchUri!!.toString()
-            ))
-            Method.DOWNLOAD -> navigateTo(Route.Flash(
-                action = Const.Value.DOWNLOAD,
                 additionalData = _uiState.value.patchUri!!.toString()
             ))
             Method.DIRECT -> navigateTo(Route.Flash(

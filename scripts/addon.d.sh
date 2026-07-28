@@ -5,8 +5,18 @@
 # Magisk Survival Script for ROMs with addon.d support
 # by topjohnwu and osm0sis
 #
+# This script ensures Magisk survives OTA updates by hooking into
+# the addon.d (v1) / addon.d-v2 backup-restore framework.
+#
+# For addon.d-v1 (A-only): saves PREINITDEVICE before OTA,
+#   re-patches the boot image after OTA in the background.
+# For addon.d-v2 (AB): swaps the active slot, re-patches
+#   the new slot's boot image as root/su.
+#
 ########################################################
 
+# Trampoline: re-execute this script from /data/adb/magisk/addon.d.sh
+# so that Magisk files are available even after /tmp/addon.d is deleted.
 trampoline() {
   mount /data 2>/dev/null
   if [ -f $MAGISKBIN/addon.d.sh ]; then
@@ -58,8 +68,8 @@ else
   return 1
 fi
 
+# Load Magisk utility functions and set up the flashable environment.
 initialize() {
-  # Load utility functions
   . $MAGISKBIN/util_functions.sh
 
   if $BOOTMODE; then
@@ -70,6 +80,8 @@ initialize() {
   setup_flashable
 }
 
+# Main re-patching logic: mount partitions, detect boot image,
+# determine architecture, remove system su, and reinstall Magisk.
 main() {
   if ! $backuptool_ab; then
     # Restore PREINITDEVICE from previous A-only partition

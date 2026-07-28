@@ -1,3 +1,9 @@
+/**
+ * SharedFlow-based event bus for SU-related UI updates.
+ *
+ * ViewModels and screens collect [policyChanged] and [logUpdated]
+ * to refresh their state when a policy or log entry changes.
+ */
 package pro.magisk.core.su
 
 import kotlinx.coroutines.flow.MutableSharedFlow

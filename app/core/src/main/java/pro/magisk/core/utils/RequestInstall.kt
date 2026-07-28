@@ -1,3 +1,9 @@
+/**
+ * [ActivityResultContract] that opens the "Install unknown apps" system
+ * settings page for the calling package on API 26+. On older releases
+ * and when the permission is already granted the result is resolved
+ * synchronously.
+ */
 package pro.magisk.core.utils
 
 import android.annotation.TargetApi
@@ -13,7 +19,6 @@ class RequestInstall : ActivityResultContract<Unit, Boolean>() {
 
     @TargetApi(26)
     override fun createIntent(context: Context, input: Unit): Intent {
-        // This will only be called on API 26+
         return Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
             .setData(Uri.parse("package:${context.packageName}"))
     }
@@ -21,6 +26,7 @@ class RequestInstall : ActivityResultContract<Unit, Boolean>() {
     override fun parseResult(resultCode: Int, intent: Intent?) =
         resultCode == Activity.RESULT_OK
 
+    /** Resolve synchronously when no user prompt is needed. */
     override fun getSynchronousResult(
         context: Context,
         input: Unit

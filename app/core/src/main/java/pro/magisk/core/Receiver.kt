@@ -1,14 +1,22 @@
+/**
+ * BroadcastReceiver that reacts to package lifecycle events and
+ * system configuration changes.
+ *
+ * Actions handled:
+ * - [ACTION_PACKAGE_REPLACED] — optionally wipes SU policy for the
+ *   replaced package (pre-O).
+ * - [ACTION_UID_REMOVED] — cleans up SU policy for the removed UID.
+ * - [ACTION_PACKAGE_FULLY_REMOVED] — removes the package from the
+ *   denylist.
+ * - [ACTION_LOCALE_CHANGED] — refreshes dynamic shortcuts.
+ */
 package pro.magisk.core
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import androidx.core.content.IntentCompat
 import pro.magisk.core.base.BaseReceiver
 import pro.magisk.core.di.ServiceLocator
-import pro.magisk.core.download.DownloadEngine
-import pro.magisk.core.download.Subject
-import pro.magisk.view.Notifications
 import pro.magisk.view.Shortcuts
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.GlobalScope
@@ -39,14 +47,7 @@ open class Receiver : BaseReceiver() {
         }
 
         when (intent.action ?: return) {
-            DownloadEngine.ACTION -> {
-                IntentCompat.getParcelableExtra(
-                    intent, DownloadEngine.SUBJECT_KEY, Subject::class.java)?.let {
-                        DownloadEngine.start(context, it)
-                    }
-            }
             Intent.ACTION_PACKAGE_REPLACED -> {
-                // This will only work pre-O
                 if (Config.suReAuth)
                     getUid(intent)?.let { rmPolicy(it) }
             }
@@ -57,13 +58,6 @@ open class Receiver : BaseReceiver() {
                 getPkg(intent)?.let { Shell.cmd("magisk --denylist rm $it").submit() }
             }
             Intent.ACTION_LOCALE_CHANGED -> Shortcuts.setupDynamic(context)
-            Intent.ACTION_MY_PACKAGE_REPLACED -> {
-                @Suppress("DEPRECATION")
-                val installer = context.packageManager.getInstallerPackageName(context.packageName)
-                if (installer == context.packageName) {
-                    Notifications.updateDone()
-                }
-            }
         }
     }
 }

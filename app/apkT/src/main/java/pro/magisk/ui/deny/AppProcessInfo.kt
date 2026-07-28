@@ -1,3 +1,9 @@
+/**
+ * Parses an installed app's manifest to enumerate every possible process name
+ * (activities, services, receivers, providers, isolated/zygote processes) and
+ * matches them against the current Magisk denylist entries to produce [ProcessInfo]
+ * records that the DenyList screen renders.
+ */
 package pro.magisk.ui.deny
 
 import android.annotation.SuppressLint

@@ -1,3 +1,9 @@
+/**
+ * Reboot popup menu — provides various reboot options via the Magisk daemon.
+ *
+ * Options include: Normal, Userspace (Android 11+), Bootloader, Download, EDL,
+ * Recovery, and Safe Mode (persisted via [Config.bootloop]).
+ */
 package pro.magisk.ui.home
 
 import android.app.Activity
@@ -12,6 +18,7 @@ import pro.magisk.core.Config
 import pro.magisk.core.Const
 import pro.magisk.core.ktx.reboot as systemReboot
 
+/** Inflates and handles a reboot-mode popup menu. */
 object RebootMenu {
 
     private fun reboot(item: MenuItem): Boolean {

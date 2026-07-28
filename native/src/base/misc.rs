@@ -1,3 +1,8 @@
+//! Miscellaneous utilities: raw pointer helpers, byte-pattern search,
+//! `CmdArgs` parsing from `argc`/`argv`, [`Chunker`] for splitting byte
+//! streams, [`AtomicArc`] for lock-free `Arc` swaps, and the
+//! [`EarlyExitExt`] trait for argh-based CLI tools.
+
 use super::argh::{EarlyExit, MissingRequirements};
 use crate::{Utf8CStr, Utf8CString, cstr, ffi};
 use libc::c_char;

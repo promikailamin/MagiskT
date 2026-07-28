@@ -1,3 +1,9 @@
+//! SU policy database queries.
+//!
+//! Implements `MagiskD` methods for reading per-UID root policies
+//! ([`get_root_settings`]), pruning stale entries ([`prune_su_access`]),
+//! and checking whether a UID has been granted root ([`uid_granted_root`]).
+
 use crate::daemon::{
     AID_APP_END, AID_APP_START, AID_ROOT, AID_SHELL, MagiskD, to_app_id, to_user_id,
 };

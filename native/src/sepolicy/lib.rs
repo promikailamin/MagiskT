@@ -1,3 +1,9 @@
+//! SELinux policy modification crate — the `magiskpolicy` binary.
+//!
+//! Parses textual SELinux policy statements and applies them to a live
+//! or loaded policy via C++ FFI (`libsepol`). Built-in rules are defined
+//! in [`rules::magisk_rules`]. The CLI entry point is [`cli::main`].
+
 pub use base;
 use std::fmt::Write;
 

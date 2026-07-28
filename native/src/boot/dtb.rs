@@ -1,3 +1,9 @@
+//! Device Tree Blob (DTB/DTBO) inspection and patching.
+//!
+//! Supports `print` (dump DTB tree), `patch` (remove verity/AVB flags
+//! and rename `skip_initramfs`), and `test` subcommands using the
+//! `fdt` crate for flattened-device-tree parsing.
+
 use argh::FromArgs;
 use base::{LoggedResult, MappedFile, Utf8CStr, argh};
 use fdt::node::{FdtNode, NodeProperty};

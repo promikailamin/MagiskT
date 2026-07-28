@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Ühendus puudub</string>
-    <string name="app_changelog">Muudatuste logi</string>
     <string name="loading">Laadimine…</string>
     <string name="update">Uuenda</string>
     <string name="not_available">teadmata</string>
@@ -26,7 +25,6 @@
     <string name="home_support_content">Magisk on ja jääb alati tasuta ning avatud lähtekoodiga kättesaadavaks. Siiski, sa võid meile väikese annetuse näol toetust üles näidata.</string>
     <string name="home_installed_version">Installitud</string>
     <string name="home_latest_version">Viimatine</string>
-    <string name="invalid_update_channel">Sobimatu uuenduste kanal</string>
     <string name="uninstall_magisk_title">Eemalda Magisk</string>
     <string name="uninstall_magisk_msg">Kõik moodulid keelatakse/eemaldatakse!\nJuurkasutaja eemaldatakse!\nMistahes sisemälu failid, millelt eemaldati Magiski tarbeks krüpteering, krüpteeritakse taas!</string>
 
@@ -38,7 +36,6 @@
     <string name="install_method_title">Meetod</string>
     <string name="install_next">Edasi</string>
     <string name="install_start">Läksime</string>
-    <string name="manager_download_install">Vajuta allalaadimiseks ja installimiseks</string>
     <string name="direct_install">Otsene install (soovitatud)</string>
     <string name="install_inactive_slot">Installi ebaaktiivsesse lahtrisse (pärast üle-õhu uuendust)</string>
     <string name="install_inactive_slot_msg">Pärast taaskäivitust SUNNITAKSE sinu seade käivituma praegusesse ebaaktiivsesse lahtrisse!\nKasuta seda valikut vaid peale üle-õhu uuenduse teostamist.\nJätkad?</string>
@@ -106,7 +103,6 @@
     <string name="module_state_remove">Eemalda</string>
     <string name="module_state_restore">Taasta</string>
     <string name="module_action_install_external">Installi sisemälust</string>
-    <string name="update_available">Uuendus saadaval</string>
     <string name="suspend_text_riru">Moodul keelatud %1$s lubamise tõttu</string>
     <string name="suspend_text_zygisk">Moodul keelatud %1$s mittelubamise tõttu</string>
     <string name="zygisk_module_unloaded">Zygisk-moodulit ei laaditud ühildumatuse tõttu</string>
@@ -125,13 +121,6 @@
     <string name="settings_restore_app_summary">Too rakendus peidust välja, taastades originaalse APK</string>
     <string name="language">Keel</string>
     <string name="system_default">(Süsteemi vaikesäte)</string>
-    <string name="settings_check_update_title">Kontrolli uuendusi</string>
-    <string name="settings_check_update_summary">Kontrolli taustal perioodiliselt uuendusi</string>
-    <string name="settings_update_channel_title">Uuenduste kanal</string>
-    <string name="settings_update_stable">Stabiilne</string>
-    <string name="settings_update_beta">Beeta</string>
-    <string name="settings_update_custom">Kohandatud</string>
-    <string name="settings_update_custom_msg">Sisesta kohandatud kanali URL</string>
     <string name="settings_zygisk_summary">Käivita teatud Magiski osi zygote-protsessis</string>
     <string name="settings_denylist_title">Jõusta keeluloend</string>
     <string name="settings_denylist_summary">Keeluloendis olevatel protsessidel tühistatakse kõik Magiski muudatused</string>
@@ -187,12 +176,10 @@
     <string name="progress_channel">Edenemise teated</string>
     <string name="download_complete">Allalaadimine valmis</string>
     <string name="download_file_error">Faili allalaadimisel esines viga</string>
-    <string name="magisk_update_title">Magiski uuendus on saadaval!</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Jah</string>
     <string name="no">Ei</string>
-    <string name="repo_install_title">Installi %1$s %2$s(%3$d)</string>
     <string name="download">Allalaadimine</string>
     <string name="reboot">Taaskäivita</string>
     <string name="release_notes">Väljalaskemärkmed</string>

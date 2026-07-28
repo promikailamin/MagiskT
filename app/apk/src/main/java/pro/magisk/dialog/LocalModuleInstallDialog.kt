@@ -1,3 +1,8 @@
+/**
+ * Confirmation dialog shown before installing a local module ZIP file.
+ *
+ * On confirmation, navigates to the flash screen with the selected URI.
+ */
 package pro.magisk.dialog
 
 import android.net.Uri
@@ -8,6 +13,7 @@ import pro.magisk.events.DialogBuilder
 import pro.magisk.ui.module.ModuleViewModel
 import pro.magisk.view.MagiskDialog
 
+/** Dialog that asks the user to confirm installing the selected module ZIP. */
 class LocalModuleInstallDialog(
     private val viewModel: ModuleViewModel,
     private val uri: Uri,

@@ -1,3 +1,13 @@
+/**
+ * Handles incoming SU request intents from the Magisk daemon.
+ *
+ * Extracts the UID, PID, and FIFO path from the intent, looks up
+ * existing policy (or creates a new one), and either auto-responds
+ * (deny / allow) or signals the UI that user interaction is needed.
+ *
+ * When the user responds, the decision is written to the FIFO and
+ * persisted via [PolicyDao].
+ */
 package pro.magisk.core.su
 
 import android.content.Intent
@@ -33,12 +43,14 @@ class SuRequestHandler(
     lateinit var pkgInfo: PackageInfo
         private set
 
-    // Return true to indicate undetermined policy, require user interaction
+    /**
+     * Process the incoming SU request.
+     * @return `true` if the policy is undetermined (user interaction needed).
+     */
     suspend fun start(intent: Intent): Boolean {
         if (!init(intent))
             return false
 
-        // Never allow pro.magisk (could be malware)
         if (pkgInfo.packageName == BuildConfig.APP_PACKAGE_NAME) {
             Shell.cmd("(pm uninstall ${BuildConfig.APP_PACKAGE_NAME} >/dev/null 2>&1)&").exec()
             return false
@@ -58,6 +70,7 @@ class SuRequestHandler(
         return true
     }
 
+    /** Parse the intent extras and look up the existing policy. */
     private suspend fun init(intent: Intent): Boolean {
         val uid = intent.getIntExtra("uid", -1)
         pid = intent.getIntExtra("pid", -1)
@@ -71,7 +84,6 @@ class SuRequestHandler(
         try {
             pkgInfo = pm.getPackageInfo(uid, pid) ?: PackageInfo().apply {
                 val name = pm.getNameForUid(uid) ?: throw PackageManager.NameNotFoundException()
-                // We only fill in sharedUserId and leave other fields uninitialized
                 sharedUserId = name.split(":")[0]
             }
         } catch (e: PackageManager.NameNotFoundException) {
@@ -86,6 +98,12 @@ class SuRequestHandler(
         return true
     }
 
+    /**
+     * Write the user's decision to the FIFO and persist the policy.
+     *
+     * @param action [SuPolicy.DENY], [SuPolicy.ALLOW], etc.
+     * @param time   Timeout in minutes, or -1 for forever, 0 for single use.
+     */
     suspend fun respond(action: Int, time: Long) {
         if (action == SuPolicy.ALLOW && Config.suRestrict) {
             policy.policy = SuPolicy.RESTRICT

@@ -1,4 +1,10 @@
-// Functions in this file are only for exporting to C++, DO NOT USE IN RUST
+//! FFI functions exported to C++ via `#[unsafe(no_mangle)]` / `#[export_name]`.
+//!
+//! These are the Rust-side implementations of the C++ `x*` helpers
+//! (`xopen`, `xrealpath`, `xmkdirs`, etc.) and the CXX bridge callbacks
+//! (`log_from_cxx`, `cmdline_logging`, `parse_prop_file_rs`, etc.).
+//! **DO NOT call these from Rust** — use the typed wrappers in [`files`],
+//! [`dir`], [`mount`] instead.
 
 use std::fs::File;
 use std::io::BufReader;

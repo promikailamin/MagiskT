@@ -1,3 +1,17 @@
+/**
+ * Global application context and lifecycle hub.
+ *
+ * [AppContext] is a [ContextWrapper] that replaces the normal
+ * Application instance so that all code paths (including third-party
+ * libraries) see the same resource-patched, locale-aware context.
+ *
+ * Responsibilities:
+ * - Registers the uncaught exception handler ([CrashHandler]).
+ * - Bootstraps the Shell library with Magisk's [ShellInit].
+ * - Binds the [RootUtils] root service for IPC.
+ * - Tracks the foreground [Activity] via lifecycle callbacks.
+ * - Pre-heats the root shell on startup.
+ */
 package pro.magisk.core
 
 import android.app.Activity
@@ -14,8 +28,8 @@ import android.system.Os
 import androidx.profileinstaller.ProfileInstaller
 import pro.magisk.StubApk
 import pro.magisk.core.base.UntrackedActivity
+import pro.magisk.core.utils.CrashHandler
 import pro.magisk.core.utils.LocaleSetting
-import pro.magisk.core.utils.NetworkObserver
 import pro.magisk.core.utils.RootUtils
 import pro.magisk.core.utils.ShellInit
 import com.topjohnwu.superuser.Shell
@@ -27,7 +41,6 @@ import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.lang.ref.WeakReference
-import kotlin.system.exitProcess
 
 lateinit var AppApkPath: String
     private set
@@ -39,15 +52,10 @@ object AppContext : ContextWrapper(null),
 
     private var ref = WeakReference<Activity>(null)
     private lateinit var application: Application
-    private lateinit var networkObserver: NetworkObserver
 
     init {
-        // Always log full stack trace with Timber
         Timber.plant(Timber.DebugTree())
-        Thread.setDefaultUncaughtExceptionHandler { _, e ->
-            Timber.e(e)
-            exitProcess(1)
-        }
+        Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
 
         Os.setenv("PATH", "${Os.getenv("PATH")}:/debug_ramdisk:/sbin", true)
     }
@@ -56,9 +64,7 @@ object AppContext : ContextWrapper(null),
         LocaleSetting.instance.updateResource(resources)
     }
 
-    override fun onActivityStarted(activity: Activity) {
-        networkObserver.postCurrentState()
-    }
+    override fun onActivityStarted(activity: Activity) {}
 
     override fun onActivityResumed(activity: Activity) {
         if (activity is UntrackedActivity) return
@@ -98,15 +104,12 @@ object AppContext : ContextWrapper(null),
             UiThreadHandler.executor,
             RootUtils.Connection
         )
-        // Pre-heat the shell ASAP
         Shell.getShell(null) {}
 
         if (SDK_INT >= 34 && isRunningAsStub) {
-            // Send over the locale config manually
             val lm = getSystemService(LocaleManager::class.java)
             lm.overrideLocaleConfig = LocaleSetting.localeConfig
         }
-        networkObserver = NetworkObserver.init(this)
         if (!BuildConfig.DEBUG && !isRunningAsStub) {
             @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
             GlobalScope.launch(Dispatchers.IO) {
@@ -127,6 +130,7 @@ object AppContext : ContextWrapper(null),
     override fun onActivityStopped(activity: Activity) {}
     override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
     override fun onActivityDestroyed(activity: Activity) {}
+    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
     override fun onLowMemory() {}
     override fun onTrimMemory(level: Int) {}
 }

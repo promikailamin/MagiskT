@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""Build environment setup for the Magisk project.
+
+Provides NDK/toolchain paths, Rust/Cargo environment, JDK detection,
+and cross-platform OS helpers. Imported by build.py.
+"""
 import functools
 import multiprocessing
 import os
@@ -10,10 +15,12 @@ from pathlib import Path
 from typing import NoReturn
 
 
+# Version of the ONDK (Magisk NDK distribution) to use
 ondk_version = "r30.0"
 
 
 def color_print(code, str):
+    """Print a message with ANSI color codes (disabled if no_color is set)."""
     if no_color:
         print(str)
     else:
@@ -22,15 +29,19 @@ def color_print(code, str):
 
 
 def error(str) -> NoReturn:
+    """Print a red error banner and exit the process."""
     color_print("\033[41;39m", f"\n! {str}\n")
     sys.exit(1)
 
 
 def header(str):
+    """Print a blue header banner."""
     color_print("\033[44;39m", f"\n{str}\n")
 
 
 class Paths:
+    """Holds all important filesystem paths (SDK, NDK, ADB, Gradle wrapper)."""
+
     def __init__(self):
         try:
             self.sdk = Path(os.environ["ANDROID_HOME"])
@@ -52,10 +63,12 @@ class Paths:
 
 @functools.cache
 def paths() -> Paths:
+    """Return cached singleton Paths instance."""
     return Paths()
 
 
 def run_once(func):
+    """Decorator that ensures a function runs only once (discards subsequent calls)."""
     def wrapper(*args, **kwargs):
         if not wrapper.has_run:
             wrapper.has_run = True
@@ -67,6 +80,7 @@ def run_once(func):
 
 @run_once
 def ensure_toolchain():
+    """Verify the NDK is installed at the expected version and set up ccache/sccache."""
     # Verify NDK install
     try:
         with open(paths().ndk / "ONDK_VERSION", "r") as ondk_ver:
@@ -84,6 +98,7 @@ def ensure_toolchain():
 
 @run_once
 def ensure_cargo():
+    """Set up the Rust toolchain (toolchain from NDK or rustup proxy) and linker flags."""
     ensure_toolchain()
 
     os.environ["CARGO_BUILD_RUSTFLAGS"] = f"-Z threads={min(8, cpu_count)}"
@@ -105,6 +120,7 @@ def ensure_cargo():
 
 @run_once
 def ensure_jdk():
+    """Locate JDK 21 from Android Studio's bundled JBR or system PATH."""
     if "ANDROID_STUDIO" in os.environ:
         studio = os.environ["ANDROID_STUDIO"]
         jbr = Path(studio, "jbr")

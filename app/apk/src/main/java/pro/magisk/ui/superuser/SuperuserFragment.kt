@@ -1,3 +1,9 @@
+/**
+ * Superuser management screen — lists apps that have been granted root access.
+ *
+ * Each policy item can be expanded to show logging/notification toggles and
+ * a slider for Allow / Restrict / Deny. Items can be revoked via swipe or button.
+ */
 package pro.magisk.ui.superuser
 
 import android.os.Bundle
@@ -11,6 +17,7 @@ import rikka.recyclerview.addItemSpacing
 import rikka.recyclerview.fixEdgeEffect
 import pro.magisk.core.R as CoreR
 
+/** Fragment listing all Superuser permission grants. */
 class SuperuserFragment : BaseFragment<FragmentSuperuserMd2Binding>() {
 
     override val layoutRes = R.layout.fragment_superuser_md2

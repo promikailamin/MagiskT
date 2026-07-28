@@ -1,3 +1,16 @@
+//! UTF-8 validated, null-terminated C string types.
+//!
+//! Core types:
+//! - [`Utf8CStr`] — immutable string slice (like `&str`)
+//! - [`Utf8CString`] — heap-allocated buffer (like `String`)
+//! - [`Utf8CStrBufArr`] — fixed-size stack buffer
+//! - [`Utf8CStrBufRef`] — mutable reference to a byte slice
+//!
+//! All implement the [`Utf8CStrBuf`] trait and deref to `&Utf8CStr`.
+//! The [`cstr!`] macro creates `&Utf8CStr` from string literals at
+//! compile time. The [`FsPathFollow`] wrapper provides symlink-following
+//! variants of path operations.
+
 use cxx::{ExternType, type_id};
 use libc::c_char;
 use nix::NixPath;

@@ -1,3 +1,10 @@
+/**
+ * Manages app shortcuts (dynamic and pinned).
+ *
+ * Dynamic shortcuts give quick access to Superuser and Modules
+ * screens. The home-screen icon can also be pinned via
+ * [addHomeIcon].
+ */
 package pro.magisk.view
 
 import android.content.Context
@@ -19,6 +26,7 @@ import pro.magisk.core.ktx.getBitmap
 
 object Shortcuts {
 
+    /** Set dynamic shortcuts when supported (API 25+). */
     fun setupDynamic(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             val manager = context.getSystemService<ShortcutManager>() ?: return
@@ -26,6 +34,7 @@ object Shortcuts {
         }
     }
 
+    /** Pin a home-screen shortcut via [ShortcutManagerCompat]. */
     fun addHomeIcon(context: Context) {
         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName) ?: return
         val info = ShortcutInfoCompat.Builder(context, Const.Nav.HOME)
@@ -36,6 +45,7 @@ object Shortcuts {
         ShortcutManagerCompat.requestPinShortcut(context, info, null)
     }
 
+    /** Resolve an [Icon] from a drawable resource ID. */
     private fun Context.getIcon(id: Int): Icon {
         return if (isRunningAsStub) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -47,6 +57,7 @@ object Shortcuts {
         }
     }
 
+    /** Resolve an [IconCompat] from a drawable resource ID. */
     private fun Context.getIconCompat(id: Int): IconCompat {
         return if (isRunningAsStub) {
             val bitmap = getBitmap(id)
@@ -59,6 +70,7 @@ object Shortcuts {
         }
     }
 
+    /** Build the list of dynamic shortcuts. */
     @RequiresApi(api = 25)
     private fun getShortCuts(context: Context): List<ShortcutInfo> {
         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)

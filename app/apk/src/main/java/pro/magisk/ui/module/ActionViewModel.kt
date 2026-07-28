@@ -1,3 +1,9 @@
+/**
+ * ViewModel for the module action runner screen.
+ *
+ * Executes a module's custom action script (`run_action`) via shell and streams the
+ * console output. Supports saving the action log to a file, similar to [FlashViewModel].
+ */
 package pro.magisk.ui.module
 
 import android.view.MenuItem
@@ -22,6 +28,7 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.IOException
 
+/** ViewModel that runs a module action script and exposes its live console output. */
 class ActionViewModel : BaseViewModel() {
 
     enum class State {

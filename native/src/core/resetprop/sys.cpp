@@ -1,3 +1,8 @@
+/**
+ * System property backend for resetprop.
+ * Wraps Android's __system_property_* APIs into a SysProp struct
+ * that is callable from Rust, supporting dynamic/stub linking.
+ */
 #include <dlfcn.h>
 
 #include <base.hpp>
@@ -17,10 +22,12 @@ struct SysProp {
     bool (*wait)(const prop_info*, uint32_t, uint32_t*, const timespec*);
 };
 
+/** Check if a prop_info uses long-form serialisation. Exported to Rust. */
 extern "C" bool prop_info_is_long(const prop_info &info) {
     return info.is_long();
 }
 
+/** Populate a SysProp struct with pointers to __system_property_* functions (via dlsym or direct link). Exported to Rust. */
 extern "C" SysProp get_sys_prop() {
     SysProp prop{};
 #ifdef APPLET_STUB_MAIN

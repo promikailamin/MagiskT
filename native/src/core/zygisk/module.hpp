@@ -1,3 +1,9 @@
+/**
+ * Zygisk module loading and ABI definitions.
+ * Defines specialization argument structs (AppSpecializeArgs_v1-v5,
+ * ServerSpecializeArgs_v1), module_abi/api_abi structs, the
+ * ZygiskModule and ZygiskContext classes, and flag constants.
+ */
 #pragma once
 
 #include <regex.h>
@@ -28,6 +34,7 @@ using  api_abi_v5 = api_abi_v4;
 
 union ApiTable;
 
+/** App specialization arguments for API v3 (Android R with optional fields). */
 struct AppSpecializeArgs_v3 {
     jint &uid;
     jint &gid;
@@ -57,6 +64,7 @@ struct AppSpecializeArgs_v3 {
             instruction_set(instruction_set), app_data_dir(app_data_dir) {}
 };
 
+/** App specialization arguments for API v5 (Android U+: adds mount_sysprop_overrides). */
 struct AppSpecializeArgs_v5 : public AppSpecializeArgs_v3 {
     jboolean *mount_sysprop_overrides = nullptr;
 
@@ -68,6 +76,7 @@ struct AppSpecializeArgs_v5 : public AppSpecializeArgs_v3 {
                     se_info, nice_name, instruction_set, app_data_dir) {}
 };
 
+/** App specialization arguments for API v1 (legacy, constructed from v5 args). */
 struct AppSpecializeArgs_v1 {
     jint &uid;
     jint &gid;
@@ -96,6 +105,7 @@ struct AppSpecializeArgs_v1 {
             mount_data_dirs(a->mount_data_dirs), mount_storage_dirs(a->mount_storage_dirs) {}
 };
 
+/** Server specialization arguments for system_server (capabilities included). */
 struct ServerSpecializeArgs_v1 {
     jint &uid;
     jint &gid;
@@ -112,6 +122,7 @@ struct ServerSpecializeArgs_v1 {
             effective_capabilities(effective_capabilities) {}
 };
 
+/** Module ABI v1: opaque function pointers for pre/post specialize callbacks. */
 struct module_abi_v1 {
     long api_version;
     void *impl;
@@ -130,11 +141,13 @@ enum : uint32_t {
     PRIVATE_MASK = (+ZygiskStateFlags::DenyListEnforced | +ZygiskStateFlags::ProcessIsMagiskApp)
 };
 
+/** Base ABI: each module carries an ApiTable with impl pointer and registerModule callback. */
 struct api_abi_base {
     ZygiskModule *impl;
     bool (*registerModule)(ApiTable *, long *);
 };
 
+/** API v1: JNI hooking, PLT hooking (regex-based), companion connection, option setting. */
 struct api_abi_v1 : public api_abi_base {
     /* 0 */ void (*hookJniNativeMethods)(JNIEnv *, const char *, JNINativeMethod *, int);
     /* 1 */ void (*pltHookRegister)(const char *, const char *, void *, void **);
@@ -144,11 +157,13 @@ struct api_abi_v1 : public api_abi_base {
     /* 5 */ void (*setOption)(ZygiskModule *, zygisk::Option);
 };
 
+/** API v2: adds getModuleDir and getFlags. */
 struct api_abi_v2 : public api_abi_v1 {
     /* 6 */ int (*getModuleDir)(ZygiskModule *);
     /* 7 */ uint32_t (*getFlags)(ZygiskModule *);
 };
 
+/** API v4: dev_t/ino_t-based PLT hooking, FD exemption, companion/moduleDir/flags. */
 struct api_abi_v4 : public api_abi_base {
     /* 0 */ void (*hookJniNativeMethods)(JNIEnv *, const char *, JNINativeMethod *, int);
     /* 1 */ void (*pltHookRegister)(dev_t, ino_t, const char *, void *, void **);
@@ -160,6 +175,7 @@ struct api_abi_v4 : public api_abi_base {
     /* 7 */ uint32_t (*getFlags)(ZygiskModule *);
 };
 
+/** Union of all API ABI versions. The active member is determined by the module's registered version. */
 union ApiTable {
     api_abi_base base;
     api_abi_v1 v1;
@@ -167,8 +183,10 @@ union ApiTable {
     api_abi_v4 v4;
 };
 
+/** Represents a loaded Zygisk module: manages its lifecycle, API table, and specialization callbacks. */
 struct ZygiskModule {
 
+    /** Call the module's entry point to initialise it with the API table and JNI env. */
     void onLoad(void *env) {
         entry.fn(&api, env);
     }
@@ -184,6 +202,7 @@ struct ZygiskModule {
     void setOption(zygisk::Option opt);
     static uint32_t getFlags();
     void tryUnload() const;
+    /** Clear the API table (called after post-specialize to prevent use-after-free). */
     void clearApi() { memset(&api, 0, sizeof(api)); }
 
     ZygiskModule(int id, void *handle, void *entry);
@@ -224,6 +243,7 @@ enum : uint32_t {
 void name##_pre();         \
 void name##_post();
 
+/** Per-process Zygisk context: orchestrates module loading, FD sanitisation, fork hooks, and namespace management. */
 struct ZygiskContext {
     JNIEnv *env;
     union {
@@ -241,6 +261,7 @@ struct ZygiskContext {
     std::vector<bool> allowed_fds;
     std::vector<int> exempted_fds;
 
+    /** A pending PLT hook registration with regex for ELF path matching. */
     struct RegisterInfo {
         regex_t regex;
         std::string symbol;
@@ -248,6 +269,7 @@ struct ZygiskContext {
         void **backup;
     };
 
+    /** A PLT hook exclusion rule: skip matching ELFs with this regex. */
     struct IgnoreInfo {
         regex_t regex;
         std::string symbol;

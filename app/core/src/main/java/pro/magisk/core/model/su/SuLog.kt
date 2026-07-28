@@ -1,3 +1,9 @@
+/**
+ * Room entity for SU access log entries.
+ *
+ * Each row records a single SU request: the originating app,
+ * the action taken, and metadata about the request context.
+ */
 package pro.magisk.core.model.su
 
 import android.content.pm.ApplicationInfo
@@ -23,6 +29,7 @@ class SuLog(
     @PrimaryKey(autoGenerate = true) var id: Int = 0
 }
 
+/** Create a [SuLog] from a resolved [ApplicationInfo]. */
 fun PackageManager.createSuLog(
     info: ApplicationInfo,
     toUid: Int,
@@ -47,6 +54,7 @@ fun PackageManager.createSuLog(
     )
 }
 
+/** Create a [SuLog] when only the raw UID is known (no package info). */
 fun createSuLog(
     fromUid: Int,
     toUid: Int,

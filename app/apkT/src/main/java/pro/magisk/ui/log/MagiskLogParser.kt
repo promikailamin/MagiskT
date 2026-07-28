@@ -1,5 +1,11 @@
+/**
+ * Data model and parser for Magisk's logcat-style log output.
+ * Parses lines matching `MM-DD HH:MM:SS.mmm PID TID LEVEL TAG : message` into structured
+ * [MagiskLogEntry] objects, folding continuation lines into the preceding entry.
+ */
 package pro.magisk.ui.log
 
+/** A single parsed (or raw) line from the Magisk log. */
 data class MagiskLogEntry(
     val timestamp: String = "",
     val pid: Int = 0,
@@ -17,6 +23,7 @@ object MagiskLogParser {
         """(\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+)\s+([VDIWEF])\s+(.+?)\s*:\s+(.*)"""
     )
 
+    /** Parse raw Magisk log text into a list of [MagiskLogEntry]. */
     fun parse(raw: String): List<MagiskLogEntry> {
         if (raw.isBlank()) return emptyList()
 

@@ -4,7 +4,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Assorted ZIP format helpers.
+ * Assorted ZIP format helpers for locating and modifying ZIP End of Central Directory records.
+ *
+ * <p>Used by the APK Signature Scheme v2 implementation to locate the Central Directory
+ * and rewrite the Central Directory offset after inserting the APK Signing Block.
  *
  * <p>NOTE: Most helper methods operating on {@code ByteBuffer} instances expect that the byte
  * order of these buffers is little-endian.

@@ -1,3 +1,8 @@
+/**
+ * Compose screen that hosts a [TerminalEmulator] and [TerminalRenderer] inside a
+ * [BoxWithConstraints], adapting terminal size to available space and supporting
+ * vertical scroll through the transcript history.
+ */
 package pro.magisk.ui.terminal
 
 import android.graphics.Typeface

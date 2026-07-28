@@ -1,3 +1,8 @@
+/**
+ * SQLite wrapper header/API.
+ * Defines DbValues/DbStatement (sqlite3_stmt wrappers),
+ * DbArg/DbArgs for type-safe parameter binding, and db_exec().
+ */
 #pragma once
 
 #include <functional>

@@ -1,3 +1,14 @@
+/**
+ * Diff-aware observable list implementations for RecyclerView.
+ *
+ * - [DiffObservableList] / [diffList]: an observable list that computes and dispatches
+ *   [DiffUtil] diffs when updated.
+ * - [FilterableDiffObservableList] / [filterList]: extends diff support with
+ *   coroutine-based background filtering.
+ *
+ * Both implement [ObservableList] so the [RvItemAdapter] automatically receives
+ * change notifications.
+ */
 package pro.magisk.databinding
 
 import androidx.annotation.MainThread
@@ -13,7 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.AbstractList
 
-// Only expose the immutable List types
+/** A [List] that supports DiffUtil-based efficient updates. */
 interface DiffList<T : DiffItem<*>> : List<T> {
     fun calculateDiff(newItems: List<T>): DiffUtil.DiffResult
 
@@ -24,6 +35,7 @@ interface DiffList<T : DiffItem<*>> : List<T> {
     suspend fun update(newItems: List<T>)
 }
 
+/** A [List] that supports background filtering with diff animations. */
 interface FilterList<T : DiffItem<*>> : List<T> {
     fun filter(filter: (T) -> Boolean)
 
@@ -36,6 +48,7 @@ fun <T : DiffItem<*>> diffList(): DiffList<T> = DiffObservableList()
 fun <T : DiffItem<*>> filterList(scope: CoroutineScope): FilterList<T> =
     FilterableDiffObservableList(scope)
 
+/** Observable list backed by DiffUtil calculations. */
 private open class DiffObservableList<T : DiffItem<*>>
     : AbstractList<T>(), ObservableList<T>, DiffList<T>, ListUpdateCallback {
 
@@ -53,7 +66,6 @@ private open class DiffObservableList<T : DiffItem<*>>
     protected fun doCalculateDiff(oldItems: List<T>, newItems: List<T>): DiffUtil.DiffResult {
         return DiffUtil.calculateDiff(object : DiffUtil.Callback() {
             override fun getOldListSize() = oldItems.size
-
             override fun getNewListSize() = newItems.size
 
             @Suppress("UNCHECKED_CAST")
@@ -113,6 +125,7 @@ private open class DiffObservableList<T : DiffItem<*>>
     }
 }
 
+/** [DiffObservableList] that supports live filtering on a background coroutine. */
 private class FilterableDiffObservableList<T : DiffItem<*>>(
     private val scope: CoroutineScope
 ) : DiffObservableList<T>(), FilterList<T> {
@@ -120,8 +133,6 @@ private class FilterableDiffObservableList<T : DiffItem<*>>(
     private var sublist: List<T> = emptyList()
     private var job: Job? = null
     private var lastFilter: ((T) -> Boolean)? = null
-
-    // ---
 
     override fun filter(filter: (T) -> Boolean) {
         lastFilter = filter
@@ -136,8 +147,6 @@ private class FilterableDiffObservableList<T : DiffItem<*>>(
             }
         }
     }
-
-    // ---
 
     override fun get(index: Int): T {
         return sublist[index]

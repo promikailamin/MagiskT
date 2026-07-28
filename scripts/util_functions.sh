@@ -1,5 +1,9 @@
 ############################################
 # Magisk General Utility Functions
+#
+# Core shell library used by all Magisk install/patch scripts.
+# Provides helpers for: printing, prop parsing, partition mounting,
+# boot image detection, module installation, and SELinux management.
 ############################################
 
 #MAGISK_VERSION_STUB
@@ -21,6 +25,7 @@
 # Helper Functions
 ###################
 
+# Print a message: via log in boot mode, or via recovery's ui_print pipe otherwise
 ui_print() {
   if $BOOTMODE; then
     echo "$1"
@@ -29,10 +34,12 @@ ui_print() {
   fi
 }
 
+# Convert string to uppercase
 toupper() {
   echo "$@" | tr '[:lower:]' '[:upper:]'
 }
 
+# Extract a property value from /proc/cmdline or /proc/bootconfig
 grep_cmdline() {
   local REGEX="s/^$1=//p"
   { echo $(cat /proc/cmdline)$(sed -e 's/[^"]//g' -e 's/""//g' /proc/cmdline) | xargs -n 1; \
@@ -40,6 +47,7 @@ grep_cmdline() {
   } 2>/dev/null | sed -n "$REGEX"
 }
 
+# Extract a property value from one or more .prop files
 grep_prop() {
   local REGEX="s/^$1=//p"
   shift
@@ -48,6 +56,7 @@ grep_prop() {
   cat $FILES 2>/dev/null | dos2unix | sed -n "$REGEX" | head -n 1
 }
 
+# Extract a property from file(s), falling back to getprop
 grep_get_prop() {
   local result=$(grep_prop $@)
   if [ -z "$result" ]; then
@@ -58,6 +67,7 @@ grep_get_prop() {
   fi
 }
 
+# Read a persistent config variable from magisk config files
 getvar() {
   local VARNAME=$1
   local VALUE
@@ -67,11 +77,13 @@ getvar() {
   [ ! -z $VALUE ] && eval $VARNAME=\$VALUE
 }
 
+# Check if a path is currently mounted
 is_mounted() {
   grep -q " $(readlink -f $1) " /proc/mounts 2>/dev/null
   return $?
 }
 
+# Print an error, clean up, and exit
 abort() {
   ui_print "$1"
   $BOOTMODE || recovery_cleanup
@@ -80,6 +92,7 @@ abort() {
   exit 1
 }
 
+# Print a formatted title bar with an optional subtitle
 print_title() {
   local len line1len line2len bar
   line1len=$(echo -n $1 | wc -c)
@@ -98,6 +111,7 @@ print_title() {
 # Environment Related
 ######################
 
+# Initialize the flashable environment: ensure busybox and find OUTFD in recovery
 setup_flashable() {
   ensure_bb
   $BOOTMODE && return
@@ -115,6 +129,7 @@ setup_flashable() {
   recovery_actions
 }
 
+# Ensure we are running under busybox ash with ASH_STANDALONE=1 for consistent behavior
 ensure_bb() {
   if set -o | grep -q standalone; then
     # We are definitely in busybox ash
@@ -161,6 +176,7 @@ ensure_bb() {
   exit
 }
 
+# Set up the environment for recovery mode operations
 recovery_actions() {
   # Make sure random won't get blocked
   mount -o bind /dev/urandom /dev/random
@@ -173,6 +189,7 @@ recovery_actions() {
   unset LD_CONFIG_FILE
 }
 
+# Undo recovery_actions: unmount partitions and restore library paths
 recovery_cleanup() {
   local DIR
   ui_print "- Unmounting partitions"
@@ -201,6 +218,7 @@ recovery_cleanup() {
 # Installation Related
 #######################
 
+# Find a block device by name, searching /dev/block, sysfs uevents, and /dev
 # find_block [partname...]
 find_block() {
   local BLOCK DEV DEVICE DEVNAME PARTNAME UEVENT
@@ -233,6 +251,7 @@ find_block() {
   return 1
 }
 
+# Create a mount point, resolving symlinks if needed
 # setup_mntpoint <mountpoint>
 setup_mntpoint() {
   local POINT=$1
@@ -243,6 +262,7 @@ setup_mntpoint() {
   fi
 }
 
+# Mount a partition by name(s) to a mount point with given flags
 # mount_name <partname(s)> <mountpoint> <flag>
 mount_name() {
   local PART=$1
@@ -259,6 +279,7 @@ mount_name() {
   ui_print "- Mounting $POINT"
 }
 
+# Mount a partition read-only (recovery only), abort on failure
 # mount_ro_ensure <partname(s)> <mountpoint>
 mount_ro_ensure() {
   # We handle ro partitions only in recovery
@@ -269,6 +290,7 @@ mount_ro_ensure() {
   is_mounted $POINT || abort "! Cannot mount $POINT"
 }
 
+# Detect partition layout and mount system partitions
 # After calling this method, the following variables will be set:
 # SLOT, SYSTEM_AS_ROOT, LEGACYSAR
 mount_partitions() {
@@ -323,6 +345,7 @@ mount_partitions() {
   fi
 }
 
+# Detect device encryption, vbmeta, and overridable config flags
 # After calling this method, the following variables will be set:
 # ISENCRYPTED, PATCHVBMETAFLAG,
 # KEEPVERITY, KEEPFORCEENCRYPT, RECOVERYMODE, VENDORBOOT
@@ -369,11 +392,13 @@ get_flags() {
   [ -z $VENDORBOOT ] && VENDORBOOT=false
 }
 
-# Returns whether the device is GKI 13+
+# Check if the device is running GKI 2.0 (kernel 5.10+) or newer
+# Returns: true if kernel is GKI 13+ (kernel 5.10+ without android12- or 5.4)
 is_gt_gki_13() {
   [ "$(uname -r | cut -d. -f1)" -ge 5 ] && uname -r | grep -Evq "android12-|^5\.4"
 }
 
+# Locate the boot image block device based on device properties
 # Require RECOVERYMODE, VENDORBOOT, SLOT to be set.
 # After calling this method, BOOTIMAGE will be set.
 find_boot_image() {
@@ -402,6 +427,8 @@ find_boot_image() {
   fi
 }
 
+# Flash an image to a block device (or write to a file for non-block)
+# Returns: 0 on success, 1 if image too large, 2 if device is read-only
 flash_image() {
   local CMD1
   case "$1" in
@@ -426,7 +453,8 @@ flash_image() {
   return 0
 }
 
-# Common installation script for flash_script.sh and addon.d.sh
+# Common installation function: source boot_patch.sh, flash patched image, clean up
+# Shared by flash_script.sh and addon.d.sh
 install_magisk() {
   cd $MAGISKBIN
 
@@ -451,6 +479,7 @@ install_magisk() {
   run_migrations
 }
 
+# Sign the patched boot image with ChromeOS kernel signing keys
 sign_chromeos() {
   ui_print "- Signing ChromeOS boot image"
 
@@ -463,6 +492,7 @@ sign_chromeos() {
   mv new-boot.img.signed new-boot.img
 }
 
+# Remove traces of system-installed root (SuperSU, SuperUser, etc.)
 remove_system_su() {
   [ -d /postinstall/tmp ] && POSTINST=/postinstall
   cd $POSTINST/system
@@ -499,6 +529,8 @@ remove_system_su() {
   cd $TMPDIR
 }
 
+# Detect device API level, primary ABI, secondary ABI (32-bit), and architecture
+# Sets: API, ABI, ABI32, ARCH, IS64BIT
 api_level_arch_detect() {
   API=$(grep_get_prop ro.build.version.sdk)
   ABI=$(grep_get_prop ro.product.cpu.abi)
@@ -525,6 +557,7 @@ api_level_arch_detect() {
   fi
 }
 
+# Check /data accessibility and set MAGISKBIN path accordingly
 check_data() {
   DATA=false
   DATA_DE=false
@@ -540,6 +573,7 @@ check_data() {
   $DATA_DE && MAGISKBIN="/data/adb/magisk"
 }
 
+# Migrate legacy file locations to current standard paths
 run_migrations() {
   local SHA1
   local TARGET
@@ -578,6 +612,7 @@ run_migrations() {
   copy_preinit_files
 }
 
+# Copy active sepolicy.rule files from modules into the preinit directory
 copy_preinit_files() {
   local PREINITDIR=$MAGISKTMP/.magisk/preinit
   if [ ! -d $PREINITDIR ]; then
@@ -601,6 +636,7 @@ copy_preinit_files() {
 # Module Related
 #################
 
+# Set file owner, group, permissions, and SELinux context
 set_perm() {
   chown $2:$3 $1 || return 1
   chmod $4 $1 || return 1
@@ -609,6 +645,7 @@ set_perm() {
   chcon $CON $1 || return 1
 }
 
+# Recursively set owner/group/permissions/SELinux context on all files and dirs
 set_perm_recursive() {
   find $1 -type d 2>/dev/null | while read dir; do
     set_perm $dir $2 $3 $4 $6
@@ -618,20 +655,24 @@ set_perm_recursive() {
   done
 }
 
+# Create a file (with optional content) and set permissions to 644
 mktouch() {
   mkdir -p ${1%/*} 2>/dev/null
   [ -z $2 ] && touch $1 || echo $2 > $1
   chmod 644 $1
 }
 
+# Stub: override in module installers to run code before boot
 boot_actions() { return; }
 
+# Check if the module zip uses the legacy install.sh format
 # Require ZIPFILE to be set
 is_legacy_script() {
   unzip -l "$ZIPFILE" install.sh | grep -q install.sh
   return $?
 }
 
+# Set standard permissions for a module's filesystem tree
 # $1 = MODPATH
 set_default_perm() {
   set_perm_recursive $1 0 0 0755 0644
@@ -641,6 +682,7 @@ set_default_perm() {
   set_perm_recursive $1/system/vendor/bin 0 2000 0755 0755 u:object_r:vendor_file:s0
 }
 
+# Main module installation routine: extract, customize, set permissions, install
 # Require OUTFD, ZIPFILE to be set
 install_module() {
   rm -rf $TMPDIR

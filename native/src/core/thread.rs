@@ -1,3 +1,10 @@
+//! Simple thread pool for dispatching async daemon tasks.
+//!
+//! Maintains a configurable pool with a core set of long-lived threads
+//! and additional threads that terminate after an idle timeout
+//! (`THREAD_IDLE_MAX_SEC`). Used by the daemon to handle asynchronous
+//! requests without blocking the main accept loop.
+
 use base::{ResultExt, new_daemon_thread};
 use nix::sys::signal::SigSet;
 use nix::unistd::{getpid, gettid};

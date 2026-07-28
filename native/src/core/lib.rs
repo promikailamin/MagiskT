@@ -1,3 +1,11 @@
+//! Crate root for `core-rs` — the Rust portion of Magisk's core daemon
+//! and CLI applets.
+//!
+//! This crate defines the [`cxx::bridge`] FFI boundary between Rust and C++
+//! (in `pub mod ffi`), re-exports key types and functions, and declares the
+//! internal submodules. All IPC, SU handling, Zygisk, resetprop, logging,
+//! SQLite, and boot-stage logic lives in sibling files.
+
 #![feature(fn_traits)]
 #![feature(unix_socket_ancillary_data)]
 #![feature(unix_socket_peek)]
@@ -42,6 +50,11 @@ mod su;
 mod thread;
 mod zygisk;
 
+/// CXX bridge between Rust and C++.
+///
+/// Defines shared enums ([`RequestCode`], [`RespondCode`], [`DbEntryKey`],
+/// etc.), structs ([`ModuleInfo`], [`SuRequest`]), and foreign function
+/// signatures for both directions (C++ → Rust and Rust → C++).
 #[allow(clippy::needless_lifetimes)]
 #[cxx::bridge]
 pub mod ffi {
@@ -229,6 +242,7 @@ pub mod ffi {
     }
 }
 
+/// Encode a [`SuRequest`] and write it to a raw file descriptor.
 impl SuRequest {
     fn write_to_fd(&self, fd: i32) {
         unsafe {

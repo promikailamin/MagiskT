@@ -1,3 +1,7 @@
+/**
+ * ViewModel for the home screen. Tracks Magisk installation state (up-to-date / outdated /
+ * invalid), manages visibility of the safety notice, and triggers environment checks.
+ */
 package pro.magisk.ui.home
 
 import android.content.ActivityNotFoundException
@@ -11,7 +15,6 @@ import pro.magisk.core.Config
 import pro.magisk.core.Info
 import pro.magisk.core.ktx.await
 import pro.magisk.core.ktx.toast
-import pro.magisk.core.repository.NetworkService
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,21 +22,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import pro.magisk.core.R as CoreR
 
-class HomeViewModel(
-    private val svc: NetworkService
-) : AsyncLoadViewModel() {
-
-    enum class State {
-        LOADING, INVALID, OUTDATED, UP_TO_DATE
-    }
+class HomeViewModel : AsyncLoadViewModel() {
 
     data class UiState(
         val isNoticeVisible: Boolean = Config.safetyNotice,
-        val appState: State = State.LOADING,
-        val managerRemoteVersion: String = "",
-        val managerProgress: Int = 0,
         val showUninstall: Boolean = false,
-        val showManagerInstall: Boolean = false,
         val showHideRestore: Boolean = false,
         val envFixCode: Int = 0,
     )
@@ -41,6 +34,11 @@ class HomeViewModel(
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
+    enum class State {
+        LOADING, INVALID, OUTDATED, UP_TO_DATE
+    }
+
+    /** Computed Magisk installation state based on environment and app version. */
     val magiskState
         get() = when {
             Info.isRooted && Info.env.isUnsupported -> State.OUTDATED
@@ -49,6 +47,7 @@ class HomeViewModel(
             else -> State.UP_TO_DATE
         }
 
+    /** Human-readable version string with optional debug marker. */
     val magiskInstalledVersion: String
         get() = Info.env.run {
             if (isActive)
@@ -57,41 +56,16 @@ class HomeViewModel(
                 ""
         }
 
-    val managerInstalledVersion: String
-        get() = "${BuildConfig.APP_VERSION_NAME} (${BuildConfig.APP_VERSION_CODE})" +
-            if (BuildConfig.DEBUG) " (D)" else ""
-
     companion object {
+        /** Only run the env check once per process lifetime. */
         private var checkedEnv = false
     }
 
     override suspend fun doLoadWork() {
-        _uiState.update { it.copy(appState = State.LOADING) }
-        Info.fetchUpdate(svc)?.apply {
-            val isDebug = Config.updateChannel == Config.Value.DEBUG_CHANNEL
-            _uiState.update {
-                it.copy(
-                    appState = if (BuildConfig.APP_VERSION_CODE < versionCode) State.OUTDATED else State.UP_TO_DATE,
-                    managerRemoteVersion = "$version ($versionCode)" + if (isDebug) " (D)" else ""
-                )
-            }
-        } ?: run {
-            _uiState.update { it.copy(appState = State.INVALID, managerRemoteVersion = "") }
-        }
         ensureEnv()
     }
 
-    private val networkObserver: (Boolean) -> Unit = { startLoading() }
-
-    init {
-        Info.isConnected.observeForever(networkObserver)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Info.isConnected.removeObserver(networkObserver)
-    }
-
+    /** Open a URL in an external browser. */
     fun onLinkPressed(link: String) {
         val intent = Intent(Intent.ACTION_VIEW, link.toUri())
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -102,6 +76,7 @@ class HomeViewModel(
         }
     }
 
+    /** User tapped the uninstall button. */
     fun onDeletePressed() {
         _uiState.update { it.copy(showUninstall = true) }
     }
@@ -110,18 +85,7 @@ class HomeViewModel(
         _uiState.update { it.copy(showUninstall = false) }
     }
 
-    fun onManagerPressed() {
-        when (_uiState.value.appState) {
-            State.LOADING -> showSnackbar(CoreR.string.loading)
-            State.INVALID -> showSnackbar(CoreR.string.no_connection)
-            else -> _uiState.update { it.copy(showManagerInstall = true) }
-        }
-    }
-
-    fun onManagerInstallConsumed() {
-        _uiState.update { it.copy(showManagerInstall = false) }
-    }
-
+    /** User tapped the hide/restore button. */
     fun onHideRestorePressed() {
         _uiState.update { it.copy(showHideRestore = true) }
     }
@@ -134,11 +98,13 @@ class HomeViewModel(
         _uiState.update { it.copy(envFixCode = 0) }
     }
 
+    /** Dismiss the safety notice permanently. */
     fun hideNotice() {
         Config.safetyNotice = false
         _uiState.update { it.copy(isNoticeVisible = false) }
     }
 
+    /** Run `env_check` via shell to verify the Magisk environment is consistent. */
     private suspend fun ensureEnv() {
         if (magiskState == State.INVALID || checkedEnv) return
         val cmd = "env_check ${Info.env.versionString} ${Info.env.versionCode}"

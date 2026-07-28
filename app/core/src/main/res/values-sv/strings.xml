@@ -10,7 +10,6 @@
 
     <!--Home-->
     <string name="no_connection">Ingen anslutning tillgänglig</string>
-    <string name="app_changelog">Ändringslogg</string>
     <string name="loading">Laddar…</string>
     <string name="update">Uppdatera</string>
     <string name="not_available">Inte tillgänglig</string>
@@ -24,7 +23,6 @@
     <string name="home_support_content">Magisk är och kommer alltid att vara gratis med öppen källkod. Du kan dock visa din uppskattning genom att skicka en donation</string>
     <string name="home_installed_version">Installerad</string>
     <string name="home_latest_version">Senaste</string>
-    <string name="invalid_update_channel">Ogiltig uppdateringskanal</string>
     <string name="uninstall_magisk_title">Avinstallera Magisk</string>
     <string name="uninstall_magisk_msg">Alla moduler kommer att bli inaktiverade/borttagna!\nRoot kommer också att avinstalleras!\nDin data kan komma att krypteras om den inte är det redan!</string>
 
@@ -36,7 +34,6 @@
     <string name="install_method_title">Metod</string>
     <string name="install_next">Nästa</string>
     <string name="install_start">Nu kör vi!</string>
-    <string name="manager_download_install">Tryck för att ladda ned och installera install</string>
     <string name="direct_install">Direkt installation (Rekommenderas)</string>
     <string name="install_inactive_slot">Installera till inaktiv Slot (Efter OTA)</string>
     <string name="install_inactive_slot_msg">Din enhet kommer att bli TVINGAD att starta till den nuvarande inaktiva slot efter omstart!\nAnvänd endast detta alternativ efter att en OTA uppdatering är utförd.\nFortsätt??</string>
@@ -104,7 +101,6 @@
     <string name="module_state_remove">Ta bort</string>
     <string name="module_state_restore">Återställ</string>
     <string name="module_action_install_external">Installera från lagringsmedia</string>
-    <string name="update_available">Uppdatering tillgänglig</string>
 
     <!--Settings-->
     <string name="settings_dark_mode_title">Temaläge</string>
@@ -120,13 +116,6 @@
     <string name="settings_restore_app_summary">Ta bort proxy-appen och återställ den ursprungliga APK filen</string>
     <string name="language">Språk</string>
     <string name="system_default">(Följ systeminställningar)</string>
-    <string name="settings_check_update_title">Kontrollera uppdateringar</string>
-    <string name="settings_check_update_summary">Kontrollera regelbundet efter uppdateringar i bakgrunden</string>
-    <string name="settings_update_channel_title">Uppdateringskanal</string>
-    <string name="settings_update_stable">Stabil</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_custom">Anpassad kanal</string>
-    <string name="settings_update_custom_msg">Lägg till en anpassad URL</string>
     <string name="settings_hosts_title">Systemfri hosts</string>
     <string name="settings_hosts_summary">Stöd för Adblock-appar med systemfri hosts-fil</string>
     <string name="settings_hosts_toast">Lagt till modul för systemfri hosts-fil</string>
@@ -178,12 +167,10 @@
     <string name="progress_channel">Statusmeddelanden</string>
     <string name="download_complete">Nedladdning slutförd</string>
     <string name="download_file_error">Fel vid nedladdning utav fil</string>
-    <string name="magisk_update_title">En uppdatering för Magisk finns tillgänglig!</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Ja</string>
     <string name="no">Nej</string>
-    <string name="repo_install_title">Installera %1$s %2$s(%3$d)</string>
     <string name="download">Ladda ned</string>
     <string name="reboot">Omstart</string>
     <string name="release_notes">Utgivningsanmärkningar</string>

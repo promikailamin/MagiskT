@@ -1,3 +1,9 @@
+//! CPIO archive manipulation for ramdisk images.
+//!
+//! Supports the full set of `magiskboot cpio` subcommands: `test`,
+//! `restore`, `patch`, `exists`, `backup`, `rm`, `mv`, `extract`,
+//! `mkdir`, `ln`, `add`, and `ls`. Modifications are done in-place.
+
 #![allow(clippy::useless_conversion)]
 
 use argh::FromArgs;

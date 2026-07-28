@@ -1,3 +1,15 @@
+/**
+ * Custom DataBinding adapters used throughout Magisk Manager's layouts.
+ *
+ * Covers:
+ * - Visibility helpers (gone, invisible, goneUnless, invisibleUnless)
+ * - Markdown rendering via Markwon
+ * - Toolbar, ImageView, Button, and Chip bindings
+ * - RecyclerView scrolling (auto-scroll-to-last with AdapterDataObserver)
+ * - MD2-specific: margin, stroke, tint, textColour attr resolution
+ * - Slider / Spinner / IndeterminateCheckBox two-way binding
+ * - Policy slider <-> [SuPolicy] conversion via [InverseMethod]
+ */
 package pro.magisk.databinding
 
 import android.animation.ValueAnimator

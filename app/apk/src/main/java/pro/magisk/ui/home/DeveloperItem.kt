@@ -1,3 +1,10 @@
+/**
+ * Data models for the developer credits section on the home screen.
+ *
+ * Provides sealed hierarchies for [DeveloperItem] (one per contributor) and
+ * [IconLink] (link types: Twitter, GitHub, PayPal, Patreon, Sponsor).
+ * Each link is a [RvItem] rendered as an icon row in the credits list.
+ */
 package pro.magisk.ui.home
 
 import pro.magisk.R
@@ -5,6 +12,7 @@ import pro.magisk.core.Const
 import pro.magisk.databinding.RvItem
 import pro.magisk.core.R as CoreR
 
+/** Interface for objects with a developer handle name. */
 interface Dev {
     val name: String
 }
@@ -29,6 +37,7 @@ private interface CanyieImpl : Dev {
     override val name get() = "canyie"
 }
 
+/** Represents a Magisk contributor with their associated [IconLink]s. */
 sealed class DeveloperItem : Dev {
 
     abstract val items: List<IconLink>
@@ -76,6 +85,7 @@ sealed class DeveloperItem : Dev {
     }
 }
 
+/** A single clickable icon+title link (Twitter, GitHub, etc.) that is also a [RvItem]. */
 sealed class IconLink : RvItem() {
 
     abstract val icon: Int

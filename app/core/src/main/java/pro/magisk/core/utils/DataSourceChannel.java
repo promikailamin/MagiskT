@@ -1,3 +1,18 @@
+/**
+ * A read-only {@link SeekableByteChannel} over a slice of a {@link FileChannel} with
+ * an adaptive two-tier caching strategy.
+ *
+ * <p>The cache switches between:
+ * <ul>
+ *   <li><b>Random-access cache</b> (16 KB) — centered around the read position for small,
+ *       non-sequential reads.</li>
+ *   <li><b>Sequential cache</b> (1 MB) — loaded forward from the current position when
+ *       sequential access is detected.</li>
+ * </ul>
+ *
+ * <p>Reads larger than 512 KB bypass the cache entirely and go directly to the backing channel.
+ * Slices can be created via {@link #slice} without allocating new channel resources.
+ */
 package pro.magisk.core.utils;
 
 import org.apache.commons.io.input.BoundedInputStream;
@@ -11,17 +26,12 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.NonWritableChannelException;
 import java.nio.channels.SeekableByteChannel;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-
 public class DataSourceChannel implements SeekableByteChannel {
     private static final int RANDOM_READ_CACHE_SIZE = 16 * 1024;
     private static final int SEQ_READ_CACHE_SIZE = 1024 * 1024;
     private static final int SEQ_READ_THRESHOLD = 1024;
     private static final int DIRECT_READ_THRESHOLD = 512 * 1024;
 
-    private final OkHttpClient client;
-    private final String url;
     private final FileChannel fileChannel;
     private final long startOffset;
     private final long size;
@@ -32,41 +42,22 @@ public class DataSourceChannel implements SeekableByteChannel {
     private byte[] cache = null;
     private long cacheStart = -1;
 
-    private DataSourceChannel(OkHttpClient client, String url, FileChannel fileChannel,
+    private DataSourceChannel(FileChannel fileChannel,
                               long startOffset, long size) {
-        this.client = client;
-        this.url = url;
         this.fileChannel = fileChannel;
         this.startOffset = startOffset;
         this.size = size;
     }
 
+    /** Wraps the entire {@link FileChannel} as a readable channel. */
     public DataSourceChannel(FileChannel fileChannel) throws IOException {
-        this(null, null, fileChannel, 0, fileChannel.size());
+        this(fileChannel, 0, fileChannel.size());
     }
 
-    public DataSourceChannel(OkHttpClient client, String url) throws IOException {
-        this(client, url, null, 0, fetchTotalSize(client, url));
-    }
-
-    private static long fetchTotalSize(OkHttpClient client, String url) throws IOException {
-        var request = new Request.Builder().url(url).head().build();
-        try (var response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                throw new IOException("Failed to connect to URL: " + response);
-            }
-            var contentLength = response.header("Content-Length");
-            if (contentLength == null) {
-                throw new IOException("Could not determine file size.");
-            }
-            var acceptRanges = response.header("Accept-Ranges");
-            if (acceptRanges == null || !acceptRanges.equalsIgnoreCase("bytes")) {
-                throw new IOException("Server does not support byte ranges: " + response);
-            }
-            return Long.parseLong(contentLength);
-        }
-    }
-
+    /**
+     * Creates a logical slice of this channel without opening a new file descriptor.
+     * Returns {@code this} if the slice covers the entire range.
+     */
     public DataSourceChannel slice(long offset, long sliceSize) {
         if (offset == 0 && sliceSize == size) {
             return this;
@@ -74,7 +65,7 @@ public class DataSourceChannel implements SeekableByteChannel {
         if (offset < 0 || sliceSize <= 0 || offset + sliceSize >= size) {
             throw new IllegalArgumentException("Invalid slice parameters");
         }
-        return new DataSourceChannel(client, url, fileChannel, startOffset + offset, sliceSize);
+        return new DataSourceChannel(fileChannel, startOffset + offset, sliceSize);
     }
 
     @Override
@@ -84,6 +75,10 @@ public class DataSourceChannel implements SeekableByteChannel {
         return bytesRead;
     }
 
+    /**
+     * Reads up to {@code dst.remaining()} bytes starting at the given absolute position.
+     * Uses the adaptive cache for small/moderate reads and direct I/O for large reads.
+     */
     public int read(ByteBuffer dst, long position) throws IOException {
         if (!open) throw new ClosedChannelException();
         if (position < 0) {
@@ -194,6 +189,10 @@ public class DataSourceChannel implements SeekableByteChannel {
         }
     }
 
+    /**
+     * Opens a bounded {@link InputStream} over the specified range of data.
+     * The returned stream reads from the backing {@link FileChannel} directly.
+     */
     public InputStream streamRead(long position, long length) throws IOException {
         long endPosition = Math.min(position + length, size) + startOffset;
         var startPosition = startOffset + position;
@@ -208,17 +207,7 @@ public class DataSourceChannel implements SeekableByteChannel {
                     .get();
         }
 
-        var request = new Request.Builder()
-                .url(url)
-                .header("Range", "bytes=" + startPosition + "-" + (endPosition - 1))
-                .build();
-
-        var response = client.newCall(request).execute();
-        if (response.code() != 206) {
-            response.close();
-            throw new IOException("Unexpected response code " + response.code());
-        }
-        return response.body().byteStream();
+        return null;
     }
 
     @Override

@@ -1,3 +1,8 @@
+/**
+ * Boot image header definitions and polymorphic header wrapper classes.
+ * Defines AOSP boot image headers (v0-v4, vendor), AVB structures,
+ * MTK/DHTB/BLOB special headers, and the dyn_img_hdr hierarchy.
+ */
 #pragma once
 
 #include <cstdint>
@@ -9,6 +14,10 @@
  * Special Headers
  *****************/
 
+/**
+ * MediaTek header prepended to kernel or ramdisk in MTK boot images.
+ * Contains magic, payload size, and a descriptive name; padded to 512 bytes.
+ */
 struct mtk_hdr {
     uint32_t magic;         /* MTK magic */
     uint32_t size;          /* Size of the content */
@@ -17,6 +26,11 @@ struct mtk_hdr {
     char padding[472];      /* Padding to 512 bytes */
 } __attribute__((packed));
 
+/**
+ * DHTB (Dump High Tech Boot) header used by some Samsung devices.
+ * Contains a checksum over the entire image (including SEANDROID trailer and
+ * 0xFFFFFFFF marker) and the payload size.
+ */
 struct dhtb_hdr {
     char magic[8];          /* DHTB magic */
     uint8_t checksum[40];   /* Payload SHA256, whole image + SEANDROIDENFORCE + 0xFFFFFFFF */
@@ -25,6 +39,10 @@ struct dhtb_hdr {
     char padding[460];      /* Padding to 512 bytes */
 } __attribute__((packed));
 
+/**
+ * Tegra BLOB header used by NVIDIA Tegra devices (e.g. Tegra 2/3).
+ * Wraps multiple partitions into a single signed blob image.
+ */
 struct blob_hdr {
     char secure_magic[20];  /* "-SIGNED-BY-SIGNBLOB-" */
     uint32_t datalen;       /* 0x00000000 */
@@ -41,6 +59,11 @@ struct blob_hdr {
     uint32_t version;       /* 0x00000001 */
 } __attribute__((packed));
 
+/**
+ * zImage kernel header for ARM Linux kernels.
+ * Contains load/end addresses used to locate the compressed piggy payload
+ * within the kernel image.
+ */
 struct zimage_hdr {
     uint32_t code[9];
     uint32_t magic;      /* zImage magic */
@@ -58,7 +81,11 @@ struct zimage_hdr {
 #define AVB_MAGIC_LEN 4
 #define AVB_RELEASE_STRING_SIZE 48
 
-// https://android.googlesource.com/platform/external/avb/+/refs/heads/android11-release/libavb/avb_footer.h
+/**
+ * AVB Footer — appended to the end of a partition to locate the vbmeta header.
+ * Layout defined by libavb (Android Verified Boot 1.0/2.0).
+ * @see https://android.googlesource.com/platform/external/avb/+/refs/heads/android11-release/libavb/avb_footer.h
+ */
 struct AvbFooter {
     uint8_t magic[AVB_FOOTER_MAGIC_LEN];
     uint32_t version_major;
@@ -69,7 +96,11 @@ struct AvbFooter {
     uint8_t reserved[28];
 } __attribute__((packed));
 
-// https://android.googlesource.com/platform/external/avb/+/refs/heads/android11-release/libavb/avb_vbmeta_image.h
+/**
+ * AVB VBMeta image header — contains hashes, signatures, public keys and
+ * descriptor chain for verified boot.
+ * @see https://android.googlesource.com/platform/external/avb/+/refs/heads/android11-release/libavb/avb_vbmeta_image.h
+ */
 struct AvbVBMetaImageHeader {
     uint8_t magic[AVB_MAGIC_LEN];
     uint32_t required_libavb_version_major;
@@ -142,6 +173,10 @@ struct AvbVBMetaImageHeader {
  * x = (extra_size + page_size - 1) / page_size
  */
 
+/**
+ * Common fields shared by AOSP v0–v2 boot image headers.
+ * Contains kernel/ramdisk/second stage sizes and load addresses.
+ */
 struct boot_img_hdr_v0_common {
     char magic[BOOT_MAGIC_SIZE];
 
@@ -155,6 +190,15 @@ struct boot_img_hdr_v0_common {
     uint32_t second_addr;  /* physical load addr */
 } __attribute__((packed));
 
+/**
+ * AOSP boot image header version 0.
+ * Used by Android devices with header version 0. Fields include page size,
+ * OS version, product name, cmdline, and checksum ID.
+ * @note For Samsung PXA headers, the page_size field holds an unrealistic
+ *       value, which we use to distinguish PXA from AOSP headers.
+ * @note The header_version/extra_size field is shared: for v0 it is extra_size,
+ *       for v1+ it is header_version.
+ */
 struct boot_img_hdr_v0 : public boot_img_hdr_v0_common {
     uint32_t tags_addr;    /* physical addr for kernel tags */
 
@@ -190,18 +234,30 @@ struct boot_img_hdr_v0 : public boot_img_hdr_v0_common {
     char extra_cmdline[BOOT_EXTRA_ARGS_SIZE];
 } __attribute__((packed));
 
+/**
+ * AOSP boot image header version 1.
+ * Adds recovery DTBO/ACPIO size and offset, plus explicit header_size field.
+ */
 struct boot_img_hdr_v1 : public boot_img_hdr_v0 {
     uint32_t recovery_dtbo_size;    /* size in bytes for recovery DTBO/ACPIO image */
     uint64_t recovery_dtbo_offset;  /* offset to recovery dtbo/acpio in boot image */
     uint32_t header_size;
 } __attribute__((packed));
 
+/**
+ * AOSP boot image header version 2.
+ * Adds DTB size and load address for device tree blob appended to boot image.
+ */
 struct boot_img_hdr_v2 : public boot_img_hdr_v1 {
     uint32_t dtb_size;  /* size in bytes for DTB image */
     uint64_t dtb_addr;  /* physical load address for DTB image */
 } __attribute__((packed));
 
-// Special Samsung header
+/**
+ * Samsung PXA boot image header (non-standard).
+ * Derived from v0_common but uses a different field layout: extra_size appears
+ * before tags_addr, page_size is separate, and name is 24 bytes instead of 16.
+ */
 struct boot_img_hdr_pxa : public boot_img_hdr_v0_common {
     uint32_t extra_size;   /* extra blob size in bytes */
     uint32_t unknown;
@@ -288,6 +344,11 @@ struct boot_img_hdr_pxa : public boot_img_hdr_v0_common {
  * entering the kernel.
  */
 
+/**
+ * AOSP boot image header version 3 (simplified layout, page size fixed at 4096).
+ * Used for GKI (Generic Kernel Image) devices. Combines cmdline + extra_cmdline
+ * into a single field, removes second/extra/recovery_dtbo/dtb fields.
+ */
 struct boot_img_hdr_v3 {
     uint8_t magic[BOOT_MAGIC_SIZE];
 
@@ -302,6 +363,11 @@ struct boot_img_hdr_v3 {
     char cmdline[BOOT_ARGS_SIZE + BOOT_EXTRA_ARGS_SIZE];
 } __attribute__((packed));
 
+/**
+ * Vendor boot image header version 3 (Android 11+).
+ * Used for devices with a separate vendor_boot partition that contains
+ * vendor ramdisk, DTB, and cmdline.
+ */
 struct boot_img_hdr_vnd_v3 {
     // Must be VENDOR_BOOT_MAGIC.
     uint8_t magic[BOOT_MAGIC_SIZE];
@@ -319,10 +385,18 @@ struct boot_img_hdr_vnd_v3 {
     uint64_t dtb_addr;      /* physical load address for DTB image */
 } __attribute__((packed));
 
+/**
+ * AOSP boot image header version 4.
+ * Adds a signature_size field (after kernel/ramdisk) for boot image signing.
+ */
 struct boot_img_hdr_v4 : public boot_img_hdr_v3 {
     uint32_t signature_size; /* size in bytes */
 } __attribute__((packed));
 
+/**
+ * Vendor boot image header version 4 (Android 12+).
+ * Adds vendor ramdisk table (multiple named ramdisks) and bootconfig section.
+ */
 struct boot_img_hdr_vnd_v4 : public boot_img_hdr_vnd_v3 {
     uint32_t vendor_ramdisk_table_size;       /* size in bytes for the vendor ramdisk table */
     uint32_t vendor_ramdisk_table_entry_num;  /* number of entries in the vendor ramdisk table */
@@ -330,6 +404,11 @@ struct boot_img_hdr_vnd_v4 : public boot_img_hdr_vnd_v3 {
     uint32_t bootconfig_size; /* size in bytes for the bootconfig section */
 } __attribute__((packed));
 
+/**
+ * Entry in the vendor ramdisk table (v4 vendor boot images).
+ * Describes a single ramdisk: its size, offset, type (platform/recovery/dlkm),
+ * name, and board-ID hardware identifiers.
+ */
 struct vendor_ramdisk_table_entry_v4 {
     uint32_t ramdisk_size;   /* size in bytes for the ramdisk image */
     uint32_t ramdisk_offset; /* offset to the ramdisk image in vendor ramdisk section */
@@ -345,12 +424,20 @@ struct vendor_ramdisk_table_entry_v4 {
  * Polymorphic Universal Header
  *******************************/
 
+/**
+ * Align a value up to the next multiple of a given alignment.
+ * e.g. align_to(100, 32) = 128.
+ */
 template <typename T>
 static T align_to(T v, int a) {
     static_assert(std::is_integral_v<T>);
     return (v + a - 1) / a * a;
 }
 
+/**
+ * Compute the padding needed to align v up to the next multiple of a.
+ * e.g. align_padding(100, 32) = 28.
+ */
 template <typename T>
 static T align_padding(T v, int a) {
     return align_to(v, a) - v;
@@ -367,6 +454,13 @@ decl_val(name, len)
 virtual char *name() { return nullptr; } \
 virtual const char *name() const { return nullptr; }
 
+/**
+ * Polymorphic base class for all boot image header versions.
+ * Uses virtual methods and a union of header struct pointers to provide a
+ * uniform API for accessing fields across AOSP v0-v4, vendor v3-v4, and PXA headers.
+ * Fields that don't exist in a given version return 0 or nullptr via default
+ * implementations generated by the decl_val/decl_var/decl_str macros.
+ */
 struct dyn_img_hdr {
 
     virtual bool is_vendor() const = 0;
@@ -403,8 +497,11 @@ struct dyn_img_hdr {
         free(raw);
     }
 
+    /** Return the actual header struct size (used for memcpy). */
     virtual size_t hdr_size() const = 0;
+    /** Return the on-disk header space (padded to page_size). */
     virtual size_t hdr_space() const { return page_size(); }
+    /** Deep-copy the header into a new dyn_img_hdr. */
     virtual dyn_img_hdr *clone() const = 0;
 
     const void *raw_hdr() const { return raw; }
@@ -421,6 +518,7 @@ protected:
         void *raw;                   /* Raw pointer */
     };
 
+    // Return reference to static junk for unsupported read-write fields.
     static uint32_t &j32() { _j32 = 0; return _j32; }
     static uint64_t &j64() { _j64 = 0; return _j64; }
 
@@ -434,6 +532,10 @@ private:
 #undef decl_val
 #undef decl_str
 
+/**
+ * Macro to generate constructor, hdr_size(), and clone() for a versioned header wrapper.
+ * Allocates a zero-initialized copy of the underlying struct and stores it in `raw`.
+ */
 #define __impl_cls(name, hdr)           \
 protected: name() = default;            \
 public:                                 \
@@ -462,16 +564,19 @@ __impl_val(name, hdr_name)
 #define impl_val(name) __impl_val(name, v2_hdr)
 #define impl_var(name) __impl_var(name, v2_hdr)
 
+/** Base for boot image headers (non-vendor). */
 struct dyn_img_hdr_boot : public dyn_img_hdr {
     bool is_vendor() const final { return false; }
 };
 
+/** Common base for v0–v2 boot headers providing kernel/ramdisk/second size access. */
 struct dyn_img_common : public dyn_img_hdr_boot {
     impl_var(kernel_size)
     impl_var(ramdisk_size)
     impl_var(second_size)
 };
 
+/** AOSP boot image header version 0 wrapper. */
 struct dyn_img_v0 : public dyn_img_common {
     impl_cls(v0)
 
@@ -484,6 +589,10 @@ struct dyn_img_v0 : public dyn_img_common {
     impl_var(extra_cmdline)
 };
 
+/**
+ * AOSP boot image header version 1 wrapper.
+ * Adds recovery_dtbo and header_size; extra_size is always 0 (field repurposed for header_version).
+ */
 struct dyn_img_v1 : public dyn_img_v0 {
     impl_cls(v1)
 
@@ -496,6 +605,7 @@ struct dyn_img_v1 : public dyn_img_v0 {
     uint32_t extra_size() const override { return 0; }
 };
 
+/** AOSP boot image header version 2 wrapper. Adds dtb_size. */
 struct dyn_img_v2 : public dyn_img_v1 {
     impl_cls(v2)
 
@@ -507,6 +617,7 @@ struct dyn_img_v2 : public dyn_img_v1 {
 #define impl_val(name) __impl_val(name, hdr_pxa)
 #define impl_var(name) __impl_var(name, hdr_pxa)
 
+/** Samsung PXA boot image header wrapper. Uses hdr_pxa pointer internally. */
 struct dyn_img_pxa : public dyn_img_common {
     impl_cls(pxa)
 
@@ -523,6 +634,10 @@ struct dyn_img_pxa : public dyn_img_common {
 #define impl_val(name) __impl_val(name, v4_hdr)
 #define impl_var(name) __impl_var(name, v4_hdr)
 
+/**
+ * AOSP boot image header version 3 wrapper (GKI, page size fixed at 4096).
+ * extra_cmdline is simulated by splitting the combined cmdline field at BOOT_ARGS_SIZE.
+ */
 struct dyn_img_v3 : public dyn_img_hdr_boot {
     impl_cls(v3)
 
@@ -539,12 +654,14 @@ struct dyn_img_v3 : public dyn_img_hdr_boot {
     const char *extra_cmdline() const override { return &v4_hdr->cmdline[BOOT_ARGS_SIZE]; }
 };
 
+/** AOSP boot image header version 4 wrapper. Adds signature_size. */
 struct dyn_img_v4 : public dyn_img_v3 {
     impl_cls(v4)
 
     impl_val(signature_size)
 };
 
+/** Base for vendor boot image headers. */
 struct dyn_img_hdr_vendor : public dyn_img_hdr {
     bool is_vendor() const final { return true; }
 };
@@ -554,6 +671,7 @@ struct dyn_img_hdr_vendor : public dyn_img_hdr {
 #define impl_val(name) __impl_val(name, v4_vnd)
 #define impl_var(name) __impl_var(name, v4_vnd)
 
+/** Vendor boot image header version 3 wrapper. hdr_space is aligned to page_size. */
 struct dyn_img_vnd_v3 : public dyn_img_hdr_vendor {
     impl_cls(vnd_v3)
 
@@ -572,6 +690,7 @@ struct dyn_img_vnd_v3 : public dyn_img_hdr_vendor {
     const char *extra_cmdline() const override { return &v4_vnd->cmdline[BOOT_ARGS_SIZE]; }
 };
 
+/** Vendor boot image header version 4 wrapper. Adds ramdisk table and bootconfig fields. */
 struct dyn_img_vnd_v4 : public dyn_img_vnd_v3 {
     impl_cls(vnd_v4)
 
@@ -610,17 +729,32 @@ enum {
     BOOT_FLAGS_MAX
 };
 
+/**
+ * Full boot image representation after parsing.
+ * Memory-maps the entire image file, detects the header version, identifies
+ * all component blocks (kernel, ramdisk, second, extra, DTB, etc.), and
+ * classifies special formats (ChromeOS, DHTB, BLOB, zImage, AVB, etc.).
+ *
+ * Memory layout of the mapped region:
+ * +-----------+
+ * | head      | Vendor-specific prepended data (for DHTB, BLOB, Nook, Amonet, etc.)
+ * +-----------+
+ * | payload   | AOSP boot image proper (header + kernel + ramdisk + ...)
+ * +-----------+
+ * | tail      | Trailing data (signatures, AVB, SEANDROID, LG BUMP, etc.)
+ * +-----------+
+ */
 struct boot_img {
-    // Memory map of the whole image
+    /** Memory map of the whole image file. */
     const mmap_data map;
 
-    // Android image header
+    /** Polymorphic boot image header (v0–v4, vendor, or PXA). */
     dyn_img_hdr *hdr = nullptr;
 
-    // Flags to indicate the state of current boot image
+    /** Flag bits tracking discovered image features. */
     std::bitset<BOOT_FLAGS_MAX> flags;
 
-    // The format of kernel, ramdisk and extra
+    /** Detected compression format of kernel, ramdisk, and extra sections. */
     FileFormat k_fmt;
     FileFormat r_fmt;
     FileFormat e_fmt;
@@ -629,41 +763,37 @@ struct boot_img {
      * Following pointers points within the read-only mmap region
      *************************************************************/
 
-    // Layout of the memory mapped region
-    // +---------+
-    // | head    | Vendor specific. Should not exist for standard AOSP boot images.
-    // +---------+
-    // | payload | The actual entire AOSP boot image, including the boot image header.
-    // +---------+
-    // | tail    | Data after payload. Usually contains signature/AVB information.
-    // +---------+
-
+    /** Payload portion (AOSP boot image proper, including header). */
     byte_view payload;
+    /** Trailing data after the payload (signatures, AVB footers, etc.). */
     byte_view tail;
 
-    // MTK headers
+    /** Pointers to MTK headers (prepended to kernel/ramdisk on MTK devices). */
     const mtk_hdr *k_hdr = nullptr;
     const mtk_hdr *r_hdr = nullptr;
 
-    // The pointers/values after parse_image
-    // +---------------+
-    // | z_info.hdr    | z_info.hdr_sz
-    // +---------------+
-    // | kernel        | hdr->kernel_size()
-    // +---------------+
-    // | z_info.tail   |
-    // +---------------+
+    /**
+     * zImage kernel decomposition data.
+     * After parse_image, kernel layout is:
+     * +-----------------------+
+     * | z_info.hdr (hdr_sz)   |
+     * +-----------------------+
+     * | kernel (compressed)   | hdr->kernel_size()
+     * +-----------------------+
+     * | z_info.tail           |
+     * +-----------------------+
+     */
     struct {
         const zimage_hdr *hdr = nullptr;
         uint32_t hdr_sz = 0;
         byte_view tail{};
     } z_info;
 
-    // AVB structs
+    /** Pointers to AVB structures within tail/payload. */
     const AvbFooter *avb_footer = nullptr;
     const AvbVBMetaImageHeader *vbmeta = nullptr;
 
-    // Pointers to blocks defined in header
+    /** Pointers to individual component blocks within the payload. */
     const uint8_t *kernel = nullptr;
     const uint8_t *ramdisk = nullptr;
     const uint8_t *second = nullptr;
@@ -674,7 +804,7 @@ struct boot_img {
     const uint8_t *vendor_ramdisk_table = nullptr;
     const uint8_t *bootconfig = nullptr;
 
-    // dtb embedded in kernel
+    /** DTB blob embedded inside the kernel image (detected via FDT magic). */
     byte_view kernel_dtb;
 
     explicit boot_img(const char *);

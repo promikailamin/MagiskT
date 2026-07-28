@@ -1,3 +1,9 @@
+/**
+ * ViewModel for the superuser permission list and detail screens. Loads all stored
+ * [SuPolicy] entries from [PolicyDao], resolves package information (name, icon,
+ * shared-UID status), and exposes toggle/update/delete operations that auto-refresh
+ * when [SuEvents.policyChanged] fires.
+ */
 package pro.magisk.ui.superuser
 
 import android.annotation.SuppressLint

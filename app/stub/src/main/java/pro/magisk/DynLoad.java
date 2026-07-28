@@ -1,3 +1,15 @@
+/**
+ * Core engine for dynamically loading the real Magisk APK from inside the stub.
+ *
+ * Responsibilities:
+ * 1. Locate and load the real APK from internal storage, an update file, or the previously
+ *    installed app's APK.
+ * 2. Create a {@link DynamicClassLoader} pointing to the real APK's dex.
+ * 3. Instantiate the real Application class, passing stub data via an Object array constructor.
+ * 4. Set up the component name mapping so that Android resolves stub component names to the
+ *    real APK's components.
+ * 5. Optionally install a {@link DelegateClassLoader} into LoadedApk on pre-Q devices.
+ */
 package pro.magisk;
 
 import static pro.magisk.BuildConfig.APPLICATION_ID;
@@ -29,9 +41,12 @@ import java.util.Map;
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public class DynLoad {
 
+    /** The DelegateComponentFactory instance set during construction. */
     static Object componentFactory;
+    /** The currently active class loader pointing to the real APK (or fallback stub loader). */
     static ClassLoader activeClassLoader = DynLoad.class.getClassLoader();
 
+    /** Creates a Data object populated with stub version, empty mapping, and StubRootService. */
     static StubApk.Data createApkData() {
         var data = new StubApk.Data();
         data.setVersion(BuildConfig.STUB_VERSION);
@@ -40,6 +55,10 @@ public class DynLoad {
         return data;
     }
 
+    /**
+     * Calls attachBaseContext on an object via reflection.
+     * Used to wire up the real Application with the stub's Context.
+     */
     static void attachContext(Object o, Context context) {
         if (!(o instanceof ContextWrapper))
             return;
@@ -50,17 +69,25 @@ public class DynLoad {
         } catch (Exception ignored) { /* Impossible */ }
     }
 
-    // Dynamically load APK from internal, external storage, or previous app
+    /**
+     * Locates and loads the real Magisk APK.
+     *
+     * Search order:
+     * 1. If an update APK exists, rename it to current.apk.
+     * 2. In DEBUG builds, copy from external storage for development convenience.
+     * 3. If current.apk exists, load it.
+     * 4. If running under a different package name (hidden), copy the real app's APK.
+     *
+     * @return a DynamicClassLoader for the real APK, or null if no APK is available.
+     */
     static DynamicClassLoader loadApk(Context context) {
         File apk = StubApk.current(context);
         File update = StubApk.update(context);
 
         if (update.exists()) {
-            // Rename from update
             update.renameTo(apk);
         }
 
-        // Copy from external for easier development
         if (BuildConfig.DEBUG) {
             try {
                 File external = new File(context.getExternalFilesDir(null), "magisk.apk");
@@ -90,7 +117,7 @@ public class DynLoad {
             return new DynamicClassLoader(apk);
         }
 
-        // If no APK is loaded, attempt to copy from previous app
+        // Attempt to copy from the previously installed app (used after hiding/renaming)
         if (!context.getPackageName().equals(APPLICATION_ID)) {
             try {
                 var info = context.getPackageManager().getApplicationInfo(APPLICATION_ID, 0);
@@ -112,13 +139,21 @@ public class DynLoad {
         return null;
     }
 
-    // Dynamically load APK and initialize the application
+    /**
+     * Loads the real APK and initializes the real Application object.
+     *
+     * Steps:
+     * 1. On pre-Q devices, replace LoadedApk.mClassLoader with a DelegateClassLoader.
+     * 2. Query the stub's own PackageInfo.
+     * 3. Call {@link #loadApk} to obtain a DynamicClassLoader.
+     * 4. If successful, generate component name mapping, create the real Application,
+     *    set up the AppComponentFactory delegate, and update activeClassLoader.
+     * 5. On failure, fall back to StubClassLoader.
+     */
     static void loadAndInitializeApp(Application context) {
-        // On API >= 29, AppComponentFactory will replace the ClassLoader for us
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q)
             replaceClassLoader(context);
 
-        // noinspection InlinedApi
         int flags = PackageManager.GET_ACTIVITIES | PackageManager.GET_SERVICES
                 | PackageManager.GET_PROVIDERS | PackageManager.GET_RECEIVERS
                 | PackageManager.MATCH_DIRECT_BOOT_AWARE | PackageManager.MATCH_DISABLED_COMPONENTS
@@ -130,7 +165,6 @@ public class DynLoad {
             // noinspection WrongConstant
             stubInfo = pm.getPackageInfo(context.getPackageName(), flags);
         } catch (PackageManager.NameNotFoundException e) {
-            // Impossible
             throw new RuntimeException(e);
         }
 
@@ -144,18 +178,18 @@ public class DynLoad {
 
             var data = createApkData();
             var map = data.getClassToComponent();
-            // Create the inverse mapping (class to component name)
+            // Build inverse mapping: real component class name → stub component name
             for (var e : mapping.entrySet()) {
                 map.put(e.getValue(), e.getKey());
             }
 
             var appInfo = apkInfo.applicationInfo;
-            // Create the receiver Application with proper constructor
+            // The real Application must have a constructor accepting Object (the Data array)
             var app = cl.loadClass(appInfo.className)
                     .getConstructor(Object.class)
                     .newInstance(data.getObject());
 
-            // Create the receiver component factory
+            // Wire up the AppComponentFactory delegate so Android creates real components
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && componentFactory != null) {
                 var delegate = (DelegateComponentFactory) componentFactory;
                 if (appInfo.appComponentFactory == null) {
@@ -168,20 +202,21 @@ public class DynLoad {
 
             activeClassLoader = new MappingClassLoader(cl, mapping);
 
-            // Call Application.attachBaseContext
             attachContext(app, context);
         } catch (Exception e) {
             Log.e(DynLoad.class.getSimpleName(), "", e);
             apk.delete();
         } else {
-            // Dynamic loading failed, use normal stub classloader
             activeClassLoader = new StubClassLoader(stubInfo);
         }
     }
 
-    // Replace LoadedApk mClassLoader
+    /**
+     * On API < 29, replaces the platform's LoadedApk.mClassLoader with a DelegateClassLoader
+     * so that all component resolution goes through the dynamically loaded APK.
+     */
     private static void replaceClassLoader(Context context) {
-        // Get ContextImpl
+        // Unwrap to the base ContextImpl
         while (context instanceof ContextWrapper) {
             context = ((ContextWrapper) context).getBaseContext();
         }
@@ -195,12 +230,17 @@ public class DynLoad {
             mcl.setAccessible(true);
             mcl.set(loadedApk, new DelegateClassLoader());
         } catch (Exception e) {
-            // Actually impossible as this method is only called on API < 29,
-            // and API 23 - 28 do not restrict access to these fields.
             Log.e(DynLoad.class.getSimpleName(), "", e);
         }
     }
 
+    /**
+     * Generates a mapping from stub component names to real APK component names.
+     *
+     * Both APKs are expected to declare the same set of components in the same order.
+     * For activities and services, exported/permission attributes are used to distinguish
+     * the main vs. secondary component when ordering differs.
+     */
     private static Map<String, String> generateMapping(PackageInfo stub, PackageInfo app) {
         var mapping = new HashMap<String, String>();
         {
@@ -211,6 +251,7 @@ public class DynLoad {
             final ActivityInfo da;
             final ActivityInfo sb;
             final ActivityInfo db;
+            // Match by exported flag: exported activity goes first
             if (src[0].exported) {
                 sa = src[0];
                 sb = src[1];
@@ -237,6 +278,7 @@ public class DynLoad {
             final ServiceInfo da;
             final ServiceInfo sb;
             final ServiceInfo db;
+            // Match by permission: JobService bind permission identifies the main service
             if (JobService.PERMISSION_BIND.equals(src[0].permission)) {
                 sa = src[0];
                 sb = src[1];

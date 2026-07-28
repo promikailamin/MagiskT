@@ -1,3 +1,9 @@
+//! Zygisk — Magisk in the Zygote process.
+//!
+//! Handles Zygisk state, native bridge property injection, companion
+//! process management, per-process module loading decisions, and the
+//! IPC protocol between magiskd and the Zygisk companion daemon.
+
 mod daemon;
 
 use crate::thread::ThreadPool;

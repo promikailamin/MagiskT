@@ -1,4 +1,9 @@
-// Functions in this file are only for exporting to C++, DO NOT USE IN RUST
+//! Safe Rust wrappers around common libc syscalls, exported to C++.
+//!
+//! Each function (`xopen`, `xrealpath`, `xreadlinkat`, `xsendfile`, etc.)
+//! wraps the corresponding libc call with error logging via [`ResultExt`].
+//! **DO NOT call these from Rust** — use the typed wrappers in [`files`],
+//! [`dir`], [`mount`] instead.
 
 use crate::cxx_extern::readlinkat;
 use crate::{Directory, LibcReturn, ResultExt, Utf8CStr, cstr, slice_from_ptr, slice_from_ptr_mut};

@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Net nahi chal rha hai</string>
-    <string name="app_changelog">Kya naga hai</string>
     <string name="loading">Loading ho rha hai…</string>
     <string name="update">Update</string>
     <string name="not_available">Available nahi hai</string>
@@ -26,7 +25,6 @@
     <string name="home_support_content">Magisk hamesha free aur open source rahega. Agar aap support karna chahte ho, toh donation de sakte ho.</string>
     <string name="home_installed_version">Jo version install hai</string>
     <string name="home_latest_version">Latest</string>
-    <string name="invalid_update_channel">Galat update channel</string>
     <string name="uninstall_magisk_title">Magisk uninstall karo</string>
     <string name="uninstall_magisk_msg">Saare modules disable ya remove ho jayenge!\nRoot khatam ho jayega!\nAgar Magisk ne storage ko decrypt kiya tha toh wo phir se encrypt ho jayega!</string>
 
@@ -38,7 +36,6 @@
     <string name="install_method_title">Method</string>
     <string name="install_next">Aage badho</string>
     <string name="install_start">Chalo shuru karein</string>
-    <string name="manager_download_install">Download aur install karne ke liye dabao</string>
     <string name="direct_install">Direct install (Recommended)</string>
     <string name="install_inactive_slot">Inactive slot par install karo (OTA ke baad)</string>
     <string name="install_inactive_slot_msg">Reboot ke baad device ko inactive slot se boot karna padega!\nSirf tab use karo jab OTA complete ho chuka ho.\nAage badhna hai?</string>
@@ -109,7 +106,6 @@
     <string name="module_action">Action</string>
     <string name="module_state_restore">Wapas laao</string>
     <string name="module_action_install_external">Storage se install karo</string>
-    <string name="update_available">Naya update available hai</string>
     <string name="suspend_text_riru">Module suspend kiya gaya kyunki %1$s enabled hai</string>
     <string name="suspend_text_zygisk">Bhai %1$s ON kr tabb ye module chalega</string>
     <string name="zygisk_module_unloaded">Zygisk module compatible nahi tha, isliye load nahi hua</string>
@@ -131,14 +127,6 @@
     <string name="settings_restore_app_summary">App ko unhide karo aur original APK wapas lao</string>
     <string name="language">Language</string>
     <string name="system_default">(System ki default)</string>
-    <string name="settings_check_update_title">Updates check karo</string>
-    <string name="settings_check_update_summary">Background mein updates auto check honge</string>
-    <string name="settings_update_channel_title">Update channel</string>
-    <string name="settings_update_stable">Stable</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_debug">Debug</string>
-    <string name="settings_update_custom">Custom</string>
-    <string name="settings_update_custom_msg">Apna custom channel URL daaloL</string>
     <string name="settings_zygisk_summary">Magisk ke kuch parts ko Zygote daemon mein run karo</string>
     <string name="settings_denylist_title">DenyList enforce karo</string>
     <string name="settings_denylist_summary">DenyList mein jo processes hain, unpe Magisk ka effect hata diya jayega</string>
@@ -197,17 +185,12 @@
     <!--Notifications-->
     <string name="update_channel">Magisk updates</string>
     <string name="progress_channel">Progress notifications</string>
-    <string name="updated_channel">Update ho gaya</string>
     <string name="download_complete">Download ho gaya</string>
     <string name="download_file_error">File download karne mein error aaya</string>
-    <string name="magisk_update_title">Magisk ka naya update available hai!</string>
-    <string name="updated_title">Magisk update ho gaya</string>
-    <string name="updated_text">App open karne ke liye tap karo</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Haan</string>
     <string name="no">Nahi</string>
-    <string name="repo_install_title">%1$s %2$s(%3$d) Install karo</string>
     <string name="download">Download karo</string>
     <string name="reboot">Reboot karo</string>
     <string name="close">Close karo</string>

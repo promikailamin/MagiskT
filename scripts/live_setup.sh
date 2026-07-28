@@ -18,6 +18,7 @@
 #
 #####################################################################
 
+# Mount a tmpfs at the given path, handling files named 'magisk' in CWD
 mount_tmpfs() {
   # If a file name 'magisk' is in current directory, mount will fail
   mv magisk magisk.tmp
@@ -25,6 +26,7 @@ mount_tmpfs() {
   mv magisk.tmp magisk
 }
 
+# Mount tmpfs on /sbin with proper SELinux context
 mount_sbin() {
   mount_tmpfs /sbin
   chcon u:object_r:rootfs:s0 /sbin

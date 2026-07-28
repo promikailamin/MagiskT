@@ -1,22 +1,28 @@
 #!/usr/bin/env bash
+# Cuttlefish test harness for Magisk.
+# Downloads, boots, and tests Magisk on Google Cuttlefish virtual devices.
+# Supports: setup (install deps), download (fetch images), test (run tests).
 
 set -xe
 . scripts/test_common.sh
 
 cvd_args="-daemon -enable_sandbox=false -memory_mb=8192 -report_anonymous_usage_stats=n -cpus=$core_count"
 
+# Error handler: stop CVD and clean up images
 cleanup() {
   print_error "! An error occurred"
   run_cvd_bin stop_cvd || true
   rm -f magisk-*.img
 }
 
+# Run a Cuttlefish binary from CF_HOME with proper HOME set
 run_cvd_bin() {
   local exe=$1
   shift
   HOME=$CF_HOME $CF_HOME/bin/$exe "$@"
 }
 
+# Install Cuttlefish base package and configure environment
 setup_env() {
   curl -LO https://github.pro.magisk-files/releases/download/files/cuttlefish-base_1.2.0_amd64.deb
   sudo apt-get update
@@ -29,6 +35,7 @@ setup_env() {
   adb start-server
 }
 
+# Download the latest Cuttlefish system image and host package from CI
 download_cf() {
   local branch=$1
   local device=$2
@@ -56,6 +63,7 @@ download_cf() {
   rm -f cvd-host_package.tar.gz aosp_cf_phone-img.zip
 }
 
+# Boot CVD with a patched init_boot, run setup, reboot, and test
 test_cf() {
   local apk=$1
   local image=$2
@@ -77,6 +85,7 @@ test_cf() {
   run_tests
 }
 
+# Full test: boot stock CVD, patch images for each APK, test each
 test_main() {
   # Launch stock cuttlefish
   run_cvd_bin launch_cvd $cvd_args -resume=false

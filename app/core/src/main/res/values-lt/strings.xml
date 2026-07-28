@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Nėra ryšio</string>
-    <string name="app_changelog">Keitimų sąrašas</string>
     <string name="loading">Įkeliama…</string>
     <string name="update">Naujinti</string>
     <string name="not_available">Neįdiegta</string>
@@ -27,7 +26,6 @@
     <string name="home_support_content">Magisk yra ir visada bus nemokamas, atvirojo kodo. Tačiau galite paaukoti pinigų, jei norite parodyti, kad jums rūpi.</string>
     <string name="home_installed_version">Įdiegta versija</string>
     <string name="home_latest_version">Naujausia versija</string>
-    <string name="invalid_update_channel">Neteisingas naujinimų kanalas</string>
     <string name="uninstall_magisk_title">Pašalinti Magisk</string>
     <string name="uninstall_magisk_msg">Visi moduliai bus išjungti/pašalinti!\nRoot prieiga bus pašalinta!\nVidinė atmintis, iššifruota su Magisk, bus iš naujo užšifruota!</string>
 
@@ -39,7 +37,6 @@
     <string name="install_method_title">Būdas</string>
     <string name="install_next">Toliau</string>
     <string name="install_start">Įdiegti</string>
-    <string name="manager_download_install">Spustelėkite, kad atsisiųstumėte ir įdiegtumėte</string>
     <string name="direct_install">Tiesioginis įdiegimas (rekomenduojama)</string>
     <string name="install_inactive_slot">Įdiegti į antrąją vietą (po OTA naujinimo)</string>
     <string name="install_inactive_slot_msg">Jūsų įremginys bus PRIVERSTAS pasileisti į dabartinę neaktyvią vietą po paleidimo iš naujo!\nNaudokite šią parinktį, kai OTA naujinimas yra baigtas.\nTęsti?</string>
@@ -107,7 +104,6 @@
     <string name="module_state_remove">Šalinti</string>
     <string name="module_state_restore">Atkurti</string>
     <string name="module_action_install_external">Įdiegti iš saugyklos</string>
-    <string name="update_available">Prieinamas naujinimas</string>
     <string name="suspend_text_riru">Modulis išjungtas, nes %1$s yra įjungtas</string>
     <string name="suspend_text_zygisk">Modulis išjungtas, nes %1$s nėra įjungtas</string>
     <string name="zygisk_module_unloaded">Zygisk moduis neįkeltas dėl nesuderinamumo</string>
@@ -129,13 +125,6 @@
     <string name="settings_restore_app_summary">Atkurti programėlę ir originalų APK</string>
     <string name="language">Kalba</string>
     <string name="system_default">(Sistemos numatytoji)</string>
-    <string name="settings_check_update_title">Naujinimų tikrinimas</string>
-    <string name="settings_check_update_summary">Periodiškai fone tikrinti, ar nėra naujinimų</string>
-    <string name="settings_update_channel_title">Naujinimų kanalas</string>
-    <string name="settings_update_stable">Stabilus</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_custom">Tinkintas</string>
-    <string name="settings_update_custom_msg">Įdėkite tinkinto kanalo URL</string>
     <string name="settings_zygisk_summary">Vykdyti Magisk dalis zygote tarnyboje</string>
     <string name="settings_denylist_title">Aktyvinti DenyList</string>
     <string name="settings_denylist_summary">Visos procesų, esančių denylist, Magisk modifikacijos bus atkurtos</string>
@@ -189,17 +178,12 @@
     <!--Notifications-->
     <string name="update_channel">Magisk naujinimai</string>
     <string name="progress_channel">Progreso pranešimai</string>
-    <string name="updated_channel">Naujinimas baigtas</string>
     <string name="download_complete">Atsisiuntimas baigtas</string>
     <string name="download_file_error">Klaida atsisiunčiant failą</string>
-    <string name="magisk_update_title">Prieinamas Magisk naujinimas!</string>
-    <string name="updated_title">Magisk atnaujintas</string>
-    <string name="updated_text">Bakstelėkite, kad atidarytumėte programėlę</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Taip</string>
     <string name="no">Ne</string>
-    <string name="repo_install_title">Įdiegimas %1$s %2$s(%3$d)</string>
     <string name="download">Atsisiųsti</string>
     <string name="reboot">Paleisti iš naujo</string>
     <string name="release_notes">Laidos informacija</string>

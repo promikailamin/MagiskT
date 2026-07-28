@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Nicio conexiune disponibilă</string>
-    <string name="app_changelog">Jurnalul modificărilor</string>
     <string name="loading">Se încarcă…</string>
     <string name="update">Actualizează</string>
     <string name="not_available">Indisponibil</string>
@@ -27,7 +26,6 @@
     <string name="home_support_content">Magisk este și va fi întotdeauna gratuit și open-source. Cu toate acestea, ne poți arăta că îți pasă făcând o donație.</string>
     <string name="home_installed_version">Versiune instalată</string>
     <string name="home_latest_version">Ultima versiune</string>
-    <string name="invalid_update_channel">Canal de actualizare nevalid</string>
     <string name="uninstall_magisk_title">Dezinstalează Magisk</string>
     <string name="uninstall_magisk_msg">Toate modulele vor fi dezactivate/eliminate!\nRootul va fi eliminat!\nOrice spațiu de stocare intern necriptat prin folosirea Magisk va fi recriptat!</string>
 
@@ -39,7 +37,6 @@
     <string name="install_method_title">Metodă</string>
     <string name="install_next">Înainte</string>
     <string name="install_start">Să-i dăm drumul</string>
-    <string name="manager_download_install">Apasă pentru a descărca și a instala</string>
     <string name="direct_install">Instalează direct (Recomandat)</string>
     <string name="install_inactive_slot">Instalează în slotul inactiv (După OTA)</string>
     <string name="install_inactive_slot_msg">Dispozitivul va fi FORȚAT să booteze în slotul actual inactiv după repornire!\nFolosește această opțiune numai după terminarea OTA.\nContinui?</string>
@@ -111,7 +108,6 @@
     <string name="module_state_remove">Elimină</string>
     <string name="module_state_restore">Restaurează</string>
     <string name="module_action_install_external">Instalează din spațiul de stocare</string>
-    <string name="update_available">Actualizare disponibilă</string>
     <string name="suspend_text_riru">Modul suspendat deoarece %1$s este activat</string>
     <string name="suspend_text_zygisk">Modul suspendat deoarece %1$s nu este activat</string>
     <string name="zygisk_module_unloaded">Modulul Zygisk nu a fost încărcat din cauza incompatibilității</string>
@@ -133,13 +129,6 @@
     <string name="settings_restore_app_summary">Dezvăluie aplicația și restaurează APK-ul original</string>
     <string name="language">Limbă</string>
     <string name="system_default">(Implicită a sistemului)</string>
-    <string name="settings_check_update_title">Caută actualizări</string>
-    <string name="settings_check_update_summary">Caută periodic actualizări în fundal</string>
-    <string name="settings_update_channel_title">Canal de actualizare</string>
-    <string name="settings_update_stable">Stabil</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_custom">Personalizat</string>
-    <string name="settings_update_custom_msg">Inserează un URL pentru canal personalizat</string>
     <string name="settings_zygisk_summary">Rulează părți ale Magisk în daemonul zygote</string>
     <string name="settings_denylist_title">Impune lista de refuzări</string>
     <string name="settings_denylist_summary">Procesele din lista de refuzări vor avea toate modificările Magisk anulate</string>
@@ -198,17 +187,12 @@
     <!--Notifications-->
     <string name="update_channel">Actualizări Magisk</string>
     <string name="progress_channel">Notificări de progres</string>
-    <string name="updated_channel">Actualizare finalizată</string>
     <string name="download_complete">Descărcare finalizată</string>
     <string name="download_file_error">Eroare la descărcarea fișierului</string>
-    <string name="magisk_update_title">Actualizare Magisk disponibilă!</string>
-    <string name="updated_title">Magisk actualizat</string>
-    <string name="updated_text">Atinge pentru a deschide aplicația</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Da</string>
     <string name="no">Nu</string>
-    <string name="repo_install_title">Instalează %1$s %2$s(%3$d)</string>
     <string name="download">Descarcă</string>
     <string name="reboot">Repornește</string>
     <string name="release_notes">Note privind versiunea</string>

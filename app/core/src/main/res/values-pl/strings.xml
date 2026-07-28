@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Połączenie niedostępne</string>
-    <string name="app_changelog">Dziennik zmian</string>
     <string name="loading">Ładowanie…</string>
     <string name="update">Zaktualizuj</string>
     <string name="not_available">N/D</string>
@@ -27,7 +26,6 @@
     <string name="home_support_content">Magisk jest i zawsze będzie darmowy i otwarty. Niemniej możesz nam pokazać, że Ci zależy, wysyłając drobną darowiznę.</string>
     <string name="home_installed_version">Zainstalowany</string>
     <string name="home_latest_version">Ostatni</string>
-    <string name="invalid_update_channel">Nieprawidłowy kanał aktualizacji</string>
     <string name="uninstall_magisk_title">Odinstalowywanie Magisk</string>
     <string name="uninstall_magisk_msg">Wszystkie moduły zostaną wyłączone/usunięte!\nRoot zostanie usunięty!\nWszelka wewnętrzna pamięć niezaszyfrowana w związku z użytkowaniem Magisk zostanie ponownie zaszyfrowana!</string>
 
@@ -39,7 +37,6 @@
     <string name="install_method_title">Metoda</string>
     <string name="install_next">Dalej</string>
     <string name="install_start">Zaczynajmy</string>
-    <string name="manager_download_install">Kliknij, aby pobrać i zainstalować</string>
     <string name="direct_install">Bezpośrednia instalacja (zalecana)</string>
     <string name="install_inactive_slot">Zainstaluj w nieaktywnym slocie (po OTA)</string>
     <string name="install_inactive_slot_msg">Po ponownym uruchomieniu twoje urządzenie zostanie ZMUSZONE do rozruchu z aktualnie nieaktywnego slotu!\nUżywaj tej opcji tylko po ukończeniu aktualizacji OTA.\nKontynuować?</string>
@@ -110,7 +107,6 @@
     <string name="module_state_remove">Usuń</string>
     <string name="module_state_restore">Przywróć</string>
     <string name="module_action_install_external">Zainstaluj z pamięci</string>
-    <string name="update_available">Dostępna aktualizacja</string>
     <string name="suspend_text_riru">Moduł jest zawieszony, ponieważ %1$s jest włączony</string>
     <string name="suspend_text_zygisk">Moduł jest zawieszony, ponieważ %1$s nie jest włączony</string>
     <string name="zygisk_module_unloaded">Moduł Zygisk nie został załadowany z powodu niekompatybilności</string>
@@ -132,13 +128,6 @@
     <string name="settings_restore_app_summary">Przestań ukrywać aplikację i przywróć oryginalny plik APK</string>
     <string name="language">Język</string>
     <string name="system_default">(Domyślny systemowy)</string>
-    <string name="settings_check_update_title">Sprawdzanie aktualizacji</string>
-    <string name="settings_check_update_summary">Okresowo sprawdzaj dostępność aktualizacji w tle</string>
-    <string name="settings_update_channel_title">Kanał aktualizacji</string>
-    <string name="settings_update_stable">Stabilny</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_custom">Własny kanał</string>
-    <string name="settings_update_custom_msg">Wprowadź adres URL własnego kanału</string>
     <string name="settings_zygisk_summary">Uruchom część Magisk w demonie zygote</string>
     <string name="settings_denylist_title">Egzekwowanie listy odmów (DenyList)</string>
     <string name="settings_denylist_summary">Procesy znajdujące się na liście odmów (DenyList) będą miały cofnięte wszystkie modyfikacje Magisk</string>
@@ -195,17 +184,12 @@
     <!--Notifications-->
     <string name="update_channel">Aktualizacja Magisk</string>
     <string name="progress_channel">Powiadomienia o postępach</string>
-    <string name="updated_channel">Aktualizacja zakończona</string>
     <string name="download_complete">Pobieranie zakończone</string>
     <string name="download_file_error">Błąd pobierania pliku</string>
-    <string name="magisk_update_title">Aktualizacja Magisk dostępna!</string>
-    <string name="updated_title">Magisk zaktualizowany</string>
-    <string name="updated_text">Kliknij, aby otworzyć aplikację</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Tak</string>
     <string name="no">Nie</string>
-    <string name="repo_install_title">Instalacja %1$s %2$s(%3$d)</string>
     <string name="download">Pobierz</string>
     <string name="reboot">Reboot</string>
     <string name="release_notes">Lista zmian</string>

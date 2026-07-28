@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# AVD test harness for Magisk.
+# Creates, boots, and tests Magisk on Android Emulator (AVD) system images.
+# Supports: test (full test), run (boot only), dl (download only).
 
 set -e
 shopt -s extglob
@@ -30,11 +33,13 @@ case $(uname -m) in
     ;;
 esac
 
+# Clean up temporary images and delete the test AVD
 cleanup() {
   rm -f magisk-*.img
   "$avd" delete avd -n test > /dev/null 2>&1
 }
 
+# Error handler for test mode: kills child processes and cleans up
 test_error() {
   trap - EXIT
   print_error "! An error occurred"
@@ -44,6 +49,7 @@ test_error() {
   exit 1
 }
 
+# Wait until the emulator's sys.boot_completed is 1
 wait_for_boot() {
   set -e
   adb wait-for-device
@@ -58,6 +64,7 @@ wait_for_boot() {
   done
 }
 
+# Print shell variable assignments for the given variable names
 dump_vars() {
   local val
   for name in $@; do
@@ -66,6 +73,10 @@ dump_vars() {
   done
 }
 
+# Parse command line arguments for AVD testing
+# -v: system image version (API level or codename)
+# -t: image type (aosp_atd, google_apis, default)
+# -l: enable logcat output
 parse_args() {
   set +x
   local return_vals="$1"
@@ -152,6 +163,7 @@ parse_args() {
   dump_vars $return_vals
 }
 
+# Download emulator system image via sdkmanager
 dl_emu() {
   local avd_pkg=$1
   yes | "$sdk" --licenses > /dev/null 2>&1
@@ -163,6 +175,7 @@ dl_emu() {
   fi
 }
 
+# Download and create an AVD with the given package name
 setup_emu() {
   local avd_pkg=$1
   local ver=$2
@@ -170,6 +183,7 @@ setup_emu() {
   echo no | "$avd" create avd -f -n test -k $avd_pkg
 }
 
+# Boot an emulator with a patched ramdisk, run setup, reboot, and run tests
 test_emu() {
   local apk=$1
   local image=$2
@@ -195,6 +209,7 @@ test_emu() {
   wait
 }
 
+# Full test flow: parse args, create AVD, boot stock, patch images, test each APK
 test_main() {
   local vars
   vars=$(parse_args "ver avd_pkg ramdisk" "$@")
@@ -238,6 +253,7 @@ test_main() {
   cleanup
 }
 
+# Boot-only flow: create AVD, boot, wait, then clean up
 run_main() {
   local vars
   vars=$(parse_args "ver avd_pkg" "$@")
@@ -250,6 +266,7 @@ run_main() {
   cleanup
 }
 
+# Download-only flow: just download the system image
 dl_main() {
   local vars
   vars=$(parse_args "avd_pkg" "$@")

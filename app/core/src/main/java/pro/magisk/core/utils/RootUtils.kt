@@ -1,3 +1,19 @@
+/**
+ * A [RootService] that exposes privileged operations to the app process
+ * over Binder:
+ *
+ * - **App process lookup** — walks `/proc` to find the
+ *   [RunningAppProcessInfo] for a given PID, climbing the parent chain.
+ * - **Remote file-system access** — delegates to
+ *   [FileSystemManager.getService] so the app can read/write files as
+ *   root.
+ * - **Systemless hosts** — creates the built-in systemless hosts
+ *   module if it does not already exist.
+ *
+ * The companion object holds a [Connection] that blocks until the
+ * service is bound, providing synchronous access to [fs] and
+ * [getAppProcess].
+ */
 package pro.magisk.core.utils
 
 import android.app.ActivityManager
@@ -19,6 +35,14 @@ import timber.log.Timber
 import java.io.File
 import java.util.concurrent.locks.AbstractQueuedSynchronizer
 
+/**
+ * Root-only [RootService] that exposes app-process lookup, remote
+ * file-system access, and systemless-hosts setup over Binder.
+ *
+ * @param stub Optional stub-class reference used to derive the
+ *   component name when the real class is loaded via dynamic
+ *   class-loading.
+ */
 class RootUtils(stub: Any?) : RootService() {
 
     private val className: String = stub?.javaClass?.name ?: javaClass.name
@@ -58,12 +82,10 @@ class RootUtils(stub: Any?) : RootService() {
             if (proc != null)
                 return proc
 
-            // Stop find when root process
             if (Os.stat("/proc/$pid").st_uid == 0) {
                 return null
             }
 
-            // Find PPID
             File("/proc/$pid/status").useLines {
                 val line = it.find { l -> l.startsWith("PPid:") } ?: return null
                 pid = line.substring(5).trim().toInt()
@@ -92,6 +114,10 @@ class RootUtils(stub: Any?) : RootService() {
         return true
     }
 
+    /**
+     * AQS-based one-shot latch that blocks the caller until the
+     * [RootUtils] service is connected.
+     */
     object Connection : AbstractQueuedSynchronizer(), ServiceConnection {
         init {
             state = 1
@@ -115,7 +141,6 @@ class RootUtils(stub: Any?) : RootService() {
         override fun tryAcquireShared(acquires: Int) = if (state == 0) 1 else -1
 
         override fun tryReleaseShared(releases: Int): Boolean {
-            // Decrement count; signal when transition to zero
             while (true) {
                 val c = state
                 if (c == 0)
@@ -160,7 +185,6 @@ class RootUtils(stub: Any?) : RootService() {
             return try {
                 block()
             } catch (e: Throwable) {
-                // The process died unexpectedly
                 Timber.e(e)
                 default
             }

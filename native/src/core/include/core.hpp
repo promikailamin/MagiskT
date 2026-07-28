@@ -1,3 +1,7 @@
+/**
+ * Core daemon header declaring shared constants, utility functions,
+ * and Rust FFI bridge inclusions for the magiskd daemon.
+ */
 #pragma once
 
 #include <sys/socket.h>

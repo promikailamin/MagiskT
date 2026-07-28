@@ -1,3 +1,17 @@
+/**
+ * Stub APK generation logic for Magisk's dynamic-loading architecture.
+ *
+ * <p>The stub APK is a minimal proxy that the Magisk app installs during initial setup.
+ * It contains:
+ * <ul>
+ *   <li>Randomly named Java classes that extend {@code DelegateComponentFactory} and
+ *       {@code StubApplication} — the names are generated from a shuffled dictionary to
+ *       avoid static detection.</li>
+ *   <li>Encrypted {@code resources.arsc} (AES/CBC) so external APKs cannot read resource IDs.</li>
+ *   <li>A modified {@code AndroidManifest.xml} with component placeholders shuffled in a
+ *       non-deterministic order (except on CI where order is reproducible).</li>
+ * </ul>
+ */
 import com.android.build.api.artifact.SingleArtifact
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -32,10 +46,19 @@ import kotlin.random.asKotlinRandom
 
 private val kRANDOM get() = RANDOM.asKotlinRandom()
 
+// Shuffled dictionary pools for generating random class names (1-, 2-, and 3-character)
 private val c1 = mutableListOf<String>()
 private val c2 = mutableListOf<String>()
 private val c3 = mutableListOf<String>()
 
+/**
+ * Initializes the shared random generator and builds a shuffled dictionary file.
+ *
+ * Uses {@link SecureRandom} for local builds (non-deterministic) or a seed-based
+ * {@link Random} for CI builds (reproducible). Generates all possible 1/2/3 character
+ * alphanumeric combinations (excluding 'a' and 'A' for single-letter names), shuffles
+ * them, and writes them to {@code dict.txt} for diagnostic/reproducibility purposes.
+ */
 fun initRandom(dict: File) {
     RANDOM = if (RAND_SEED != 0) Random(RAND_SEED.toLong()) else SecureRandom()
     c1.clear()
@@ -260,6 +283,15 @@ private abstract class TaskWithDir : DefaultTask() {
     abstract val outputFolder: DirectoryProperty
 }
 
+/**
+ * Configures the {@code :stub} module build. For each variant:
+ * <ol>
+ *   <li>Generates random stub class files (DelegateComponentFactory + StubApplication)</li>
+ *   <li>Rewrites the merged manifest to inject shuffled component declarations</li>
+ *   <li>Encrypts and bundles {@code resources.arsc} from the {@code :stub-res} APK</li>
+ *   <li>Deletes {@code resources.arsc} from the final APK so that the host app provides resources</li>
+ * </ol>
+ */
 fun Project.setupStubApk() {
     setupAppCommon()
 

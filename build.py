@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""Magisk build system.
+
+Supports building native binaries (Rust/C++), Android APKs (app/apkT/stub),
+and running AVD tests. Invoke via `python build.py <action>`.
+"""
 import argparse
 import functools
 import glob
@@ -17,7 +22,7 @@ sys.dont_write_bytecode = True
 from scripts.env import *
 
 
-# Common constants
+# Supported Android ABIs and their Rust target triples
 support_abis = {
     "arm64-v8a": "aarch64-linux-android",
     "armeabi-v7a": "thumbv7neon-linux-androideabi",
@@ -49,11 +54,13 @@ force_out = False
 
 
 def vprint(str):
+    """Print a message only when verbose mode is enabled."""
     if args.verbose > 0:
         print(str)
 
 
 def mv(source: Path, target: Path):
+    """Move a file from source to target, silently skip on failure."""
     try:
         shutil.move(source, target)
         vprint(f"mv {source} -> {target}")
@@ -62,6 +69,7 @@ def mv(source: Path, target: Path):
 
 
 def cp(source: Path, target: Path):
+    """Copy a file from source to target, silently skip on failure."""
     try:
         shutil.copyfile(source, target)
         vprint(f"cp {source} -> {target}")
@@ -70,6 +78,7 @@ def cp(source: Path, target: Path):
 
 
 def rm(file: Path):
+    """Remove a single file, silently skip if not found."""
     try:
         os.remove(file)
         vprint(f"rm {file}")
@@ -78,6 +87,7 @@ def rm(file: Path):
 
 
 def rm_on_error(func, path, _):
+    """Error handler for rmtree: clears read-only bit and retries (Windows compat)."""
     # Removing a read-only file on Windows will get "WindowsError: [Error 5] Access is denied"
     # Clear the "read-only" bit and retry
     try:
@@ -88,6 +98,7 @@ def rm_on_error(func, path, _):
 
 
 def rm_rf(path: Path):
+    """Recursively delete a directory tree."""
     vprint(f"rm -rf {path}")
     if sys.version_info >= (3, 12):
         shutil.rmtree(path, ignore_errors=False, onexc=rm_on_error)
@@ -96,12 +107,14 @@ def rm_rf(path: Path):
 
 
 def execv(cmds: list):
+    """Execute a command and return the CompletedProcess instance."""
     out = None if force_out or args.verbose > 0 else subprocess.DEVNULL
     # Use shell on Windows to support PATHEXT
     return subprocess.run(cmds, stdout=out, shell=is_windows)
 
 
 def cmd_out(cmds: list):
+    """Execute a command and return its trimmed stdout as a UTF-8 string."""
     return (
         subprocess.run(
             cmds,
@@ -120,6 +133,7 @@ def cmd_out(cmds: list):
 
 
 def clean_elf():
+    """Remove ELF metadata (sections, notes) from built binaries via elf-cleaner tool."""
     ensure_cargo()
     cargo_toml = Path("tools", "elf-cleaner", "Cargo.toml")
     cmds = ["cargo", "run", "--release", "--manifest-path", cargo_toml]
@@ -134,6 +148,7 @@ def clean_elf():
 
 
 def collect_ndk_build():
+    """Move NDK-build outputs from native/libs/<abi>/ into native/out/<abi>/."""
     for arch in build_abis.keys():
         arch_dir = Path("native", "libs", arch)
         out_dir = Path("native", "out", arch)
@@ -143,6 +158,7 @@ def collect_ndk_build():
 
 
 def run_ndk_build(cmds: list[str]):
+    """Run ndk-build inside native/ with the given make flags and compiler defines."""
     os.chdir("native")
     cmds.append("NDK_PROJECT_PATH=.")
     cmds.append("NDK_APPLICATION_MK=src/Application.mk")
@@ -159,6 +175,7 @@ def run_ndk_build(cmds: list[str]):
 
 
 def build_cpp_src(targets: set[str]):
+    """Build the C++ parts of the native binaries via NDK (Android.mk)."""
     cmds = []
     clean = False
 
@@ -198,6 +215,7 @@ def build_cpp_src(targets: set[str]):
 
 
 def build_rust_src(targets: set[str]):
+    """Build the Rust parts of the native binaries via Cargo workspace."""
     ensure_cargo()
 
     targets = targets.copy()
@@ -245,6 +263,7 @@ def build_rust_src(targets: set[str]):
 
 
 def write_if_diff(file_name: Path, text: str):
+    """Write text to a file only if the content differs, to avoid unnecessary rebuilds."""
     do_write = True
     if file_name.exists():
         with open(file_name, "r") as f:
@@ -256,6 +275,7 @@ def write_if_diff(file_name: Path, text: str):
 
 
 def dump_flags_native():
+    """Generate C header and Rust source with version/vercode/debug flags for native builds."""
     flag_txt = "#pragma once\n"
     flag_txt += f'#define MAGISK_VERSION      "{config["version"]}"\n'
     flag_txt += f'#define MAGISK_VER_CODE     {config["versionCode"]}\n'
@@ -271,6 +291,7 @@ def dump_flags_native():
 
 
 def build_native():
+    """Build all target native binaries (Rust then C++)."""
     ensure_toolchain()
 
     if "targets" not in vars(args) or not args.targets:
@@ -293,9 +314,11 @@ def build_native():
 
 
 def dump_flags_app():
+    """Generate a flags.prop file with ABI list, version, versionCode, and buildCommit for the Android app."""
     flag_txt = f"abiList={','.join(build_abis.keys())}\n"
     flag_txt += f"version={config['version']}\n"
     flag_txt += f"versionCode={config['versionCode']}\n"
+    flag_txt += f"buildCommit={config.get('buildCommit', 'local')}\n"
 
     app_build_dir = Path("app", "build")
     app_build_dir.mkdir(parents=True, exist_ok=True)
@@ -303,6 +326,7 @@ def dump_flags_app():
 
 
 def build_apk(module: str):
+    """Build a single Gradle module and copy the resulting APK to the output directory."""
     ensure_jdk()
     dump_flags_app()
     config_path = args.config.resolve()
@@ -332,31 +356,46 @@ def build_apk(module: str):
 
 
 def build_app():
-    header("* Building the Magisk app")
-    apk = build_apk(":apk")
+    """Build the Magisk app APK.
+
+    When ``-t`` / ``--apkT`` is set, builds the next-generation Jetpack Compose
+    variant (``:apkT``); otherwise builds the current DataBinding variant (``:apk``).
+    """
+    is_apkT = getattr(args, "apkT", False)
+    module = ":apkT" if is_apkT else ":apk"
+    label = "apkT" if is_apkT else "app"
+    header(f"* Building the Magisk {label} ({module})")
+    apk = build_apk(module)
 
     build_type = "release" if args.release else "debug"
 
-    # Rename apk-variant.apk to app-variant.apk
-    source = apk
-    target = apk.parent / apk.name.replace("apk-", "app-")
-    mv(source, target)
-    header(f"Output: {target}")
+    if is_apkT:
+        header(f"Output: {apk}")
+    else:
+        # Rename apk-variant.apk to app-variant.apk
+        source = apk
+        target = apk.parent / apk.name.replace("apk-", "app-")
+        mv(source, target)
+        header(f"Output: {target}")
 
-    # Stub building is directly integrated into the main app
-    # build process. Copy the stub APK into output directory.
-    source = Path("app", "core", "src", build_type, "assets", "stub.apk")
-    target = config["outdir"] / f"stub-{build_type}.apk"
-    cp(source, target)
+        # Stub building is directly integrated into the main app
+        # build process. Copy the stub APK into output directory.
+        source = Path("app", "core", "src", build_type, "assets", "stub.apk")
+        target = config["outdir"] / f"stub-{build_type}.apk"
+        cp(source, target)
 
 
 def build_apkT():
-    header("* Building the Magisk apkT")
-    apk = build_apk(":apkT")
-    header(f"Output: {apk}")
+    """Build the next-generation Magisk app APK (apkT module, Jetpack Compose).
+
+    Delegates to :func:`build_app` with the ``--apkT`` flag forced on.
+    """
+    args.apkT = True
+    build_app()
 
 
 def build_stub():
+    """Build the stub APK (thin proxy that downloads and classloads the real app)."""
     header("* Building the stub app")
     apk = build_apk(":stub")
     header(f"Output: {apk}")
@@ -368,6 +407,7 @@ def build_stub():
 
 
 def cleanup():
+    """Remove build artifacts for native (cpp/rust) and/or app targets."""
     if args.targets:
         targets: set[str] = set(args.targets) & clean_targets
         if "native" in targets:
@@ -403,9 +443,9 @@ def cleanup():
 
 
 def build_all():
+    """Build native binaries, then the app (apk or apkT depending on ``-t``)."""
     build_native()
     build_app()
-    build_apkT()
 
 ############
 # Utilities
@@ -413,6 +453,7 @@ def build_all():
 
 
 def gen_ide():
+    """Generate compilation database and Rust FFI bindings for IDE support."""
     ensure_cargo()
 
     # Do not dump compilation database with ccache
@@ -456,6 +497,7 @@ def gen_ide():
 
 
 def clippy_cli():
+    """Run clippy lint checks on the Rust source code for the specified ABIs."""
     ensure_cargo()
     global force_out
     force_out = True
@@ -480,6 +522,7 @@ def clippy_cli():
 
 
 def cargo_cli():
+    """Pass arbitrary cargo commands through to the project's Rust workspace."""
     ensure_cargo()
     global force_out
     force_out = True
@@ -491,6 +534,7 @@ def cargo_cli():
 
 
 def setup_ndk():
+    """Download and extract the Magisk NDK (ONDK) from GitHub releases."""
     url = f"https://github.com/topjohnwu/ondk/releases/download/{ondk_version}/ondk-{ondk_version}-{os_name}.tar.xz"
     ndk_archive = url.split("/")[-1]
     ondk_path = paths().ndk.parent / f"ondk-{ondk_version}"
@@ -509,6 +553,7 @@ def setup_ndk():
 
 
 def setup_rustup():
+    """Install rustup wrapper that falls back to nightly for 'rustup component list'."""
     wrapper_dir = Path(args.wrapper_dir)
     rm_rf(wrapper_dir)
     wrapper_dir.mkdir(mode=0o755, parents=True, exist_ok=True)
@@ -542,6 +587,7 @@ def setup_rustup():
 
 
 def push_files(script: Path):
+    """Build (if requested) and push APK + busybox + a script to the device via adb."""
     if args.build:
         build_all()
 
@@ -575,6 +621,7 @@ def push_files(script: Path):
 
 
 def setup_avd():
+    """Set up an AVD emulator with root access by pushing and running live_setup.sh."""
     header("* Setting up emulator")
 
     push_files(Path("scripts", "live_setup.sh"))
@@ -585,6 +632,7 @@ def setup_avd():
 
 
 def patch_avd_file():
+    """Patch an AVD ramdisk.img or init_boot.img with magiskinit via host_patch.sh on device."""
     input = Path(args.image)
     output = Path(args.output)
 
@@ -618,6 +666,7 @@ def patch_avd_file():
 # We allow using several functionality without requirement to set ANDROID_HOME
 @functools.cache
 def adb_path():
+    """Return the path to the adb executable (from ANDROID_HOME or PATH)."""
     if paths.cache_info().currsize > 1:
         return paths().adb
     else:
@@ -628,6 +677,7 @@ def adb_path():
 
 
 def parse_props(file: Path) -> dict[str, str]:
+    """Parse a .prop file into a key-value dictionary, skipping blank lines and comments."""
     props = {}
     with open(file, "r") as f:
         for line in [l.strip(" \t\r\n") for l in f]:
@@ -645,6 +695,7 @@ def parse_props(file: Path) -> dict[str, str]:
 
 
 def set_build_abis(abis: set[str]):
+    """Resolve ABI aliases, validate them, and set the global build_abis dict."""
     global build_abis
     # Try to convert several aliases to real ABI
     abis = {abi_alias.get(k, k) for k in abis}
@@ -655,7 +706,11 @@ def set_build_abis(abis: set[str]):
 
 
 def load_config():
+    """Load version, versionCode, ABI list, and outdir from config.prop and app/gradle.properties."""
     commit_hash = cmd_out(["git", "rev-parse", "--short=8", "HEAD"])
+    if isinstance(commit_hash, bytes):
+        commit_hash = commit_hash.decode()
+    config["buildCommit"] = commit_hash if commit_hash else "local"
 
     # Default values
     config["version"] = commit_hash
@@ -695,6 +750,13 @@ def parse_args():
     )
     parser.add_argument(
         "-v", "--verbose", action="count", default=0, help="verbose output"
+    )
+    parser.add_argument(
+        "-t",
+        "--apkT",
+        action="store_true",
+        default=False,
+        help="build next-gen Compose app (apkT) instead of the current app (apk)",
     )
     parser.add_argument(
         "-c",
@@ -792,6 +854,7 @@ def parse_args():
 
 
 def main():
+    """Entry point: parse arguments, load config, dispatch to the requested action."""
     global args
     args = parse_args()
     args.config = Path(args.config)

@@ -1,3 +1,14 @@
+/**
+ * Base interface for all Magisk instrumentation tests.
+ *
+ * Provides access to:
+ * - {@link Instrumentation}, app/test {@link Context}
+ * - {@link UiAutomation} for shell command execution
+ * - {@link UiDevice} for UI Automator interactions
+ *
+ * The companion {@link #prerequisite} method ensures root access is available
+ * and the Magisk root service is running before any test.
+ */
 package pro.magisk.test
 
 import android.app.Instrumentation
@@ -18,6 +29,7 @@ interface BaseTest {
     val device: UiDevice get() = UiDevice.getInstance(instrumentation)
 
     companion object {
+        /** Ensures root access and that the Magisk root service is available. */
         fun prerequisite() {
             assertTrue("Should have root access", Shell.getShell().isRoot)
             // Make sure the root service is running

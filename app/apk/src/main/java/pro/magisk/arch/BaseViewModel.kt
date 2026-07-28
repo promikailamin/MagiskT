@@ -1,3 +1,13 @@
+/**
+ * Base ViewModel for all screens in the app.
+ *
+ * Provides common infrastructure:
+ * - Observable property support via [ObservableHost] for DataBinding
+ * - Event publishing via [viewEvents] LiveData (see [ViewEvent])
+ * - Permission-request helpers ([withExternalRW], [withInstallPermission], etc.)
+ * - Convenience wrappers for navigation, back-press, and dialog display
+ * - Save/restore state hooks ([onSaveState] / [onRestoreState])
+ */
 package pro.magisk.arch
 
 import android.Manifest.permission.POST_NOTIFICATIONS
@@ -19,6 +29,7 @@ import pro.magisk.events.NavigationEvent
 import pro.magisk.events.PermissionEvent
 import pro.magisk.events.SnackbarEvent
 
+/** Shared base for all app ViewModels. */
 abstract class BaseViewModel : ViewModel(), ObservableHost {
 
     override var callbacks: PropertyChangeRegistry? = null
@@ -28,7 +39,6 @@ abstract class BaseViewModel : ViewModel(), ObservableHost {
 
     open fun onSaveState(state: Bundle) {}
     open fun onRestoreState(state: Bundle) {}
-    open fun onNetworkChanged(network: Boolean) {}
 
     fun withPermission(permission: String, callback: (Boolean) -> Unit) {
         PermissionEvent(permission, callback).publish()

@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">কোনো সংযোগ উপলব্ধ নেই</string>
-    <string name="app_changelog">চেঞ্জলগ</string>
     <string name="loading">লোড হচ্ছে…</string>
     <string name="update">হালনাগাদ</string>
     <string name="not_available">N/A</string>
@@ -27,7 +26,6 @@
     <string name="home_support_content">ম্যাজিস্ক হল, এবং সবসময় থাকবে, বিনামূল্যে, এবং ওপেন সোর্স। তবে আপনি দান করার মাধ্যমে আমাদের দেখাতে পারেন যে আপনি যত্নশীল।</string>
     <string name="home_installed_version">ইনস্টল করা হয়েছে</string>
     <string name="home_latest_version">সর্বশেষ</string>
-    <string name="invalid_update_channel">অবৈধ আপডেট চ্যানেল</string>
     <string name="uninstall_magisk_title">ম্যাজিস্ক আনইনস্টল করুন</string>
     <string name="uninstall_magisk_msg">সমস্ত মডিউল নিষ্ক্রিয়/মুছে ফেলা হবে!\nরুট সরানো হবে!\nম্যাজিস্ক ব্যবহারের মাধ্যমে এনক্রিপ্ট করা যে কোনও অভ্যন্তরীণ স্টোরেজ পুনরায় এনক্রিপ্ট করা হবে!</string>
 
@@ -39,7 +37,6 @@
     <string name="install_method_title">পদ্ধতি</string>
     <string name="install_next">পরবর্তী</string>
     <string name="install_start">চলো যাই</string>
-    <string name="manager_download_install">ডাউনলোড এবং ইনস্টল করুন</string>
     <string name="direct_install">সরাসরি ইনস্টল</string>
     <string name="install_inactive_slot">নিষ্ক্রিয় স্লটে ইনস্টল করুন (OTA এর পরে)</string>
     <string name="install_inactive_slot_msg">রিবুট করার পরে আপনার ডিভাইসটিকে বর্তমান নিষ্ক্রিয় স্লটে বুট করতে বাধ্য করা হবে!\It হয়ে গেলেই এই বিকল্পটি ব্যবহার করুন।\চালিয়ে রাখবেন?</string>
@@ -106,7 +103,6 @@
     <string name="module_state_remove">অপসারণ</string>
     <string name="module_state_restore">পুনরুদ্ধার করুন</string>
     <string name="module_action_install_external">স্টোরেজ থেকে ইনস্টল করুন</string>
-    <string name="update_available">আপডেট উপলব্ধ</string>
     <string name="suspend_text_riru">মডিউল সাসপেন্ড করা হয়েছে কারণ %1$s সক্ষম হয়েছে৷</string>
     <string name="suspend_text_zygisk">মডিউল সাসপেন্ড করা হয়েছে কারণ %1$s সক্ষম করা নেই৷</string>
     <string name="zygisk_module_unloaded">অসামঞ্জস্যতার কারণে জাইগিস্ক মডিউল লোড করা হয়নি</string>
@@ -126,13 +122,6 @@
     <string name="settings_restore_app_summary">অ্যাপটি আড়াল করুন এবং আসলটি পুনরুদ্ধার করুন</string>
     <string name="language">ভাষা</string>
     <string name="system_default">(সিস্টেমের ডিফল্ট)</string>
-    <string name="settings_check_update_title">আপডেট চেক করুন</string>
-    <string name="settings_check_update_summary">পর্যায়ক্রমে পটভূমিতে আপডেটের জন্য চেক করুন</string>
-    <string name="settings_update_channel_title">চ্যানেল আপডেট করুন</string>
-    <string name="settings_update_stable">স্থিতিশীল</string>
-    <string name="settings_update_beta">বেটা</string>
-    <string name="settings_update_custom">কাস্টম</string>
-    <string name="settings_update_custom_msg">একটি কাস্টম চ্যানেল URL সন্নিবেশ করুন</string>
     <string name="settings_zygisk_summary">জাইগোট ডেমনে ম্যাজিস্কের অংশগুলি চালান</string>
     <string name="settings_denylist_title">তালিকা অস্বীকার করুন প্রয়োগ করুন</string>
     <string name="settings_denylist_summary">ডিনালিস্টের প্রসেসগুলিতে সমস্ত ম্যাজিস্ক পরিবর্তনগুলি ফিরিয়ে দেওয়া হবে</string>
@@ -186,17 +175,12 @@
     <!--Notifications-->
     <string name="update_channel">ম্যাজিস্ক আপডেট</string>
     <string name="progress_channel">অগ্রগতি বিজ্ঞপ্তি</string>
-    <string name="updated_channel">আপডেট সম্পূর্ণ</string>
     <string name="download_complete">ডাউনলোড শেষ</string>
     <string name="download_file_error">ফাইল ডাউনলোড করার সময় ত্রুটি</string>
-    <string name="magisk_update_title">ম্যাজিস্ক আপডেট উপলব্ধ!</string>
-    <string name="updated_title">ম্যাজিস্ক আপডেট</string>
-    <string name="updated_text">অ্যাপ খুলতে আলতো চাপুন</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">হ্যাঁ</string>
     <string name="no">না</string>
-    <string name="repo_install_title">ইনস্টল করুন %1$s %2$s(%3$d)</string>
     <string name="download">ডাউনলোড করুন</string>
     <string name="reboot">রিবুট করুন</string>
     <string name="release_notes">অব্যাহতি পত্র</string>

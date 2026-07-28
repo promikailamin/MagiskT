@@ -1,3 +1,9 @@
+/**
+ * DenyList core data structures and enforcement logic.
+ * Maintains package-to-process maps with app ID indexing,
+ * manages denylist enable/disable lifecycle, and provides
+ * is_deny_target/update_deny_flags for Zygisk integration.
+ */
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/inotify.h>
@@ -31,6 +37,7 @@ static pthread_mutex_t data_lock = PTHREAD_MUTEX_INITIALIZER;
 
 atomic<bool> denylist_enforced = false;
 
+/** Look up the app ID for a package by stat-ing its data directory across the given user IDs. */
 static int get_app_id(const vector<int> &users, const string &pkg) {
     struct stat st{};
     char buf[PATH_MAX];
@@ -43,6 +50,7 @@ static int get_app_id(const vector<int> &users, const string &pkg) {
     return 0;
 }
 
+/** Collect all user IDs present in /data/data (as directory names parsed as ints). */
 static void collect_users(vector<int> &users) {
     auto data_dir = xopen_dir(APP_DATA_DIR);
     if (!data_dir)
@@ -53,6 +61,7 @@ static void collect_users(vector<int> &users) {
     }
 }
 
+/** Get app ID for a package, or -1 for the isolated magic package. */
 static int get_app_id(const string &pkg) {
     if (pkg == ISOLATED_MAGIC)
         return -1;
@@ -61,6 +70,7 @@ static int get_app_id(const string &pkg) {
     return get_app_id(users, pkg);
 }
 
+/** Add or remove a package from the app_id -> pkgs reverse index. */
 static void update_app_id(int app_id, const string &pkg, bool remove) {
     if (app_id <= 0)
         return;
@@ -79,6 +89,7 @@ static void update_app_id(int app_id, const string &pkg, bool remove) {
 // Leave /proc fd opened as we're going to read from it repeatedly
 static DIR *procfp;
 
+/** Iterate over all numeric entries in /proc, calling fn(pid) until it returns false. */
 template<class F>
 static void crawl_procfs(const F &fn) {
     rewinddir(procfp);
@@ -91,9 +102,12 @@ static void crawl_procfs(const F &fn) {
     }
 }
 
+/** String equality comparator for proc_name_match. */
 static bool str_eql(string_view a, string_view b) { return a == b; }
+/** String prefix comparator for proc_name_match (used for isolated process matching). */
 static bool str_starts_with(string_view a, string_view b) { return a.starts_with(b); }
 
+/** Check if a process cmdline matches a given name (exact or prefix via str_op). */
 template<bool str_op(string_view, string_view) = str_eql>
 static bool proc_name_match(int pid, string_view name) {
     char buf[4019];
@@ -107,6 +121,7 @@ static bool proc_name_match(int pid, string_view name) {
     return false;
 }
 
+/** Check if a process has the given SELinux context prefix. */
 bool proc_context_match(int pid, string_view context) {
     char buf[PATH_MAX];
     char con[1024] = {0};
@@ -118,6 +133,7 @@ bool proc_context_match(int pid, string_view context) {
     return false;
 }
 
+/** Kill all processes matching the given name (exact or context-based). If multi, continue iterating. */
 template<bool matcher(int, string_view) = &proc_name_match>
 static void kill_process(const char *name, bool multi = false) {
     crawl_procfs([=](int pid) -> bool {
@@ -130,6 +146,7 @@ static void kill_process(const char *name, bool multi = false) {
     });
 }
 
+/** Validate that package and process names contain only alphanumeric chars, underscores, dots, or colons. */
 static bool validate(const char *pkg, const char *proc) {
     bool pkg_valid = false;
     bool proc_valid = true;
@@ -166,6 +183,7 @@ static bool validate(const char *pkg, const char *proc) {
     return pkg_valid && proc_valid;
 }
 
+/** Add a (pkg, proc) pair to the in-memory denylist and kill any running matching processes. */
 static bool add_hide_set(const char *pkg, const char *proc) {
     auto p = pkg_to_procs[pkg].emplace(proc);
     if (!p.second)
@@ -182,6 +200,7 @@ static bool add_hide_set(const char *pkg, const char *proc) {
     return true;
 }
 
+/** Rebuild the app_id index and remove stale entries (uninstalled packages). */
 void scan_deny_apps() {
     if (!app_id_to_pkgs_)
         return;
@@ -210,11 +229,13 @@ void scan_deny_apps() {
     }
 }
 
+/** Release all denylist in-memory data structures. */
 static void clear_data() {
     pkg_to_procs_.reset(nullptr);
     app_id_to_pkgs_.reset(nullptr);
 }
 
+/** Ensure the denylist data structures are initialised from the database. */
 static bool ensure_data() {
     if (pkg_to_procs_)
         return true;
@@ -248,6 +269,7 @@ error:
     return false;
 }
 
+/** Add a target to the denylist: validate, persist to DB, and update in-memory data. */
 static int add_list(const char *pkg, const char *proc) {
     if (proc[0] == '\0')
         proc = pkg;
@@ -275,12 +297,14 @@ static int add_list(const char *pkg, const char *proc) {
     return db_exec(sql) ? DenyResponse::OK : DenyResponse::ERROR;
 }
 
+/** Read a (pkg, proc) pair from an IPC client and add to the denylist. */
 int add_list(int client) {
     string pkg = read_string(client);
     string proc = read_string(client);
     return add_list(pkg.data(), proc.data());
 }
 
+/** Remove a target from the denylist: remove from in-memory data and DB. */
 static int rm_list(const char *pkg, const char *proc) {
     {
         mutex_guard lock(data_lock);
@@ -319,12 +343,14 @@ static int rm_list(const char *pkg, const char *proc) {
     return db_exec(sql) ? DenyResponse::OK : DenyResponse::ERROR;
 }
 
+/** Read a (pkg, proc) pair from an IPC client and remove from the denylist. */
 int rm_list(int client) {
     string pkg = read_string(client);
     string proc = read_string(client);
     return rm_list(pkg.data(), proc.data());
 }
 
+/** Write the full denylist (pkg|proc) to an IPC client. */
 void ls_list(int client) {
     {
         mutex_guard lock(data_lock);
@@ -349,6 +375,7 @@ void ls_list(int client) {
     close(client);
 }
 
+/** Enable denylist enforcement: initialise data, start logcat thread, kill zygote children on Q+. */
 int enable_deny() {
     if (denylist_enforced) {
         return DenyResponse::OK;
@@ -389,6 +416,7 @@ int enable_deny() {
     return DenyResponse::OK;
 }
 
+/** Disable denylist enforcement and persist the config to DB. */
 int disable_deny() {
     if (denylist_enforced.exchange(false)) {
         LOGI("* Disable DenyList\n");
@@ -397,6 +425,7 @@ int disable_deny() {
     return DenyResponse::OK;
 }
 
+/** Auto-enable denylist on daemon start if it was previously enabled in DB settings. */
 void initialize_denylist() {
     if (!denylist_enforced) {
         if (MagiskD::Get().get_db_setting(DbEntryKey::DenylistConfig))
@@ -404,6 +433,7 @@ void initialize_denylist() {
     }
 }
 
+/** Check if a given (uid, process_name) pair matches a denylist entry (includes isolated process magic). */
 bool is_deny_target(int uid, string_view process) {
     mutex_guard lock(data_lock);
     if (!ensure_data())
@@ -430,6 +460,7 @@ bool is_deny_target(int uid, string_view process) {
     return false;
 }
 
+/** Set ZygiskState flags for a process: ProcessOnDenyList and/or DenyListEnforced. */
 void update_deny_flags(int uid, rust::Str process, uint32_t &flags) {
     if (is_deny_target(uid, { process.begin(), process.end() })) {
         flags |= +ZygiskStateFlags::ProcessOnDenyList;

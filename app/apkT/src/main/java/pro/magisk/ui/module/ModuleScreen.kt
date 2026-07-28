@@ -1,3 +1,8 @@
+/**
+ * Module list screen. Shows installed Magisk modules in a scrollable list with enable/disable
+ * toggles, a remove/restore action, and optional action buttons for modules that expose them.
+ * Supports local ZIP installation via a file picker FAB.
+ */
 package pro.magisk.ui.module
 
 import android.provider.OpenableColumns
@@ -26,10 +31,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -42,11 +45,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -65,12 +66,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import pro.magisk.core.Info
-import pro.magisk.core.di.ServiceLocator
-import pro.magisk.core.download.DownloadEngine
-import pro.magisk.core.model.module.OnlineModule
 import pro.magisk.ui.MainActivity
 import pro.magisk.ui.component.ConfirmResult
-import pro.magisk.ui.component.MarkdownTextAsync
 import pro.magisk.ui.component.rememberConfirmDialog
 import pro.magisk.utils.textHolder
 import kotlinx.coroutines.launch
@@ -90,9 +87,6 @@ fun ModuleScreen(viewModel: ModuleViewModel) {
     val localInstallDialog = rememberConfirmDialog()
     val confirmInstallTitle = stringResource(CoreR.string.confirm_install_title)
 
-    var pendingOnlineModule by remember { mutableStateOf<OnlineModule?>(null) }
-    val showOnlineDialog = rememberSaveable { mutableStateOf(false) }
-
     val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
             val displayName = context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
@@ -109,25 +103,6 @@ fun ModuleScreen(viewModel: ModuleViewModel) {
                 }
             }
         }
-    }
-
-    if (showOnlineDialog.value && pendingOnlineModule != null) {
-        OnlineModuleDialog(
-            item = pendingOnlineModule!!,
-            showDialog = showOnlineDialog,
-            onDownload = { install ->
-                showOnlineDialog.value = false
-                DownloadEngine.startWithActivity(
-                    activity,
-                    OnlineModuleSubject(pendingOnlineModule!!, install)
-                )
-                pendingOnlineModule = null
-            },
-            onDismiss = {
-                showOnlineDialog.value = false
-                pendingOnlineModule = null
-            }
-        )
     }
 
     Scaffold(
@@ -197,12 +172,6 @@ fun ModuleScreen(viewModel: ModuleViewModel) {
                 ModuleCard(
                     item = item,
                     viewModel = viewModel,
-                    onUpdateClick = { onlineModule ->
-                        if (onlineModule != null && Info.isConnected.value == true) {
-                            pendingOnlineModule = onlineModule
-                            showOnlineDialog.value = true
-                        }
-                    }
                 )
             }
             item { Spacer(Modifier.height(4.dp)) }
@@ -211,14 +180,12 @@ fun ModuleScreen(viewModel: ModuleViewModel) {
 }
 
 @Composable
-private fun ModuleCard(item: ModuleItem, viewModel: ModuleViewModel, onUpdateClick: (OnlineModule?) -> Unit) {
+private fun ModuleCard(item: ModuleItem, viewModel: ModuleViewModel) {
     val infoAlpha = if (!item.isRemoved && item.isEnabled && !item.showNotice) 1f else 0.5f
     val strikeThrough = if (item.isRemoved) TextDecoration.LineThrough else TextDecoration.None
     val colorScheme = MaterialTheme.colorScheme
     val actionIconTint = colorScheme.onSurface.copy(alpha = 0.8f)
     val actionBg = colorScheme.secondaryContainer.copy(alpha = 0.8f)
-    val updateBg = colorScheme.tertiaryContainer.copy(alpha = 0.6f)
-    val updateTint = colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
     val removeBg = colorScheme.errorContainer.copy(alpha = 0.6f)
     val removeTint = colorScheme.onErrorContainer.copy(alpha = 0.8f)
     var expanded by rememberSaveable(item.module.id) { mutableStateOf(false) }
@@ -328,38 +295,6 @@ private fun ModuleCard(item: ModuleItem, viewModel: ModuleViewModel, onUpdateCli
                 }
             }
 
-            Spacer(Modifier.weight(1f))
-
-            AnimatedVisibility(
-                visible = item.showUpdate && item.updateReady,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                Button(
-                    modifier = Modifier.padding(end = 8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = updateBg),
-                    contentPadding = PaddingValues(horizontal = 10.dp),
-                    onClick = { onUpdateClick(item.module.updateInfo) },
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(20.dp),
-                            imageVector = Icons.Default.CloudUpload,
-                            tint = updateTint,
-                            contentDescription = stringResource(CoreR.string.update),
-                        )
-                        Text(
-                            text = stringResource(CoreR.string.update),
-                            color = updateTint,
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    }
-                }
-            }
-
             Button(
                 colors = ButtonDefaults.buttonColors(containerColor = if (item.isRemoved) actionBg else removeBg),
                 contentPadding = PaddingValues(horizontal = 10.dp),
@@ -392,47 +327,3 @@ private fun ModuleCard(item: ModuleItem, viewModel: ModuleViewModel, onUpdateCli
     }
 }
 
-@Composable
-private fun OnlineModuleDialog(
-    item: OnlineModule,
-    showDialog: MutableState<Boolean>,
-    onDownload: (install: Boolean) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val svc = ServiceLocator.networkService
-    val title = stringResource(
-        CoreR.string.repo_install_title,
-        item.name, item.version, item.versionCode
-    )
-
-    if (showDialog.value) {
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text(title) },
-            text = {
-                MarkdownTextAsync {
-                    val str = svc.fetchString(item.changelog)
-                    if (str.length > 1000) str.substring(0, 1000) else str
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = { onDownload(true) }
-                ) {
-                    Text(stringResource(CoreR.string.install))
-                }
-            },
-            dismissButton = {
-                Row {
-                    TextButton(onClick = onDismiss) {
-                        Text(stringResource(android.R.string.cancel))
-                    }
-                    Spacer(Modifier.weight(1f))
-                    TextButton(onClick = { onDownload(false) }) {
-                        Text(stringResource(CoreR.string.download))
-                    }
-                }
-            }
-        )
-    }
-}

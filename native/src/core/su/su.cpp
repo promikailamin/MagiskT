@@ -1,3 +1,9 @@
+/**
+ * MagiskSU implementation: su client and root shell execution.
+ * Handles getopt argument parsing, PTY allocation, mount namespace
+ * management (global/requester/isolate), capability dropping,
+ * SELinux context switching, and environment setup.
+ */
 /*
  * Copyright 2017 - 2025, John Wu (@topjohnwu)
  * Copyright 2015, Pierre-Hugues Husson <phh@phh.me>
@@ -35,6 +41,7 @@ using namespace std;
 
 int quit_signals[] = { SIGALRM, SIGABRT, SIGHUP, SIGPIPE, SIGQUIT, SIGTERM, SIGINT, 0 };
 
+/** Print usage information and exit with the given status. */
 [[noreturn]] static void usage(int status) {
     FILE *stream = (status == EXIT_SUCCESS) ? stdout : stderr;
 
@@ -63,6 +70,7 @@ int quit_signals[] = { SIGALRM, SIGABRT, SIGHUP, SIGPIPE, SIGQUIT, SIGTERM, SIGI
     exit(status);
 }
 
+/** Signal handler: close all stdio to unblock the pump threads so we can collect the exit code. */
 static void sighandler(int sig) {
     // Close all standard I/O to cause the pumps to exit
     // so we can continue and retrieve the exit code.
@@ -78,6 +86,7 @@ static void sighandler(int sig) {
     }
 }
 
+/** Register the given handler for all quit signals (SIGHUP, SIGPIPE, SIGTERM, etc.). */
 static void setup_sighandlers(void (*handler)(int)) {
     struct sigaction act{};
     act.sa_handler = handler;
@@ -86,6 +95,7 @@ static void setup_sighandlers(void (*handler)(int)) {
     }
 }
 
+/** Main entry point for the su command: parse options, connect to daemon, request root, and exec shell. */
 int su_client_main(int argc, char *argv[]) {
     option long_opts[] = {
             { "command",                required_argument,  nullptr, 'c' },
@@ -115,12 +125,15 @@ int su_client_main(int argc, char *argv[]) {
             strcpy(argv[i], "-M");
     }
 
+    // Interactive PTY is required unless a command string was supplied via -c
+
     bool interactive = false;
 
     int c;
     while ((c = getopt_long(argc, argv, "c:hlimpds:VvuZ:Mt:g:G:", long_opts, nullptr)) != -1) {
         switch (c) {
             case 'c': {
+                // Collect all remaining arguments as the command string
                 string command;
                 for (int i = optind - 1; i < argc; ++i) {
                     if (!command.empty())
@@ -219,7 +232,9 @@ int su_client_main(int argc, char *argv[]) {
         return EACCES;
     }
 
-    // Determine which one of our streams are attached to a TTY
+    // Determine which one of our streams are attached to a TTY.
+    // When the -i flag was passed, or when no command was given (interactive shell),
+    // we allocate a PTY. The actual FD signalling uses -1 (use PTY slave) vs. the real FD.
     interactive |= req.command.empty();
     int atty = 0;
     if (isatty(STDIN_FILENO) && interactive)  atty |= ATTY_IN;
@@ -234,7 +249,7 @@ int su_client_main(int argc, char *argv[]) {
     send_fd(fd, (atty & ATTY_ERR) ? -1 : STDERR_FILENO);
 
     if (atty) {
-        // We need a PTY. Get one.
+        // Receive PTY master from daemon and start pumping data between our stdio and the PTY.
         int ptmx = recv_fd(fd);
         setup_sighandlers(sighandler);
         // If stdin is not a tty, and if we pump to ptmx, our process may intercept the input to ptmx and
@@ -246,7 +261,12 @@ int su_client_main(int argc, char *argv[]) {
     return read_int(fd);
 }
 
+/** Drop all Linux capabilities from bounding and inheritable sets except CAP_SETUID (restricted marker). */
+/**
+ * Drop all Linux capabilities from bounding and inheritable sets except CAP_SETUID (restricted marker).
+ */
 static void drop_caps() {
+    // Dynamically discover the highest valid capability number
     static auto last_valid_cap = []() {
         uint32_t cap = CAP_WAKE_ALARM;
         while (prctl(PR_CAPBSET_READ, cap) >= 0) {
@@ -254,13 +274,13 @@ static void drop_caps() {
         }
         return cap - 1;
     }();
-    // Drop bounding set
+    // Drop every capability from the bounding set except CAP_SETUID
     for (uint32_t cap = 0; cap <= last_valid_cap; cap++) {
         if (cap != CAP_SETUID) {
             prctl(PR_CAPBSET_DROP, cap);
         }
     }
-    // Clean inheritable set
+    // Clear the inheritable capability set
     __user_cap_header_struct header = {.version = _LINUX_CAPABILITY_VERSION_3};
     __user_cap_data_struct data[_LINUX_CAPABILITY_U32S_3] = {};
     if (capget(&header, &data[0]) == 0) {
@@ -269,11 +289,15 @@ static void drop_caps() {
         }
         capset(&header, &data[0]);
     }
-    // All capabilities will be lost after exec
+    // SECBIT_NOROOT ensures all capabilities will be dropped on execve()
     prctl(PR_SET_SECUREBITS, SECBIT_NOROOT);
-    // Except CAP_SETUID in bounding set, it is a marker for restricted process
+    // CAP_SETUID in the bounding set serves as a marker that this process is restricted
 }
 
+/** Check if a process has only CAP_SETUID remaining in its bounding set (marker for restricted process). */
+/**
+ * Check if a process has only CAP_SETUID remaining in its bounding set (marker for restricted process).
+ */
 static bool proc_is_restricted(pid_t pid) {
     char buf[32] = {};
     auto bnd = "CapBnd:"sv;
@@ -307,6 +331,7 @@ static bool proc_is_restricted(pid_t pid) {
     return equal;
 }
 
+/** Set the real/effective/saved user and group IDs. Falls back to uid as gid if no groups specified. */
 static void set_identity(int uid, const rust::Vec<gid_t> &groups) {
     gid_t gid;
     if (!groups.empty()) {
@@ -325,6 +350,10 @@ static void set_identity(int uid, const rust::Vec<gid_t> &groups) {
     }
 }
 
+/**
+ * Execute the root shell: set up PTY, namespaces, environment, identity, capabilities, and SELinux context.
+ * Called from the daemon after fork.
+ */
 void exec_root_shell(int client, int pid, SuRequest &req, MntNsMode mode) {
     // Become session leader
     xsetsid();
@@ -383,7 +412,10 @@ void exec_root_shell(int client, int pid, SuRequest &req, MntNsMode mode) {
     close(ptsfd);
     close(client);
 
-    // Handle namespaces
+    // Handle namespaces:
+    // - target_pid == -1: inherit from the requester's PID
+    // - target_pid == 0:  force global namespace (--mount-master)
+    // - otherwise: target_pid specifies the PID whose namespace to join
     if (req.target_pid == -1)
         req.target_pid = pid;
     else if (req.target_pid == 0)
@@ -416,13 +448,14 @@ void exec_root_shell(int client, int pid, SuRequest &req, MntNsMode mode) {
         argv[2] = req.command.c_str();
     }
 
-    // Setup environment
+    // Setup environment by mirroring the requester's cwd and environ
     umask(022);
     char path[32];
     ssprintf(path, sizeof(path), "/proc/%d/cwd", pid);
     char cwd[4096];
     if (canonical_path(path, cwd, sizeof(cwd)) > 0)
         chdir(cwd);
+    // Copy environment from the requester's /proc/<pid>/environ (null-separated strings)
     ssprintf(path, sizeof(path), "/proc/%d/environ", pid);
     auto env = full_read(path);
     clearenv();

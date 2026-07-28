@@ -1,3 +1,5 @@
+// build_logic: convention plugin module.
+// Registers the "MagiskPlugin" that provides shared setup functions (setupCoreLib, setupMainApk, etc.).
 plugins {
     `kotlin-dsl`
 }

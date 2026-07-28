@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Hakuna muunganisho unaopatikana</string>
-    <string name="app_changelog">Kumbukumbu</string>
     <string name="loading">Loading…</string>
     <string name="update">Sasisha</string>
     <string name="not_available">Haipatikani</string>
@@ -26,7 +25,6 @@
     <string name="home_support_content">Magisk is, and always will be, free, and open source. You can however show us that you care by making a donation.</string>
     <string name="home_installed_version">Installed</string>
     <string name="home_latest_version">Latest</string>
-    <string name="invalid_update_channel">Invalid Update Channel</string>
     <string name="uninstall_magisk_title">Uninstall Magisk</string>
     <string name="uninstall_magisk_msg">All modules will be disabled/removed!\nRoot will be removed!\nAny internal storage unencrypted through the use of Magisk will be re-encrypted!</string>
 
@@ -38,7 +36,6 @@
     <string name="install_method_title">Method</string>
     <string name="install_next">Next</string>
     <string name="install_start">Let\'s go</string>
-    <string name="manager_download_install">Press to download and install</string>
     <string name="direct_install">Direct Install (Recommended)</string>
     <string name="install_inactive_slot">Install to Inactive Slot (After OTA)</string>
     <string name="install_inactive_slot_msg">Your device will be FORCED to boot to the current inactive slot after a reboot!\nOnly use this option after OTA is done.\nContinue?</string>
@@ -106,7 +103,6 @@
     <string name="module_state_remove">Remove</string>
     <string name="module_state_restore">Restore</string>
     <string name="module_action_install_external">Install from storage</string>
-    <string name="update_available">Update Available</string>
     <string name="suspend_text_riru">Module suspended because %1$s is enabled</string>
     <string name="suspend_text_zygisk">Module suspended because %1$s is not enabled</string>
     <string name="zygisk_module_unloaded">Zygisk module not loaded due to incompatibility</string>
@@ -125,13 +121,6 @@
     <string name="settings_restore_app_summary">Unhide the app and restore the original APK</string>
     <string name="language">Language</string>
     <string name="system_default">(System Default)</string>
-    <string name="settings_check_update_title">Check Updates</string>
-    <string name="settings_check_update_summary">Periodically check for updates in the background</string>
-    <string name="settings_update_channel_title">Update Channel</string>
-    <string name="settings_update_stable">Stable</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_custom">Custom</string>
-    <string name="settings_update_custom_msg">Insert a custom channel URL</string>
     <string name="settings_zygisk_summary">Run parts of Magisk in the zygote daemon</string>
     <string name="settings_denylist_title">Enforce DenyList</string>
     <string name="settings_denylist_summary">Processes on the denylist will have all Magisk modifications reverted</string>
@@ -185,17 +174,12 @@
     <!--Notifications-->
     <string name="update_channel">Magisk Updates</string>
     <string name="progress_channel">Progress Notifications</string>
-    <string name="updated_channel">Update Complete</string>
     <string name="download_complete">Download complete</string>
     <string name="download_file_error">Error downloading file</string>
-    <string name="magisk_update_title">Magisk Update Available!</string>
-    <string name="updated_title">Magisk Updated</string>
-    <string name="updated_text">Tap to open app</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="repo_install_title">Install %1$s %2$s(%3$d)</string>
     <string name="download">Download</string>
     <string name="reboot">Reboot</string>
     <string name="release_notes">Release notes</string>

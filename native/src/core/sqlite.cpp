@@ -1,3 +1,9 @@
+/**
+ * SQLite database wrapper for Magisk's internal database.
+ * Dynamically loads libsqlite.so (including APEX on Android 10+),
+ * provides db_exec API with bind/exec callbacks, and manages
+ * schema migrations (versions 7-12) for policies/settings/strings/denylist.
+ */
 #include <dlfcn.h>
 
 #include <consts.hpp>
@@ -47,6 +53,10 @@ constexpr char apex_path[] = "/apex/com.android.runtime/lib64:/apex/com.android.
 constexpr char apex_path[] = "/apex/com.android.runtime/lib:/apex/com.android.art/lib:/apex/com.android.i18n/lib:";
 #endif
 
+/**
+ * Dynamically load libsqlite.so (falling back to APEX paths on Android 10+)
+ * and resolve all required function pointers.
+ */
 static bool load_sqlite() {
     static int dl_init = 0;
     if (dl_init)
@@ -100,6 +110,10 @@ using sql_exec_callback_real = void(*)(void*, StringSlice, sqlite3_stmt*);
 #define sql_chk(fn, ...) if (int rc = fn(__VA_ARGS__); rc != SQLITE_OK) return rc
 
 // Exports to Rust
+/**
+ * Execute SQL with optional bind and exec callbacks.
+ * Exported to Rust for low-level database access.
+ */
 extern "C" int sql_exec_impl(
         sqlite3 *db, rust::Str zSql,
         sql_bind_callback bind_cb = nullptr, void *bind_cookie = nullptr,
@@ -149,18 +163,22 @@ extern "C" int sql_exec_impl(
     return SQLITE_OK;
 }
 
+/** Get an integer from the current row at the given column index. */
 int DbValues::get_int(int index) const {
     return sqlite3_column_int((sqlite3_stmt*) this, index);
 }
 
+/** Get a text string from the current row at the given column index. */
 const char *DbValues::get_text(int index) const {
     return sqlite3_column_text((sqlite3_stmt*) this, index);
 }
 
+/** Bind an int64 value to a prepared statement parameter. */
 int DbStatement::bind_int64(int index, int64_t val) {
     return sqlite3_bind_int64(reinterpret_cast<sqlite3_stmt*>(this), index, val);
 }
 
+/** Bind a text value to a prepared statement parameter. */
 int DbStatement::bind_text(int index, rust::Str val) {
     return sqlite3_bind_text(reinterpret_cast<sqlite3_stmt*>(this), index, val.data(), val.size(), nullptr);
 }
@@ -172,6 +190,10 @@ int DbStatement::bind_text(int index, rust::Str val) {
 
 #define sql_chk_log(fn, ...) sql_chk_log_ret(nullptr, fn, __VA_ARGS__)
 
+/**
+ * Open (or create) the Magisk database and apply schema migrations
+ * from version 7 through 12. Returns nullptr on failure.
+ */
 sqlite3 *open_and_init_db() {
     if (!load_sqlite()) {
         LOGE("sqlite3: Cannot load libsqlite.so\n");
@@ -310,6 +332,10 @@ extern "C" int sql_exec_rs(
         sql_bind_callback bind_cb, void *bind_cookie,
         sql_exec_callback exec_cb, void *exec_cookie);
 
+/**
+ * High-level database exec with C++ callbacks.
+ * Wraps DbArgs bindings and db_exec_callback into C-compatible callbacks for sql_exec_rs.
+ */
 bool db_exec(const char *sql, DbArgs args, db_exec_callback exec_fn) {
     using db_bind_callback = std::function<int(int, DbStatement&)>;
 
@@ -333,6 +359,7 @@ bool db_exec(const char *sql, DbArgs args, db_exec_callback exec_fn) {
     return true;
 }
 
+/** Bind the next argument from the internal args list to the statement. */
 int DbArgs::operator()(int index, DbStatement &stmt) {
     if (curr < args.size()) {
         const auto &arg = args[curr++];

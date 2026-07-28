@@ -1,3 +1,10 @@
+/**
+ * Helper for circular reveal animations between a FAB and an expandable panel.
+ *
+ * Used by [pro.magisk.ui.log.LogFragment] to animate the Magisk log filter panel,
+ * and by similar toggle panels elsewhere. Supports RTL layout direction for
+ * FAB movement.
+ */
 package pro.magisk.utils
 
 import android.animation.Animator
@@ -17,8 +24,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import pro.magisk.core.utils.LocaleSetting
 import kotlin.math.hypot
 
+/** Coordinated circular-reveal + FAB-move animations for expandable panels. */
 object MotionRevealHelper {
 
+    /** Reveals or hides [revealable] panel with a circular animation, moving [fab] synchronously. */
     fun <CV> withViews(
         revealable: CV,
         fab: FloatingActionButton,

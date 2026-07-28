@@ -1,3 +1,9 @@
+/**
+ * A no-op Request subclass returned when the initial connection setup fails.
+ *
+ * All methods immediately invoke the error handler with the stored IOException,
+ * preventing any further network operations on a connection that was never established.
+ */
 package pro.magisk.net;
 
 import org.json.JSONArray;
@@ -9,6 +15,7 @@ import java.io.InputStream;
 
 class BadRequest extends Request {
 
+    /** The exception that occurred during connection setup. */
     private final IOException ex;
 
     BadRequest(IOException e) { super(null); ex = e; }
@@ -43,6 +50,7 @@ class BadRequest extends Request {
     @Override
     public Result<JSONArray> execForJSONArray() { fail(); return new Result<>(); }
 
+    /** Invokes the error handler with the stored exception. */
     private void fail() {
         if (err != null)
             err.onError(null, ex);

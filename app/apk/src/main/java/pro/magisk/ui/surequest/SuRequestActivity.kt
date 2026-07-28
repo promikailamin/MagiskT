@@ -1,3 +1,11 @@
+/**
+ * Superuser request dialog — shown as a floating activity when an app requests root access.
+ *
+ * This is a special "untracked" activity (it does not belong to the main nav graph).
+ * It listens for `REQUEST` actions and shows a grant/deny dialog with a countdown timer.
+ * Other actions (e.g. logging callbacks) are dispatched directly to [SuCallbackHandler].
+ * Overlay windows are hidden on Android 12+ to prevent tapjacking.
+ */
 package pro.magisk.ui.surequest
 
 import android.content.Intent
@@ -20,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/** Floating activity that handles Superuser grant/deny requests. */
 open class SuRequestActivity : UIActivity<ActivityRequestBinding>(), UntrackedActivity {
 
     override val layoutRes: Int = R.layout.activity_request
@@ -41,6 +50,7 @@ open class SuRequestActivity : UIActivity<ActivityRequestBinding>(), UntrackedAc
             if (action == REQUEST) {
                 viewModel.handleRequest(intent)
             } else {
+                // Non-request action (e.g. logging callback) — handle and finish
                 lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
                         SuCallbackHandler.run(this@SuRequestActivity, action, intent.extras)

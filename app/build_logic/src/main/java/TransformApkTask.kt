@@ -1,3 +1,17 @@
+/**
+ * Gradle task that post-processes a signed APK produced by the Android build system.
+ *
+ * <p>For each APK artifact:
+ * <ol>
+ *   <li>Copies the APK to the output directory</li>
+ *   <li>Re-signs it using V1 + V2 signing schemes via {@code apkzlib}</li>
+ *   <li>Cleans up build-artifact metadata entries
+ *       ({@code APP_METADATA}, {@code VERSION_CONTROL_INFO}, {@code MANIFEST.MF},
+ *        {@code PublicSuffixDatabase.list})</li>
+ *   <li>Applies a configurable list of transformations (e.g. embedding version info
+ *       into the ZIP End of Central Directory comment)</li>
+ * </ol>
+ */
 import com.android.build.api.artifact.ArtifactTransformationRequest
 import com.android.build.api.dsl.ApkSigningConfig
 import com.android.builder.internal.packaging.IncrementalPackager
@@ -35,6 +49,7 @@ abstract class TransformApkTask : DefaultTask() {
     @get:Internal
     abstract val transformationRequest: Property<ArtifactTransformationRequest<TransformApkTask>>
 
+    /** Re-signs and post-processes the APK. */
     @TaskAction
     fun taskAction() = transformationRequest.get().submit(this) { artifact ->
         val inFile = File(artifact.outputFile)

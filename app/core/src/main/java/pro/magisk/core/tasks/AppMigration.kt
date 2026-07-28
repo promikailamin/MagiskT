@@ -1,3 +1,16 @@
+/**
+ * Handles Magisk app hiding / migration.
+ *
+ * **Hide** — repackages the stub APK with a random package name,
+ * random class names, a new signing key, and an optional custom
+ * label. The test APK is also patched accordingly.
+ *
+ * **Restore** — replaces the hidden app with the original
+ * `APP_PACKAGE_NAME` using the stored stub APK.
+ *
+ * **Stub upgrade** — re-signs the stub APK in-place via an install
+ * session to update the hidden app without losing data.
+ */
 package pro.magisk.core.tasks
 
 import android.app.Activity
@@ -42,6 +55,7 @@ object AppMigration {
     const val MAX_LABEL_LENGTH = 32
     const val PLACEHOLDER = "COMPONENT_PLACEHOLDER"
 
+    /** Generate a random package name (lowercase with at least one dot). */
     private fun genPackageName(): String {
         val random = SecureRandom()
         val len = 5 + random.nextInt(15)
@@ -58,13 +72,13 @@ object AppMigration {
             prev = next
         }
         if (!builder.contains('.')) {
-            // Pick a random index and set it as dot
             val idx = random.nextInt(len - 2)
             builder[idx + 1] = '.'
         }
         return builder.toString()
     }
 
+    /** Generate unique, non-Java-keyword class names. */
     private fun classNameGenerator() = sequence {
         val c1 = mutableListOf<String>()
         val c2 = mutableListOf<String>()
@@ -119,6 +133,7 @@ object AppMigration {
         }
     }.distinct().iterator()
 
+    /** Patch the AndroidManifest (strings + signing) of the given APK. */
     private fun patch(
         context: Context,
         apk: File, out: OutputStream,
@@ -154,6 +169,7 @@ object AppMigration {
         }
     }
 
+    /** Patch the test APK's manifest to match the new package name. */
     private fun patchTest(apk: File, out: File, pkg: String): Boolean {
         try {
             JarMap.open(apk, true).use { jar ->
@@ -180,6 +196,7 @@ object AppMigration {
         }
     }
 
+    /** Launch the newly installed app. */
     private fun launchApp(context: Context, pkg: String) {
         val intent = context.packageManager.getLaunchIntentForPackage(pkg) ?: return
         intent.putExtra(Const.Key.PREV_CONFIG, Config.toBundle())
@@ -193,6 +210,15 @@ object AppMigration {
         }
     }
 
+    /**
+     * Patch the stub APK, install it with a new package name, and
+     * launch the hidden app.
+     *
+     * @param context  Activity context.
+     * @param label    Custom app label (max [MAX_LABEL_LENGTH] chars).
+     * @param pkg      Optional explicit package name; auto-generated
+     *                 if null.
+     */
     suspend fun patchAndHide(context: Context, label: String, pkg: String? = null): Boolean {
         val stub = File(context.cacheDir, "stub.apk")
         try {
@@ -238,6 +264,7 @@ object AppMigration {
     }
 
     @Suppress("DEPRECATION")
+    /** Show a progress dialog while hiding the app. */
     suspend fun hide(activity: Activity, label: String) {
         val dialog = android.app.ProgressDialog(activity).apply {
             setTitle(activity.getString(R.string.hide_app_title))
@@ -254,6 +281,7 @@ object AppMigration {
         }
     }
 
+    /** Restore the original `APP_PACKAGE_NAME` using the stub APK. */
     suspend fun restoreApp(context: Context): Boolean {
         val apk = StubApk.current(context)
         val cmd = "adb_pm_install $apk $APP_PACKAGE_NAME"
@@ -267,6 +295,7 @@ object AppMigration {
     }
 
     @Suppress("DEPRECATION")
+    /** Show a progress dialog while restoring the app. */
     suspend fun restore(activity: Activity) {
         val dialog = android.app.ProgressDialog(activity).apply {
             setTitle(activity.getString(R.string.restore_img_msg))
@@ -280,6 +309,10 @@ object AppMigration {
         dialog.dismiss()
     }
 
+    /**
+     * Upgrade the stub APK in-place via an install session.
+     * Returns an [Intent] to commit the session, or null on failure.
+     */
     suspend fun upgradeStub(context: Context, apk: File): Intent? {
         val label = context.applicationInfo.nonLocalizedLabel
         val pkg = context.packageName

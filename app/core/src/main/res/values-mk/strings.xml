@@ -9,7 +9,6 @@
     <string name="unsupport_magisk_title">Неподдржана верзија на Magisk</string>
 
     <!--Status Fragment-->
-    <string name="invalid_update_channel">Невалиден канал за ажурирања</string>
     <string name="keep_force_encryption">Задржи ја присилната енкрипција</string>
     <string name="keep_dm_verity">Задржи AVB 2.0/dm-verity</string>
     <string name="uninstall_magisk_title">Деинсталирај го Magisk</string>
@@ -23,7 +22,6 @@
     <string name="reboot_download">Рестартирај во Download режим</string>
 
     <!--Repo Fragment-->
-    <string name="update_available">Достапно е ажурирање</string>
     <string name="home_installed_version">Инсталирано</string>
 
     <!--Log Fragment-->
@@ -32,17 +30,14 @@
     <string name="logs_cleared">Записникот е успешно исчистен.</string>
 
     <!--About Activity-->
-    <string name="app_changelog">Листа на промени</string>
 
     <!-- System Components, Notifications -->
     <string name="update_channel">Magisk Ажурирања</string>
     <string name="progress_channel">Известувања за прогресот</string>
     <string name="download_complete">Преземањето е завршено</string>
     <string name="download_file_error">Грешка при преземање на фајлот</string>
-    <string name="magisk_update_title">Достапно е ажурирање на Magisk!</string>
 
     <!-- Installation -->
-    <string name="manager_download_install">Притисни за преземање и инсталирање.</string>
     <string name="direct_install">Директна инсталација (Препорачано)</string>
     <string name="install_inactive_slot">Инсталирај во неактивен слот (по ОТА)</string>
     <string name="install_inactive_slot_msg">Вашиот уред ќе биде ПРИНУДЕН да се подигне на тековниот неактивен слот по рестартирањето!\nОваа опција користете ја само откако OTA ажурирање е направено.\nПродолжи?</string>
@@ -52,7 +47,6 @@
     <string name="reboot_delay_toast">Рестартирање за 5 секунди…</string>
 
     <!--Toasts, Dialogs-->
-    <string name="repo_install_title">Инсталирај %1$s %2$s(%3$d)</string>
     <string name="download">Преземи</string>
     <string name="reboot">Рестартирај</string>
     <string name="release_notes">Белешки за изданието</string>
@@ -71,13 +65,6 @@
     <!--Settings Activity -->
     <string name="language">Јазик</string>
     <string name="system_default">(Стандарден системски)</string>
-    <string name="settings_check_update_title">Провери за ажурирања</string>
-    <string name="settings_check_update_summary">Периодично проверувај за ажурирања во позадина.</string>
-    <string name="settings_update_channel_title">Канал за ажурирања</string>
-    <string name="settings_update_stable">Стабилен</string>
-    <string name="settings_update_beta">Бета</string>
-    <string name="settings_update_custom">Прилагодено</string>
-    <string name="settings_update_custom_msg">Внеси прилагоден URL линк</string>
     <string name="settings_hosts_title">Несистемски хостови</string>
     <string name="settings_hosts_summary">Поддршка за несистемски хостови за Adblock апликации.</string>
     <string name="settings_hosts_toast">Додаден е модул за несистемски хостови</string>

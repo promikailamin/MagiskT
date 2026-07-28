@@ -1,3 +1,11 @@
+//! System property manipulation (`resetprop`).
+//!
+//! Provides safe Rust wrappers around Android's low-level `__system_property_*`
+//! APIs. Supports reading, writing, deleting, waiting on, and enumerating
+//! system properties, with optional bypass of `property_service` and
+//! persistent property storage via protobuf (`persistent_properties.proto`)
+//! or legacy flat files in `/data/property/`.
+
 use base::libc::c_char;
 use base::{Utf8CStr, libc};
 pub use cli::{get_prop, load_prop_file, resetprop_main, set_prop};

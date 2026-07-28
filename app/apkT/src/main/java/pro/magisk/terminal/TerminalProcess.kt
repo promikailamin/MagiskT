@@ -1,3 +1,8 @@
+/**
+ * Utility for running shell commands through a PTY (via busybox script(1)) and feeding
+ * output to a [TerminalEmulator] on the main thread. Used by the flash screen to display
+ * real-time Magisk installation progress.
+ */
 package pro.magisk.terminal
 
 import android.os.Handler

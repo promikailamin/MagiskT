@@ -1,20 +1,27 @@
+//! ELF cleaner utility for Magisk built binaries.
+//!
+//! Removes unsupported dynamic section entries (DT_RPATH, DT_RUNPATH,
+//! AArch64 PAC/BTI/VARIANT_PCS) and filters DT_FLAGS_1 to only keep
+//! DF_1_NOW and DF_1_GLOBAL. Adapted from termux-elf-cleaner.
+
 use object::build::elf::{Builder, Dynamic, SectionData};
 use object::elf;
 use std::{env, fs};
 
-// Implementation adapted from https://github.com/termux/termux-elf-cleaner
-
-// Missing ELF constants
+// Missing ELF constants not defined in the object crate
 const DT_AARCH64_BTI_PLT: u32 = elf::DT_LOPROC + 1;
 const DT_AARCH64_PAC_PLT: u32 = elf::DT_LOPROC + 3;
 const DT_AARCH64_VARIANT_PCS: u32 = elf::DT_LOPROC + 5;
 
+// Only these DT_FLAGS_1 values are kept
 const SUPPORTED_DT_FLAGS: u32 = elf::DF_1_NOW | elf::DF_1_GLOBAL;
 
+/// Log removal of a dynamic section entry
 fn print_remove_dynamic(name: &str, path: &str) {
     println!("Removing dynamic section entry {} in '{}'", name, path);
 }
 
+/// Strip unsupported ELF dynamic entries from a single binary
 fn process_elf(path: &str) -> anyhow::Result<()> {
     let bytes = fs::read(path)?;
     let mut elf = Builder::read(bytes.as_slice())?;
@@ -80,6 +87,7 @@ fn process_elf(path: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
+/// Entry point: process each file path given on the command line
 fn main() -> anyhow::Result<()> {
     env::args().skip(1).try_for_each(|s| process_elf(&s))
 }

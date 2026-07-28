@@ -1,3 +1,14 @@
+//! Filesystem mount operations.
+//!
+//! Provides helpers for:
+//! - Pre-init directory discovery and symlink creation ([`setup_preinit_dir`]).
+//! - Module mount namespace setup ([`setup_module_mount`]).
+//! - Cleanup of module and worker mounts ([`clean_mounts`]).
+//! - Scanning mount info to find a writable partition for pre-init storage
+//!   ([`find_preinit_device`]).
+//! - Unmounting Magisk tmpfs and module files from a target process's mount
+//!   namespace ([`revert_unmount`]).
+
 use crate::consts::{MODULEMNT, MODULEROOT, PREINITDEV, PREINITMIRR, WORKERDIR};
 use crate::ffi::{get_magisk_tmp, resolve_preinit_dir, switch_mnt_ns};
 use crate::resetprop::get_prop;

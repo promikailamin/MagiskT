@@ -1,3 +1,10 @@
+/**
+ * Dialog offering to fix a broken Magisk environment.
+ *
+ * Shows different messages and actions based on the failure [code]:
+ * - For a simple environment mismatch, triggers [MagiskInstaller.FixEnv].
+ * - For a version mismatch or missing module policy, nudges the user to re-install Magisk.
+ */
 package pro.magisk.dialog
 
 import android.widget.Toast
@@ -15,6 +22,7 @@ import pro.magisk.view.MagiskDialog
 import com.topjohnwu.superuser.internal.UiThreadHandler
 import kotlinx.coroutines.launch
 
+/** Dialog for repairing the Magisk environment after detecting corruption/mismatch. */
 class EnvFixDialog(private val vm: HomeViewModel, private val code: Int) : DialogBuilder {
 
     override fun build(dialog: MagiskDialog) {
@@ -49,7 +57,8 @@ class EnvFixDialog(private val vm: HomeViewModel, private val code: Int) : Dialo
             }
         }
 
-        if (code == 2 || // No rules block, module policy not loaded
+        // code == 2 = module policy not loaded; also handle version mismatches
+        if (code == 2 ||
             Info.env.versionCode != BuildConfig.APP_VERSION_CODE ||
             Info.env.versionString != BuildConfig.APP_VERSION_NAME) {
             dialog.setMessage(R.string.env_full_fix_msg)

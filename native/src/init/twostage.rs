@@ -1,3 +1,11 @@
+//! Two-stage init (2SI) hijack and hexpatch helpers.
+//!
+//! [`hexpatch_for_second_stage`] patches `/init` to redirect
+//! `/system/bin/init` → `/data/magiskinit`.
+//! [`MagiskInit::hijack_init_with_switch_root`] exploits the kernel's
+//! `SwitchRoot` mechanism by bind-mounting magiskinit over `/sdcard`,
+//! which gets moved to `/system/bin/init` during the switch-root.
+
 use crate::ffi::MagiskInit;
 use base::nix::fcntl::OFlag;
 use base::{LoggedResult, MappedFile, MutBytesExt, ResultExt, cstr, debug, error};

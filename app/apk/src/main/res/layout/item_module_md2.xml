@@ -99,7 +99,6 @@
                     app:layout_constraintBottom_toBottomOf="@+id/module_version_author"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1"
-                    app:layout_constraintStart_toEndOf="@+id/module_update"
                     app:layout_constraintTop_toTopOf="@+id/module_title" />
 
                 <TextView
@@ -129,25 +128,6 @@
                     app:layout_constraintTop_toBottomOf="@+id/module_description" />
 
                 <Button
-                    android:id="@+id/module_update"
-                    style="@style/WidgetFoundation.Button.Text"
-                    goneUnless="@{item.showUpdate}"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:enabled="@{item.updateReady}"
-                    android:focusable="true"
-                    android:onClick="@{() -> viewModel.downloadPressed(item.item.updateInfo)}"
-                    android:text="@string/update"
-                    android:textAllCaps="false"
-                    app:icon="@drawable/ic_update_md2"
-                    app:iconGravity="textEnd"
-                    app:layout_constraintBottom_toBottomOf="@+id/module_remove"
-                    app:layout_constraintEnd_toStartOf="@+id/module_remove"
-                    app:layout_constraintTop_toTopOf="@+id/module_remove"
-                    app:srcCompat="@drawable/ic_download_md2" />
-
-                <Button
                     android:id="@+id/module_remove"
                     style="@style/WidgetFoundation.Button.Text"
                     android:layout_width="wrap_content"
@@ -171,8 +151,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:barrierDirection="start"
-                    app:referencedIds="@{viewModel.bottomBarBarrierIds}"
-                    tools:constraint_referenced_ids="module_update,module_remove" />
+                    app:referencedIds="@{viewModel.bottomBarBarrierIds}" />
 
                 <TextView
                     android:id="@+id/module_notice_text"

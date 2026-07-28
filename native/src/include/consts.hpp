@@ -1,3 +1,8 @@
+/**
+ * Global constants and paths used across all Magisk components.
+ * Defines file locations (SECURE_DIR, MODULEROOT, DATABIN),
+ * tmpfs paths (INTLROOT, MIRRDIR), and SELinux context strings.
+ */
 #pragma once
 
 #define JAVA_PACKAGE_NAME "pro.magisk"

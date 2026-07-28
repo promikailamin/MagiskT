@@ -1,3 +1,10 @@
+/**
+ * ViewModel for the module list screen.
+ *
+ * Loads installed modules from [LocalModule], exposes a merged observable list
+ * (install-button item + module items), and handles the "install from storage"
+ * file-picker flow via [GetContentEvent].
+ */
 package pro.magisk.ui.module
 
 import android.net.Uri
@@ -11,24 +18,22 @@ import pro.magisk.core.Const
 import pro.magisk.core.Info
 import pro.magisk.core.base.ContentResultCallback
 import pro.magisk.core.model.module.LocalModule
-import pro.magisk.core.model.module.OnlineModule
 import pro.magisk.databinding.MergeObservableList
 import pro.magisk.databinding.RvItem
 import pro.magisk.databinding.bindExtra
 import pro.magisk.databinding.diffList
 import pro.magisk.databinding.set
 import pro.magisk.dialog.LocalModuleInstallDialog
-import pro.magisk.dialog.OnlineModuleInstallDialog
 import pro.magisk.events.GetContentEvent
-import pro.magisk.events.SnackbarEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import pro.magisk.core.R as CoreR
 
+/** ViewModel for the module list — loading, display, and install flows. */
 class ModuleViewModel : AsyncLoadViewModel() {
 
-    val bottomBarBarrierIds = intArrayOf(R.id.module_update, R.id.module_remove)
+    val bottomBarBarrierIds = intArrayOf(R.id.module_remove)
 
     private val itemsInstalled = diffList<LocalModuleRvItem>()
 
@@ -55,10 +60,7 @@ class ModuleViewModel : AsyncLoadViewModel() {
             }
         }
         loading = false
-        loadUpdateInfo()
     }
-
-    override fun onNetworkChanged(network: Boolean) = startLoading()
 
     private suspend fun loadInstalled() {
         withContext(Dispatchers.Default) {
@@ -66,22 +68,6 @@ class ModuleViewModel : AsyncLoadViewModel() {
             itemsInstalled.update(installed)
         }
     }
-
-    private suspend fun loadUpdateInfo() {
-        withContext(Dispatchers.IO) {
-            itemsInstalled.forEach {
-                if (it.item.fetch())
-                    it.fetchedUpdateInfo()
-            }
-        }
-    }
-
-    fun downloadPressed(item: OnlineModule?) =
-        if (item != null && Info.isConnected.value == true) {
-            withExternalRW { OnlineModuleInstallDialog(item).show() }
-        } else {
-            SnackbarEvent(CoreR.string.no_connection).publish()
-        }
 
     fun installPressed() = withExternalRW {
         GetContentEvent("application/zip", UriCallback()).publish()

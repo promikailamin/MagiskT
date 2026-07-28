@@ -1,3 +1,10 @@
+//! Error handling — the Magisk error model.
+//!
+//! - [`OsError`] / [`OsResult`] — wraps `nix::Errno` with syscall name + args
+//! - [`LoggedError`] / [`LoggedResult`] — consumed errors that have been logged
+//! - [`ResultExt`] / [`SilentLogExt`] / [`OptionExt`] — traits for automatic logging
+//! - [`LibcReturn`] — converts raw libc return values into `nix::Result`
+
 use crate::logging::Formatter;
 use crate::{LogLevel, log_with_args, log_with_formatter};
 use nix::errno::Errno;

@@ -1,3 +1,12 @@
+//! Log daemon and Android log integration.
+//!
+//! Three logging targets exist:
+//! - **android_logging** — direct `__android_log_write` calls.
+//! - **magisk_logging** — Android log + write to a FIFO pipe consumed by
+//!   the log daemon (`start_log_daemon`), which writes to `magisk.log`.
+//! - **zygisk_logging** — Android log + write to a separate pipe used by
+//!   the Zygisk companion process.
+
 use crate::consts::{LOG_PIPE, LOGFILE};
 use crate::ffi::get_magisk_tmp;
 use crate::logging::LogFile::{Actual, Buffer};

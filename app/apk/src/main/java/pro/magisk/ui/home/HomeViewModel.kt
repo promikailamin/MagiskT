@@ -1,3 +1,10 @@
+/**
+ * ViewModel for the home screen.
+ *
+ * Determines the Magisk installation state (LOADING / INVALID / OUTDATED / UP_TO_DATE),
+ * runs an environment check via shell, and offers actions for links, uninstall, and
+ * Magisk installation navigation. The safety notice visibility is backed by [Config].
+ */
 package pro.magisk.ui.home
 
 import android.content.ActivityNotFoundException
@@ -16,35 +23,30 @@ import pro.magisk.arch.ViewEvent
 import pro.magisk.core.BuildConfig
 import pro.magisk.core.Config
 import pro.magisk.core.Info
-import pro.magisk.core.download.Subject
-import pro.magisk.core.download.Subject.App
 import pro.magisk.core.ktx.await
 import pro.magisk.core.ktx.toast
-import pro.magisk.core.repository.NetworkService
 import pro.magisk.core.utils.asText
 import pro.magisk.databinding.bindExtra
 import pro.magisk.databinding.set
 import pro.magisk.dialog.EnvFixDialog
-import pro.magisk.dialog.ManagerInstallDialog
 import pro.magisk.dialog.UninstallDialog
 import pro.magisk.events.SnackbarEvent
 import com.topjohnwu.superuser.Shell
 import kotlin.math.roundToInt
 import pro.magisk.core.R as CoreR
 
-class HomeViewModel(
-    private val svc: NetworkService
-) : AsyncLoadViewModel() {
+/** ViewModel for the home tab — Magisk version/status and actions. */
+class HomeViewModel : AsyncLoadViewModel() {
 
     enum class State {
         LOADING, INVALID, OUTDATED, UP_TO_DATE
     }
 
+    val extraBindings = bindExtra {
+        it.put(BR.viewModel, this)
+    }
     val magiskTitleBarrierIds =
         intArrayOf(R.id.home_magisk_icon, R.id.home_magisk_title, R.id.home_magisk_button)
-    val appTitleBarrierIds =
-        intArrayOf(R.id.home_manager_icon, R.id.home_manager_title, R.id.home_manager_button)
-
     @get:Bindable
     var isNoticeVisible = Config.safetyNotice
         set(value) = set(value, field, { field = it }, BR.noticeVisible)
@@ -57,10 +59,6 @@ class HomeViewModel(
             else -> State.UP_TO_DATE
         }
 
-    @get:Bindable
-    var appState = State.LOADING
-        set(value) = set(value, field, { field = it }, BR.appState)
-
     val magiskInstalledVersion
         get() = Info.env.run {
             if (isActive)
@@ -69,49 +67,8 @@ class HomeViewModel(
                 CoreR.string.not_available.asText()
         }
 
-    @get:Bindable
-    var managerRemoteVersion = CoreR.string.loading.asText()
-        set(value) = set(value, field, { field = it }, BR.managerRemoteVersion)
-
-    val managerInstalledVersion
-        get() = "${BuildConfig.APP_VERSION_NAME} (${BuildConfig.APP_VERSION_CODE})" +
-            if (BuildConfig.DEBUG) " (D)" else ""
-
-    @get:Bindable
-    var stateManagerProgress = 0
-        set(value) = set(value, field, { field = it }, BR.stateManagerProgress)
-
-    val extraBindings = bindExtra {
-        it.put(BR.viewModel, this)
-    }
-
-    companion object {
-        private var checkedEnv = false
-    }
-
     override suspend fun doLoadWork() {
-        appState = State.LOADING
-        Info.fetchUpdate(svc)?.apply {
-            appState = when {
-                BuildConfig.APP_VERSION_CODE < versionCode -> State.OUTDATED
-                else -> State.UP_TO_DATE
-            }
-
-            val isDebug = Config.updateChannel == Config.Value.DEBUG_CHANNEL
-            managerRemoteVersion =
-                ("$version (${versionCode})" + if (isDebug) " (D)" else "").asText()
-        } ?: run {
-            appState = State.INVALID
-            managerRemoteVersion = CoreR.string.not_available.asText()
-        }
         ensureEnv()
-    }
-
-    override fun onNetworkChanged(network: Boolean) = startLoading()
-
-    fun onProgressUpdate(progress: Float, subject: Subject) {
-        if (subject is App)
-            stateManagerProgress = progress.times(100f).roundToInt()
     }
 
     fun onLinkPressed(link: String) = object : ViewEvent(), ContextExecutor {
@@ -128,16 +85,6 @@ class HomeViewModel(
 
     fun onDeletePressed() = UninstallDialog().show()
 
-    fun onManagerPressed() = when (appState) {
-        State.LOADING -> SnackbarEvent(CoreR.string.loading).publish()
-        State.INVALID -> SnackbarEvent(CoreR.string.no_connection).publish()
-        else -> withExternalRW {
-            withInstallPermission {
-                ManagerInstallDialog().show()
-            }
-        }
-    }
-
     fun onMagiskPressed() = withExternalRW {
         HomeFragmentDirections.actionHomeFragmentToInstallFragment().navigate()
     }
@@ -147,6 +94,9 @@ class HomeViewModel(
         isNoticeVisible = false
     }
 
+    private var checkedEnv = false
+
+    /** Runs `env_check` via shell; shows [EnvFixDialog] on non-zero exit. */
     private suspend fun ensureEnv() {
         if (magiskState == State.INVALID || checkedEnv) return
         val cmd = "env_check ${Info.env.versionString} ${Info.env.versionCode}"

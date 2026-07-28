@@ -1,3 +1,11 @@
+/**
+ * ViewModel for the settings screen.
+ *
+ * Builds the dynamic list of [BaseSettingsItem] objects based on device state
+ * (rooted? Zygisk enabled? Superuser visible? stub vs installed?).
+ * Also implements [BaseSettingsItem.Handler] to delegate press/action events,
+ * optionally requesting authentication before sensitive operations.
+ */
 package pro.magisk.ui.settings
 
 import android.app.Activity
@@ -29,6 +37,7 @@ import pro.magisk.events.AuthEvent
 import pro.magisk.events.SnackbarEvent
 import kotlinx.coroutines.launch
 
+/** ViewModel that builds and manages the settings item list. */
 class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
 
     val items = createItems()
@@ -36,11 +45,11 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
         it.put(BR.handler, this)
     }
 
+    /** Assembles the settings list based on current device and app state. */
     private fun createItems(): List<BaseSettingsItem> {
         val context = AppContext
         val hidden = context.packageName != BuildConfig.APP_PACKAGE_NAME
 
-        // Customization
         val list = mutableListOf(
             Customization,
             Theme, if (LocaleSetting.useLocaleManager) LanguageSystem else Language
@@ -48,39 +57,30 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
         if (isRunningAsStub && ShortcutManagerCompat.isRequestPinShortcutSupported(context))
             list.add(AddShortcut)
 
-        // Manager
         list.addAll(listOf(
             AppSettings,
-            UpdateChannel, UpdateChannelUrl, DoHToggle, UpdateChecker, DownloadPath, RandNameToggle
+            RandNameToggle
         ))
         if (Info.env.isActive && Const.USER_ID == 0) {
             if (hidden) list.add(Restore) else list.add(Hide)
         }
 
-        // Magisk
         if (Info.env.isActive) {
-            list.addAll(listOf(
-                Magisk,
-                SystemlessHosts
-            ))
+            list.addAll(listOf(Magisk, SystemlessHosts))
             if (Const.Version.atLeast_24_0()) {
                 list.addAll(listOf(Zygisk, DenyList, DenyListConfig))
             }
         }
 
-        // Superuser
         if (Info.showSuperUser) {
             list.addAll(listOf(
-                Superuser,
-                Tapjack, Authentication, AccessMode, MultiuserMode, MountNamespaceMode,
-                AutomaticResponse, RequestTimeout, SUNotification
+                Superuser, Tapjack, Authentication, AccessMode, MultiuserMode,
+                MountNamespaceMode, AutomaticResponse, RequestTimeout, SUNotification
             ))
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                // Re-authenticate is not feasible on 8.0+
                 list.add(Reauthenticate)
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                // Can hide overlay windows on 12.0+
                 list.remove(Tapjack)
             }
             if (Const.Version.atLeast_30_1()) {
@@ -93,8 +93,6 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
 
     override fun onItemPressed(view: View, item: BaseSettingsItem, doAction: () -> Unit) {
         when (item) {
-            DownloadPath -> withExternalRW(doAction)
-            UpdateChecker -> withPostNotificationPermission(doAction)
             Authentication -> AuthEvent(doAction).publish()
             AutomaticResponse -> if (Config.suAuth) AuthEvent(doAction).publish() else doAction()
             else -> doAction()
@@ -108,18 +106,10 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
             AddShortcut -> AddHomeIconEvent().publish()
             SystemlessHosts -> createHosts()
             DenyListConfig -> SettingsFragmentDirections.actionSettingsFragmentToDenyFragment().navigate()
-            UpdateChannel -> openUrlIfNecessary(view)
             is Hide -> viewModelScope.launch { AppMigration.hide(view.activity, item.value) }
             Restore -> viewModelScope.launch { AppMigration.restore(view.activity) }
             Zygisk -> if (Zygisk.mismatch) SnackbarEvent(R.string.reboot_apply_change).publish()
             else -> Unit
-        }
-    }
-
-    private fun openUrlIfNecessary(view: View) {
-        UpdateChannelUrl.refresh()
-        if (UpdateChannelUrl.isEnabled && UpdateChannelUrl.value.isBlank()) {
-            UpdateChannelUrl.onPressed(view, this)
         }
     }
 

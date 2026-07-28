@@ -1,3 +1,8 @@
+/**
+ * Canvas-based painter for [TerminalEmulator]. Renders character runs with proper
+ * foreground/background colors, effects (bold, italic, underline, dim, inverse),
+ * cursor shapes (block/underline/bar), and font-width mismatch correction.
+ */
 package pro.magisk.ui.terminal
 
 import android.graphics.Canvas

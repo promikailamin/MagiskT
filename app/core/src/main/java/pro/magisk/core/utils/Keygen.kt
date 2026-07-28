@@ -1,3 +1,9 @@
+/**
+ * Generates or loads a self-signed RSA-4096 certificate and private key
+ * used by [AppMigration] to re-sign the stub APK after patching its
+ * manifest. The key store is persisted in [Config.keyStoreRaw] as a
+ * gzip + base64-encoded PKCS12 blob.
+ */
 package pro.magisk.core.utils
 
 import android.util.Base64
@@ -25,6 +31,13 @@ private interface CertKeyProvider {
     val key: PrivateKey
 }
 
+/**
+ * Manages a PKCS12 key store containing a self-signed RSA-4096
+ * certificate used to re-sign the stub APK after manifest patching.
+ *
+ * If no key store exists yet, one is generated on first access and
+ * persisted in [Config.keyStoreRaw].
+ */
 class Keygen : CertKeyProvider {
 
     companion object {
@@ -41,6 +54,7 @@ class Keygen : CertKeyProvider {
     override val cert = ks.getCertificate(ALIAS) as X509Certificate
     override val key = ks.getKey(ALIAS, PASSWORD) as PrivateKey
 
+    /** Load or create the key store. */
     private fun init(): KeyStore {
         val raw = Config.keyStoreRaw
         val ks = KeyStore.getInstance("PKCS12")
@@ -52,11 +66,9 @@ class Keygen : CertKeyProvider {
             }
         }
 
-        // Keys already exist
         if (ks.containsAlias(ALIAS))
             return ks
 
-        // Generate new private key and certificate
         val kp = KeyPairGenerator.getInstance("RSA").apply { initialize(4096) }.genKeyPair()
         val dname = X500Name(DNAME)
         val builder = X509v3CertificateBuilder(
@@ -67,7 +79,6 @@ class Keygen : CertKeyProvider {
         val signer = JcaContentSignerBuilder("SHA1WithRSA").build(kp.private)
         val cert = JcaX509CertificateConverter().getCertificate(builder.build(signer))
 
-        // Store them into keystore
         ks.setKeyEntry(ALIAS, kp.private, PASSWORD, arrayOf(cert))
         val bytes = ByteArrayOutputStream()
         GZIPOutputStream(Base64OutputStream(bytes, BASE64_FLAG)).use {

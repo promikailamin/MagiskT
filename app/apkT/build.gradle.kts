@@ -1,3 +1,5 @@
+// :apkT module - Next-generation Magisk app built with Jetpack Compose + MVVM.
+// Uses Material 3, Navigation3 Compose, and the core library for shared logic.
 plugins {
     alias(libs.plugins.android.application)
     kotlin("plugin.parcelize")

@@ -1,3 +1,11 @@
+/**
+ * Main activity — the primary entry point for the Magisk Manager app.
+ *
+ * Orchestrates the bottom-navigation layout with Jetpack Navigation, manages the
+ * toolbar (up-indicator / back-arrow), handles splash screen transitions, and
+ * shows one-shot dialogs for unsupported configurations, environment issues, and
+ * stub-APK home-screen shortcut requests.
+ */
 package pro.magisk.ui
 
 import android.Manifest
@@ -83,15 +91,9 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
         showUnsupportedMessage()
         askForHomeShortcut()
 
-        // Ask permission to post notifications for background update check
-        if (Config.checkUpdate) {
-            withPermission(Manifest.permission.POST_NOTIFICATIONS) {
-                Config.checkUpdate = it
-            }
-        }
-
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
+        // Track navigation destination changes to update toolbar and bottom-nav state
         navigation.addOnDestinationChangedListener { _, destination, _ ->
             isRootFragment = when (destination.id) {
                 R.id.homeFragment,
@@ -104,6 +106,7 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
             setDisplayHomeAsUpEnabled(!isRootFragment)
             requestNavigationHidden(!isRootFragment)
 
+            // Sync the checked bottom-nav item with the current destination
             binding.mainNavigation.menu.forEach {
                 if (it.itemId == destination.id) {
                     it.isChecked = true
@@ -117,6 +120,7 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
             getScreen(it.itemId)?.navigate()
             true
         }
+        // Reselection listener is intentionally a no-op (Google bug workaround)
         binding.mainNavigation.setOnItemReselectedListener {
             // https://issuetracker.google.com/issues/124538620
         }
@@ -165,7 +169,6 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
     }
 
     fun invalidateToolbar() {
-        //binding.mainToolbar.startAnimations()
         binding.mainToolbar.invalidate()
     }
 
@@ -213,7 +216,9 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
         }
     }
 
+    /** Shows dialogs for known unsupported configurations. */
     private fun showUnsupportedMessage() {
+        // Magisk version too old or unsupported
         if (Info.env.isUnsupported) {
             MagiskDialog(this).apply {
                 setTitle(CoreR.string.unsupport_magisk_title)
@@ -223,6 +228,7 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
             }.show()
         }
 
+        // Another su binary is present on the PATH alongside magisk
         if (!Info.isEmulator && Info.env.isActive && System.getenv("PATH")
                 ?.split(':')
                 ?.filterNot { File("$it/magisk").exists() }
@@ -235,6 +241,7 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
             }.show()
         }
 
+        // Running as a system app (can cause issues)
         if (applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0) {
             MagiskDialog(this).apply {
                 setTitle(CoreR.string.unsupport_general_title)
@@ -244,6 +251,7 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
             }.show()
         }
 
+        // Running from external storage
         if (applicationInfo.flags and ApplicationInfo.FLAG_EXTERNAL_STORAGE != 0) {
             MagiskDialog(this).apply {
                 setTitle(CoreR.string.unsupport_general_title)
@@ -254,10 +262,10 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
         }
     }
 
+    /** Prompts the user to pin a home-screen shortcut when running as stub. */
     private fun askForHomeShortcut() {
         if (isRunningAsStub && !Config.askedHome &&
             ShortcutManagerCompat.isRequestPinShortcutSupported(this)) {
-            // Ask and show dialog
             Config.askedHome = true
             MagiskDialog(this).apply {
                 setTitle(CoreR.string.add_shortcut_title)

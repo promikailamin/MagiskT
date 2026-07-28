@@ -61,13 +61,6 @@
         <item>@string/isolate_summary</item>
     </string-array>
 
-    <string-array name="update_channel">
-        <item>@string/settings_update_stable</item>
-        <item>@string/settings_update_beta</item>
-        <item>@string/settings_update_debug</item>
-        <item>@string/settings_update_custom</item>
-    </string-array>
-
     <string-array name="color_mode">
         <item>@string/color_mode_system</item>
         <item>@string/color_mode_light</item>

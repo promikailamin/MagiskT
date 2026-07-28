@@ -31,7 +31,8 @@
 # Functions
 ############
 
-# Pure bash dirname implementation
+# Get the directory portion of a path (pure bash, no external deps)
+# Works like dirname(1) but avoids forking an external process
 getdir() {
   case "$1" in
     */*)

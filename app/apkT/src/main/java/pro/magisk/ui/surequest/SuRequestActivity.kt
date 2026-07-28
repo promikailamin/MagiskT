@@ -1,3 +1,8 @@
+/**
+ * Floating activity that displays a superuser request dialog via [SuRequestScreen].
+ * Supports tapjack protection, authentication gate, and both fire-and-forget callback
+ * actions and interactive allow/deny flows.
+ */
 package pro.magisk.ui.surequest
 
 import android.content.Context

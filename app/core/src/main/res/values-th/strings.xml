@@ -8,7 +8,6 @@
     <string name="install">ติดตั้ง</string>
 
     <!--Status Fragment-->
-    <string name="invalid_update_channel">ช่องทางการอัปเดตไม่ถูกต้อง</string>
     <string name="keep_force_encryption">เก็บค่าบังคับการเข้ารหัส</string>
     <string name="keep_dm_verity">เก็บค่า AVB 2.0/dm-verity</string>
     <string name="uninstall_magisk_title">ถอนการติดตั้ง Magisk</string>
@@ -22,7 +21,6 @@
     <string name="reboot_download">รีบู๊ตไป Download</string>
 
     <!--Repo Fragment-->
-    <string name="update_available">มีการอัปเดต</string>
     <string name="home_installed_version">ติดตั้งแล้ว</string>
 
     <!--Log Fragment-->
@@ -31,21 +29,17 @@
     <string name="logs_cleared">บันทึกถูกล้างแล้ว</string>
 
     <!--About Activity-->
-    <string name="app_changelog">สิ่งที่เพิ่มใหม่</string>
 
     <!-- System Components, Notifications -->
     <string name="update_channel">การอัปเดต Magisk</string>
     <string name="progress_channel">สถานะ</string>
     <string name="download_complete">ดาวน์โหลดสำเร็จ</string>
     <string name="download_file_error">เกิดข้อผิดพลาดในการดาวน์โหลดไฟล์</string>
-    <string name="magisk_update_title">มีการอัปเดต Magisk!</string>
 
     <!--Toasts, Dialogs-->
-    <string name="repo_install_title">ติดตั้ง %1$s %2$s(%3$d)</string>
     <string name="download">ดาวน์โหลด</string>
     <string name="reboot">รีบู๊ต</string>
     <string name="release_notes">ข้อมูลเพิ่มเติม</string>
-    <string name="manager_download_install">แตะเพื่อดาวน์โหลดและติดตั้ง</string>
     <string name="flashing">กำลังแฟลช</string>
     <string name="open_link_failed_toast">ไม่พบแอปพลิเคชันสำหรับเปิดลิ้งค์</string>
     <string name="direct_install">การติดตั้งโดยตรง (แนะนำ)</string>
@@ -64,13 +58,6 @@
     <!--Settings Activity -->
     <string name="language">ภาษา</string>
     <string name="system_default">(มาตรฐานระบบ)</string>
-    <string name="settings_check_update_title">ตรวจสอบการอัปเดต</string>
-    <string name="settings_check_update_summary">ตรวจสอบการอัปเดตเป็นระยะในพื้นหลัง</string>
-    <string name="settings_update_channel_title">ช่องทางการอัปเดต</string>
-    <string name="settings_update_stable">เสถียร</string>
-    <string name="settings_update_beta">เบต้า</string>
-    <string name="settings_update_custom">กำหนดเอง</string>
-    <string name="settings_update_custom_msg">ใส่ URL</string>
     <string name="settings_hosts_title">Systemless hosts</string>
     <string name="settings_hosts_summary">การรองรับ Systemless hosts เพื่อแอพ Adblock ต่างๆ</string>
     <string name="settings_hosts_toast">ทำการเพิ่มโมดูล systemless hosts แล้ว</string>

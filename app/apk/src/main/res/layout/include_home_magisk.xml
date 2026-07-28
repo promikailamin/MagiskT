@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="pro.magisk.core.BuildConfig" />
+
         <import type="pro.magisk.core.Info" />
 
         <import type="pro.magisk.ui.home.HomeViewModel.State" />
@@ -146,7 +148,7 @@
 
                         <LinearLayout
                             android:id="@+id/home_device_details_ramdisk"
-                            style="@style/W.Home.Item.Bottom"
+                            style="@style/W.Home.Item"
                             app:layout_constraintStart_toStartOf="@+id/home_magisk_installed_version"
                             app:layout_constraintTop_toBottomOf="@+id/home_device_details_zygisk">
 
@@ -158,6 +160,25 @@
                                 style="@style/W.Home.ItemContent.Right"
                                 android:text="@{Info.ramdisk ? @string/yes : @string/no }"
                                 tools:text="Yes" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/home_device_details_build"
+                            style="@style/W.Home.Item.Bottom"
+                            app:layout_constraintStart_toStartOf="@+id/home_magisk_installed_version"
+                            app:layout_constraintTop_toBottomOf="@+id/home_device_details_ramdisk">
+
+                            <TextView
+                                style="@style/W.Home.ItemContent"
+                                android:text="Build" />
+
+                            <TextView
+                                style="@style/W.Home.ItemContent.Right"
+                                android:text="@{BuildConfig.BUILD_COMMIT}"
+                                android:maxLines="1"
+                                android:ellipsize="end"
+                                tools:text="a1b2c3d4" />
 
                         </LinearLayout>
 

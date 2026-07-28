@@ -1,6 +1,14 @@
 #MAGISK
 ############################################
 # Magisk Uninstaller (updater-script)
+#
+# Reverts a Magisk installation by:
+#   1. Locating and unpacking the boot image
+#   2. Detecting the current patching state (stock / Magisk / unsupported)
+#   3. Restoring the stock boot image from backup or internal ramdisk backup
+#   4. Removing Magisk modules (if booted)
+#   5. Deleting all Magisk files from /data, /cache, /metadata, /persist
+#   6. Removing the addon.d survival script
 ############################################
 
 ##############
@@ -52,6 +60,7 @@ ui_print "- Device platform: $ABI"
 
 BINDIR=$INSTALLER/lib/$ABI
 cd $BINDIR
+# Rename lib*.so to bare names (strip lib prefix, .so suffix)
 for file in lib*.so; do mv "$file" "${file:3:${#file}-6}"; done
 cd /
 cp -af $CHROMEDIR/. $BINDIR/chromeos
@@ -93,16 +102,16 @@ if [ -e ramdisk.cpio ]; then
   ./magiskboot cpio ramdisk.cpio test
   STATUS=$?
 else
-  # Stock A only system-as-root
+  # Stock A only system-as-root (no separate ramdisk)
   STATUS=0
 fi
 case $((STATUS & 3)) in
-  0 )  # Stock boot
+  0 )  # Stock boot (not patched)
     ui_print "- Stock boot image detected"
     ;;
   1 )  # Magisk patched
     ui_print "- Magisk patched image detected"
-    # Find SHA1 of stock boot image
+    # Look up SHA1 to find the backed-up stock boot image
     ./magiskboot cpio ramdisk.cpio "extract .backup/.magisk config.orig"
     if [ -f config.orig ]; then
       chmod 0644 config.orig
@@ -113,6 +122,7 @@ case $((STATUS & 3)) in
     if [ -d $BACKUPDIR ]; then
       ui_print "- Restoring stock boot image"
       flash_image $BACKUPDIR/boot.img.gz $BOOTIMAGE
+      # Restore additional partition images (dtb, dtbo, dtbs)
       for name in dtb dtbo dtbs; do
         [ -f $BACKUPDIR/${name}.img.gz ] || continue
         IMAGE=$(find_block $name$SLOT)
@@ -125,17 +135,17 @@ case $((STATUS & 3)) in
       ui_print "- Restoring ramdisk with internal backup"
       ./magiskboot cpio ramdisk.cpio restore
       if ! ./magiskboot cpio ramdisk.cpio "exists init"; then
-        # A only system-as-root
+        # A-only system-as-root — no ramdisk to restore
         rm -f ramdisk.cpio
       fi
       ./magiskboot repack $BOOTIMAGE
-      # Sign chromeos boot
+      # Sign chromeos boot if needed
       $CHROMEOS && sign_chromeos
       ui_print "- Flashing restored boot image"
       flash_image new-boot.img $BOOTIMAGE || abort "! Insufficient partition size"
     fi
     ;;
-  2 )  # Unsupported
+  2 )  # Unsupported patching tool
     ui_print "! Boot image patched by unsupported programs"
     abort "! Cannot uninstall"
     ;;
@@ -153,6 +163,7 @@ rm -rf \
 /data/adb/post-fs-data.d /data/adb/service.d /data/adb/modules* \
 /data/unencrypted/magisk /metadata/magisk /metadata/watchdog/magisk /persist/magisk /mnt/vendor/persist/magisk
 
+# Remove addon.d survival script
 ADDOND=/system/addon.d/99-magisk.sh
 if [ -f $ADDOND ]; then
   blockdev --setrw /dev/block/mapper/system$SLOT 2>/dev/null

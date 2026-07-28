@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Không có kết nối</string>
-    <string name="app_changelog">Changelog</string>
     <string name="loading">Đang tải…</string>
     <string name="update">Cập nhật</string>
     <string name="not_available">Không có sẵn</string>
@@ -26,7 +25,6 @@
     <string name="home_support_content">Magisk sẽ, và luôn luôn là, miễn phí và mã nguồn mở. Tuy nhiên, bạn có thể cho chúng tôi thấy rằng bạn quan tâm bằng cách gửi một khoản đóng góp nhỏ.</string>
     <string name="home_installed_version">Cài đặt</string>
     <string name="home_latest_version">Mới nhất</string>
-    <string name="invalid_update_channel">Kênh cập nhật không hợp lệ</string>
     <string name="uninstall_magisk_title">Gỡ cài đặt Magisk</string>
     <string name="uninstall_magisk_msg">Tất cả các mô-đun sẽ bị tắt hoặc bị xóa!\nRoot sẽ bị gỡ bỏ\nPhân vùng data đã tắt mã hóa thông qua Magisk sẽ bị mã hóa lại!</string>
 
@@ -38,7 +36,6 @@
     <string name="install_method_title">Phương pháp</string>
     <string name="install_next">Kế tiếp</string>
     <string name="install_start">Đi nào</string>
-    <string name="manager_download_install">Nhấn để tải xuống và cài đặt</string>
     <string name="direct_install">Cài đặt trực tiếp (Khuyến nghị)</string>
     <string name="install_inactive_slot">Cài đặt vào vùng không hoạt động (Sau OTA)</string>
     <string name="install_inactive_slot_msg">Thiết bị của bạn sẽ bị BUỘC khởi động vào vị trí không hoạt động hiện tại sau khi khởi động lại!\nChỉ sử dụng tùy chọn này sau khi hoàn tất OTA.\nTiếp tục chứ?</string>
@@ -106,7 +103,6 @@
     <string name="module_state_remove">Gỡ bỏ</string>
     <string name="module_state_restore">Khôi phục</string>
     <string name="module_action_install_external">Cài đặt từ bộ nhớ</string>
-    <string name="update_available">Cập nhật có sẵn</string>
     <string name="suspend_text_riru">Mô-đun bị vô hiệu hóa vì %1$s được bật</string>
     <string name="suspend_text_zygisk">Mô-đun bị vô hiệu hóa vì %1$s không được bật</string>
     <string name="zygisk_module_unloaded">Không thể tải mô-đun Zygisk vì không tương thích</string>
@@ -127,13 +123,6 @@
     <string name="settings_restore_app_summary">Bỏ ẩn ứng dụng và khôi phục nó về APK ban đầu</string>
     <string name="language">Ngôn ngữ</string>
     <string name="system_default">(Mặc định hệ thống)</string>
-    <string name="settings_check_update_title">Kiểm tra cập nhật</string>
-    <string name="settings_check_update_summary">Kiểm tra định kỳ các bản cập nhật trong nền</string>
-    <string name="settings_update_channel_title">Kênh cập nhật</string>
-    <string name="settings_update_stable">Ổn định</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_custom">Kênh tùy chỉnh</string>
-    <string name="settings_update_custom_msg">Chèn một URL tùy chỉnh</string>
     <string name="settings_zygisk_summary">Khởi chạy các thành phần của Magisk trong tiến trình nền zygote</string>
     <string name="settings_denylist_title">Thực thi danh sách loại trừ</string>
     <string name="settings_denylist_summary">Mọi sửa đổi do Magisk thực hiện sẽ bị loại khỏi các quy trình trong danh sách loại trừ</string>
@@ -187,17 +176,12 @@
     <!--Thông báo-->
     <string name="update_channel">Cập nhật Magisk</string>
     <string name="progress_channel">Thông báo tiến độ</string>
-    <string name="updated_channel">Cập nhật hoàn tất</string>
     <string name="download_complete">Tải về hoàn tất</string>
     <string name="download_file_error">Lỗi khi tải xuống tệp</string>
-    <string name="magisk_update_title">Cập nhật Magisk có sẵn!</string>
-    <string name="updated_title">Đã cập nhật Magisk</string>
-    <string name="updated_text">Chạm để mở ứng dụng</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Có</string>
     <string name="no">Không</string>
-    <string name="repo_install_title">Cài đặt %1$s %2$s(%3$d)</string>
     <string name="download">Tải xuống</string>
     <string name="reboot">Khởi động lại</string>
     <string name="release_notes">Ghi chú bản phát hành</string>

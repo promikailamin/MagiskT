@@ -1,3 +1,8 @@
+//! SELinux context restoration helpers.
+//!
+//! Provides utility functions to set and restore SELinux file contexts
+//! on Magisk directories, tmpfs paths, and log pipes after boot.
+
 use crate::consts::{DATABIN, LOG_PIPE, MAGISK_LOG_CON, MAGISKDB, MODULEROOT, SECURE_DIR};
 use crate::ffi::get_magisk_tmp;
 use base::{Directory, FsPathBuilder, LoggedResult, ResultExt, Utf8CStr, Utf8CStrBuf, cstr, libc};

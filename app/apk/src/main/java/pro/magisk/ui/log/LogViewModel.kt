@@ -1,3 +1,10 @@
+/**
+ * ViewModel for the log viewer screen.
+ *
+ * Fetches Superuser access logs and Magisk daemon logs via [LogRepository], then populates
+ * two diff-aware lists. Supports saving a comprehensive debug log (device info, properties,
+ * kernel, mountinfo, Magisk logs, logcat) to a file, as well as clearing logs.
+ */
 package pro.magisk.ui.log
 
 import android.system.Os
@@ -23,6 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.FileInputStream
 
+/** ViewModel that loads and manages Superuser + Magisk daemon logs. */
 class LogViewModel(
     private val repo: LogRepository
 ) : AsyncLoadViewModel() {
@@ -30,19 +38,14 @@ class LogViewModel(
     var loading = true
         private set(value) = set(value, field, { field = it }, BR.loading)
 
-    // --- empty view
-
     val itemEmpty = TextItem(R.string.log_data_none)
     val itemMagiskEmpty = TextItem(R.string.log_data_magisk_none)
-
-    // --- su log
 
     val items = diffList<SuLogRvItem>()
     val extraBindings = bindExtra {
         it.put(BR.viewModel, this)
     }
 
-    // --- magisk log
     val logs = diffList<LogRvItem>()
     var magiskLogRaw = " "
 
@@ -65,6 +68,7 @@ class LogViewModel(
         loading = false
     }
 
+    /** Writes a comprehensive debug log file to the MediaStore. */
     fun saveMagiskLog() = withExternalRW {
         viewModelScope.launch(Dispatchers.IO) {
             val filename = "magisk_log_%s.log".format(

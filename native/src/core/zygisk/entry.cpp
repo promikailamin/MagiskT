@@ -1,3 +1,8 @@
+/**
+ * Zygisk entry points: zygiskd companion process and NativeBridgeItf injection.
+ * Runs companion process for module IPC, and exports the NativeBridgeCallbacks
+ * struct that triggers code injection into Zygote.
+ */
 #include <sys/mount.h>
 #include <android/dlext.h>
 #include <dlfcn.h>
@@ -13,6 +18,7 @@ using namespace std;
 using comp_entry = void(*)(int);
 extern "C" void exec_companion_entry(int, comp_entry);
 
+/** Companion daemon: load module shared objects, accept IPC requests from app processes, and dispatch to companion entry points. */
 static void zygiskd(int socket) {
     if (getuid() != 0 || fcntl(socket, F_GETFD) < 0)
         exit(-1);
@@ -75,6 +81,7 @@ static void zygiskd(int socket) {
 
 // Entrypoint where we need to re-exec ourselves
 // This should only ever be called internally
+/** Entry point for zygisk re-exec: if args match "companion <fd>", launch the companion daemon. */
 int zygisk_main(int argc, char *argv[]) {
     android_logging();
     if (argc == 3 && argv[1] == "companion"sv) {
@@ -84,6 +91,7 @@ int zygisk_main(int argc, char *argv[]) {
 }
 
 // Entrypoint of code injection
+/** NativeBridge entry point: called by Android's LoadNativeBridge. Triggers PLT hooking. */
 extern "C" [[maybe_unused]] NativeBridgeCallbacks NativeBridgeItf {
     .version = 2,
     .padding = {},

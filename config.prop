@@ -1,8 +1,15 @@
+# Path to the keystore file used for signing the APK
 keyStore=app/app.jks
+# Keystore password
 keyStorePass=superman
+# Key alias for signing
 keyAlias=magisk
+# Key password
 keyPass=superman
 
+# Human-readable version string (shown in the app)
 version=vanilla
+# Integer version code (must be monotonically increasing)
 versionCode=67678
+# Comma-separated list of target ABIs to build native binaries for
 abiList=armeabi-v7a, arm64-v8a

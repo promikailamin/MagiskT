@@ -1,3 +1,9 @@
+//! SU request handling daemon side.
+//!
+//! [`MagiskD::su_daemon_handler`] receives an SU request from a client,
+//! looks up cached or fresh SU policy info, forks a child, and hands
+//! control to the C++ `exec_root_shell`.
+
 use super::connect::SuAppContext;
 use super::db::RootSettings;
 use crate::daemon::{AID_ROOT, AID_SHELL, MagiskD, to_app_id, to_user_id};

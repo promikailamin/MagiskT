@@ -1,3 +1,10 @@
+/**
+ * Extracts a boot image from either an OTA payload ZIP, a factory
+ * image ZIP, or a nested inner image ZIP.
+ *
+ * The boot image is written to a local [outFile] and may be
+ * compressed with STORED or DEFLATED methods.
+ */
 package pro.magisk.core.tasks
 
 import pro.magisk.core.utils.DataSourceChannel
@@ -17,6 +24,13 @@ class ExtractImage(
     private val console: MutableList<String>,
     private val logs: MutableList<String>,
 ) {
+    /**
+     * Process the given [DataSourceChannel] (backed by a ZIP).
+     *
+     * Determines automatically whether the archive is an OTA package
+     * (contains `payload.bin`) or a factory image, then extracts the
+     * boot image to [outFile].
+     */
     @Throws(IOException::class)
     fun consume(channel: DataSourceChannel) {
         ZipFile.builder()
@@ -63,6 +77,7 @@ class ExtractImage(
         }
     }
 
+    /** Walk a factory image ZIP looking for a boot image entry. */
     @Throws(IOException::class)
     private fun extractFromFactoryImage(
         zipFile: ZipFile,
@@ -87,6 +102,7 @@ class ExtractImage(
         throw IOException("inner image ZIP not found in factory image package")
     }
 
+    /** Find the `init_boot.img` or `boot.img` entry in a ZIP. */
     private fun findBootImageZipEntry(zipFile: ZipFile): ZipArchiveEntry? {
         return zipFile.entries.asSequence().find {
             it.name.substringAfterLast('/') == "init_boot.img"
@@ -95,6 +111,7 @@ class ExtractImage(
         }
     }
 
+    /** Extract from an inner image ZIP nested inside the factory package. */
     @Throws(IOException::class)
     private fun extractFromInnerImageZip(
         entry: ZipArchiveEntry,
@@ -119,6 +136,7 @@ class ExtractImage(
         }
     }
 
+    /** Extract a single boot image entry from a ZIP to [outFile]. */
     @Throws(IOException::class)
     private fun extractImageFile(
         zipFile: ZipFile,

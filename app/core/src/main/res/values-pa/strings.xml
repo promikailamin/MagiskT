@@ -11,7 +11,6 @@
 
     <!--Home-->
     <string name="no_connection">ਕੋਈ ਸੰਪਰਕ ਉਪਲਬਧ ਨਹੀਂ ਹੈ</string>
-    <string name="app_changelog">ਬਦਲਾਓ</string>
     <string name="loading">ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ</string>
     <string name="update">ਅੱਪਡੇਟ</string>
     <string name="not_available">N/A</string>
@@ -23,7 +22,6 @@
     <string name="home_support_content">ਮੈਜਿਸਕ ਮੁਫਤ ਅਤੇ ਖੁੱਲਾ ਸਰੋਤ ਹੈ, ਅਤੇ ਹਮੇਸ਼ਾਂ ਰਹੇਗਾ। ਹਾਲਾਂਕਿ, ਤੁਸੀਂ ਦਿਖਾ ਸਕਦੇ ਹੋ ਕਿ ਤੁਸੀਂ ਇੱਕ ਛੋਟਾ ਜਿਹਾ ਦਾਨ ਭੇਜ ਕੇ ਦੇਖਭਾਲ ਕਰਦੇ ਹੋ।</string>
     <string name="home_installed_version">ਇੰਸਟਾਲਡ</string>
     <string name="home_latest_version">ਨਵੀਨਤਮ</string>
-    <string name="invalid_update_channel">ਅਵੈਧ ਅਪਡੇਟ ਚੈਨਲ</string>
     <string name="uninstall_magisk_title">ਮੈਜਿਸਕ ਨੂੰ ਅਣਇੰਸਟੌਲ ਕਰੋ</string>
     <string name="uninstall_magisk_msg">ਸਾਰੇ ਮੋਡੀਊਲ ਅਯੋਗ/ਮਿਟਾ ਦਿੱਤੇ ਜਾਣਗੇ!\n ਰੂਟ ਨੂੰ ਹਟਾਇਆ ਜਾਏਗਾ!\n ਤੁਹਾਡਾ ਡਾਟਾ ਸੰਭਾਵਤ ਤੌਰ ਤੇ ਐਨਕ੍ਰਿਪਟ ਕੀਤਾ ਗਿਆ ਹੈ ਜੇ ਪਹਿਲਾਂ ਹੀ ਨਹੀਂ!</string>
 
@@ -35,7 +33,6 @@
     <string name="install_method_title">ਤਰੀਕਾ</string>
     <string name="install_next">ਅੱਗੇ</string>
     <string name="install_start">ਤਾਂ ਆਓ ਸ਼ੁਰੂ ਕਰੀਏ!</string>
-    <string name="manager_download_install">ਡਾਊਨਲੋਡ ਅਤੇ ਇੰਸਟੌਲ ਕਰਨ ਲਈ ਦਬਾਓ</string>
     <string name="direct_install">ਸਿੱਦਾ ਇੰਸਟਾਲ (ਸਿਫਾਰਸ਼ੀ)</string>
     <string name="install_inactive_slot">ਨਾ-ਸਰਗਰਮ ਸਲਾਟ ਵਿੱਚ ਇੰਸਟਾਲ ਕਰੋ (OTA ਤੋਂ ਬਾਅਦ)</string>
     <string name="install_inactive_slot_msg">ਤੁਹਾਡੀ ਡਿਵਾਈਸ ਨੂੰ ਮੁੜ ਚਾਲੂ ਹੋਣ ਤੋਂ ਬਾਅਦ ਮੌਜੂਦਾ ਨਿਸ਼ਕਿਰਿਆ ਨੰਬਰ ਤੇ ਬੂਟ ਕਰਨ ਲਈ ਮਜਬੂਰ ਕੀਤਾ ਜਾਏਗਾ!\n OTA ਪੂਰਾ ਹੋਣ ਤੋਂ ਬਾਅਦ ਹੀ ਇਸ ਵਿਕਲਪ ਦੀ ਵਰਤੋਂ ਕਰੋ।\n ਜਾਰੀ ਰੱਖਣਾ ਹੈ?</string>
@@ -102,7 +99,6 @@
     <string name="module_state_remove">ਹਟਾਓ</string>
     <string name="module_state_restore">ਰੀਸਟੋਰ ਕਰੋ</string>
     <string name="module_action_install_external">ਸਟੋਰੇਜ ਤੋਂ ਇੰਸਟਾਲ ਕਰੋ</string>
-    <string name="update_available">ਅਪਡੇਟ ਉਪਲੱਬਧ ਹੈ</string>
 
     <!--Settings -->
     <string name="settings_dark_mode_title">ਥੀਮ ਮੋਡ</string>
@@ -114,13 +110,6 @@
     <string name="settings_download_path_message">ਫਾਈਲਾਂ ਨੂੰ %1$s ਵਿੱਚ ਸੇਵ ਕੀਤਾ ਜਾਏਗਾ</string>
     <string name="language">ਭਾਸ਼ਾ</string>
     <string name="system_default">(ਸਿਸਟਮ ਡਿਫੌਲਟ)</string>
-    <string name="settings_check_update_title">ਚੈੱਕ ਅੱਪਡੇਟ</string>
-    <string name="settings_check_update_summary">ਸਮੇਂ-ਸਮੇਂ \'ਤੇ ਪਿਛੋਕੜ ਦੇ ਅਪਡੇਟਾਂ ਦੀ ਜਾਂਚ ਕਰੋ</string>
-    <string name="settings_update_channel_title">ਅਪਡੇਟ ਚੈਨਲ</string>
-    <string name="settings_update_stable">ਸਥਿਰ</string>
-    <string name="settings_update_beta">ਬੀਟਾ</string>
-    <string name="settings_update_custom">ਕਸਟਮ ਚੈਨਲ</string>
-    <string name="settings_update_custom_msg">ਇੱਕ ਕਸਟਮ URL ਦਾਖਲ ਕਰੋ</string>
     <string name="settings_hosts_title">Systemless ਹੋਸਟ</string>
     <string name="settings_hosts_summary">Adblock ਐਪਸ ਲਈ Systemless ਹੋਸਟ ਦੀ ਸਹਿਯੋਗ</string>
     <string name="settings_hosts_toast">Systemless ਹੋਸਟ ਮੋਡੀਊਲ ਸ਼ਾਮਲ ਕੀਤਾ ਗਿਆ</string>
@@ -169,12 +158,10 @@
     <string name="progress_channel">ਤਰੱਕੀ ਦੀਆਂ ਸੂਚਨਾਵਾਂ</string>
     <string name="download_complete">ਡਾਊਨਲੋਡ ਪੂਰਾ</string>
     <string name="download_file_error">ਫਾਈਲ ਡਾਊਨਲੋਡ ਕਰਨ ਦੌਰਾਨ ਗਲਤੀ</string>
-    <string name="magisk_update_title">ਮੈਜਿਸਕ ਅਪਡੇਟ ਉਪਲੱਬਧ!</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">ਹਾਂ</string>
     <string name="no">ਨਹੀਂ</string>
-    <string name="repo_install_title">ਇੰਸਟਾਲ %1$s %2$s(%3$d)</string>
     <string name="download">ਡਾਊਨਲੋਡ</string>
     <string name="reboot">ਰੀਬੂਟ</string>
     <string name="release_notes">ਰੀਲਿਜ਼ ਨੋਟਿਸ</string>

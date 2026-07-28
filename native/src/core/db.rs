@@ -1,3 +1,13 @@
+//! SQLite3 database wrapper and settings management.
+//!
+//! Provides a safe-ish Rust interface around the C SQLite3 API used by
+//! Magisk. Exposes `MagiskD` methods for reading/writing settings (`key` /
+//! `value` pairs), executing arbitrary SQL (for the CLI), and querying the
+//! SU policy database.
+//!
+//! The CXX bridge (`ffi`) provides `open_and_init_db`, `DbValues`,
+//! `DbStatement`, and `sqlite3_errstr`.
+
 #![allow(improper_ctypes, improper_ctypes_definitions)]
 use crate::daemon::{MAGISKD, MagiskD};
 use crate::ffi::{

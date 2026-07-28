@@ -47,11 +47,22 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
-/*
- * Modified from AOSP
- * https://android.googlesource.com/platform/build/+/refs/tags/android-7.1.2_r39/tools/signapk/src/com/android/signapk/SignApk.java
- * */
-
+/**
+ * APK signing pipeline that produces both JAR (v1) and APK Signature Scheme v2 signatures.
+ *
+ * <p>The signing process:
+ * <ol>
+ *   <li>Computes digests of every file in the input JAR and produces {@code MANIFEST.MF}</li>
+ *   <li>Generates the {@code CERT.SF} signature file with a digest of the manifest</li>
+ *   <li>Generates the CMS/PKCS#7 {@code CERT.RSA} (or {@code .EC}) signature block</li>
+ *   <li>Re-packs the JAR with deterministic timestamps and alignment for {@code .so} files</li>
+ *   <li>Wraps the JAR-signed APK in an APK Signature Scheme v2 block</li>
+ * </ol>
+ *
+ * <p>Modified from AOSP SignApk (android-7.1.2_r39).
+ *
+ * @see <a href="https://android.googlesource.com/platform/build/+/refs/tags/android-7.1.2_r39/tools/signapk/src/com/android/signapk/SignApk.java">AOSP source</a>
+ */
 public class SignApk {
     private static final String CERT_SF_NAME = "META-INF/CERT.SF";
     private static final String CERT_SIG_NAME = "META-INF/CERT.%s";
@@ -490,6 +501,15 @@ public class SignApk {
         }
     }
 
+    /**
+     * Signs the given JAR with both JAR (v1) and APK Signature Scheme v2 and writes the
+     * result to {@code outputStream}.
+     *
+     * @param cert         the X.509 certificate whose public key corresponds to {@code key}
+     * @param key          the private key for signing
+     * @param inputJar     the (possibly unsigned) JAR to sign
+     * @param outputStream stream to receive the signed APK
+     */
     public static void sign(X509Certificate cert, PrivateKey key,
                             JarMap inputJar, OutputStream outputStream) throws Exception {
         int alignment = 4;

@@ -1,3 +1,8 @@
+/**
+ * Composable helper that pipes navigation events from a [BaseViewModel]'s [navEvents] flow into
+ * the [Navigator]'s back-stack. Placed in the composition tree alongside the ViewModel so the
+ * coroutine is scoped to the screen's lifecycle.
+ */
 package pro.magisk.ui.navigation
 
 import androidx.compose.runtime.Composable

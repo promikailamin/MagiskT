@@ -1,3 +1,8 @@
+/**
+ * Main entry point for the magisk binary (multi-call applet dispatcher).
+ * Routes execution to su_client_main, resetprop_main, zygisk_main,
+ * or magisk_main based on argv[0] or subcommand.
+ */
 #include <libgen.h>
 #include <sys/stat.h>
 
@@ -19,6 +24,7 @@ constexpr Applet private_applets[] = {
     { "zygisk", zygisk_main },
 };
 
+/** Dispatch to the appropriate applet (su, resetprop, zygisk, or magisk) based on argv[0] or subcommand. */
 int main(int argc, char *argv[]) {
     if (argc < 1)
         return 1;

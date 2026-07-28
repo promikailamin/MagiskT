@@ -1,3 +1,16 @@
+/**
+ * Type hierarchy for settings list items.
+ *
+ * Supports:
+ * - [Value]: items that hold a typed value
+ *   - [Toggle]: boolean on/off switch
+ *   - [Input]: text input via dialog
+ *   - [Selector]: single-choice from a list
+ * - [Blank]: a clickable action item with no value binding
+ * - [Section]: a section header
+ *
+ * The [Handler] interface lets the hosting ViewModel intercept presses (e.g. for auth).
+ */
 package pro.magisk.ui.settings
 
 import android.content.Context
@@ -12,6 +25,7 @@ import pro.magisk.databinding.ObservableRvItem
 import pro.magisk.databinding.set
 import pro.magisk.view.MagiskDialog
 
+/** Base sealed class for all settings list item types. */
 sealed class BaseSettingsItem : ObservableRvItem() {
 
     interface Handler {
@@ -36,31 +50,25 @@ sealed class BaseSettingsItem : ObservableRvItem() {
     }
     open fun refresh() {}
 
-    // Only for toggle
     open val showSwitch get() = false
     @get:Bindable
     open val isChecked get() = false
     fun onToggle(view: View, handler: Handler, checked: Boolean) =
         set(checked, isChecked, { onPressed(view, handler) })
 
+    /** Base for items that hold a typed [value]. */
     abstract class Value<T> : BaseSettingsItem() {
-
-        /**
-         * Represents last agreed-upon value by the validation process and the user for current
-         * child. Be very aware that this shouldn't be **set** unless both sides agreed that _that_
-         * is the new value.
-         * */
         abstract var value: T
             protected set
     }
 
+    /** Boolean toggle with a switch widget. */
     abstract class Toggle : Value<Boolean>() {
 
         override val showSwitch get() = true
         override val isChecked get() = value
 
         override fun onPressed(view: View, handler: Handler) {
-            // Make sure the checked state is synced
             notifyPropertyChanged(BR.checked)
             handler.onItemPressed(view, this) {
                 value = !value
@@ -70,6 +78,7 @@ sealed class BaseSettingsItem : ObservableRvItem() {
         }
     }
 
+    /** Text input item that shows a dialog with a custom view. */
     abstract class Input : Value<String>() {
 
         @get:Bindable
@@ -102,6 +111,7 @@ sealed class BaseSettingsItem : ObservableRvItem() {
         abstract fun getView(context: Context): View
     }
 
+    /** Single-select item that shows a list dialog. */
     abstract class Selector : Value<Int>() {
 
         open val entryRes get() = -1
@@ -137,8 +147,10 @@ sealed class BaseSettingsItem : ObservableRvItem() {
         }
     }
 
+    /** Clickable action item with no value (e.g. Theme, Language, Systemless Hosts). */
     abstract class Blank : BaseSettingsItem()
 
+    /** Section header in the settings list. */
     abstract class Section : BaseSettingsItem() {
         override val layoutRes = R.layout.item_settings_section
     }

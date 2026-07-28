@@ -1,3 +1,18 @@
+/**
+ * Gradle build configuration helpers for all Magisk Android modules.
+ *
+ * <p>Provides shared setup for compile SDK, NDK, packaging, and variant-specific tasks
+ * such as JNI lib syncing, resource staging, asset bundling, and APK post-processing
+ * (signing and comment embedding).
+ *
+ * <p>Key entry points:
+ * <ul>
+ *   <li>{@link #setupCommon} — shared Android SDK/NDK configuration</li>
+ *   <li>{@link #setupCoreLib} — config for the {@code :core} library module</li>
+ *   <li>{@link #setupAppCommon} — config shared by the APK-producing modules</li>
+ *   <li>{@link #setupMainApk} — config for the main Magisk APK ({@code :apk} / {@code :apkT})</li>
+ * </ul>
+ */
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.CommonExtension
@@ -40,6 +55,14 @@ private val Project.androidComponents: AndroidComponentsExtension<*, *, *>
 internal fun Project.androidAppComponents(configure: Action<ApplicationAndroidComponentsExtension>) =
     extensions.configure(ApplicationAndroidComponentsExtension::class.java, configure)
 
+/**
+ * Configures the common Android SDK/NDK settings for all Magisk modules.
+ * - compileSdk 37, buildTools 37.0.0
+ * - NDK r30 (custom path)
+ * - minSdk 23
+ * - Java 21 source/target compatibility
+ * - Aggressive META-INF and resource exclusion packaging rules
+ */
 fun Project.setupCommon() {
     android {
         compileSdk {
@@ -109,6 +132,17 @@ private abstract class SyncWithDir : Sync() {
     abstract val outputFolder: DirectoryProperty
 }
 
+/**
+ * Configures the {@code :core} library module. In addition to common settings:
+ * <ul>
+ *   <li>Syncs native binaries (magiskboot, magiskinit, magiskpolicy, magisk, libinit-ld.so)
+ *       from {@code native/out/$abi} for each ABI</li>
+ *   <li>Downloads and extracts BusyBox</li>
+ *   <li>Copies flash scripts as META-INF resources</li>
+ *   <li>Stubs version constants into {@code util_functions.sh}</li>
+ *   <li>Includes the built stub APK as an asset</li>
+ * </ul>
+ */
 fun Project.setupCoreLib() {
     setupCommon()
 
@@ -196,6 +230,12 @@ fun Project.setupCoreLib() {
     }
 }
 
+/**
+ * Configures settings common to all APK-producing modules ({@code :apk}, {@code :apkT}, {@code :stub}).
+ * Includes signing config, targetSdk, ProGuard, lint, dependency info suppression,
+ * legacy JNI lib packaging, and a post-processing APK transformation that embeds the
+ * version metadata in the ZIP End of Central Directory comment.
+ */
 fun Project.setupAppCommon() {
     setupCommon()
 
@@ -271,6 +311,11 @@ fun Project.setupAppCommon() {
     }
 }
 
+/**
+ * Configures the main Magisk APK ({@code :apk} / {@code :apkT}).
+ * Adds app-specific defaults (namespace, applicationId, version, ABI filters)
+ * and registers the {@link DesugarClassVisitorFactory} ASM instrumentation.
+ */
 fun Project.setupMainApk() {
     setupAppCommon()
 

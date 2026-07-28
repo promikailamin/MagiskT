@@ -1,3 +1,14 @@
+/**
+ * Generic RecyclerView adapter for DataBinding-based item rendering.
+ *
+ * Supports:
+ * - Variable-layout items via [RvItem.layoutRes] for view-type
+ * - Extra bindings (e.g. ViewModel, click handlers) via a [SparseArray]
+ * - Automatic observation of [ObservableList] for live updates
+ * - LifecycleOwner resolution from the RecyclerView tree
+ *
+ * A [BindingAdapter] extension on [RecyclerView] wires the adapter declaratively in XML.
+ */
 package pro.magisk.databinding
 
 import android.annotation.SuppressLint
@@ -14,6 +25,7 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import pro.magisk.BR
 
+/** Adapter that renders [RvItem] subclasses via DataBinding. */
 class RvItemAdapter<T: RvItem>(
     val items: List<T>,
     val extraBindings: SparseArray<*>?
@@ -60,6 +72,7 @@ class RvItemAdapter<T: RvItem>(
 
     class ViewHolder(val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root)
 
+    /** Observes [ObservableList] changes and dispatches appropriate notify* calls. */
     inner class ListObserver<T: RvItem> : OnListChangedCallback<ObservableList<T>>() {
 
         @SuppressLint("NotifyDataSetChanged")
@@ -104,8 +117,10 @@ class RvItemAdapter<T: RvItem>(
     }
 }
 
+/** Helper to build a [SparseArray] of extra DataBinding variables. */
 inline fun bindExtra(body: (SparseArray<Any?>) -> Unit) = SparseArray<Any?>().also(body)
 
+/** DataBinding adapter: sets a [RvItemAdapter] on a RecyclerView. */
 @BindingAdapter("items", "extraBindings", requireAll = false)
 fun <T: RvItem> RecyclerView.setAdapter(items: List<T>?, extraBindings: SparseArray<*>?) {
     if (items != null) {

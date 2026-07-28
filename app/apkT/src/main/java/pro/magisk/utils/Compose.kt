@@ -1,3 +1,7 @@
+/**
+ * Compose utility for resolving a [TextHolder] (which may be a resource ID or a raw string)
+ * into the actual CharSequence using the current resources.
+ */
 package pro.magisk.utils
 
 import androidx.compose.runtime.Composable

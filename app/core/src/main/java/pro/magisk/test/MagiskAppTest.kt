@@ -1,3 +1,13 @@
+/**
+ * Integration tests for the Magisk app's core functionality.
+ *
+ * <ul>
+ *   <li>Verifies Zygisk is enabled</li>
+ *   <li>Tests the su request flow by injecting a policy for ADB shell,
+ *       issuing a su command, and verifying that {@code SuRequestActivity}
+ *       launches and the policy database is updated correctly</li>
+ * </ul>
+ */
 package pro.magisk.test
 
 import android.content.Intent
@@ -29,11 +39,21 @@ class MagiskAppTest : BaseTest {
         fun before() = BaseTest.prerequisite()
     }
 
+    /** Verifies that Zygisk is enabled in the current Magisk installation. */
     @Test
     fun testZygisk() {
         assertTrue("Zygisk should be enabled", Info.isZygiskEnabled)
     }
 
+    /**
+     * Tests the su request flow end-to-end:
+     * - Sets auto-allow response
+     * - Injects a policy for ADB shell (UID 2000)
+     * - Issues a {@code su -c id} command
+     * - Verifies SuRequestActivity was launched
+     * - Verifies root access was granted
+     * - Verifies the policy database was updated
+     */
     @Test
     fun testSuRequest() {
         // Bypass the need to actually show a dialog

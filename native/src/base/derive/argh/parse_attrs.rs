@@ -1,3 +1,6 @@
+//! Attribute parsing for the `argh` derive macro — extracts
+//! `#[argh(...)]` field/type/variant attributes into typed structs.
+
 // Copyright (c) 2020 Google LLC All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.

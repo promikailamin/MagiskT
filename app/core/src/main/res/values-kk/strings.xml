@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Байланыс жоқ</string>
-    <string name="app_changelog">Өзгеріс тізімі</string>
     <string name="loading">Жүктелуде…</string>
     <string name="update">Жаңарту</string>
     <string name="not_available">Белгісіз</string>
@@ -27,7 +26,6 @@
     <string name="home_support_content">Magisk жобасы тегін әрі еркін болып, болашақта да солай болып қала бермек. Қиын болмаса, бізді қаржылай қолдасаңыз болады.</string>
     <string name="home_installed_version">Орнатылған</string>
     <string name="home_latest_version">Соңғы</string>
-    <string name="invalid_update_channel">Жарамсыз жаңарту көзі</string>
     <string name="uninstall_magisk_title">Magisk-ті жою</string>
     <string name="uninstall_magisk_msg">Барлық модуль сөндіріледі/жойылады!\nRoot құқығынан айырыласыз!\nMagisk көмегімен шифрлауды сөндірген болсаңыз, құрылғының жады қайта шифрланады!</string>
 
@@ -39,7 +37,6 @@
     <string name="install_method_title">Тәсіл</string>
     <string name="install_next">Келесі</string>
     <string name="install_start">Бастау</string>
-    <string name="manager_download_install">Жүктеп алып, орнату үшін басыңыз</string>
     <string name="direct_install">Тікелей орнату (ұсынылады)</string>
     <string name="install_inactive_slot">Белсенді емес слотқа орнату (OTA-дан кейін)</string>
     <string name="install_inactive_slot_msg">Құрылғыңыз белсенді емес слотқа МӘЖБҮРЛІ ТҮРДЕ қайта жүктеледі!\nБұл тәсілді тек OTA жаңартуынан кейін қолданыңыз.\nЖалғастырасыз ба?</string>
@@ -111,7 +108,6 @@
     <string name="module_state_remove">Жою</string>
     <string name="module_state_restore">Қалпына келтіру</string>
     <string name="module_action_install_external">Құрылғы жадынан орнату</string>
-    <string name="update_available">Жаңарту қолжетімді</string>
     <string name="suspend_text_riru">Модуль сөндірілді, себебі %1$s қосылған</string>
     <string name="suspend_text_zygisk">Модуль сөндірілді, себебі %1$s қосылмаған</string>
     <string name="zygisk_module_unloaded">Zygisk модулі үйлеспегендіктен жүктелмеді</string>
@@ -133,13 +129,6 @@
     <string name="settings_restore_app_summary">Қолданбаны жасырын күйден шығарып, түпнұсқа APK орнату</string>
     <string name="language">Тіл</string>
     <string name="system_default">(Жүйедегідей)</string>
-    <string name="settings_check_update_title">Жаңартуды тексеру</string>
-    <string name="settings_check_update_summary">Жаңартудың бар-жоғын мезгіл-мезгіл тексеру</string>
-    <string name="settings_update_channel_title">Жаңарту көзі</string>
-    <string name="settings_update_stable">Тұрақты</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_custom">Басқа</string>
-    <string name="settings_update_custom_msg">Басқа арнаның URL мекенжайын енгізіңіз</string>
     <string name="settings_zygisk_summary">Magisk кодын zygote процесіне енгізу</string>
     <string name="settings_denylist_title">DenyList-тi қолдану</string>
     <string name="settings_denylist_summary">Magisk жасаған барлық өзгеріс DenyList-тегі процестерден жасырылады.</string>
@@ -196,17 +185,12 @@
     <!--Notifications-->
     <string name="update_channel">Magisk жаңартулары</string>
     <string name="progress_channel">Прогресс мәлімдемесі</string>
-    <string name="updated_channel">Жаңарту аяқталды</string>
     <string name="download_complete">Жүктеу аяқталды</string>
     <string name="download_file_error">Файлды жүктеп алу қатесі</string>
-    <string name="magisk_update_title">Magisk жаңартуы қолжетімді!</string>
-    <string name="updated_title">Magisk жаңартылды</string>
-    <string name="updated_text">Қолданбасын ашу үшін басыңыз</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Иә</string>
     <string name="no">Жоқ</string>
-    <string name="repo_install_title">%1$s %2$s(%3$d) орнату</string>
     <string name="download">Жүктеп алу</string>
     <string name="reboot">Қайта жүктеу</string>
     <string name="release_notes">Не жаңалық</string>

@@ -1,3 +1,7 @@
+/**
+ * Screen that runs a module's action.sh script. Displays a terminal emulator to show script
+ * output and a save button once finished.
+ */
 package pro.magisk.ui.module
 
 import androidx.compose.foundation.layout.fillMaxSize

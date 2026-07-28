@@ -1,3 +1,8 @@
+/**
+ * Superuser grant/deny dialog composable. Shows app icon, timeout slider,
+ * and grant/deny buttons. Tapjack protection is applied on the grant button
+ * when [SuRequestViewModel.useTapjackProtection] is enabled.
+ */
 package pro.magisk.ui.surequest
 
 import android.view.MotionEvent

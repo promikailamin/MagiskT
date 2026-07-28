@@ -1,3 +1,6 @@
+//! Mount operations — bind mounts, remounts, move mounts, unmounts,
+//! and propagation (private) flags. All exposed as methods on [`Utf8CStr`].
+
 use crate::{LibcReturn, OsResult, Utf8CStr};
 use nix::mount::{MntFlags, MsFlags, mount, umount2};
 

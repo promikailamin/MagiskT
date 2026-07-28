@@ -1,3 +1,8 @@
+/**
+ * Implementation of wcwidth(3) for Unicode 15. Provides terminal display width (0, 1, or 2)
+ * for any Unicode code point according to East Asian Width and zero-width combining character
+ * tables. Used by [TerminalRow] and [TerminalRenderer] for correct character placement.
+ */
 package pro.magisk.terminal
 
 /**

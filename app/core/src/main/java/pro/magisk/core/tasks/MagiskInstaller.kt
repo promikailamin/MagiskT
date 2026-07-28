@@ -1,3 +1,16 @@
+/**
+ * Magisk installation / patching engine.
+ *
+ * [MagiskInstallImpl] is the abstract base that handles the full
+ * pipeline: finding the boot image, extracting binaries from the APK,
+ * processing payload / tar / factory-image formats, patching the boot
+ * image with `boot_patch.sh`, and writing output to a file or
+ * flashing it directly.
+ *
+ * Concrete operations are exposed through [MagiskInstaller] inner
+ * classes: [Direct], [Patch], [SecondSlot], [Emulator], [Uninstall],
+ * [Restore], and [FixEnv].
+ */
 package pro.magisk.core.tasks
 
 import android.net.Uri
@@ -7,13 +20,14 @@ import androidx.annotation.WorkerThread
 import androidx.core.os.postDelayed
 import pro.magisk.StubApk
 import pro.magisk.core.AppApkPath
+import pro.magisk.core.AppContext
 import pro.magisk.core.BuildConfig
 import pro.magisk.core.Config
 import pro.magisk.core.Const
 import pro.magisk.core.Info
-import pro.magisk.core.di.ServiceLocator
 import pro.magisk.core.isRunningAsStub
 import pro.magisk.core.ktx.copyAll
+import pro.magisk.core.ktx.deviceProtectedContext
 import pro.magisk.core.ktx.writeTo
 import pro.magisk.core.utils.DataSourceChannel
 import pro.magisk.core.utils.DummyList
@@ -48,6 +62,12 @@ import java.security.SecureRandom
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 
+/**
+ * Abstract base for Magisk installation operations.
+ *
+ * Subclasses implement [operations] to perform a specific task
+ * (direct install, patch file, OTA second-slot, etc.).
+ */
 abstract class MagiskInstallImpl protected constructor(
     protected val console: MutableList<String>,
     private val logs: MutableList<String>
@@ -58,7 +78,7 @@ abstract class MagiskInstallImpl protected constructor(
 
     private val shell = Shell.getShell()
     private val useRootDir = shell.isRoot && Info.noDataExec
-    protected val context get() = ServiceLocator.deContext
+    protected val context get() = AppContext.deviceProtectedContext
 
     private val rootFS get() = RootUtils.fs
     private val localFS get() = FileSystemManager.getLocal()
@@ -79,6 +99,7 @@ abstract class MagiskInstallImpl protected constructor(
         }
     }
 
+    /** Locate the boot image for the given slot. */
     private fun findImage(slot: String): Boolean {
         val cmd =
             "RECOVERYMODE=${Config.recovery} " +
@@ -95,6 +116,7 @@ abstract class MagiskInstallImpl protected constructor(
         return true
     }
 
+    /** Locate the boot image for the current slot. */
     private fun findImage(): Boolean {
         return findImage(Info.slot)
     }
@@ -430,53 +452,6 @@ abstract class MagiskInstallImpl protected constructor(
         return true
     }
 
-    private fun processUrl(url: String): Boolean {
-        // Download image from url
-        try {
-            srcBoot = installDir.getChildFile("boot.img")
-            ExtractImage(srcBoot, console, logs)
-                .consume(DataSourceChannel(ServiceLocator.okhttp, url))
-        } catch (e: IOException) {
-            console.add("! Error: " + e.message)
-            Timber.e(e)
-            return false
-        }
-
-        // Patch file
-        if (!patchBoot()) {
-            return false
-        }
-
-        // Output file
-        val outFile = MediaStoreUtils.getFile("$destName.img")
-        try {
-            val newBoot = installDir.getChildFile("new-boot.img")
-            outFile.uri.outputStream().use { out ->
-                FileInputStream(newBoot).use { input ->
-                    input.copyTo(out)
-                }
-            }
-            newBoot.delete()
-
-            console.add("")
-            console.add("****************************")
-            console.add(" Output file is written to ")
-            console.add(" $outFile ")
-            console.add("****************************")
-        } catch (e: IOException) {
-            console.add("! Failed to output to $outFile")
-            outFile.delete()
-            Timber.e(e)
-            return false
-        }
-
-        // Fix up binaries
-        srcBoot.delete()
-        "cp_readlink $installDir".sh()
-
-        return true
-    }
-
     private fun patchBoot(): Boolean {
         val newBoot = installDir.getChildFile("new-boot.img")
         if (!useRootDir) {
@@ -528,8 +503,6 @@ abstract class MagiskInstallImpl protected constructor(
 
     protected suspend fun patchFile(file: Uri) = extractFiles() && processFile(file)
 
-    protected suspend fun patchFile(url: String) = extractFiles() && processUrl(url)
-
     protected suspend fun direct() = findImage() && extractFiles() && patchBoot() && flashBoot()
 
     protected suspend fun secondSlot() =
@@ -564,7 +537,11 @@ abstract class MagiskInstallImpl protected constructor(
     }
 }
 
-abstract class ConsoleInstaller(
+    /**
+     * [MagiskInstallImpl] variant that prints a final "All done!"
+     * or "Installation failed" message to the console.
+     */
+    abstract class ConsoleInstaller(
     console: MutableList<String>,
     logs: MutableList<String>
 ) : MagiskInstallImpl(console, logs) {
@@ -579,6 +556,7 @@ abstract class ConsoleInstaller(
     }
 }
 
+/** [MagiskInstallImpl] variant that invokes a callback on completion. */
 abstract class CallBackInstaller : MagiskInstallImpl(DummyList, DummyList) {
     suspend fun exec(callback: (Boolean) -> Unit): Boolean {
         val success = exec()
@@ -587,6 +565,18 @@ abstract class CallBackInstaller : MagiskInstallImpl(DummyList, DummyList) {
     }
 }
 
+/**
+ * Concrete installation operations.
+ *
+ * Each inner class maps to a user-visible action in the app UI:
+ * - [Direct] — flash directly to the current boot partition.
+ * - [Patch] — patch a boot image file and save the result.
+ * - [SecondSlot] — flash to the inactive slot (for OTA).
+ * - [Emulator] — fix the environment (used by emulators).
+ * - [Uninstall] — remove Magisk and optionally the app.
+ * - [Restore] — restore stock boot image.
+ * - [FixEnv] — fix environment without flashing.
+ */
 class MagiskInstaller {
 
     class Patch(
@@ -595,14 +585,6 @@ class MagiskInstaller {
         logs: MutableList<String>
     ) : ConsoleInstaller(console, logs) {
         override suspend fun operations() = patchFile(uri)
-    }
-
-    class Download(
-        private val url: String,
-        console: MutableList<String>,
-        logs: MutableList<String>
-    ) : ConsoleInstaller(console, logs) {
-        override suspend fun operations() = patchFile(url)
     }
 
     class SecondSlot(

@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">Koneksi tidak tersedia</string>
-    <string name="app_changelog">Catatan perubahan</string>
     <string name="loading">Memuat…</string>
     <string name="update">Perbarui</string>
     <string name="not_available">N/A</string>
@@ -33,7 +32,6 @@
     <string name="home_status_title">Status</string>
     <string name="home_installed_version">Terpasang</string>
     <string name="home_latest_version">Terbaru</string>
-    <string name="invalid_update_channel">Saluran pembaruan tidak valid</string>
     <string name="uninstall">Hapus</string>
     <string name="uninstall_magisk_title">Hapus Magisk</string>
     <string name="uninstall_magisk_msg">Semua modul akan dinonaktifkan/dihapus!\nRoot akan dihapus!\nSemua data internal yang tidak dienkripsi melalui penggunaan Magisk akan dienkripsi ulang!</string>
@@ -46,7 +44,6 @@
     <string name="install_method_title">Metode</string>
     <string name="install_next">Berikutnya</string>
     <string name="install_start">Mulai</string>
-    <string name="manager_download_install">Sentuh untuk mengunduh dan memasang</string>
     <string name="direct_install">Langsung pasang (Disarankan)</string>
     <string name="install_inactive_slot">Pasang ke slot nonaktif (Setelah OTA)</string>
     <string name="install_inactive_slot_msg">Perangkat Anda akan DIPAKSA untuk boot ke slot nonaktif saat ini setelah dimulai ulang!\nGunakan opsi ini hanya setelah OTA selesai.\nLanjutkan?</string>
@@ -130,7 +127,6 @@
     <string name="module_action">Aksi</string>
     <string name="module_state_restore">Pulihkan</string>
     <string name="module_action_install_external">Pasang dari penyimpanan</string>
-    <string name="update_available">Pembaruan tersedia</string>
     <string name="suspend_text_riru">Modul ditangguhkan karena %1$s diaktifkan</string>
     <string name="suspend_text_zygisk">Modul ditangguhkan karena %1$s tidak diaktifkan</string>
     <string name="zygisk_module_unloaded">Modul Zygisk tidak dimuat karena tidak kompatibel</string>
@@ -152,14 +148,6 @@
     <string name="settings_restore_app_summary">Tampilkan kembali aplikasi yang disembunyikan dan pulihkan APK aslinya</string>
     <string name="language">Bahasa</string>
     <string name="system_default">(Bawaan sistem)</string>
-    <string name="settings_check_update_title">Periksa pembaruan</string>
-    <string name="settings_check_update_summary">Memeriksa pembaruan secara berkala di latar belakang</string>
-    <string name="settings_update_channel_title">Saluran pembaruan</string>
-    <string name="settings_update_stable">Stabil</string>
-    <string name="settings_update_beta">Beta</string>
-    <string name="settings_update_debug">Debug</string>
-    <string name="settings_update_custom">Khusus</string>
-    <string name="settings_update_custom_msg">Masukkan URL saluran khusus</string>
     <string name="settings_zygisk_summary">Menjalankan sebagian komponen Magisk di daemon Zygote</string>
     <string name="settings_denylist_title">Paksa DenyList</string>
     <string name="settings_denylist_summary">Proses pada denylist akan mengembalikan semua modifikasi Magisk</string>
@@ -225,17 +213,12 @@
     <!--Notifications-->
     <string name="update_channel">Pembaruan Magisk</string>
     <string name="progress_channel">Notifikasi kemajuan</string>
-    <string name="updated_channel">Pembaruan selesai</string>
     <string name="download_complete">Unduhan selesai</string>
     <string name="download_file_error">Kesalahan saat mengunduh berkas</string>
-    <string name="magisk_update_title">Pembaruan Magisk tersedia!</string>
-    <string name="updated_title">Magisk diperbarui</string>
-    <string name="updated_text">Ketuk untuk buka aplikasi</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">Ya</string>
     <string name="no">Tidak</string>
-    <string name="repo_install_title">Pasang %1$s %2$s(%3$d)</string>
     <string name="download">Unduh</string>
     <string name="reboot">Mulai ulang</string>
     <string name="close">Tutup</string>

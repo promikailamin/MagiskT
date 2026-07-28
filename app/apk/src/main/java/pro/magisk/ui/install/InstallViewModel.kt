@@ -1,3 +1,10 @@
+/**
+ * ViewModel for the install method selection screen.
+ *
+ * Determines available installation methods based on device state (rooted, emulator,
+ * SAR, A/B slots) and handles method selection (Direct, Patch, Inactive Slot).
+ * The installation flow is multi-step; state is saved/restored across config changes.
+ */
 package pro.magisk.ui.install
 
 import android.net.Uri
@@ -19,23 +26,19 @@ import pro.magisk.core.Config
 import pro.magisk.core.Info
 import pro.magisk.core.base.ContentResultCallback
 import pro.magisk.core.ktx.toast
-import pro.magisk.core.repository.NetworkService
 import pro.magisk.databinding.set
-import pro.magisk.dialog.DownloadDialog
 import pro.magisk.dialog.SecondSlotWarningDialog
 import pro.magisk.events.GetContentEvent
 import pro.magisk.ui.flash.FlashFragment
-import io.noties.markwon.Markwon
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
 import pro.magisk.core.R as CoreR
 
-class InstallViewModel(svc: NetworkService, markwon: Markwon) : BaseViewModel() {
+/** ViewModel for selecting and configuring the Magisk installation method. */
+class InstallViewModel : BaseViewModel() {
 
     val isRooted get() = Info.isRooted
     val skipOptions = Info.isEmulator || (Info.isSAR && !Info.isFDE && Info.ramdisk)
@@ -55,9 +58,6 @@ class InstallViewModel(svc: NetworkService, markwon: Markwon) : BaseViewModel() 
                 R.id.method_patch -> {
                     GetContentEvent("*/*", UriCallback()).publish()
                 }
-                R.id.method_download -> {
-                    DownloadDialog { url -> uri.value = url }.show()
-                }
                 R.id.method_inactive_slot -> {
                     SecondSlotWarningDialog().show()
                 }
@@ -70,33 +70,9 @@ class InstallViewModel(svc: NetworkService, markwon: Markwon) : BaseViewModel() 
     var notes: Spanned = SpannedString("")
         set(value) = set(value, field, { field = it }, BR.notes)
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val noteFile = File(AppContext.cacheDir, "${APP_VERSION_CODE}.md")
-                val noteText = when {
-                    noteFile.exists() -> noteFile.readText()
-                    else -> {
-                        val note = svc.fetchUpdate(APP_VERSION_CODE)?.note.orEmpty()
-                        if (note.isEmpty()) return@launch
-                        noteFile.writeText(note)
-                        note
-                    }
-                }
-                val spanned = markwon.toMarkdown(noteText)
-                withContext(Dispatchers.Main) {
-                    notes = spanned
-                }
-            } catch (e: IOException) {
-                Timber.e(e)
-            }
-        }
-    }
-
     fun install() {
         when (method) {
             R.id.method_patch -> FlashFragment.patch(data.value!!).navigate(true)
-            R.id.method_download -> FlashFragment.download(data.value!!).navigate(true)
             R.id.method_direct -> FlashFragment.flash(false).navigate(true)
             R.id.method_inactive_slot -> FlashFragment.flash(true).navigate(true)
             else -> error("Unknown value")

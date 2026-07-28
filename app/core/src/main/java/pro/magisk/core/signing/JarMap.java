@@ -1,3 +1,16 @@
+/**
+ * Abstract in-memory representation of a JAR file, used during APK signing.
+ *
+ * <p>Supports two backing implementations:
+ * <ul>
+ *   <li>{@link FileMap} — backed by a {@link JarFile} on disk (random access)</li>
+ *   <li>{@link StreamMap} — backed by a {@link JarInputStream} (sequential, reads all entries
+ *       eagerly into memory)</li>
+ * </ul>
+ *
+ * <p>Entries written via {@link #getOutputStream} are buffered in {@link ByteArrayStream}
+ * and take precedence over backing-source entries when read back.
+ */
 package pro.magisk.core.signing;
 
 import java.io.Closeable;
@@ -19,25 +32,37 @@ public abstract class JarMap implements Closeable {
 
     LinkedHashMap<String, JarEntry> entryMap;
 
+    /** Opens a JAR from a file on disk. {@code verify} enables JAR signature verification. */
     public static JarMap open(File file, boolean verify) throws IOException {
         return new FileMap(file, verify, ZipFile.OPEN_READ);
     }
 
+    /** Opens a JAR from an input stream (reads all entries eagerly into memory). */
     public static JarMap open(InputStream is, boolean verify) throws IOException {
         return new StreamMap(is, verify);
     }
 
+    /** Returns the backing {@link File} if this map is file-backed, or {@code null}. */
     public File getFile() {
         return null;
     }
 
+    /** Returns the JAR {@link Manifest}, or {@code null} if none exists. */
     public abstract Manifest getManifest() throws IOException;
 
+    /**
+     * Returns an {@link InputStream} for reading the given ZIP entry's data.
+     * Checks the in-memory entry map first, then falls back to the backing source.
+     */
     public InputStream getInputStream(ZipEntry ze) throws IOException {
         JarMapEntry e = getMapEntry(ze.getName());
         return e != null ? e.data.getInputStream() : null;
     }
 
+    /**
+     * Returns an {@link OutputStream} for writing (or overwriting) a ZIP entry.
+     * Written data is buffered in memory and takes precedence over the backing source.
+     */
     public OutputStream getOutputStream(ZipEntry ze) {
         if (entryMap == null)
             entryMap = new LinkedHashMap<>();
@@ -46,11 +71,15 @@ public abstract class JarMap implements Closeable {
         return e.data;
     }
 
+    /**
+     * Returns the raw byte content for a ZIP entry, or {@code null} if not found.
+     */
     public byte[] getRawData(ZipEntry ze) throws IOException {
         JarMapEntry e = getMapEntry(ze.getName());
         return e != null ? e.data.toByteArray() : null;
     }
 
+    /** Returns an enumeration of all JAR entries. */
     public abstract Enumeration<JarEntry> entries();
 
     public final ZipEntry getEntry(String name) {
@@ -61,6 +90,7 @@ public abstract class JarMap implements Closeable {
         return getMapEntry(name);
     }
 
+    /** Looks up an entry by name in the in-memory entry map (thread-safe via synchronization). */
     JarMapEntry getMapEntry(String name) {
         JarMapEntry e = null;
         if (entryMap != null)
@@ -68,6 +98,7 @@ public abstract class JarMap implements Closeable {
         return e;
     }
 
+    /** File-backed implementation: delegates to {@link JarFile} and falls back to in-memory map. */
     private static class FileMap extends JarMap {
 
         private JarFile jarFile;
@@ -119,6 +150,7 @@ public abstract class JarMap implements Closeable {
         }
     }
 
+    /** Stream-backed implementation: reads all entries eagerly into memory via {@link JarInputStream}. */
     private static class StreamMap extends JarMap {
 
         private JarInputStream jis;
@@ -148,6 +180,7 @@ public abstract class JarMap implements Closeable {
         }
     }
 
+    /** A {@link JarEntry} with an in-memory {@link ByteArrayStream} for its data. */
     private static class JarMapEntry extends JarEntry {
 
         ByteArrayStream data;

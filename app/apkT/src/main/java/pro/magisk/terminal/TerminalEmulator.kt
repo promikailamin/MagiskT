@@ -1,3 +1,8 @@
+/**
+ * xterm-compatible terminal emulator engine. Handles ANSI escape sequences, UTF-8 decoding,
+ * scrolling regions, alternate screen buffer, DEC private mode (DECSET/DECRESET), and
+ * character attributes. Used for real-time root command output display during flashing.
+ */
 package pro.magisk.terminal
 
 import android.util.Base64

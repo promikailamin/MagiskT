@@ -1,3 +1,10 @@
+//! PTY (pseudo-terminal) I/O pump for interactive `su` sessions.
+//!
+//! Uses `splice` (zero-copy) when available to transfer data between
+//! stdin/stdout and the PTY master, falling back to userspace copy.
+//! Monitors SIGWINCH for terminal resize events and propagates them
+//! to the PTY slave.
+
 use base::{FileOrStd, LibcReturn, LoggedResult, OsResult, ResultExt, libc, warn};
 use libc::{STDIN_FILENO, TIOCGWINSZ, TIOCSWINSZ, c_int, winsize};
 use nix::fcntl::{OFlag, SpliceFFlags};

@@ -1,3 +1,8 @@
+/**
+ * DenyList configuration screen. Shows all installed apps with expandable process
+ * lists, search/filter/sort controls, and tri-state checkboxes for enabling individual
+ * processes or entire apps in Magisk's denylist.
+ */
 package pro.magisk.ui.deny
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image

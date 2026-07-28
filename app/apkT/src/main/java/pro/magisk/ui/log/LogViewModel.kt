@@ -1,3 +1,8 @@
+/**
+ * ViewModel for the log screen. Fetches SU logs from Room and Magisk logs via [LogRepository],
+ * auto-refreshes when [SuEvents.logUpdated] fires, and supports saving full diagnostic logs
+ * (device info, properties, mountinfo, logcat) to a file.
+ */
 package pro.magisk.ui.log
 
 import android.system.Os
@@ -61,6 +66,7 @@ class LogViewModel(
         }
     }
 
+    /** Save a comprehensive diagnostic log (device info, properties, mountinfo, logcat). */
     fun saveMagiskLog() {
         viewModelScope.launch(Dispatchers.IO) {
             val filename = "magisk_log_%s.log".format(

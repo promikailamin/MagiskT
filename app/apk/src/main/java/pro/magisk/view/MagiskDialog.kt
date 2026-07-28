@@ -1,3 +1,11 @@
+/**
+ * Custom Material Design dialog used throughout Magisk Manager.
+ *
+ * Provides a DataBinding-backed layout with observable properties for title, message,
+ * icon, and up to three buttons (positive / neutral / negative with icons).
+ * Supports list-item selection ([setListItems]) and arbitrary custom views ([setView]).
+ * The standard `setContentView` calls are deprecated in favour of [setView].
+ */
 package pro.magisk.view
 
 import android.app.Activity
@@ -34,6 +42,7 @@ import pro.magisk.view.MagiskDialog.DialogClickListener
 
 typealias DialogButtonClickListener = (DialogInterface) -> Unit
 
+/** DataBinding-backed dialog with configurable title, message, icon, and up to three buttons. */
 class MagiskDialog(
     context: Activity, theme: Int = 0
 ) : AppCompatDialog(context, theme) {
@@ -50,6 +59,7 @@ class MagiskDialog(
         setOwnerActivity(context)
     }
 
+    /** Observable data model bound to the dialog layout. */
     inner class Data : ObservableHost {
         override var callbacks: PropertyChangeRegistry? = null
 
@@ -83,6 +93,7 @@ class MagiskDialog(
         fun onClick(listener: DialogButtonClickListener)
     }
 
+    /** Observable button view-model with DataBinding properties. */
     inner class ButtonViewModel : Button, ObservableHost {
         override var callbacks: PropertyChangeRegistry? = null
 
@@ -170,6 +181,7 @@ class MagiskDialog(
         button.apply(builder)
     }
 
+    /** A single list item in a dialog selection list. */
     class DialogItem(
         override val item: CharSequence,
         val position: Int
@@ -181,6 +193,7 @@ class MagiskDialog(
         fun onClick(position: Int)
     }
 
+    /** Replaces the dialog body with a RecyclerView of selectable items. */
     fun setListItems(
         list: Array<out CharSequence>,
         listener: DialogClickListener
@@ -209,6 +222,7 @@ class MagiskDialog(
         )
     }
 
+    /** Clears all button configurations (title, icon, listeners). */
     fun resetButtons() {
         ButtonType.values().forEach {
             setButton(it) {
@@ -220,8 +234,6 @@ class MagiskDialog(
             }
         }
     }
-
-    // Prevent calling setContentView
 
     @Deprecated("Please use setView(view)", level = DeprecationLevel.ERROR)
     override fun setContentView(layoutResID: Int) {}

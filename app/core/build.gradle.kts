@@ -1,3 +1,6 @@
+// :core module - Shared logic library for the Magisk apps.
+// Provides DI (ServiceLocator), Room database, networking (OkHttp/Retrofit),
+// flash/install logic, SU handling, and the download engine.
 plugins {
     alias(libs.plugins.android.library)
     kotlin("plugin.parcelize")
@@ -23,6 +26,7 @@ android {
         buildConfigField("String", "APP_PACKAGE_NAME", "\"pro.magisk\"")
         buildConfigField("int", "APP_VERSION_CODE", "${Config.versionCode}")
         buildConfigField("String", "APP_VERSION_NAME", "\"${Config.version}\"")
+        buildConfigField("String", "BUILD_COMMIT", "\"${Config.buildCommit ?: "local"}\"")
         buildConfigField("int", "STUB_VERSION", Config.stubVersion)
         consumerProguardFile("proguard-rules.pro")
     }

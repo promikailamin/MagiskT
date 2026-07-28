@@ -1,3 +1,4 @@
+// :stub-res module - Resources-only APK used by the stub for minimal asset bundling.
 plugins {
     alias(libs.plugins.android.application)
 }

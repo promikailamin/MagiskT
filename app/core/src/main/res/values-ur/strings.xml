@@ -10,7 +10,6 @@
     <string name="denylist">مسترد فہرست</string>
 
     <string name="no_connection">کوئی کنکشن دستیاب نہیں</string>
-    <string name="app_changelog">ایپ چینج لاگ</string>
     <string name="loading">لوڈ ہو رہا ہے…</string>
     <string name="update">اپ ڈیٹ</string>
     <string name="not_available">دستیاب نہیں</string>
@@ -25,7 +24,6 @@
     <string name="home_support_content">Magisk ہمیشہ مفت اور اوپن سورس رہے گا۔ تاہم، آپ عطیہ کر کے ہمیں اپنی دیکھ بھال کا اظہار کر سکتے ہیں۔</string>
     <string name="home_installed_version">انسٹال شدہ</string>
     <string name="home_latest_version">تازہ ترین</string>
-    <string name="invalid_update_channel">غلط اپ ڈیٹ چینل</string>
     <string name="uninstall_magisk_title">Magisk اَن انسٹال کریں</string>
     <string name="uninstall_magisk_msg">تمام ماڈیولز غیر فعال/ہٹا دیے جائیں گے!\nروٹ ہٹا دیا جائے گا!\nMagisk کے استعمال کے ذریعے غیر اینکرپٹ کی گئی کوئی بھی اندرونی اسٹوریج دوبارہ اینکرپٹ ہو جائے گی!</string>
 
@@ -36,7 +34,6 @@
     <string name="install_method_title">طریقہ</string>
     <string name="install_next">اگلا</string>
     <string name="install_start">چلو شروع کرتے ہیں</string>
-    <string name="manager_download_install">ڈاؤن لوڈ اور انسٹال کرنے کے لیے دبائیں</string>
     <string name="direct_install">براہ راست انسٹال (تجویز کردہ)</string>
     <string name="install_inactive_slot">غیر فعال سلاٹ میں انسٹال کریں (OTA کے بعد)</string>
     <string name="install_inactive_slot_msg">ریبوٹ کے بعد آپ کا آلہ زبردستی موجودہ غیر فعال سلاٹ میں بوٹ ہو جائے گا!\nیہ آپشن صرف OTA مکمل ہونے کے بعد استعمال کریں۔\nجاری رکھیں؟</string>
@@ -102,7 +99,6 @@
     <string name="module_state_remove">ہٹائیں</string>
     <string name="module_state_restore">بحال کریں</string>
     <string name="module_action_install_external">اسٹوریج سے انسٹال کریں</string>
-    <string name="update_available">اپ ڈیٹ دستیاب ہے</string>
     <string name="suspend_text_riru">ماڈیول معطل کر دیا گیا کیونکہ %1$s فعال ہے</string>
     <string name="suspend_text_zygisk">ماڈیول معطل کر دیا گیا کیونکہ %1$s فعال نہیں ہے</string>
     <string name="zygisk_module_unloaded">غیر مطابقت کی وجہ سے Zygisk ماڈیول لوڈ نہیں ہوا</string>
@@ -123,13 +119,6 @@
     <string name="settings_restore_app_summary">ایپ کو ان ہائیڈ کریں اور اصل APK کو بحال کریں</string>
     <string name="language">زبان</string>
     <string name="system_default">(سسٹم ڈیفالٹ)</string>
-    <string name="settings_check_update_title">اپ ڈیٹس چیک کریں</string>
-    <string name="settings_check_update_summary">وقفے وقفے سے پس منظر میں اپ ڈیٹس چیک کریں</string>
-    <string name="settings_update_channel_title">اپ ڈیٹ چینل</string>
-    <string name="settings_update_stable">مستحکم</string>
-    <string name="settings_update_beta">بیٹا</string>
-    <string name="settings_update_custom">کسٹم</string>
-    <string name="settings_update_custom_msg">ایک کسٹم چینل URL درج کریں</string>
     <string name="settings_zygisk_summary">zygote ڈیمن میں Magisk کے کچھ حصے چلائیں</string>
     <string name="settings_denylist_title">مسترد فہرست نافذ کریں</string>
     <string name="settings_denylist_summary">مسترد فہرست میں موجود عملوں میں Magisk کی تمام ترامیم کو کالعدم قرار دیا جائے گا</string>
@@ -184,15 +173,10 @@
     <string name="isolate_summary">ہر روٹ سیشن کی اپنی آئسولیٹڈ نیم اسپیس ہوگی</string>
     <string name="update_channel">Magisk اپ ڈیٹس</string>
     <string name="progress_channel">پیش رفت کی اطلاعات</string>
-    <string name="updated_channel">اپ ڈیٹ مکمل</string>
     <string name="download_complete">ڈاؤن لوڈ مکمل</string>
     <string name="download_file_error">فائل ڈاؤن لوڈ کرنے میں خرابی</string>
-    <string name="magisk_update_title">Magisk اپ ڈیٹ دستیاب ہے!</string>
-    <string name="updated_title">Magisk اپ ڈیٹ ہو گیا</string>
-    <string name="updated_text">ایپ کھولنے کے لیے ٹیپ کریں</string>
     <string name="yes">ہاں</string>
     <string name="no">نہیں</string>
-    <string name="repo_install_title">%1$s %2$s (%3$d) انسٹال کریں</string>
     <string name="download">ڈاؤن لوڈ</string>
     <string name="reboot">ریبوٹ</string>
     <string name="close">بند کریں</string>

@@ -1,3 +1,8 @@
+/**
+ * Home screen composable. Displays Magisk version card, Zygisk/Ramdisk status, a safety notice,
+ * support/developer links, and buttons for install, uninstall, and reboot. Manages
+ * hide/restore/env-fix dialogs and the install bottom sheet.
+ */
 package pro.magisk.ui.home
 
 import android.content.Intent
@@ -71,15 +76,13 @@ import pro.magisk.core.BuildConfig
 import pro.magisk.core.Config
 import pro.magisk.core.Const
 import pro.magisk.core.Info
-import pro.magisk.core.download.DownloadEngine
-import pro.magisk.core.download.Subject
+
 import pro.magisk.core.ktx.reboot
 import pro.magisk.core.ktx.toast
 import pro.magisk.core.tasks.AppMigration
 import pro.magisk.core.tasks.MagiskInstaller
 import pro.magisk.ui.MainActivity
 import pro.magisk.ui.component.LoadingDialogHandle
-import pro.magisk.ui.component.MarkdownTextAsync
 import pro.magisk.ui.component.rememberLoadingDialog
 import pro.magisk.ui.flash.FlashUtils
 import pro.magisk.ui.install.InstallBottomSheet
@@ -87,6 +90,7 @@ import pro.magisk.ui.install.InstallViewModel
 import kotlinx.coroutines.launch
 import pro.magisk.core.R as CoreR
 
+/** Top-level home screen composable. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: HomeViewModel, installVm: InstallViewModel) {
@@ -98,7 +102,6 @@ fun HomeScreen(viewModel: HomeViewModel, installVm: InstallViewModel) {
     val loadingDialog = rememberLoadingDialog()
 
     val showUninstallDialog = rememberSaveable { mutableStateOf(false) }
-    val showManagerDialog = rememberSaveable { mutableStateOf(false) }
     val showEnvFixDialog = rememberSaveable { mutableStateOf(false) }
     var showHideDialog by rememberSaveable { mutableStateOf(false) }
     var showRestoreDialog by rememberSaveable { mutableStateOf(false) }
@@ -109,12 +112,6 @@ fun HomeScreen(viewModel: HomeViewModel, installVm: InstallViewModel) {
         if (uiState.showUninstall) {
             showUninstallDialog.value = true
             viewModel.onUninstallConsumed()
-        }
-    }
-    LaunchedEffect(uiState.showManagerInstall) {
-        if (uiState.showManagerInstall) {
-            showManagerDialog.value = true
-            viewModel.onManagerInstallConsumed()
         }
     }
     LaunchedEffect(uiState.envFixCode) {
@@ -137,13 +134,6 @@ fun HomeScreen(viewModel: HomeViewModel, installVm: InstallViewModel) {
             showDialog = showUninstallDialog,
             activity = activity,
             loadingDialog = loadingDialog,
-        )
-    }
-
-    if (showManagerDialog.value) {
-        ManagerInstallComposableDialog(
-            showDialog = showManagerDialog,
-            activity = activity,
         )
     }
 
@@ -219,17 +209,6 @@ fun HomeScreen(viewModel: HomeViewModel, installVm: InstallViewModel) {
 
             StatusCard()
 
-            AppCard(
-                modifier = Modifier.fillMaxWidth(),
-                state = uiState.appState,
-                version = viewModel.managerInstalledVersion,
-                remoteVersion = uiState.managerRemoteVersion,
-                progress = uiState.managerProgress,
-                isHidden = context.packageName != BuildConfig.APP_PACKAGE_NAME,
-                onManagerPressed = viewModel::onManagerPressed,
-                onHideRestorePressed = viewModel::onHideRestorePressed,
-            )
-
             UninstallButton(
                 onClick = { viewModel.onDeletePressed() },
                 enabled = Info.env.isActive
@@ -266,6 +245,7 @@ private fun RebootButton() {
     var safeModeEnabled by remember { mutableIntStateOf(Config.bootloop) }
 
     val showUserspace = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+        @Suppress("DEPRECATION")
         context.getSystemService<PowerManager>()?.isRebootingUserspaceSupported == true
     val showSafeMode = Const.Version.atLeast_28_0()
 
@@ -422,6 +402,11 @@ private fun CoreCard(
                         text = version.ifEmpty { stringResource(CoreR.string.not_available) },
                         style = MaterialTheme.typography.bodyMedium,
                     )
+                    Text(
+                        text = BuildConfig.BUILD_COMMIT,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
 
@@ -460,102 +445,6 @@ private fun UninstallButton(
             text = stringResource(CoreR.string.uninstall_magisk_title),
             fontSize = 16.sp
         )
-    }
-}
-
-@Composable
-private fun AppCard(
-    modifier: Modifier = Modifier,
-    state: HomeViewModel.State,
-    version: String,
-    remoteVersion: String,
-    progress: Int,
-    isHidden: Boolean,
-    onManagerPressed: () -> Unit,
-    onHideRestorePressed: () -> Unit,
-) {
-    val actionLabel = when (state) {
-        HomeViewModel.State.OUTDATED -> stringResource(CoreR.string.update)
-        HomeViewModel.State.UP_TO_DATE -> stringResource(CoreR.string.reinstall)
-        else -> null
-    }
-
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(24.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_manager),
-                        contentDescription = null,
-                        modifier = Modifier.size(36.dp)
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Text(
-                        text = stringResource(CoreR.string.home_app_title),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                }
-
-                if (Info.env.isActive) {
-                    val hideRestoreIcon = if (isHidden) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                    Spacer(modifier = Modifier.weight(1f))
-                    IconButton(onClick = onHideRestorePressed) {
-                        Icon(
-                            imageVector = hideRestoreIcon,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                        )
-                    }
-                }
-
-                if (actionLabel != null) {
-                    InstallButton(
-                        label = actionLabel,
-                        onClick = onManagerPressed,
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(16.dp))
-
-            if (state != HomeViewModel.State.LOADING) {
-                AppDetailRow(label = stringResource(CoreR.string.home_latest_version), value = remoteVersion)
-            }
-            AppDetailRow(label = stringResource(CoreR.string.home_installed_version), value = version)
-            AppDetailRow(label = stringResource(CoreR.string.home_package), value = LocalContext.current.packageName)
-
-            if (progress in 1..99) {
-                Spacer(Modifier.height(8.dp))
-                LinearProgressIndicator(
-                    progress = { progress / 100f },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun AppDetailRow(label: String, value: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(text = label, style = MaterialTheme.typography.bodyMedium)
-        Text(text = value, style = MaterialTheme.typography.bodyMedium)
     }
 }
 
@@ -768,41 +657,6 @@ private fun UninstallComposableDialog(
                     }
                 ) {
                     Text(stringResource(CoreR.string.restore_img))
-                }
-            }
-        )
-    }
-}
-
-@Composable
-private fun ManagerInstallComposableDialog(
-    showDialog: MutableState<Boolean>,
-    activity: MainActivity,
-) {
-    if (showDialog.value) {
-        AlertDialog(
-            onDismissRequest = { showDialog.value = false },
-            title = { Text(stringResource(CoreR.string.install)) },
-            text = {
-                MarkdownTextAsync {
-                    val text = Info.update.note
-                    java.io.File(activity.cacheDir, "${Info.update.versionCode}.md").writeText(text)
-                    text
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDialog.value = false
-                        DownloadEngine.startWithActivity(activity, Subject.App())
-                    }
-                ) {
-                    Text(stringResource(CoreR.string.install))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDialog.value = false }) {
-                    Text(stringResource(android.R.string.cancel))
                 }
             }
         )

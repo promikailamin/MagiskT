@@ -1,15 +1,26 @@
+/**
+ * Test suite that sets up the full Magisk test environment on an emulator.
+ *
+ * <p>This is the first test class that must run before {@link AdditionalTest}
+ * and {@link MagiskAppTest}. It performs:
+ * <ol>
+ *   <li>Complete Magisk installation via {@link MagiskInstaller.Emulator}</li>
+ *   <li>Optional Shamiko and LSPosed module flashing</li>
+ *   <li>Module scaffolding: mount_test, sepolicy_rule, empty/invalid zygisk,
+ *       remove_test, upgrade_test, systemless hosts</li>
+ *   <li>App hiding (repackaging) and restoration tests</li>
+ * </ol>
+ */
 package pro.magisk.test
 
-import android.app.Notification
 import android.os.Build
 import androidx.annotation.Keep
 import androidx.core.net.toUri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import pro.magisk.core.BuildConfig.APP_PACKAGE_NAME
 import pro.magisk.core.Const
-import pro.magisk.core.download.DownloadNotifier
-import pro.magisk.core.download.DownloadProcessor
 import pro.magisk.core.ktx.cachedFile
+import pro.magisk.core.ktx.writeTo
 import pro.magisk.core.model.module.LocalModule
 import pro.magisk.core.tasks.AppMigration
 import pro.magisk.core.tasks.FlashZip
@@ -41,19 +52,22 @@ class Environment : BaseTest {
 
         // The kernel running on emulators < API 26 does not play well with
         // magic mount. Skip mount_test on those legacy platforms.
+        /** Returns {@code true} if mount tests can run (API >= 26). */
         fun mount(): Boolean {
             return Build.VERSION.SDK_INT >= 26
         }
 
-        // It is possible that there are no suitable preinit partition to use
+        /** Returns {@code true} if a preinit partition is available for testing. */
         fun preinit(): Boolean {
             return Shell.cmd("magisk --preinit-device").exec().isSuccess
         }
 
+        /** Returns {@code true} if LSPosed can be tested (API 27-34). */
         fun lsposed(): Boolean {
             return Build.VERSION.SDK_INT in 27..34
         }
 
+        /** Returns {@code true} if Shamiko can be tested (API >= 27). */
         fun shamiko(): Boolean {
             return Build.VERSION.SDK_INT >= 27
         }
@@ -69,12 +83,14 @@ class Environment : BaseTest {
         const val UPGRADE_TEST = "upgrade_test"
     }
 
+    /** Shell output callback that forwards lines to {@link Timber}. */
     object TimberLog : CallbackList<String>(Runnable::run) {
         override fun onAddElement(e: String) {
             Timber.i(e)
         }
     }
 
+    /** Verifies that a module ZIP has the correct META-INF structure. */
     private fun checkModuleZip(file: File) {
         // Make sure module processing is correct
         ZipFile.Builder().setFile(file).get().use { zip ->
@@ -97,6 +113,7 @@ class Environment : BaseTest {
         }
     }
 
+    /** Creates a mount test module that tests magic mount behavior (replace, add, delete files). */
     private fun setupMountTest(root: ExtendedFile) {
         val error = "$MOUNT_TEST setup failed"
         val path = root.getChildFile(MOUNT_TEST)
@@ -122,12 +139,14 @@ class Environment : BaseTest {
         assertTrue(error, Shell.cmd("set_default_perm $path").exec().isSuccess)
     }
 
+    /** Enables systemless hosts via the Magisk module system. */
     private fun setupSystemlessHost() {
         val error = "hosts setup failed"
         assertTrue(error, runBlocking { RootUtils.addSystemlessHosts() })
         assertTrue(error, RootUtils.fs.getFile(Const.MODULE_PATH).getChildFile("hosts").exists())
     }
 
+    /** Creates a module with a custom sepolicy.rule to test pre-init sepolicy patching. */
     private fun setupSepolicyRuleModule(root: ExtendedFile) {
         val error = "$SEPOLICY_RULE setup failed"
         val path = root.getChildFile(SEPOLICY_RULE)
@@ -144,6 +163,7 @@ class Environment : BaseTest {
         ).exec().isSuccess)
     }
 
+    /** Creates a zygisk module with an empty zygisk folder (should be unloaded). */
     private fun setupEmptyZygiskModule(root: ExtendedFile) {
         val error = "$EMPTY_ZYGISK setup failed"
         val path = root.getChildFile(EMPTY_ZYGISK)
@@ -153,6 +173,7 @@ class Environment : BaseTest {
         assertTrue(error, module.zygiskFolder.mkdirs())
     }
 
+    /** Creates a zygisk module with incorrectly named libraries (should be unloaded). */
     private fun setupInvalidZygiskModule(root: ExtendedFile) {
         val error = "$INVALID_ZYGISK setup failed"
         val path = root.getChildFile(INVALID_ZYGISK)
@@ -168,6 +189,7 @@ class Environment : BaseTest {
         assertTrue(error, Shell.cmd("set_default_perm $path").exec().isSuccess)
     }
 
+    /** Creates a module marked for removal with an uninstaller script. */
     private fun setupRemoveModule(root: ExtendedFile) {
         val error = "$REMOVE_TEST setup failed"
         val path = root.getChildFile(REMOVE_TEST)
@@ -185,6 +207,7 @@ class Environment : BaseTest {
         assertTrue(error, Shell.cmd("set_default_perm $path").exec().isSuccess)
     }
 
+    /** Creates an old module (disabled, with service.sh) and an upgrade (with post-fs-data.sh). */
     private fun setupUpgradeModule(root: ExtendedFile, update: ExtendedFile) {
         val error = "$UPGRADE_TEST setup failed"
         val oldPath = root.getChildFile(UPGRADE_TEST)
@@ -208,6 +231,7 @@ class Environment : BaseTest {
         ).exec().isSuccess)
     }
 
+    /** Full environment setup: install Magisk, modules, and scaffold test modules. */
     @Test
     fun setupEnvironment() {
         runBlocking {
@@ -217,18 +241,11 @@ class Environment : BaseTest {
             )
         }
 
-        val notify = object : DownloadNotifier {
-            override val context = appContext
-            override fun notifyUpdate(id: Int, editor: (Notification.Builder) -> Unit) {}
-        }
-        val processor = DownloadProcessor(notify)
-
         val shamiko = appContext.cachedFile("shamiko.zip")
         runBlocking {
-            testContext.assets.open("shamiko.zip").use {
-                processor.handleModule(it, shamiko.toUri())
+            testContext.assets.open("shamiko.zip").use { stream ->
+                stream.writeTo(shamiko)
             }
-            checkModuleZip(shamiko)
             if (shamiko()) {
                 assertTrue(
                     "Shamiko installation failed",
@@ -239,10 +256,9 @@ class Environment : BaseTest {
 
         val lsp = appContext.cachedFile("lsposed.zip")
         runBlocking {
-            testContext.assets.open("lsposed.zip").use {
-                processor.handleModule(it, lsp.toUri())
+            testContext.assets.open("lsposed.zip").use { stream ->
+                stream.writeTo(lsp)
             }
-            checkModuleZip(lsp)
             if (lsposed()) {
                 assertTrue(
                     "LSPosed installation failed",
@@ -262,6 +278,7 @@ class Environment : BaseTest {
         setupUpgradeModule(root, update)
     }
 
+    /** Tests the app hiding (repackaging) feature. */
     @Test
     fun setupAppHide() {
         runBlocking {
@@ -276,6 +293,7 @@ class Environment : BaseTest {
         }
     }
 
+    /** Tests the app restoration feature. */
     @Test
     fun setupAppRestore() {
         runBlocking {

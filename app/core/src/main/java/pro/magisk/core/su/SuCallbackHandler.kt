@@ -1,3 +1,13 @@
+/**
+ * Handles SU-related callbacks invoked by the Magisk daemon via
+ * [Provider.call].
+ *
+ * Two actions are supported:
+ * - **log** — a SU request was processed; persist the log entry
+ *   and optionally notify the user.
+ * - **notify** — a SU request was handled by another process;
+ *   just show a notification / toast.
+ */
 package pro.magisk.core.su
 
 import android.content.Context
@@ -23,14 +33,22 @@ object SuCallbackHandler {
     const val LOG = "log"
     const val NOTIFY = "notify"
 
+    /**
+     * Dispatch a callback from the Magisk daemon.
+     *
+     * @param context Caller context.
+     * @param action  One of [LOG] or [NOTIFY].
+     * @param data    Bundle with uid, pid, policy, etc.
+     */
     fun run(context: Context, action: String?, data: Bundle?) {
         data ?: return
 
-        // Debug messages
         if (BuildConfig.DEBUG) {
+            @Suppress("DEPRECATION")
             Timber.d(action)
             data.let { bundle ->
                 bundle.keySet().forEach {
+                    @Suppress("DEPRECATION")
                     Timber.d("[%s]=[%s]", it, bundle[it])
                 }
             }
@@ -42,8 +60,13 @@ object SuCallbackHandler {
         }
     }
 
-    // https://android.googlesource.com/platform/frameworks/base/+/547bf5487d52b93c9fe183aa6d56459c170b17a4
+    /**
+     * Get an int from a Bundle, handling the case where the value
+     * was serialised as a Long. See
+     * https://android.googlesource.com/platform/frameworks/base/+/547bf5487d52b93c9fe183aa6d56459c170b17a4
+     */
     private fun Bundle.getIntComp(key: String, defaultValue: Int): Int {
+        @Suppress("DEPRECATION")
         val value = get(key) ?: return defaultValue
         return when (value) {
             is Int -> value
@@ -52,6 +75,7 @@ object SuCallbackHandler {
         }
     }
 
+    /** Handle a log callback: persist the entry and optionally notify. */
     private fun handleLogging(context: Context, data: Bundle) {
         val fromUid = data.getIntComp("from.uid", -1)
         val notify = data.getBoolean("notify", true)
@@ -79,6 +103,7 @@ object SuCallbackHandler {
         SuEvents.notifyPolicyChanged()
     }
 
+    /** Handle a notify callback: show a toast or notification. */
     private fun handleNotify(context: Context, data: Bundle) {
         val uid = data.getIntComp("from.uid", -1)
         val pid = data.getIntComp("pid", -1)
@@ -94,6 +119,7 @@ object SuCallbackHandler {
         SuEvents.notifyPolicyChanged()
     }
 
+    /** Notify the user (toast or status-bar notification) using [AppContext]. */
     fun notify(granted: Boolean, appName: String) {
         when (Config.suNotification) {
             Config.Value.NOTIFICATION_TOAST -> {
@@ -106,6 +132,7 @@ object SuCallbackHandler {
         }
     }
 
+    /** Notify the user (toast or status-bar notification) using the provided context. */
     private fun notify(context: Context, granted: Boolean, appName: String) {
         when (Config.suNotification) {
             Config.Value.NOTIFICATION_TOAST -> {

@@ -12,7 +12,6 @@
 
     <!--Home-->
     <string name="no_connection">कोई कनेक्शन उपलब्ध नहीं है</string>
-    <string name="app_changelog">बदलाव</string>
     <string name="loading">लोड हो रहा है…</string>
     <string name="update">अद्यतन करें</string>
     <string name="not_available">उपलब्ध नहीं है</string>
@@ -27,7 +26,6 @@
     <string name="home_support_content">मैजिस्क है, और हमेशा मुफ्त और ओपन-सोर्स रहेगा। हालाँकि आप एक छोटा सा दान भेजकर हमारी मदद कर सकते है।</string>
     <string name="home_installed_version">इंस्टॉल्ड</string>
     <string name="home_latest_version">नवीनतम</string>
-    <string name="invalid_update_channel">अमान्य अपडेट चैनल</string>
     <string name="uninstall_magisk_title">मैजिस्क को अनइंस्टॉल करें</string>
     <string name="uninstall_magisk_msg">सभी मॉड्यूल्स को निष्क्रिय/हटा दिया जाएगा!\n रूट को हटा दिया जाएगा!\n आपका डेटा संभावित रूप से एन्क्रिप्ट किया गया है यदि पहले से नहीं है!</string>
 
@@ -39,7 +37,6 @@
     <string name="install_method_title">तरीका</string>
     <string name="install_next">आगे</string>
     <string name="install_start">तो चलिए शुरू करते हैं!</string>
-    <string name="manager_download_install">डाउनलोड और इंस्टॉल करने के लिए दबाएं</string>
     <string name="direct_install">प्रत्यक्ष इंस्टॉल (अनुशंसित)</string>
     <string name="install_inactive_slot">निष्क्रिय स्लॉट में इंस्टॉल करें (OTA के बाद)</string>
     <string name="install_inactive_slot_msg">आपका डिवाइस रीबूट होने के बाद वर्तमान निष्क्रिय स्लॉट में बूट करने के लिए मजबूर किया जाएगा!\n इस विकल्प का उपयोग सिर्फ OTA हो जाने के बाद करें।\n जारी रखें?</string>
@@ -107,7 +104,6 @@
     <string name="module_state_remove">हटाएँ</string>
     <string name="module_state_restore">रिस्टोर करें</string>
     <string name="module_action_install_external">स्टोरेज से इनस्टॉल करें</string>
-    <string name="update_available">अपडेट उपलब्ध</string>
     <string name="suspend_text_riru">%1$s सक्रिय होने के कारण मॉड्यूल निलंबित</string>
     <string name="suspend_text_zygisk">%1$s अक्षम होने के कारण मॉड्यूल निलंबित</string>
     <string name="zygisk_module_unloaded">Zygisk मॉड्यूल असंगतता के कारण लोड होने में असमर्थ</string>
@@ -127,13 +123,6 @@
     <string name="settings_restore_app_summary">ऐप को उनहीदे करें और मूल एपीके को पुनर्स्थापित करें</string>
     <string name="language">भाषा</string>
     <string name="system_default">(सिस्टम डिफ़ॉल्ट)</string>
-    <string name="settings_check_update_title">अपडेट जांचें</string>
-    <string name="settings_check_update_summary">समय-समय पर बैकग्राउंड में अपडेट की जांच करते रहें</string>
-    <string name="settings_update_channel_title">अपडेट चैनल</string>
-    <string name="settings_update_stable">स्टेबल</string>
-    <string name="settings_update_beta">बीटा</string>
-    <string name="settings_update_custom">कस्टम चैनल</string>
-    <string name="settings_update_custom_msg">एक कस्टम URL डालें</string>
     <string name="settings_zygisk_summary">मैजिस्क को जाइगोट डेमॉन के कुछ हिस्सों को चलाएं</string>
     <string name="settings_denylist_title">अस्वीकार सूची लागू करें</string>
     <string name="settings_denylist_summary">अस्वीकृत सूची की प्रक्रियाओं में सभी मैजिस्क संशोधन पूर्ववत हो जाएंगे</string>
@@ -187,17 +176,12 @@
     <!--Notifications-->
     <string name="update_channel">मैजिस्क अपडेट</string>
     <string name="progress_channel">प्रगति सूचनाएँ</string>
-    <string name="updated_channel">अपडेट पूरा हुआ</string>
     <string name="download_complete">डाउनलोड सम्पन्न हुआ</string>
     <string name="download_file_error">फ़ाइल डाउनलोड करने में त्रुटि</string>
-    <string name="magisk_update_title">मैजिस्क अपडेट उपलब्ध है!</string>
-    <string name="updated_title">मैजिस्क अपडेट पूरा हुआ</string>
-    <string name="updated_text">ऐप खोलने के लिए टैप करें</string>
 
     <!--Toasts, Dialogs-->
     <string name="yes">हाँ</string>
     <string name="no">नहीं</string>
-    <string name="repo_install_title">इंस्टॉल %1$s %2$s(%3$d)</string>
     <string name="download">डाउनलोड</string>
     <string name="reboot">रीबूट</string>
     <string name="release_notes">रिलीज नोट्स</string>
