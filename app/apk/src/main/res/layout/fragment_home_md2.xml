@@ -96,11 +96,6 @@
                 android:layout_marginEnd="@dimen/l1"
                 app:layout_constraintTop_toBottomOf="@+id/home_device_wrapper" />
 
-            <Space
-                goneUnless="@{Info.env.isActive}"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/l1" />
-
             <Button
                 style="@style/WidgetFoundation.Button.Outlined.Error"
                 goneUnless="@{Info.env.isActive}"
@@ -122,8 +117,7 @@
                 android:layout_gravity="bottom"
                 android:layout_marginStart="@dimen/l1"
                 android:layout_marginEnd="@dimen/l1"
-                android:layout_marginTop="@dimen/l1"
-                android:paddingHorizontal="8dp"
+                android:paddingHorizontal="12dp"
                 android:focusable="false">
 
                 <LinearLayout
@@ -184,7 +178,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_margin="@dimen/l1"
-                android:paddingHorizontal="8dp"
+                android:paddingHorizontal="12dp"
                 android:focusable="false">
 
                 <LinearLayout

@@ -11,6 +11,9 @@
         <item name="android:background">@android:color/transparent</item>
         <item name="contentInsetStartWithNavigation">0dp</item>
         <item name="android:layout_height">?actionBarSize</item>
+        <item name="android:elevation">0dp</item>
+        <item name="elevation">0dp</item>
+        <item name="materialThemeOverlay">@null</item>
         <item name="android:theme">@style/ThemeOverlay.MaterialComponents.ActionBar</item>
     </style>
 
@@ -32,18 +35,13 @@
         <item name="cardCornerRadius">28.0dp</item>
         <item name="cardElevation">0.0dp</item>
     </style>
-    
-    <style name="ShapeAppearanceOverlay.Foundation.Button" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">28.0dp</item>
-    </style>
 
     <style name="WidgetFoundation.Button" parent="Widget.MaterialComponents.Button">
         <item name="android:textStyle">bold</item>
         <item name="iconGravity">textStart</item>
         <item name="iconPadding">@dimen/l_50</item>
-        <item name="android:minHeight">80.0dp</item>
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.Foundation.Button</item>
+        <item name="android:minHeight">60.0dp</item>
+        <item name="cornerRadius">28dp</item>
     </style>
 
     <style name="WidgetFoundation.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
@@ -52,8 +50,8 @@
         <item name="iconPadding">@dimen/l_50</item>
         <item name="strokeColor">?colorPrimary</item>
         <item name="android:textColor">?colorPrimary</item>
-        <item name="android:minHeight">80.0dp</item>
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.Foundation.Button</item>
+        <item name="android:minHeight">60.0dp</item>
+        <item name="cornerRadius">28dp</item>
     </style>
 
     <style name="WidgetFoundation.Button.Outlined.Error">
@@ -61,8 +59,8 @@
         <item name="rippleColor">@color/color_error_transient</item>
         <item name="android:textColor">@color/color_error_transient</item>
         <item name="iconTint">@color/color_error_transient</item>
-        <item name="android:minHeight">80.0dp</item>
-        <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.Foundation.Button</item>
+        <item name="android:minHeight">60.0dp</item>
+        <item name="cornerRadius">28dp</item>
     </style>
 
     <style name="WidgetFoundation.Button.Text" parent="Widget.MaterialComponents.Button.TextButton">
