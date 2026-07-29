@@ -123,6 +123,7 @@
                 android:layout_marginStart="@dimen/l1"
                 android:layout_marginEnd="@dimen/l1"
                 android:layout_marginTop="@dimen/l1"
+                android:paddingHorizontal="8dp"
                 android:focusable="false">
 
                 <LinearLayout
@@ -183,6 +184,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_margin="@dimen/l1"
+                android:paddingHorizontal="8dp"
                 android:focusable="false">
 
                 <LinearLayout
@@ -200,39 +202,15 @@
                         android:textAppearance="@style/AppearanceFoundation.Title" />
 
                     <include
-                        item="@{DeveloperItem.John.INSTANCE}"
+                        item="@{DeveloperItem.mikail.INSTANCE}"
                         layout="@layout/item_developer"
                         viewModel="@{viewModel}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/l_50" />
-
+                        
                     <include
-                        item="@{DeveloperItem.Vvb.INSTANCE}"
-                        layout="@layout/item_developer"
-                        viewModel="@{viewModel}"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/l_50" />
-
-                    <include
-                        item="@{DeveloperItem.YU.INSTANCE}"
-                        layout="@layout/item_developer"
-                        viewModel="@{viewModel}"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/l_50" />
-
-                    <include
-                        item="@{DeveloperItem.Rikka.INSTANCE}"
-                        layout="@layout/item_developer"
-                        viewModel="@{viewModel}"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/l_50" />
-
-                    <include
-                        item="@{DeveloperItem.Canyie.INSTANCE}"
+                        item="@{DeveloperItem.john.INSTANCE}"
                         layout="@layout/item_developer"
                         viewModel="@{viewModel}"
                         android:layout_width="wrap_content"
