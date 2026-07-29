@@ -47,6 +47,13 @@ jobs:
       - name: Stop gradle daemon
         run: ./app/gradlew --stop
 
+      - name: Upload native output staging artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: raw-native-${{ matrix.build_type }}
+          path: native/out/
+          compression-level: 0
+
       - name: Upload build output staging artifact
         uses: actions/upload-artifact@v7
         with:
