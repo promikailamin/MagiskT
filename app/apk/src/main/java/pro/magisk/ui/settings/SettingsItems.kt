@@ -7,26 +7,17 @@
  */
 package pro.magisk.ui.settings
 
-import android.content.Context
 import android.content.res.Resources
 import android.os.Build
-import android.view.LayoutInflater
-import android.view.View
-import androidx.databinding.Bindable
 import pro.magisk.BR
 import pro.magisk.R
 import pro.magisk.core.Config
 import pro.magisk.core.Const
 import pro.magisk.core.Info
-import pro.magisk.core.ktx.activity
-import pro.magisk.core.tasks.AppMigration
+import com.topjohnwu.superuser.Shell
 import pro.magisk.core.utils.LocaleSetting
 import pro.magisk.core.utils.TextHolder
 import pro.magisk.core.utils.asText
-import pro.magisk.databinding.DialogSettingsAppNameBinding
-import pro.magisk.databinding.set
-import pro.magisk.view.MagiskDialog
-import com.topjohnwu.superuser.Shell
 import pro.magisk.core.R as CoreR
 
 // --- Customization
@@ -71,54 +62,6 @@ object AppSettings : BaseSettingsItem.Section() {
     override val title = CoreR.string.home_app_title.asText()
 }
 
-object Hide : BaseSettingsItem.Input() {
-    override val title = CoreR.string.settings_hide_app_title.asText()
-    override val description = CoreR.string.settings_hide_app_summary.asText()
-    override var value = ""
-
-    override val inputResult
-        get() = if (isError) null else result
-
-    @get:Bindable
-    var result = "Settings"
-        set(value) = set(value, field, { field = it }, BR.result, BR.error)
-
-    val maxLength
-        get() = AppMigration.MAX_LABEL_LENGTH
-
-    @get:Bindable
-    val isError
-        get() = result.length > maxLength || result.isBlank()
-
-    override fun getView(context: Context) = DialogSettingsAppNameBinding
-        .inflate(LayoutInflater.from(context)).also { it.data = this }.root
-}
-
-object Restore : BaseSettingsItem.Blank() {
-    override val title = CoreR.string.settings_restore_app_title.asText()
-    override val description = CoreR.string.settings_restore_app_summary.asText()
-
-    override fun onPressed(view: View, handler: Handler) {
-        handler.onItemPressed(view, this) {
-            MagiskDialog(view.activity).apply {
-                setTitle(CoreR.string.settings_restore_app_title)
-                setMessage(CoreR.string.restore_app_confirmation)
-                setButton(MagiskDialog.ButtonType.POSITIVE) {
-                    text = android.R.string.ok
-                    onClick {
-                        handler.onItemAction(view, this@Restore)
-                    }
-                }
-                setButton(MagiskDialog.ButtonType.NEGATIVE) {
-                    text = android.R.string.cancel
-                }
-                setCancelable(true)
-                show()
-            }
-        }
-    }
-}
-
 object AddShortcut : BaseSettingsItem.Blank() {
     override val title = CoreR.string.add_shortcut_title.asText()
     override val description = CoreR.string.setting_add_shortcut_summary.asText()
@@ -157,21 +100,18 @@ object Zygisk : BaseSettingsItem.Toggle() {
 
 object DenyList : BaseSettingsItem.Toggle() {
     override val title = CoreR.string.settings_denylist_title.asText()
-    override val description get() = CoreR.string.settings_denylist_summary.asText()
+    override val description get() =
+        if (mismatch) CoreR.string.reboot_apply_change.asText()
+        else CoreR.string.settings_denylist_summary.asText()
 
-    override var value = Config.denyList
+    override var value
+        get() = Config.denyList
         set(value) {
-            field = value
-            val cmd = if (value) "enable" else "disable"
-            Shell.cmd("magisk --denylist $cmd").submit { result ->
-                if (result.isSuccess) {
-                    Config.denyList = value
-                } else {
-                    field = !value
-                    notifyPropertyChanged(BR.checked)
-                }
-            }
+            Config.denyList = value
+            Shell.cmd("magisk --denylist ${if (value) "enable" else "disable"}").submit()
+            notifyPropertyChanged(BR.description)
         }
+    val mismatch get() = value != Info.isDenylistEnforced
 }
 
 object DenyListConfig : BaseSettingsItem.Blank() {

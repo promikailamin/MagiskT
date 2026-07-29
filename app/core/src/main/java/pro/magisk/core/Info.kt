@@ -47,6 +47,7 @@ object Info {
     var isVendorBoot = false
         private set
     @JvmField val isZygiskEnabled = System.getenv("ZYGISK_ENABLED") == "1"
+    @JvmField val isDenylistEnforced = System.getenv("DENYLIST_ENFORCED") == "1"
     @JvmStatic val isFDE get() = crypto == "block"
     @JvmStatic var ramdisk = false
         private set

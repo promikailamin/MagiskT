@@ -79,7 +79,6 @@ import pro.magisk.core.Info
 
 import pro.magisk.core.ktx.reboot
 import pro.magisk.core.ktx.toast
-import pro.magisk.core.tasks.AppMigration
 import pro.magisk.core.tasks.MagiskInstaller
 import pro.magisk.ui.MainActivity
 import pro.magisk.ui.component.LoadingDialogHandle
@@ -103,8 +102,6 @@ fun HomeScreen(viewModel: HomeViewModel, installVm: InstallViewModel) {
 
     val showUninstallDialog = rememberSaveable { mutableStateOf(false) }
     val showEnvFixDialog = rememberSaveable { mutableStateOf(false) }
-    var showHideDialog by rememberSaveable { mutableStateOf(false) }
-    var showRestoreDialog by rememberSaveable { mutableStateOf(false) }
     val showInstallSheet = rememberSaveable { mutableStateOf(false) }
     var envFixCode by remember { mutableIntStateOf(0) }
 
@@ -121,14 +118,6 @@ fun HomeScreen(viewModel: HomeViewModel, installVm: InstallViewModel) {
             viewModel.onEnvFixConsumed()
         }
     }
-    LaunchedEffect(uiState.showHideRestore) {
-        if (uiState.showHideRestore) {
-            val hidden = context.packageName != BuildConfig.APP_PACKAGE_NAME
-            if (hidden) showRestoreDialog = true else showHideDialog = true
-            viewModel.onHideRestoreConsumed()
-        }
-    }
-
     if (showUninstallDialog.value) {
         UninstallComposableDialog(
             showDialog = showUninstallDialog,
@@ -144,34 +133,6 @@ fun HomeScreen(viewModel: HomeViewModel, installVm: InstallViewModel) {
             activity = activity,
             loadingDialog = loadingDialog,
             onNavigateInstall = { showInstallSheet.value = true },
-        )
-    }
-
-    if (showHideDialog) {
-        HideAppDialog(
-            onDismiss = { showHideDialog = false },
-            onConfirm = { name ->
-                showHideDialog = false
-                scope.launch {
-                    loadingDialog.withLoading {
-                        AppMigration.patchAndHide(context, name)
-                    }
-                }
-            }
-        )
-    }
-
-    if (showRestoreDialog) {
-        RestoreAppDialog(
-            onDismiss = { showRestoreDialog = false },
-            onConfirm = {
-                showRestoreDialog = false
-                scope.launch {
-                    loadingDialog.withLoading {
-                        AppMigration.restoreApp(context)
-                    }
-                }
-            }
         )
     }
 
@@ -725,63 +686,3 @@ private fun EnvFixComposableDialog(
     }
 }
 
-@Composable
-private fun HideAppDialog(onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
-    val defaultName = stringResource(CoreR.string.settings)
-    var appName by rememberSaveable { mutableStateOf(defaultName) }
-    val isError = appName.length > AppMigration.MAX_LABEL_LENGTH || appName.isBlank()
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(CoreR.string.settings_hide_app_title)) },
-        text = {
-            Column(modifier = Modifier.padding(top = 8.dp)) {
-                OutlinedTextField(
-                    value = appName,
-                    onValueChange = { appName = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(CoreR.string.settings_app_name_hint)) },
-                    isError = isError
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = { if (!isError) onConfirm(appName) },
-                enabled = !isError
-            ) {
-                Text(stringResource(android.R.string.ok))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(android.R.string.cancel))
-            }
-        }
-    )
-}
-
-@Composable
-private fun RestoreAppDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(CoreR.string.settings_restore_app_title)) },
-        text = {
-            Text(
-                text = stringResource(CoreR.string.restore_app_confirmation),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(stringResource(android.R.string.ok))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(android.R.string.cancel))
-            }
-        }
-    )
-}

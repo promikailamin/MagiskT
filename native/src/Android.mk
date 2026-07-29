@@ -25,6 +25,7 @@ LOCAL_SRC_FILES := \
     core/zygisk/entry.cpp \
     core/zygisk/module.cpp \
     core/zygisk/hook.cpp \
+    core/zygisk/hideroot.cpp \
     core/deny/cli.cpp \
     core/deny/utils.cpp \
     core/deny/logcat.cpp

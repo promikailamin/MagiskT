@@ -20,7 +20,6 @@ import androidx.lifecycle.viewModelScope
 import pro.magisk.BR
 import pro.magisk.arch.BaseViewModel
 import pro.magisk.core.AppContext
-import pro.magisk.core.BuildConfig
 import pro.magisk.core.Config
 import pro.magisk.core.Const
 import pro.magisk.core.Info
@@ -28,7 +27,6 @@ import pro.magisk.core.R
 import pro.magisk.core.isRunningAsStub
 import pro.magisk.core.ktx.activity
 import pro.magisk.core.ktx.toast
-import pro.magisk.core.tasks.AppMigration
 import pro.magisk.core.utils.LocaleSetting
 import pro.magisk.core.utils.RootUtils
 import pro.magisk.databinding.bindExtra
@@ -48,7 +46,6 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
     /** Assembles the settings list based on current device and app state. */
     private fun createItems(): List<BaseSettingsItem> {
         val context = AppContext
-        val hidden = context.packageName != BuildConfig.APP_PACKAGE_NAME
 
         val list = mutableListOf(
             Customization,
@@ -61,10 +58,6 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
             AppSettings,
             RandNameToggle
         ))
-        if (Info.env.isActive && Const.USER_ID == 0) {
-            if (hidden) list.add(Restore) else list.add(Hide)
-        }
-
         if (Info.env.isActive) {
             list.addAll(listOf(Magisk, SystemlessHosts))
             if (Const.Version.atLeast_24_0()) {
@@ -106,9 +99,8 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
             AddShortcut -> AddHomeIconEvent().publish()
             SystemlessHosts -> createHosts()
             DenyListConfig -> SettingsFragmentDirections.actionSettingsFragmentToDenyFragment().navigate()
-            is Hide -> viewModelScope.launch { AppMigration.hide(view.activity, item.value) }
-            Restore -> viewModelScope.launch { AppMigration.restore(view.activity) }
             Zygisk -> if (Zygisk.mismatch) SnackbarEvent(R.string.reboot_apply_change).publish()
+            DenyList -> if (DenyList.mismatch) SnackbarEvent(R.string.reboot_apply_change).publish()
             else -> Unit
         }
     }

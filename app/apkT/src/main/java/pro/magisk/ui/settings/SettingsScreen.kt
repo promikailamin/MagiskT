@@ -92,7 +92,7 @@ private fun CustomizationSection(viewModel: SettingsViewModel) {
     val context = LocalContext.current
 
     SmallTitle(text = stringResource(CoreR.string.settings_customization))
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
         if (LocaleSetting.useLocaleManager) {
             val locale = LocaleSetting.instance.appLocale
             val summary = locale?.getDisplayName(locale) ?: stringResource(CoreR.string.system_default)
@@ -152,7 +152,7 @@ private fun CustomizationSection(viewModel: SettingsViewModel) {
 @Composable
 private fun AppSettingsSection() {
     SmallTitle(text = stringResource(CoreR.string.home_app_title))
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
         // Random Package Name
         var randName by remember { mutableStateOf(Config.randName) }
         SettingsSwitch(
@@ -172,7 +172,7 @@ private fun AppSettingsSection() {
 @Composable
 private fun MagiskSection(viewModel: SettingsViewModel) {
     SmallTitle(text = stringResource(CoreR.string.magisk))
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
         // Systemless Hosts
         SettingsArrow(
             title = stringResource(CoreR.string.settings_hosts_title),
@@ -197,11 +197,14 @@ private fun MagiskSection(viewModel: SettingsViewModel) {
                 }
             )
 
-            // DenyList
+            // DenyList (requires reboot)
             val denyListEnabled by viewModel.denyListEnabled.collectAsState()
             SettingsSwitch(
                 title = stringResource(CoreR.string.settings_denylist_title),
-                summary = stringResource(CoreR.string.settings_denylist_summary),
+                summary = stringResource(
+                    if (denyListEnabled != Info.isDenylistEnforced) CoreR.string.reboot_apply_change
+                    else CoreR.string.settings_denylist_summary
+                ),
                 checked = denyListEnabled,
                 onCheckedChange = { viewModel.toggleDenyList(it) }
             )
@@ -224,7 +227,7 @@ private fun SuperuserSection(viewModel: SettingsViewModel) {
     val resources = LocalResources.current
 
     SmallTitle(text = stringResource(CoreR.string.superuser))
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
         // Tapjack (SDK < S)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             var tapjack by remember { mutableStateOf(Config.suTapjack) }

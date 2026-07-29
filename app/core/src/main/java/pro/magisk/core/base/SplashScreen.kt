@@ -14,7 +14,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
 import pro.magisk.StubApk
 import pro.magisk.core.BuildConfig
 import pro.magisk.core.BuildConfig.APP_PACKAGE_NAME
@@ -24,16 +23,10 @@ import pro.magisk.core.Info
 import pro.magisk.core.R
 import pro.magisk.core.di.ServiceLocator
 import pro.magisk.core.isRunningAsStub
-import pro.magisk.core.ktx.writeTo
-import pro.magisk.core.tasks.AppMigration
 import pro.magisk.view.Notifications
 import pro.magisk.core.utils.RootUtils
 import pro.magisk.view.Shortcuts
 import com.topjohnwu.superuser.Shell
-import kotlinx.coroutines.launch
-import timber.log.Timber
-import java.io.File
-import java.io.IOException
 
 /** Interface that an activity must implement to work with [SplashController]. */
 interface SplashScreenHost : IActivityExtension {
@@ -132,28 +125,6 @@ class SplashController<T>(private val activity: T)
         if (isPackageMigration) {
             runOnUiThread {
                 StubApk.restartProcess(this)
-            }
-            return
-        }
-
-        if (isRunningAsStub && (
-                Info.stub!!.version != BuildConfig.STUB_VERSION ||
-                intent.component!!.className.contains(AppMigration.PLACEHOLDER))
-        ) {
-            withPermission(REQUEST_INSTALL_PACKAGES) { granted ->
-                if (granted) {
-                    lifecycleScope.launch {
-                        val apk = File(cacheDir, "stub.apk")
-                        try {
-                            assets.open("stub.apk").writeTo(apk)
-                            AppMigration.upgradeStub(activity, apk)?.let {
-                                startActivity(it)
-                            }
-                        } catch (e: IOException) {
-                            Timber.e(e)
-                        }
-                    }
-                }
             }
             return
         }

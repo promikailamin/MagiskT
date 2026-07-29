@@ -8,7 +8,7 @@ keyAlias=magisk
 keyPass=superman
 
 # Human-readable version string (shown in the app)
-version=vanilla
+version=experimental
 # Integer version code (must be monotonically increasing)
 versionCode=67678
 # Comma-separated list of target ABIs to build native binaries for

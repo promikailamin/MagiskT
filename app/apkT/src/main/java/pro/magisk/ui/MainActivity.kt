@@ -28,7 +28,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.core.content.pm.ShortcutManagerCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
@@ -44,7 +43,6 @@ import pro.magisk.core.base.SplashController
 import pro.magisk.core.base.SplashScreenHost
 import pro.magisk.core.isRunningAsStub
 import pro.magisk.core.ktx.toast
-import pro.magisk.core.tasks.AppMigration
 import pro.magisk.core.wrap
 import pro.magisk.ui.deny.DenyListScreen
 import pro.magisk.ui.deny.DenyListViewModel
@@ -230,12 +228,6 @@ class MainActivity : ComponentActivity(), SplashScreenHost {
             if (!it) {
                 toast(CoreR.string.install_unknown_denied, Toast.LENGTH_SHORT)
                 showInvalidState.value = true
-            } else {
-                lifecycleScope.launch {
-                    if (!AppMigration.restoreApp(this@MainActivity)) {
-                        toast(CoreR.string.failure, Toast.LENGTH_LONG)
-                    }
-                }
             }
         }
     }
