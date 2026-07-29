@@ -47,8 +47,8 @@
         <item name="colorPrimaryVariant">#804EAFF5</item>
         <item name="colorSecondary">#3E78AF</item>
         <item name="colorSecondaryVariant">#803E78AF</item>
-        <item name="colorSurface">#F9F9F9</item>
-        <item name="colorSurfaceVariant">#EEEEEE</item>
+        <item name="colorSurface">#F7F7F7</item>
+        <item name="colorSurfaceVariant">#FFF</item>
         <item name="colorSurfaceSurfaceVariant">?colorSurface</item>
         <item name="colorOnPrimary">#F9F9F9</item>
         <item name="colorOnPrimaryVariant">#D9E6E6E6</item>
@@ -63,7 +63,7 @@
     </style>
 
     <style name="ThemeFoundationMD2.Amoled" parent="ThemeFoundationMD2.Piplup">
-        <item name="colorSurface">#FFF</item>
+        <item name="colorSurface">#F7F7F7</item>
         <item name="colorOnPrimary">#FFF</item>
         <item name="colorOnSecondary">#FFF</item>
         <item name="colorOnBackground">#FFF</item>
