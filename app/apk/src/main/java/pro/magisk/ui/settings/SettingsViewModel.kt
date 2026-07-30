@@ -24,6 +24,7 @@ import pro.magisk.core.Config
 import pro.magisk.core.Const
 import pro.magisk.core.Info
 import pro.magisk.core.R
+import pro.magisk.ui.policy.PolicyActivity
 import pro.magisk.core.isRunningAsStub
 import pro.magisk.core.ktx.activity
 import pro.magisk.core.ktx.toast
@@ -79,16 +80,17 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
             if (Const.Version.atLeast_30_1()) {
                 list.add(Restrict)
             }
+            list.add(PolicyManager)
         }
 
         return list
     }
 
-    override fun onItemPressed(view: View, item: BaseSettingsItem, doAction: () -> Unit) {
+    override fun onItemPressed(view: View, item: BaseSettingsItem, andThen: () -> Unit) {
         when (item) {
-            Authentication -> AuthEvent(doAction).publish()
-            AutomaticResponse -> if (Config.suAuth) AuthEvent(doAction).publish() else doAction()
-            else -> doAction()
+            Authentication -> AuthEvent(andThen).publish()
+            AutomaticResponse -> if (Config.suAuth) AuthEvent(andThen).publish() else andThen()
+            else -> andThen()
         }
     }
 
@@ -101,6 +103,7 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
             DenyListConfig -> SettingsFragmentDirections.actionSettingsFragmentToDenyFragment().navigate()
             Zygisk -> if (Zygisk.mismatch) SnackbarEvent(R.string.reboot_apply_change).publish()
             DenyList -> if (DenyList.mismatch) SnackbarEvent(R.string.reboot_apply_change).publish()
+            PolicyManager -> view.activity.startActivity(Intent(view.activity, PolicyActivity::class.java))
             else -> Unit
         }
     }

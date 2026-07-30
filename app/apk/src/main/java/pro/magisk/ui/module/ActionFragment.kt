@@ -44,7 +44,7 @@ class ActionFragment : BaseFragment<FragmentActionMd2Binding>(), MenuProvider {
         super.onStart()
         activity?.setTitle(viewModel.args.name)
         binding.closeBtn.setOnClickListener {
-            activity?.onBackPressed()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
 
         viewModel.state.observe(this) {

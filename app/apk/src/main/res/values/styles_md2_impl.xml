@@ -63,6 +63,15 @@
         <item name="cornerRadius">28dp</item>
     </style>
 
+    <style name="WidgetFoundation.Button.Outlined.Success">
+        <item name="strokeColor">@color/color_success</item>
+        <item name="rippleColor">@color/color_success</item>
+        <item name="android:textColor">@color/color_success</item>
+        <item name="iconTint">@color/color_success</item>
+        <item name="android:minHeight">60.0dp</item>
+        <item name="cornerRadius">28dp</item>
+    </style>
+
     <style name="WidgetFoundation.Button.Text" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textStyle">bold</item>
         <item name="iconGravity">textStart</item>

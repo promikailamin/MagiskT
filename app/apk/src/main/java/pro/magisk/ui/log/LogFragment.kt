@@ -44,9 +44,7 @@ class LogFragment : BaseFragment<FragmentLogMd2Binding>(), MenuProvider {
             MotionRevealHelper.withViews(binding.logFilter, binding.logFilterToggle, value)
             actionSave?.isVisible = !value
             with(activity as MainActivity) {
-                invalidateToolbar()
                 requestNavigationHidden(value)
-                setDisplayHomeAsUpEnabled(value)
             }
         }
 
@@ -87,7 +85,7 @@ class LogFragment : BaseFragment<FragmentLogMd2Binding>(), MenuProvider {
                 if (!isMagiskLogVisible) viewModel.clearMagiskLog()
                 else viewModel.clearLog()
         }
-        return super.onOptionsItemSelected(item)
+        return false
     }
 
     override fun onPreBind(binding: FragmentLogMd2Binding) = Unit

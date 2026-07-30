@@ -24,12 +24,9 @@
             android:focusableInTouchMode="false"
             android:clipToPadding="false"
             android:orientation="vertical"
-            android:paddingTop="@dimen/internal_action_bar_size"
             app:fitsSystemWindowsInsets="top|bottom"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:layout_marginTop="24dp"
-            tools:listitem="@layout/item_settings"
-            tools:paddingTop="@dimen/l1" />
+            tools:listitem="@layout/item_settings" />
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"

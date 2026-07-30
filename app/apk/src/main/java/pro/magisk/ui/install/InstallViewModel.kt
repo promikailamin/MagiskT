@@ -92,7 +92,7 @@ class InstallViewModel : BaseViewModel() {
     }
 
     override fun onRestoreState(state: Bundle) {
-        state.getParcelable<InstallState>(INSTALL_STATE_KEY)?.let {
+        state.getParcelable(INSTALL_STATE_KEY, InstallState::class.java)?.let {
             methodId = it.method
             step = it.step
             Config.keepVerity = it.keepVerity

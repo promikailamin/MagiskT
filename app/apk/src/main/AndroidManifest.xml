@@ -18,6 +18,10 @@
         </activity>
 
         <activity
+            android:name=".ui.policy.PolicyActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.surequest.SuRequestActivity"
             android:directBootAware="true"
             android:exported="false"

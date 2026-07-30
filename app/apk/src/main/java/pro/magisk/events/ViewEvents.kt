@@ -36,7 +36,7 @@ class PermissionEvent(
 /** Triggers the system back button. */
 class BackPressEvent : ViewEvent(), ActivityExecutor {
     override fun invoke(activity: UIActivity<*>) {
-        activity.onBackPressed()
+        activity.onBackPressedDispatcher.onBackPressed()
     }
 }
 

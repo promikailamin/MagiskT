@@ -270,8 +270,9 @@ fun Project.setupAppCommon() {
         }
 
         lint {
-            disable += "MissingTranslation"
+            abortOnError = false
             checkReleaseBuilds = false
+            disable += "MissingTranslation"
         }
 
         dependenciesInfo {

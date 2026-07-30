@@ -31,7 +31,6 @@ import androidx.transition.AutoTransition
 import androidx.transition.TransitionManager
 import com.google.android.material.snackbar.Snackbar
 import pro.magisk.BR
-import pro.magisk.R
 import pro.magisk.core.Config
 import pro.magisk.core.base.ActivityExtension
 import pro.magisk.core.base.IActivityExtension
@@ -62,6 +61,7 @@ abstract class UIActivity<Binding : ViewDataBinding>
         super.attachBaseContext(base.wrap())
     }
 
+    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         layoutInflater.factory2 = LayoutInflaterFactory(delegate)
             .addOnViewCreatedListener(WindowInsetsHelper.LISTENER)
@@ -150,7 +150,7 @@ fun ViewGroup.startAnimations() {
     val transition = AutoTransition()
         .setInterpolator(FastOutSlowInInterpolator())
         .setDuration(400)
-        .excludeTarget(R.id.main_toolbar, true)
+
     TransitionManager.beginDelayedTransition(
         this,
         transition

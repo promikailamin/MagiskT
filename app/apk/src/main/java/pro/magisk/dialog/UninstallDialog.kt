@@ -7,8 +7,8 @@
  */
 package pro.magisk.dialog
 
-import android.app.ProgressDialog
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import pro.magisk.arch.NavigationActivity
 import pro.magisk.arch.UIActivity
@@ -38,12 +38,11 @@ class UninstallDialog : DialogBuilder {
         }
     }
 
-    @Suppress("DEPRECATION")
     private fun restore(activity: UIActivity<*>) {
-        val dialog = ProgressDialog(activity).apply {
-            setMessage(activity.getString(R.string.restore_img_msg))
-            show()
-        }
+        val dialog = AlertDialog.Builder(activity)
+            .setMessage(activity.getString(R.string.restore_img_msg))
+            .setCancelable(false)
+            .show()
 
         activity.lifecycleScope.launch {
             MagiskInstaller.Restore().exec { success ->

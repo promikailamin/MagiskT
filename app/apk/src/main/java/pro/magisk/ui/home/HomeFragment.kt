@@ -9,25 +9,18 @@ package pro.magisk.ui.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.view.MenuProvider
 import pro.magisk.R
 import pro.magisk.arch.BaseFragment
 import pro.magisk.arch.viewModel
-import pro.magisk.core.Info
 import pro.magisk.databinding.FragmentHomeMd2Binding
 import pro.magisk.core.R as CoreR
-import androidx.navigation.findNavController
-import pro.magisk.arch.NavigationActivity
 
 /** Home tab — status, version info, and primary actions. */
-class HomeFragment : BaseFragment<FragmentHomeMd2Binding>(), MenuProvider {
+class HomeFragment : BaseFragment<FragmentHomeMd2Binding>() {
 
     override val layoutRes = R.layout.fragment_home_md2
     override val viewModel by viewModel<HomeViewModel>()
@@ -62,28 +55,6 @@ class HomeFragment : BaseFragment<FragmentHomeMd2Binding>(), MenuProvider {
         }
 
         return binding.root
-    }
-
-    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_home_md2, menu)
-        if (!Info.isRooted)
-            menu.removeItem(R.id.action_reboot)
-    }
-
-    override fun onMenuItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_settings ->
-                activity?.let {
-                    NavigationActivity.navigate(
-                        HomeFragmentDirections.actionHomeFragmentToSettingsFragment(),
-                        it.findNavController(R.id.main_nav_host),
-                        it.contentResolver,
-                    )
-                }
-            R.id.action_reboot -> activity?.let { RebootMenu.inflate(it).show() }
-            else -> return super.onOptionsItemSelected(item)
-        }
-        return true
     }
 
     override fun onResume() {

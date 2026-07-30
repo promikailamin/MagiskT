@@ -207,3 +207,10 @@ object Restrict : BaseSettingsItem.Toggle() {
     override val description = CoreR.string.settings_su_restrict_summary.asText()
     override var value by Config::suRestrict
 }
+
+// --- Policy Manager
+
+object PolicyManager : BaseSettingsItem.Blank() {
+    override val title = CoreR.string.policy_manager.asText()
+    override val description = CoreR.string.policy_manager_summary.asText()
+}

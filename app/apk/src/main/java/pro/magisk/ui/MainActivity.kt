@@ -14,7 +14,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
@@ -27,7 +26,6 @@ import pro.magisk.MainDirections
 import pro.magisk.R
 import pro.magisk.arch.BaseViewModel
 import pro.magisk.arch.NavigationActivity
-import pro.magisk.arch.startAnimations
 import pro.magisk.arch.viewModel
 import pro.magisk.core.Config
 import pro.magisk.core.Const
@@ -88,6 +86,7 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
         showUnsupportedMessage()
         askForHomeShortcut()
 
+        @Suppress("DEPRECATION")
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         // Track navigation destination changes to update toolbar and bottom-nav state
@@ -100,7 +99,6 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
                 else -> false
             }
 
-            setDisplayHomeAsUpEnabled(!isRootFragment)
             requestNavigationHidden(!isRootFragment)
 
             // Sync the checked bottom-nav item with the current destination
@@ -110,8 +108,6 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
                 }
             }
         }
-
-        setSupportActionBar(binding.mainToolbar)
 
         binding.mainNavigation.setOnItemSelectedListener {
             getScreen(it.itemId)?.navigate()
@@ -139,22 +135,6 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> onBackPressed()
-            else -> return super.onOptionsItemSelected(item)
-        }
-        return true
-    }
-
-    fun setDisplayHomeAsUpEnabled(isEnabled: Boolean) {
-        binding.mainToolbar.startAnimations()
-        when {
-            isEnabled -> binding.mainToolbar.setNavigationIcon(R.drawable.ic_back_md2)
-            else -> binding.mainToolbar.navigationIcon = null
-        }
-    }
-
     internal fun requestNavigationHidden(hide: Boolean = true, requiresAnimation: Boolean = true) {
         val bottomView = binding.mainNavigation
         if (requiresAnimation) {
@@ -163,10 +143,6 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
         } else {
             bottomView.isGone = hide
         }
-    }
-
-    fun invalidateToolbar() {
-        binding.mainToolbar.invalidate()
     }
 
     private fun getScreen(name: String?): NavDirections? {

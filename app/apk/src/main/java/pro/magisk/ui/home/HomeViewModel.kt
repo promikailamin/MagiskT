@@ -85,6 +85,10 @@ class HomeViewModel : AsyncLoadViewModel() {
 
     fun onDeletePressed() = UninstallDialog().show()
 
+    fun onSettingsPressed() {
+        HomeFragmentDirections.actionHomeFragmentToSettingsFragment().navigate()
+    }
+
     fun onMagiskPressed() = withExternalRW {
         HomeFragmentDirections.actionHomeFragmentToInstallFragment().navigate()
     }

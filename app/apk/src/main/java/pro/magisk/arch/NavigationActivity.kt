@@ -15,6 +15,7 @@ import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.navOptions
 import pro.magisk.utils.AccessibilityUtils
+import androidx.activity.addCallback
 
 /** Base Activity for screens that use a NavHostFragment for navigation. */
 abstract class NavigationActivity<Binding : ViewDataBinding> : UIActivity<Binding>() {
@@ -35,11 +36,14 @@ abstract class NavigationActivity<Binding : ViewDataBinding> : UIActivity<Bindin
         return if (binded && currentFragment?.onKeyEvent(event) == true) true else super.dispatchKeyEvent(event)
     }
 
-    override fun onBackPressed() {
-        if (binded) {
-            // Let the current fragment veto back-press (e.g. during flashing)
-            if (currentFragment?.onBackPressed() == false) {
-                super.onBackPressed()
+    init {
+        onBackPressedDispatcher.addCallback(this) {
+            if (binded) {
+                if (currentFragment?.onBackPressed() == false) {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                    isEnabled = true
+                }
             }
         }
     }
