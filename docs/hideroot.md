@@ -41,8 +41,6 @@ Inside every denylisted app process (via Zygisk hook `app_specialize_pre`):
 | 6 | `app/core/.../Info.kt` | Add `isDenylistEnforced` from `DENYLIST_ENFORCED` env var |
 | 7 | `app/apk/.../SettingsItems.kt` | DenyList toggle: save to DB only, add mismatch + reboot message |
 | 8 | `app/apk/.../SettingsViewModel.kt` | Handle DenyList mismatch snackbar |
-| 9 | `app/apkT/.../SettingsScreen.kt` | DenyList toggle: require reboot, mismatch check |
-| 10 | `app/apkT/.../SettingsViewModel.kt` | `denylistMismatch`, `toggleDenyList` saves to DB only |
 
 ---
 
@@ -172,28 +170,12 @@ object DenyList : BaseSettingsItem.Toggle() {
 }
 ```
 
-### Step 9 — Settings UI (apkT `SettingsScreen.kt`)
-
-```kotlin
-val denyListEnabled by viewModel.denyListEnabled.collectAsState()
-SettingsSwitch(
-    title = stringResource(CoreR.string.settings_denylist_title),
-    summary = stringResource(
-        if (denyListEnabled != Info.isDenylistEnforced) CoreR.string.reboot_apply_change
-        else CoreR.string.settings_denylist_summary
-    ),
-    checked = denyListEnabled,
-    onCheckedChange = { viewModel.toggleDenyList(it) }
-)
-```
-
-### Step 10 — apkT `SettingsViewModel.kt`
+### Step 9 — Settings ViewModel (apk `SettingsViewModel.kt`)
 
 ```kotlin
 val denylistMismatch get() = Config.denyList != Info.isDenylistEnforced
 
 fun toggleDenyList(enabled: Boolean) {
-    _denyListEnabled.value = enabled
     Config.denyList = enabled
     if (denylistMismatch) showSnackbar(R.string.reboot_apply_change)
 }

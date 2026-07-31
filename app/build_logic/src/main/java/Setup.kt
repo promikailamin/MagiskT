@@ -10,7 +10,7 @@
  *   <li>{@link #setupCommon} — shared Android SDK/NDK configuration</li>
  *   <li>{@link #setupCoreLib} — config for the {@code :core} library module</li>
  *   <li>{@link #setupAppCommon} — config shared by the APK-producing modules</li>
- *   <li>{@link #setupMainApk} — config for the main Magisk APK ({@code :apk} / {@code :apkT})</li>
+ *   <li>{@link #setupMainApk} — config for the main Magisk APK ({@code :apk})</li>
  * </ul>
  */
 import com.android.build.api.artifact.SingleArtifact
@@ -231,7 +231,7 @@ fun Project.setupCoreLib() {
 }
 
 /**
- * Configures settings common to all APK-producing modules ({@code :apk}, {@code :apkT}, {@code :stub}).
+ * Configures settings common to all APK-producing modules ({@code :apk}, {@code :stub}).
  * Includes signing config, targetSdk, ProGuard, lint, dependency info suppression,
  * legacy JNI lib packaging, and a post-processing APK transformation that embeds the
  * version metadata in the ZIP End of Central Directory comment.
@@ -313,7 +313,7 @@ fun Project.setupAppCommon() {
 }
 
 /**
- * Configures the main Magisk APK ({@code :apk} / {@code :apkT}).
+ * Configures the main Magisk APK ({@code :apk}).
  * Adds app-specific defaults (namespace, applicationId, version, ABI filters)
  * and registers the {@link DesugarClassVisitorFactory} ASM instrumentation.
  */

@@ -21,5 +21,5 @@ pluginManagement {
 }
 
 rootProject.name = "Magisk"
-// App modules (two UI variants), shared library, core library, stub APK, and stub resources
-include(":apk", ":apkT", ":core", ":shared", ":stub", ":stub-res")
+// App modules (apk UI variant), shared library, core library, stub APK, and stub resources
+include(":apk", ":core", ":shared", ":stub", ":stub-res")

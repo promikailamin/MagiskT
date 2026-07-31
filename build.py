@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Magisk build system.
 
-Supports building native binaries (Rust/C++), Android APKs (app/apkT/stub),
+Supports building native binaries (Rust/C++), Android APKs (app/stub),
 and running AVD tests. Invoke via `python build.py <action>`.
 """
 import argparse
@@ -356,48 +356,21 @@ def build_apk(module: str):
 
 
 def build_app():
-    """Build the Magisk app APK.
+    """Build the Magisk app APK (:apk module)."""
+    header("* Building the Magisk app (:apk)")
+    apk = build_apk(":apk")
 
-    When ``-t`` / ``--apkT`` is set, builds both the current DataBinding
-    variant (``:apk``) and the next-generation Jetpack Compose variant
-    (``:apkT``). Otherwise, builds only the current variant.
-    """
-    is_apkT = getattr(args, "apkT", False)
+    # Rename apk-variant.apk to app-variant.apk
+    target = apk.parent / apk.name.replace("apk-", "app-")
+    mv(apk, target)
+    header(f"Output: {target}")
 
-    modules = [":apk", ":apkT"] if is_apkT else [":apk"]
-
-    for module in modules:
-        is_apkT_build = module == ":apkT"
-        label = "apkT" if is_apkT_build else "app"
-
-        header(f"* Building the Magisk {label} ({module})")
-        apk = build_apk(module)
-
-        build_type = "release" if args.release else "debug"
-
-        if is_apkT_build:
-            header(f"Output: {apk}")
-        else:
-            # Rename apk-variant.apk to app-variant.apk
-            source = apk
-            target = apk.parent / apk.name.replace("apk-", "app-")
-            mv(source, target)
-            header(f"Output: {target}")
-
-            # Stub building is directly integrated into the main app
-            # build process. Copy the stub APK into output directory.
-            source = Path("app", "core", "src", build_type, "assets", "stub.apk")
-            target = config["outdir"] / f"stub-{build_type}.apk"
-            cp(source, target)
-
-
-def build_apkT():
-    """Build the next-generation Magisk app APK (apkT module, Jetpack Compose).
-
-    Delegates to :func:`build_app` with the ``--apkT`` flag forced on.
-    """
-    args.apkT = True
-    build_app()
+    # Stub building is directly integrated into the main app
+    # build process. Copy the stub APK into output directory.
+    build_type = "release" if args.release else "debug"
+    source = Path("app", "core", "src", build_type, "assets", "stub.apk")
+    target = config["outdir"] / f"stub-{build_type}.apk"
+    cp(source, target)
 
 
 def build_stub():
@@ -449,7 +422,7 @@ def cleanup():
 
 
 def build_all():
-    """Build native binaries, then the app (apk or apkT depending on ``-t``)."""
+    """Build native binaries, then the app (:apk)."""
     build_native()
     build_app()
 
@@ -758,13 +731,6 @@ def parse_args():
         "-v", "--verbose", action="count", default=0, help="verbose output"
     )
     parser.add_argument(
-        "-t",
-        "--apkT",
-        action="store_true",
-        default=False,
-        help="build next-gen Compose app (apkT) instead of the current app (apk)",
-    )
-    parser.add_argument(
         "-c",
         "--config",
         default="config.prop",
@@ -783,10 +749,6 @@ def parse_args():
     )
 
     app_parser = subparsers.add_parser("app", help="build the Magisk app")
-
-    apkT_parser = subparsers.add_parser(
-        "apkT", help="build the next generation Magisk app"
-    )
 
     stub_parser = subparsers.add_parser("stub", help="build the stub app")
 
@@ -845,7 +807,6 @@ def parse_args():
     rustup_parser.set_defaults(func=setup_rustup)
     gen_parser.set_defaults(func=gen_ide)
     app_parser.set_defaults(func=build_app)
-    apkT_parser.set_defaults(func=build_apkT)
     stub_parser.set_defaults(func=build_stub)
     emu_parser.set_defaults(func=setup_avd)
     avd_patch_parser.set_defaults(func=patch_avd_file)

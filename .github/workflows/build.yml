@@ -20,9 +20,9 @@ jobs:
         build_type: [release, debug]
         include:
           - build_type: release
-            flag: "-vrt"
+            flag: "-vr"
           - build_type: debug
-            flag: "-vt"
+            flag: "-v"
 
     steps:
       - name: Check out
@@ -88,13 +88,6 @@ jobs:
           path: out/app-release.apk
           compression-level: 9
 
-      - name: Upload release T artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: apkT-release
-          path: out/apkT-release.apk
-          compression-level: 9
-
   # Job 2b: Debug Artifact Node (Runs after Matrix Debug build)
   upload-debug-artifacts:
     name: Upload Debug Artifacts
@@ -114,13 +107,6 @@ jobs:
           path: out/app-debug.apk
           compression-level: 9
 
-      - name: Upload debug T artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: apkT-debug
-          path: out/apkT-debug.apk
-          compression-level: 9
-
   # Job 3: Final Node — Connects from both Release and Debug upload jobs
   create-release:
     name: Create GitHub Release
@@ -136,22 +122,10 @@ jobs:
           name: app-release
           path: out
 
-      - name: Download release T APKs
-        uses: actions/download-artifact@v7
-        with:
-          name: apkT-release
-          path: out
-
       - name: Download debug APKs
         uses: actions/download-artifact@v7
         with:
           name: app-debug
-          path: out
-
-      - name: Download debug T APKs
-        uses: actions/download-artifact@v7
-        with:
-          name: apkT-debug
           path: out
 
       - name: Publish GitHub Release
@@ -160,9 +134,7 @@ jobs:
         run: |
           tag="build"
           apk="out/app-release.apk"
-          apkT="out/apkT-release.apk"
           apkD="out/app-debug.apk"
-          apkTD="out/apkT-debug.apk"
 
           commit=$(git rev-parse --short HEAD)
           branch=${GITHUB_REF#refs/heads/}
@@ -182,12 +154,6 @@ jobs:
               echo "Release APK found."
               assets+=("$apk")
               assets+=("$apkD")
-          fi
-
-          if [ -f "$apkT" ]; then
-              echo "Release T-APK found."
-              assets+=("$apkT")
-              assets+=("$apkTD")
           fi
 
           gh release create "$tag" "${assets[@]}" \

@@ -1,8 +1,7 @@
 # Magisk Project — Agent Guide
 
 ## Build
-- **Primary**: `python build.py [all|native|app|app-ng|stub]`
-- **`-t` / `--apkT`**: When set, builds the Jetpack Compose variant (`:apkT`) instead of the DataBinding variant (`:apk`). Works with any action (`all`, `app`, etc.). Combine with `-r`/`-v` (e.g. `python build.py -vrt all`).
+- **Primary**: `python build.py [all|native|app|stub]`
 - **Android**: Gradle multi-module under `app/` (Kotlin DSL + custom `MagiskPlugin`)
 - **Config**: `config.prop` (version/ABI/keystore), `app/gradle.properties` (magisk.* prefix)
 - **Native**: Rust (Cargo workspace `native/src/`) + legacy C++ (NDK via `Android.mk`)
@@ -16,17 +15,16 @@
 |--------|------|----|---------|
 | `:core` | lib | — | Shared logic, DI (`ServiceLocator`), DB, networking, flash/install, SU handlers |
 | `:apk` | app | DataBinding + MVVM (Fragment-based) | Current production app |
-| `:apkT` | app | Jetpack Compose + MVVM | Next-gen app (replacing apk) |
 | `:shared` | lib | — | Java-only, shared between stub+core (StubApk, APKInstall, DynamicClassLoader) |
 | `:stub` | app | — | Thin proxy APK (dynamic class loading + APK download) |
 | `:stub-res` | app | — | Stub resources only (XML/drawables) |
 | `:build_logic` | lib | — | Gradle plugin + setup helpers (Plugin.kt, Setup.kt, Stub.kt, TransformApkTask.kt) |
 
-Deps: `apk/apkT → core → shared`, `stub → shared`
+Deps: `apk → core → shared`, `stub → shared`
 
 ## Key Entry Points
 
-- **App start**: `App.kt` → `AppContext` → `MainActivity` (apk: extends `NavigationActivity` with bottom nav + fragments, apkT: extends `ComponentActivity` + Compose)
+- **App start**: `App.kt` → `AppContext` → `MainActivity` (extends `NavigationActivity` with bottom nav + fragments)
 - **Stub path**: `StubApplication` → `DynLoad` → downloads real APK via `DownloadActivity` → classloads it with `DynamicClassLoader` → `DelegateComponentFactory` intercepts component creation
 - **Native daemon**: `native/src/core/daemon.rs` — Unix domain socket server (`magisk.sock`), handles SU requests, boot stages (PostFsData, LateStart, BootComplete), denylist, module management
 - **Init**: `native/src/init/init.rs` (`magiskinit`) — Boot-time init replacement, hijacks early boot, patches SELinux policy, mounts overlay, sets up rootfs
@@ -38,15 +36,13 @@ Deps: `apk/apkT → core → shared`, `stub → shared`
 ## Architecture Patterns
 
 - **DI**: Manual service locator (`ServiceLocator.kt`) — no Hilt/Dagger/Koin
-- **State**: `MutableLiveData` + `StateFlow` (apkT: `collectAsState` in Compose)
+- **State**: `MutableLiveData`
 - **Events**: Sealed `ViewEvent` class, dispatched via LiveData/publish pattern
 - **DB**: Room (SU access logs in `sulogs.db`) + custom shell-backed `MagiskDB` (Policy/Settings/String DAOs via `settingsDB`, `stringDB`, `policyDB`)
 - **Networking**: OkHttp + Retrofit + Moshi (`NetworkService.kt` in di/ — though most networking removed)
 - **Download**: `DownloadEngine` (foreground service — update system removed but engine remains)
 - **Native FFI**: CXX bridge (Rust ↔ C++ via `cxx` crate), `build.rs` per crate generates bindings, JNI via `jni_hooks.hpp` for Zygisk
-- **UI patterns**:
-  - apk: DataBinding with `BaseFragment<ViewBinding>`, `BaseViewModel`, `AsyncLoadViewModel`, `UIActivity`/`NavigationActivity`
-  - apkT: Jetpack Compose with `BaseViewModel`, `StateFlow<UiState>`, `Routes` sealed class navigation
+- **UI patterns**: DataBinding with `BaseFragment<ViewBinding>`, `BaseViewModel`, `AsyncLoadViewModel`, `UIActivity`/`NavigationActivity`
 
 ## Key Packages (`app/core/src/main/java/pro/magisk/core/`)
 
@@ -70,26 +66,6 @@ Deps: `apk/apkT → core → shared`, `stub → shared`
 - `view/` — `Notifications.kt`, `Shortcuts.kt`
 - `data/` — `SuLogDao.kt` (Room DAO), `magiskdb/MagiskDB.kt`, `magiskdb/PolicyDao.kt`, `magiskdb/SettingsDao.kt`, `magiskdb/StringDao.kt`
 - `signing/` — `ApkSignerV2.java`, `SignApk.java`, `JarMap.java`, `ZipUtils.java`, `ByteArrayStream.java` (APK signing utilities)
-
-## Key Packages (`app/apkT/src/`)
-
-- `ui/MainActivity.kt` + `ui/MainScreen.kt` — Entry + tab scaffold with TopAppBar + bottom nav
-- `ui/MagiskTheme.kt` — Material3 theme (dark/light, dynamic colors)
-- `ui/navigation/Routes.kt` — Sealed Route classes per tab
-- `ui/navigation/Navigator.kt` — Navigation helper
-- `ui/home/` — `HomeScreen.kt`, `HomeViewModel.kt` (Magisk card, status, install/uninstall, reboot)
-- `ui/module/` — `ModuleScreen.kt`/`ViewModel`, `ActionScreen.kt`/`ViewModel`
-- `ui/settings/` — `SettingsScreen.kt`/`ViewModel`
-- `ui/flash/` — `FlashScreen.kt`/`ViewModel`, `FlashUtils.kt`
-- `ui/install/` — `InstallBottomSheet.kt`/`ViewModel`
-- `ui/log/` — `LogScreen.kt`/`ViewModel`, `MagiskLogParser.kt`
-- `ui/superuser/` — `SuperuserScreen.kt`/`ViewModel`, `SuperuserDetailScreen.kt`
-- `ui/surequest/` — `SuRequestActivity.kt`, `SuRequestScreen.kt`, `SuRequestViewModel.kt`
-- `ui/deny/` — `DenyListScreen.kt`, `DenyListViewModel.kt`, `AppProcessInfo.kt`
-- `ui/terminal/` — `TerminalScreen.kt`, `TerminalRenderer.kt`
-- `terminal/` — `TerminalEmulator.kt`, `TerminalBuffer.kt`, `TerminalRow.kt`, `TerminalStyle.kt`, `TerminalProcess.kt`, `WcWidth.kt`
-- `ui/component/` — `Dialog.kt`, `SettingsComponents.kt`
-- `utils/Compose.kt` — Compose utility extensions
 
 ## Key Packages (`app/apk/src/`)
 
@@ -119,8 +95,8 @@ Deps: `apk/apkT → core → shared`, `stub → shared`
 
 | Task | Files |
 |------|-------|
-| Add setting | `Config.kt` (key+field), `SettingsItems.kt` (apk), `SettingsViewModel.kt`, `SettingsScreen.kt` (apkT) |
-| Add UI screen | `Routes.kt` (apkT), nav_graph (apk), Screen+ViewModel files |
+| Add setting | `Config.kt` (key+field), `SettingsItems.kt`, `SettingsViewModel.kt`, `SettingsFragment.kt` |
+| Add UI screen | `nav_graph`, Screen+ViewModel files |
 | New module | `app/` directory, `settings.gradle.kts`, build.gradle.kts with `setupAppCommon`/`setupCoreLib` |
 | Modify networking | `NetworkService.kt`, `RetrofitInterfaces.kt`, `Networking.kt`, `ServiceLocator.kt` |
 | Add native feature | Rust crate under `native/src/` + `Cargo.toml`; CXX bridge in `build.rs` + `*-rs.{hpp,cpp}` |
