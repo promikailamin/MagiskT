@@ -4,6 +4,11 @@ inputs:
   is-asset-build:
     required: false
     default: false
+  # Namespaces caches per matrix build type (e.g. release/debug) so parallel
+  # jobs never race to save the same cache key.
+  cache-key-prefix:
+    required: false
+    default: ''
 runs:
   using: "composite"
   steps:
@@ -25,31 +30,32 @@ runs:
         brew install make
         echo 'GNUMAKE=gmake' >> "$GITHUB_ENV"
 
+    # Install a pinned sccache so the on-disk cache format never drifts.
+    - name: Install sccache
+      shell: bash
+      run: bash $GITHUB_ACTION_PATH/sccache.sh
+
+    # Rolling sccache cache. The key only changes when native/toolchain inputs
+    # change, so entries stay small and hit across most commits. restore-keys
+    # falls back to the newest entry for this build type (then any build type).
     - name: Cache sccache
       uses: actions/cache@v5
-      if: ${{ github.event_name != 'pull_request' }}
       with:
         path: .sccache
-        key: sccache-${{ runner.os }}-${{ github.sha }}
-        restore-keys: sccache-${{ runner.os }}-
-
-    - name: Restore sccache
-      uses: actions/cache/restore@v5
-      if: ${{ github.event_name == 'pull_request' }}
-      with:
-        path: .sccache
-        key: sccache-${{ runner.os }}-${{ github.sha }}
-        restore-keys: sccache-${{ runner.os }}-
+        key: sccache-${{ runner.os }}-${{ inputs.cache-key-prefix }}-${{ hashFiles('native/src/**', 'scripts/**', 'config.prop', 'tools/**') }}
+        restore-keys: |
+          sccache-${{ runner.os }}-${{ inputs.cache-key-prefix }}-
+          sccache-${{ runner.os }}-
+        save-always: true
 
     - name: Set up sccache
       shell: bash
       env:
         SCCACHE_DIRECT: false
         SCCACHE_DIR: ${{ github.workspace }}/.sccache
-        SCCACHE_CACHE_SIZE: ${{ inputs.is-asset-build == 'true' && '2G' || '300M'  }}
+        SCCACHE_CACHE_SIZE: ${{ inputs.is-asset-build == 'true' && '1G' || '300M' }}
         SCCACHE_IDLE_TIMEOUT: 0
       run: |
-        bash $GITHUB_ACTION_PATH/sccache.sh
         sccache --start-server
         sccache -z
 
@@ -63,46 +69,48 @@ runs:
       shell: bash
       run: echo "GRADLE_USER_HOME=$GITHUB_WORKSPACE/.gradle" >> "$GITHUB_ENV"
 
+    # Gradle dependency cache. Keyed by dependency descriptor files so it is
+    # refreshed only when dependencies actually change.
     - name: Cache Gradle dependencies
       uses: actions/cache@v5
-      if: ${{ inputs.is-asset-build == 'true' && github.event_name != 'pull_request' }}
       with:
         path: |
           .gradle/caches
           .gradle/wrapper
           !.gradle/caches/build-cache-*
-        key: gradle-cache-${{ hashFiles('app/gradle/**') }}
-        restore-keys: gradle-cache-
+        key: gradle-cache-${{ runner.os }}-${{ hashFiles('app/gradle/**', 'app/gradle.properties', 'app/build.gradle.kts', 'app/settings.gradle.kts') }}
+        restore-keys: gradle-cache-${{ runner.os }}-
+        save-always: true
 
-    - name: Restore Gradle dependencies
-      uses: actions/cache/restore@v5
-      if: ${{ inputs.is-asset-build == 'false' || github.event_name == 'pull_request' }}
-      with:
-        path: |
-          .gradle/caches
-          .gradle/wrapper
-          !.gradle/caches/build-cache-*
-        key: gradle-cache-${{ hashFiles('app/gradle/**') }}
-        restore-keys: gradle-cache-
-        enableCrossOsArchive: true
-
+    # Gradle build cache. Keyed by source + config so it is refreshed whenever
+    # app/native inputs change, without creating an entry per commit.
     - name: Cache Gradle build cache
       uses: actions/cache@v5
-      if: ${{ inputs.is-asset-build == 'true' && github.event_name != 'pull_request' }}
       with:
         path: .gradle/caches/build-cache-*
-        key: gradle-build-cache-${{ github.sha }}
-        restore-keys: gradle-build-cache-
+        key: gradle-build-cache-${{ runner.os }}-${{ inputs.cache-key-prefix }}-${{ hashFiles('app/**/src/**', 'app/gradle/**', 'app/gradle.properties', 'app/build.gradle.kts', 'app/settings.gradle.kts', 'config.prop', 'build.py', 'native/src/**') }}
+        restore-keys: |
+          gradle-build-cache-${{ runner.os }}-${{ inputs.cache-key-prefix }}-
+          gradle-build-cache-${{ runner.os }}-
+        save-always: true
 
-    - name: Restore Gradle build cache
-      uses: actions/cache/restore@v5
-      if: ${{ inputs.is-asset-build == 'false' || github.event_name == 'pull_request' }}
+    # Cache the extracted Magisk NDK (ONDK). This skips the multi-minute
+    # download on every run AND keeps the compiler binaries byte-identical
+    # between runs, which is what makes the sccache actually hit.
+    - name: Export NDK path
+      shell: bash
+      run: echo "NDK_CACHE_PATH=$ANDROID_HOME/ndk/magisk" >> "$GITHUB_ENV"
+
+    - name: Cache ONDK
+      id: ondk-cache
+      uses: actions/cache@v5
       with:
-        path: .gradle/caches/build-cache-*
-        key: gradle-build-cache-${{ github.sha }}
-        restore-keys: gradle-build-cache-
-        enableCrossOsArchive: true
+        path: ${{ env.NDK_CACHE_PATH }}
+        key: ondk-${{ runner.os }}-${{ hashFiles('scripts/env.py') }}
+        restore-keys: ondk-${{ runner.os }}-
+        save-always: true
 
     - name: Set up NDK
+      if: steps.ondk-cache.outputs.cache-hit != 'true'
       shell: bash
       run: python build.py -v ndk

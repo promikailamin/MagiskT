@@ -37,6 +37,7 @@ jobs:
         uses: ./.github/actions/setup
         with:
           is-asset-build: true
+          cache-key-prefix: ${{ matrix.build_type }}
 
       - name: Chmod build.py
         run: chmod +x build.py
@@ -46,6 +47,13 @@ jobs:
 
       - name: Stop gradle daemon
         run: ./app/gradlew --stop
+
+      - name: Prune stale caches
+        if: ${{ github.event_name != 'pull_request' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KEEP_CACHES: "3"
+        run: python3 .github/scripts/prune-caches.py
 
       - name: Upload native output staging artifact
         uses: actions/upload-artifact@v7
