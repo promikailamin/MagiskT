@@ -173,12 +173,8 @@ jobs:
           "$commit" \
           "$build_time")
 
-          gh release delete "$tag" -y || true
-          git tag -d "$tag" || true
-          git push origin :refs/tags/$tag || true
-
-          git tag "$tag"
-          git push origin "$tag"
+          gh release delete "$tag" -y --cleanup-tag || true
+          gh api -X DELETE "repos/${GITHUB_REPOSITORY}/git/refs/tags/${tag}" || true
 
           assets=()
 
