@@ -118,7 +118,7 @@
 
                 <LinearLayout
                     android:id="@+id/policy_expand_container"
-                    gone="@{!item.is_expanded}"
+                    gone="@{!item.expanded}"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="?colorSurfaceVariant"

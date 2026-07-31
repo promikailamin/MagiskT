@@ -60,11 +60,11 @@ class LogViewModel(
             su_logs to items.calculate_diff(su_logs)
         }
 
-        items.firstOrNull()?.is_top = false
-        items.lastOrNull()?.is_bottom = false
+        items.firstOrNull()?.top = false
+        items.lastOrNull()?.bottom = false
         items.update(su_logs, suDiff)
-        items.firstOrNull()?.is_top = true
-        items.lastOrNull()?.is_bottom = true
+        items.firstOrNull()?.top = true
+        items.lastOrNull()?.bottom = true
         loading = false
     }
 

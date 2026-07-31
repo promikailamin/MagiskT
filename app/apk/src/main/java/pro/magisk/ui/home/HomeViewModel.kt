@@ -48,8 +48,8 @@ class HomeViewModel : AsyncLoadViewModel() {
     val magisk_title_barrier_ids =
         intArrayOf(R.id.home_magisk_icon, R.id.home_magisk_title, R.id.home_magisk_button)
     @get:Bindable
-    var is_notice_visible = Config.safety_notice
-        set(value) = set(value, field, { field = it }, BR.noticeVisible)
+    var notice_visible = Config.safety_notice
+        set(value) = set(value, field, { field = it }, BR.notice_visible)
 
     val magisk_state
         get() = when {
@@ -95,7 +95,7 @@ class HomeViewModel : AsyncLoadViewModel() {
 
     fun hide_notice() {
         Config.safety_notice = false
-        is_notice_visible = false
+        notice_visible = false
     }
 
     private var checked_env = false

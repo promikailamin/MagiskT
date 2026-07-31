@@ -40,7 +40,7 @@ class PolicyRvItem(
     }
 
     @get:Bindable
-    var is_expanded = false
+    var expanded = false
         set(value) = set(value, field, { field = it }, BR.expanded)
 
     val show_slider = Config.su_restrict || item.policy == SuPolicy.RESTRICT
@@ -88,7 +88,7 @@ class PolicyRvItem(
         }
 
     fun toggle_expand() {
-        is_expanded = !is_expanded
+        expanded = !expanded
     }
 
     fun toggle_notify() {

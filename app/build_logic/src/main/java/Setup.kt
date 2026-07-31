@@ -113,8 +113,8 @@ private fun Project.downloadFile(url: String, checksum: String): File {
     }
     if (!file.exists()) {
         file.parentFile.mkdirs()
-        URI(url).toURL().open_stream().use { dl ->
-            file.output_stream().use {
+        URI(url).toURL().openStream().use { dl ->
+            file.outputStream().use {
                 dl.copyTo(it)
             }
         }

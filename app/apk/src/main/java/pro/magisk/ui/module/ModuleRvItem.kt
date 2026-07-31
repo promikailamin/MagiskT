@@ -62,15 +62,15 @@ class LocalModuleRvItem(
         }
 
     @get:Bindable
-    var is_removed = item.remove
+    var removed = item.remove
         set(value) = set(value, field, { field = it }, BR.removed) {
             item.remove = value
         }
 
-    val is_updated = item.updated
+    val updated = item.updated
 
     fun delete() {
-        is_removed = !is_removed
+        removed = !removed
     }
 
     override fun item_same_as(other: LocalModuleRvItem): Boolean = item.id == other.item.id

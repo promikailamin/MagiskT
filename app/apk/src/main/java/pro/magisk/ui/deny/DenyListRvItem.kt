@@ -32,7 +32,7 @@ class DenyListRvItem(
     val processes = info.processes.map { ProcessRvItem(it) }
 
     @get:Bindable
-    var is_expanded = false
+    var expanded = false
         set(value) = set(value, field, { field = it }, BR.expanded)
 
     var items_checked = 0
@@ -54,7 +54,7 @@ class DenyListRvItem(
                 // Enable all default or visible processes
                 processes
                     .filterNot { it.isEnabled }
-                    .filter { is_expanded || it.default_selection }
+                    .filter { expanded || it.default_selection }
                     .forEach { it.toggle() }
             } else {
                 // Remove the entire package from denylist
@@ -78,13 +78,13 @@ class DenyListRvItem(
 
     fun toggle_expand(v: View) {
         (v.parent as? ViewGroup)?.startAnimations()
-        is_expanded = !is_expanded
+        expanded = !expanded
     }
 
     /** Recalculates the checked count and tri-state from sub-process states. */
     private fun recalculate_checked() {
         items_checked = processes.count { it.isEnabled }
-        _state = if (is_expanded) {
+        _state = if (expanded) {
             when (items_checked) {
                 0 -> false
                 processes.size -> true

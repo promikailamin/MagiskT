@@ -3,7 +3,7 @@
  *
  * Renders a formatted string showing: timestamp, target UID, source PID, target PID,
  * SELinux context, supplemental groups, and the command that triggered the request.
- * [isTop] and [isBottom] drive dividers in the list for visual grouping.
+ * [top] and [bottom] drive dividers in the list for visual grouping.
  */
 package pro.magisk.ui.log
 
@@ -27,11 +27,11 @@ class SuLogRvItem(val log: SuLog) : ObservableRvItem(), DiffItem<SuLogRvItem> {
     val info = gen_info()
 
     @get:Bindable
-    var is_top = false
+    var top = false
         set(value) = set(value, field, { field = it }, BR.top)
 
     @get:Bindable
-    var is_bottom = false
+    var bottom = false
         set(value) = set(value, field, { field = it }, BR.bottom)
 
     override fun item_same_as(other: SuLogRvItem) = log.app_name == other.log.app_name
