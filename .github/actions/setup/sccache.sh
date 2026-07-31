@@ -12,8 +12,8 @@ install_from_gh() {
   local variant="$1"
   local exe="$2"
   local url="https://github.com/mozilla/sccache/releases/download/${SCCACHE_VER}/sccache-${SCCACHE_VER}-${variant}.tar.gz"
-  local archive="$(mktemp)"
-  local extract_dir="$(mktemp -d)"
+  archive="$(mktemp)"
+  extract_dir="$(mktemp -d)"
   trap 'rm -rf "$archive" "$extract_dir"' EXIT
 
   curl -fsSL -o "$archive" "$url"
