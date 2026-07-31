@@ -392,13 +392,6 @@ private fun SuperuserSection(viewModel: SettingsViewModel) {
                 }
             )
         }
-
-        // Policy Manager
-        SettingsArrow(
-            title = stringResource(CoreR.string.policy_manager),
-            summary = stringResource(CoreR.string.policy_manager_summary),
-            onClick = { viewModel.navigateToPolicyManager() }
-        )
     }
 }
 

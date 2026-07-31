@@ -4,7 +4,6 @@
  */
 package pro.magisk.ui.settings
 
-import android.content.Intent
 import android.widget.Toast
 import androidx.lifecycle.viewModelScope
 import pro.magisk.arch.BaseViewModel
@@ -15,7 +14,6 @@ import pro.magisk.core.R
 import pro.magisk.core.ktx.toast
 import pro.magisk.core.utils.RootUtils
 import pro.magisk.ui.navigation.Route
-import pro.magisk.ui.policy.PolicyActivity
 import pro.magisk.view.Shortcuts
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -67,11 +65,5 @@ class SettingsViewModel : BaseViewModel() {
     /** Show a snackbar indicating a reboot is required. */
     fun notifyZygiskChange() {
         if (zygiskMismatch) showSnackbar(R.string.reboot_apply_change)
-    }
-
-    fun navigateToPolicyManager() {
-        AppContext.startActivity(Intent(AppContext, PolicyActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        })
     }
 }
