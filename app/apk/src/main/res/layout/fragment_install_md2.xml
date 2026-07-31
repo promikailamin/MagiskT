@@ -10,7 +10,7 @@
         <import type="pro.magisk.core.Config" />
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.install.InstallViewModel" />
 
     </data>
@@ -32,7 +32,7 @@
 
             <com.google.android.material.card.MaterialCardView
                 style="@style/WidgetFoundation.Card"
-                gone="@{viewModel.skipOptions}"
+                gone="@{view_model.skip_options}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/l1"
@@ -51,7 +51,7 @@
 
                         <ImageView
                             style="@style/WidgetFoundation.Icon"
-                            isSelected="@{viewModel.step > 0}"
+                            isSelected="@{view_model.step > 0}"
                             android:layout_marginStart="@dimen/l_25"
                             app:srcCompat="@drawable/ic_check_circle_md2" />
 
@@ -67,16 +67,16 @@
 
                         <Button
                             style="@style/WidgetFoundation.Button.Text"
-                            gone="@{viewModel.step != 0}"
+                            gone="@{view_model.step != 0}"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:onClick="@{() -> viewModel.setStep(1)}"
+                            android:onClick="@{() -> view_model.setStep(1)}"
                             android:text="@string/install_next" />
 
                     </LinearLayout>
 
                     <LinearLayout
-                        gone="@{viewModel.step != 0}"
+                        gone="@{view_model.step != 0}"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/l1"
@@ -90,19 +90,19 @@
 
                         <CheckBox
                             style="@style/WidgetFoundation.Checkbox"
-                            gone="@{Info.isSAR}"
+                            gone="@{Info.is_s_a_r}"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:checked="@={Config.keepVerity}"
+                            android:checked="@={Config.keep_verity}"
                             android:text="@string/keep_dm_verity"
                             tools:checked="true" />
 
                         <CheckBox
                             style="@style/WidgetFoundation.Checkbox"
-                            goneUnless="@{Info.isFDE}"
+                            goneUnless="@{Info.is_f_d_e}"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:checked="@={Config.keepEnc}"
+                            android:checked="@={Config.keep_enc}"
                             android:text="@string/keep_force_encryption"
                             app:tint="?colorPrimary" />
 
@@ -142,7 +142,7 @@
 
                         <ImageView
                             style="@style/WidgetFoundation.Icon"
-                            isSelected="@{viewModel.step > 1}"
+                            isSelected="@{view_model.step > 1}"
                             android:layout_marginStart="@dimen/l_25"
                             app:srcCompat="@drawable/ic_check_circle_md2" />
 
@@ -158,11 +158,11 @@
 
                         <Button
                             style="@style/WidgetFoundation.Button.Text"
-                            gone="@{viewModel.step != 1}"
-                            isEnabled="@{viewModel.method == @id/method_patch ? viewModel.data != null : viewModel.method != -1}"
+                            gone="@{view_model.step != 1}"
+                            isEnabled="@{view_model.method == @id/method_patch ? view_model.data != null : view_model.method != -1}"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:onClick="@{() -> viewModel.install()}"
+                            android:onClick="@{() -> view_model.install()}"
                             android:text="@string/install_start"
                             app:icon="@drawable/ic_forth_md2"
                             app:iconGravity="textEnd" />
@@ -170,14 +170,14 @@
                     </LinearLayout>
 
                     <RadioGroup
-                        gone="@{viewModel.step != 1}"
+                        gone="@{view_model.step != 1}"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/l1"
                         android:layout_marginTop="@dimen/l_50"
                         android:layout_marginEnd="@dimen/l1"
                         android:layout_marginBottom="@dimen/l_50"
-                        android:checkedButton="@={viewModel.method}"
+                        android:checkedButton="@={view_model.method}"
                         android:paddingStart="3dp"
                         android:paddingEnd="3dp">
 
@@ -191,7 +191,7 @@
                         <RadioButton
                             android:id="@+id/method_direct"
                             style="@style/WidgetFoundation.RadioButton"
-                            gone="@{!viewModel.isRooted}"
+                            gone="@{!view_model.is_rooted}"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/direct_install" />
@@ -199,7 +199,7 @@
                         <RadioButton
                             android:id="@+id/method_inactive_slot"
                             style="@style/WidgetFoundation.RadioButton"
-                            gone="@{viewModel.noSecondSlot}"
+                            gone="@{view_model.no_second_slot}"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/install_inactive_slot" />
@@ -212,7 +212,7 @@
 
             <com.google.android.material.card.MaterialCardView
                 style="@style/WidgetFoundation.Card"
-                gone="@{viewModel.notes.length == 0}"
+                gone="@{view_model.notes.length == 0}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/l1"
@@ -222,7 +222,7 @@
 
                 <TextView
                     android:id="@+id/release_notes"
-                    markdownText="@{viewModel.notes}"
+                    markdownText="@{view_model.notes}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="15dp"

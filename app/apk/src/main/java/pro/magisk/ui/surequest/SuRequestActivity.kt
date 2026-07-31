@@ -18,7 +18,7 @@ import android.view.WindowManager
 import androidx.lifecycle.lifecycleScope
 import pro.magisk.R
 import pro.magisk.arch.UIActivity
-import pro.magisk.arch.viewModel
+import pro.magisk.arch.view_model
 import pro.magisk.core.base.UntrackedActivity
 import pro.magisk.core.su.SuCallbackHandler
 import pro.magisk.core.su.SuCallbackHandler.REQUEST
@@ -31,10 +31,10 @@ import kotlinx.coroutines.withContext
 /** Floating activity that handles Superuser grant/deny requests. */
 open class SuRequestActivity : UIActivity<ActivityRequestBinding>(), UntrackedActivity {
 
-    override val layoutRes: Int = R.layout.activity_request
-    override val viewModel: SuRequestViewModel by viewModel()
+    override val layout_res: Int = R.layout.activity_request
+    override val view_model: SuRequestViewModel by view_model()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(saved_instance_state: Bundle?) {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -42,13 +42,13 @@ open class SuRequestActivity : UIActivity<ActivityRequestBinding>(), UntrackedAc
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             window.setHideOverlayWindows(true)
         }
-        setTheme(Theme.selected.themeRes)
-        super.onCreate(savedInstanceState)
+        setTheme(Theme.selected.theme_res)
+        super.onCreate(saved_instance_state)
 
         if (intent.action == Intent.ACTION_VIEW) {
             val action = intent.getStringExtra("action")
             if (action == REQUEST) {
-                viewModel.handleRequest(intent)
+                view_model.handle_request(intent)
             } else {
                 // Non-request action (e.g. logging callback) — handle and finish
                 lifecycleScope.launch {
@@ -71,7 +71,7 @@ open class SuRequestActivity : UIActivity<ActivityRequestBinding>(), UntrackedAc
 
     @Suppress("OVERRIDE_DEPRECATION")
     override fun onBackPressed() {
-        viewModel.denyPressed()
+        view_model.deny_pressed()
     }
 
     override fun finish() {

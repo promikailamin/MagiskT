@@ -14,11 +14,11 @@ import pro.magisk.core.ktx.getLabel
 
 @Entity(tableName = "logs")
 class SuLog(
-    val fromUid: Int,
-    val toUid: Int,
-    val fromPid: Int,
+    val from_uid: Int,
+    val to_uid: Int,
+    val from_pid: Int,
     val packageName: String,
-    val appName: String,
+    val app_name: String,
     val command: String,
     val action: Int,
     val target: Int,
@@ -30,10 +30,10 @@ class SuLog(
 }
 
 /** Create a [SuLog] from a resolved [ApplicationInfo]. */
-fun PackageManager.createSuLog(
+fun PackageManager.create_su_log(
     info: ApplicationInfo,
-    toUid: Int,
-    fromPid: Int,
+    to_uid: Int,
+    from_pid: Int,
     command: String,
     policy: Int,
     target: Int,
@@ -41,11 +41,11 @@ fun PackageManager.createSuLog(
     gids: String,
 ): SuLog {
     return SuLog(
-        fromUid = info.uid,
-        toUid = toUid,
-        fromPid = fromPid,
+        from_uid = info.uid,
+        to_uid = to_uid,
+        from_pid = from_pid,
         packageName = getNameForUid(info.uid)!!,
-        appName = info.getLabel(this),
+        app_name = info.getLabel(this),
         command = command,
         action = policy,
         target = target,
@@ -55,10 +55,10 @@ fun PackageManager.createSuLog(
 }
 
 /** Create a [SuLog] when only the raw UID is known (no package info). */
-fun createSuLog(
-    fromUid: Int,
-    toUid: Int,
-    fromPid: Int,
+fun create_su_log(
+    from_uid: Int,
+    to_uid: Int,
+    from_pid: Int,
     command: String,
     policy: Int,
     target: Int,
@@ -66,11 +66,11 @@ fun createSuLog(
     gids: String,
 ): SuLog {
     return SuLog(
-        fromUid = fromUid,
-        toUid = toUid,
-        fromPid = fromPid,
-        packageName = "[UID] $fromUid",
-        appName = "[UID] $fromUid",
+        from_uid = from_uid,
+        to_uid = to_uid,
+        from_pid = from_pid,
+        packageName = "[UID] $from_uid",
+        app_name = "[UID] $from_uid",
         command = command,
         action = policy,
         target = target,

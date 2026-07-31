@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 /** Base class for all RecyclerView items. Subclasses must provide a [layoutRes]. */
 abstract class RvItem {
-    abstract val layoutRes: Int
+    abstract val layout_res: Int
 }
 
 /** [RvItem] with observable properties for DataBinding two-way binding. */
@@ -30,7 +30,7 @@ interface ItemWrapper<E> {
 /** Supports [DiffUtil]-based RecyclerView diffing. */
 interface DiffItem<T : Any> {
 
-    fun itemSameAs(other: T): Boolean {
+    fun item_same_as(other: T): Boolean {
         if (this === other) return true
         return when (this) {
             is ItemWrapper<*> -> item == (other as ItemWrapper<*>).item
@@ -39,5 +39,5 @@ interface DiffItem<T : Any> {
         }
     }
 
-    fun contentSameAs(other: T) = true
+    fun content_same_as(other: T) = true
 }

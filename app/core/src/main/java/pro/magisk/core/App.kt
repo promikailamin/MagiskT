@@ -30,10 +30,10 @@ open class App() : Application() {
 
     override fun attachBaseContext(context: Context) {
         if (context is Application) {
-            AppContext.attachApplication(context)
+            AppContext.attach_application(context)
         } else {
             super.attachBaseContext(context)
-            AppContext.attachApplication(this)
+            AppContext.attach_application(this)
         }
     }
 }

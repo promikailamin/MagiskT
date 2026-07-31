@@ -14,10 +14,10 @@ import androidx.lifecycle.viewModelScope
 import pro.magisk.R
 import pro.magisk.arch.BaseViewModel
 import pro.magisk.core.ktx.synchronized
-import pro.magisk.core.ktx.timeFormatStandard
+import pro.magisk.core.ktx.time_format_standard
 import pro.magisk.core.ktx.toTime
 import pro.magisk.core.utils.MediaStoreUtils
-import pro.magisk.core.utils.MediaStoreUtils.outputStream
+import pro.magisk.core.utils.MediaStoreUtils.output_stream
 import pro.magisk.events.SnackbarEvent
 import pro.magisk.ui.flash.ConsoleItem
 import com.topjohnwu.superuser.CallbackList
@@ -41,21 +41,21 @@ class ActionViewModel : BaseViewModel() {
     val items = ObservableArrayList<ConsoleItem>()
     lateinit var args: ActionFragmentArgs
 
-    private val logItems = mutableListOf<String>().synchronized()
-    private val outItems = object : CallbackList<String>() {
+    private val log_items = mutableListOf<String>().synchronized()
+    private val out_items = object : CallbackList<String>() {
         override fun onAddElement(e: String?) {
             e ?: return
             items.add(ConsoleItem(e))
-            logItems.add(e)
+            log_items.add(e)
         }
     }
 
-    fun startRunAction() = viewModelScope.launch {
-        onResult(withContext(Dispatchers.IO) {
+    fun start_run_action() = viewModelScope.launch {
+        on_result(withContext(Dispatchers.IO) {
             try {
                 Shell.cmd("run_action \'${args.id}\'")
-                    .to(outItems, logItems)
-                    .exec().isSuccess
+                    .to(out_items, log_items)
+                    .exec().is_success
             } catch (e: IOException) {
                 Timber.e(e)
                 false
@@ -63,27 +63,27 @@ class ActionViewModel : BaseViewModel() {
         })
     }
 
-    private fun onResult(success: Boolean) {
+    private fun on_result(success: Boolean) {
         _state.value = if (success) State.SUCCESS else State.FAILED
     }
 
-    fun onMenuItemClicked(item: MenuItem): Boolean {
+    fun on_menu_item_clicked(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_save -> savePressed()
+            R.id.action_save -> save_pressed()
         }
         return true
     }
 
-    private fun savePressed() = withExternalRW {
+    private fun save_pressed() = with_external_r_w {
         viewModelScope.launch(Dispatchers.IO) {
             val name = "%s_action_log_%s.log".format(
                 args.name,
-                System.currentTimeMillis().toTime(timeFormatStandard)
+                System.currentTimeMillis().toTime(time_format_standard)
             )
-            val file = MediaStoreUtils.getFile(name)
-            file.uri.outputStream().bufferedWriter().use { writer ->
-                synchronized(logItems) {
-                    logItems.forEach {
+            val file = MediaStoreUtils.get_file(name)
+            file.uri.output_stream().bufferedWriter().use { writer ->
+                synchronized(log_items) {
+                    log_items.forEach {
                         writer.write(it)
                         writer.newLine()
                     }

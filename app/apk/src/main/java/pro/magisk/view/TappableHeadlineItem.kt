@@ -17,10 +17,10 @@ sealed class TappableHeadlineItem : RvItem(), DiffItem<TappableHeadlineItem> {
     abstract val title: Int
     abstract val icon: Int
 
-    override val layoutRes = R.layout.item_tappable_headline
+    override val layout_res = R.layout.item_tappable_headline
 
     interface Listener {
-        fun onItemPressed(item: TappableHeadlineItem)
+        fun on_item_pressed(item: TappableHeadlineItem)
     }
 
     object ThemeMode : TappableHeadlineItem() {

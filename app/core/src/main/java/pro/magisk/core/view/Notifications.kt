@@ -29,7 +29,7 @@ object Notifications {
 
     private const val SU_CHANNEL = "su_notification"
 
-    private val nextId = AtomicInteger(0)
+    private val next_id = AtomicInteger(0)
 
     /** Create notification channels (no-op before API 26). */
     fun setup() {
@@ -46,7 +46,7 @@ object Notifications {
 
     /** Post a notification informing the user of an SU grant / deny. */
     @SuppressLint("InlinedApi")
-    fun suNotification(granted: Boolean, appName: String) {
+    fun su_notification(granted: Boolean, app_name: String) {
         AppContext.apply {
             val flag = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             val pending = PendingIntent.getActivity(this, 0, selfLaunchIntent(), flag)
@@ -57,7 +57,7 @@ object Notifications {
             val text = getString(
                 if (granted) R.string.su_allow_toast
                 else R.string.su_deny_toast,
-                appName
+                app_name
             )
             val builder = if (SDK_INT >= Build.VERSION_CODES.O) {
                 Notification.Builder(this, SU_CHANNEL)
@@ -71,9 +71,9 @@ object Notifications {
                 .setContentText(text)
                 .setAutoCancel(true)
                 .setTimeoutAfter(SU_NOTIFICATION_TIMEOUT_MS)
-            mgr.notify(nextId(), builder.build())
+            mgr.notify(next_id(), builder.build())
         }
     }
 
-    fun nextId() = nextId.incrementAndGet()
+    fun next_id() = next_id.incrementAndGet()
 }

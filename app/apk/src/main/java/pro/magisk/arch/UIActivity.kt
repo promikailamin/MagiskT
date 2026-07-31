@@ -34,7 +34,7 @@ import pro.magisk.BR
 import pro.magisk.core.Config
 import pro.magisk.core.base.ActivityExtension
 import pro.magisk.core.base.IActivityExtension
-import pro.magisk.core.isRunningAsStub
+import pro.magisk.core.is_running_as_stub
 import pro.magisk.core.ktx.reflectField
 import pro.magisk.core.wrap
 import rikka.insets.WindowInsetsHelper
@@ -45,16 +45,16 @@ abstract class UIActivity<Binding : ViewDataBinding>
     : AppCompatActivity(), ViewModelHolder, IActivityExtension {
 
     protected lateinit var binding: Binding
-    protected abstract val layoutRes: Int
+    protected abstract val layout_res: Int
     override val extension = ActivityExtension(this)
 
     protected val binded get() = ::binding.isInitialized
 
-    open val snackbarView get() = binding.root
-    open val snackbarAnchorView: View? get() = null
+    open val snackbar_view get() = binding.root
+    open val snackbar_anchor_view: View? get() = null
 
     init {
-        AppCompatDelegate.setDefaultNightMode(Config.darkTheme)
+        AppCompatDelegate.setDefaultNightMode(Config.dark_theme)
     }
 
     override fun attachBaseContext(base: Context) {
@@ -62,12 +62,12 @@ abstract class UIActivity<Binding : ViewDataBinding>
     }
 
     @Suppress("DEPRECATION")
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(saved_instance_state: Bundle?) {
         layoutInflater.factory2 = LayoutInflaterFactory(delegate)
             .addOnViewCreatedListener(WindowInsetsHelper.LISTENER)
 
-        extension.onCreate(savedInstanceState)
-        if (isRunningAsStub) {
+        extension.onCreate(saved_instance_state)
+        if (is_running_as_stub) {
             // Suppress spurious "false" stack traces logged by AppCompatDelegateImpl
             // when the stub APK's delegate doesn't have the expected config-flags fields.
             val delegate = delegate
@@ -76,9 +76,9 @@ abstract class UIActivity<Binding : ViewDataBinding>
             clz.reflectField("mActivityHandlesConfigFlags").set(delegate, 0)
         }
 
-        super.onCreate(savedInstanceState)
+        super.onCreate(saved_instance_state)
 
-        startObserveLiveData()
+        start_observe_live_data()
 
         // Explicitly propagate the windowBackground drawable (not always inherited)
         obtainStyledAttributes(intArrayOf(android.R.attr.windowBackground))
@@ -90,8 +90,8 @@ abstract class UIActivity<Binding : ViewDataBinding>
         // On gesture-nav devices the navbar is short → make it fully transparent
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             window?.decorView?.post {
-                val insetBottom = window.decorView.rootWindowInsets?.systemWindowInsetBottom ?: 0
-                if (insetBottom < Resources.getSystem().displayMetrics.density * 40) {
+                val inset_bottom = window.decorView.rootWindowInsets?.systemWindowInsetBottom ?: 0
+                if (inset_bottom < Resources.getSystem().displayMetrics.density * 40) {
                     window.navigationBarColor = Color.TRANSPARENT
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         window.navigationBarDividerColor = Color.TRANSPARENT
@@ -112,8 +112,8 @@ abstract class UIActivity<Binding : ViewDataBinding>
 
     /** Inflates the layout via DataBinding and wires [viewModel] and lifecycle owner. */
     fun setContentView() {
-        binding = DataBindingUtil.setContentView<Binding>(this, layoutRes).also {
-            it.setVariable(BR.viewModel, viewModel)
+        binding = DataBindingUtil.setContentView<Binding>(this, layout_res).also {
+            it.setVariable(BR.view_model, view_model)
             it.lifecycleOwner = this
         }
     }
@@ -122,23 +122,23 @@ abstract class UIActivity<Binding : ViewDataBinding>
         binding.root.rootView.accessibilityDelegate = delegate
     }
 
-    fun showSnackbar(
+    fun show_snackbar(
         message: CharSequence,
         length: Int = Snackbar.LENGTH_SHORT,
         builder: Snackbar.() -> Unit = {}
-    ) = Snackbar.make(snackbarView, message, length)
-        .setAnchorView(snackbarAnchorView).apply(builder).show()
+    ) = Snackbar.make(snackbar_view, message, length)
+        .setAnchorView(snackbar_anchor_view).apply(builder).show()
 
     override fun onResume() {
         super.onResume()
         // Trigger async loading for screens that need it
-        viewModel.let {
+        view_model.let {
             if (it is AsyncLoadViewModel)
-                it.startLoading()
+                it.start_loading()
         }
     }
 
-    override fun onEventDispatched(event: ViewEvent) = when (event) {
+    override fun on_event_dispatched(event: ViewEvent) = when (event) {
         is ContextExecutor -> event(this)
         is ActivityExecutor -> event(this)
         else -> Unit

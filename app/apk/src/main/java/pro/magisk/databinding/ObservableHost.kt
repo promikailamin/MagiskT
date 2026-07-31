@@ -37,10 +37,10 @@ interface ObservableHost : Observable {
      * synchronously before or after [notifyChange] has been called. It will never be called during
      * the execution of aforementioned method.
      */
-    fun notifyPropertyChanged(fieldId: Int) {
+    fun notifyPropertyChanged(field_id: Int) {
         synchronized(this) {
             callbacks ?: return
-        }.notifyCallbacks(this, fieldId, null)
+        }.notifyCallbacks(this, field_id, null)
     }
 
     override fun addOnPropertyChangedCallback(callback: Observable.OnPropertyChangedCallback) {
@@ -58,13 +58,13 @@ interface ObservableHost : Observable {
 
 /** Registers a one-shot or persistent callback for a specific [fieldId] change. */
 fun ObservableHost.addOnPropertyChangedCallback(
-    fieldId: Int,
+    field_id: Int,
     removeAfterChanged: Boolean = false,
     callback: () -> Unit
 ) {
     addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-            if (fieldId == propertyId) {
+            if (field_id == propertyId) {
                 callback()
                 if (removeAfterChanged)
                     removeOnPropertyChangedCallback(this)
@@ -86,10 +86,10 @@ fun ObservableHost.addOnPropertyChangedCallback(
  * ```
  */
 inline fun <reified T> ObservableHost.set(
-    new: T, old: T, setter: (T) -> Unit, fieldId: Int, afterChanged: (T) -> Unit = {}) {
+    new: T, old: T, setter: (T) -> Unit, field_id: Int, afterChanged: (T) -> Unit = {}) {
     if (old != new) {
         setter(new)
-        notifyPropertyChanged(fieldId)
+        notifyPropertyChanged(field_id)
         afterChanged(new)
     }
 }

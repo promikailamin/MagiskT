@@ -24,26 +24,26 @@ public class StubRootService extends ContextWrapper {
 
     @Override
     protected void attachBaseContext(Context base) {
-        ClassLoader loader = DynLoad.loadApk(base);
+        ClassLoader loader = DynLoad.load_apk(base);
         if (loader == null)
             return;
 
         try {
             // Instantiate the real Application so it populates StubApk.Data with the
             // real RootService class reference
-            var data = DynLoad.createApkData();
+            var data = DynLoad.create_apk_data();
             File apk = StubApk.current(base);
             PackageManager pm = base.getPackageManager();
-            PackageInfo pkgInfo = pm.getPackageArchiveInfo(apk.getPath(), 0);
-            loader.loadClass(pkgInfo.applicationInfo.className)
+            PackageInfo pkg_info = pm.getPackageArchiveInfo(apk.getPath(), 0);
+            loader.loadClass(pkg_info.applicationInfo.className)
                     .getConstructor(Object.class)
-                    .newInstance(data.getObject());
+                    .newInstance(data.get_object());
 
             // Create the real RootService instance and attach the stub's context
-            Constructor<?> ctor = data.getRootService().getConstructor(Object.class);
+            Constructor<?> ctor = data.get_root_service().getConstructor(Object.class);
             ctor.setAccessible(true);
             Object service = ctor.newInstance(this);
-            DynLoad.attachContext(service, base);
+            DynLoad.attach_context(service, base);
         } catch (Exception e) {
             Log.e(StubRootService.class.getSimpleName(), "", e);
         }

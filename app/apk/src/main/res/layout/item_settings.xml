@@ -24,7 +24,7 @@
         android:alpha="@{item.enabled ? 1f : .5f}"
         android:clickable="@{item.enabled}"
         android:focusable="@{item.enabled}"
-        android:onClick="@{(view) -> item.onPressed(view, handler)}"
+        android:onClick="@{(view) -> item.on_pressed(view, handler)}"
         tools:layout_gravity="center">
 
         <LinearLayout
@@ -76,13 +76,13 @@
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/selector_indicator"
-                goneUnless="@{item.showSwitch}"
+                goneUnless="@{item.show_switch}"
                 isEnabled="@{item.enabled}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="@{item.checked}"
                 android:focusable="@{item.enabled}"
-                android:onCheckedChanged="@{(v, c) -> item.onToggle(v, handler, c)}" />
+                android:onCheckedChanged="@{(v, c) -> item.on_toggle(v, handler, c)}" />
 
         </LinearLayout>
 

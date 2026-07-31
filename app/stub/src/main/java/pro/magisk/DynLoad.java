@@ -42,16 +42,16 @@ import java.util.Map;
 public class DynLoad {
 
     /** The DelegateComponentFactory instance set during construction. */
-    static Object componentFactory;
+    static Object component_factory;
     /** The currently active class loader pointing to the real APK (or fallback stub loader). */
-    static ClassLoader activeClassLoader = DynLoad.class.getClassLoader();
+    static ClassLoader active_class_loader = DynLoad.class.getClassLoader();
 
     /** Creates a Data object populated with stub version, empty mapping, and StubRootService. */
-    static StubApk.Data createApkData() {
+    static StubApk.Data create_apk_data() {
         var data = new StubApk.Data();
-        data.setVersion(BuildConfig.STUB_VERSION);
-        data.setClassToComponent(new HashMap<>());
-        data.setRootService(StubRootService.class);
+        data.set_version(BuildConfig.STUB_VERSION);
+        data.set_class_to_component(new HashMap<>());
+        data.set_root_service(StubRootService.class);
         return data;
     }
 
@@ -59,7 +59,7 @@ public class DynLoad {
      * Calls attachBaseContext on an object via reflection.
      * Used to wire up the real Application with the stub's Context.
      */
-    static void attachContext(Object o, Context context) {
+    static void attach_context(Object o, Context context) {
         if (!(o instanceof ContextWrapper))
             return;
         try {
@@ -80,7 +80,7 @@ public class DynLoad {
      *
      * @return a DynamicClassLoader for the real APK, or null if no APK is available.
      */
-    static DynamicClassLoader loadApk(Context context) {
+    static DynamicClassLoader load_apk(Context context) {
         File apk = StubApk.current(context);
         File update = StubApk.update(context);
 
@@ -150,9 +150,9 @@ public class DynLoad {
      *    set up the AppComponentFactory delegate, and update activeClassLoader.
      * 5. On failure, fall back to StubClassLoader.
      */
-    static void loadAndInitializeApp(Application context) {
+    static void load_and_initialize_app(Application context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q)
-            replaceClassLoader(context);
+            replace_class_loader(context);
 
         int flags = PackageManager.GET_ACTIVITIES | PackageManager.GET_SERVICES
                 | PackageManager.GET_PROVIDERS | PackageManager.GET_RECEIVERS
@@ -160,54 +160,54 @@ public class DynLoad {
                 | PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
         var pm = context.getPackageManager();
 
-        final PackageInfo stubInfo;
+        final PackageInfo stub_info;
         try {
             // noinspection WrongConstant
-            stubInfo = pm.getPackageInfo(context.getPackageName(), flags);
+            stub_info = pm.getPackageInfo(context.getPackageName(), flags);
         } catch (PackageManager.NameNotFoundException e) {
             throw new RuntimeException(e);
         }
 
         File apk = StubApk.current(context);
 
-        final var cl = loadApk(context);
+        final var cl = load_apk(context);
         if (cl != null) try {
             // noinspection WrongConstant
-            var apkInfo = pm.getPackageArchiveInfo(apk.getPath(), flags);
-            var mapping = generateMapping(stubInfo, apkInfo);
+            var apk_info = pm.getPackageArchiveInfo(apk.getPath(), flags);
+            var mapping = generate_mapping(stub_info, apk_info);
 
-            var data = createApkData();
-            var map = data.getClassToComponent();
+            var data = create_apk_data();
+            var map = data.get_class_to_component();
             // Build inverse mapping: real component class name → stub component name
             for (var e : mapping.entrySet()) {
                 map.put(e.getValue(), e.getKey());
             }
 
-            var appInfo = apkInfo.applicationInfo;
+            var app_info = apk_info.applicationInfo;
             // The real Application must have a constructor accepting Object (the Data array)
-            var app = cl.loadClass(appInfo.className)
+            var app = cl.loadClass(app_info.className)
                     .getConstructor(Object.class)
-                    .newInstance(data.getObject());
+                    .newInstance(data.get_object());
 
             // Wire up the AppComponentFactory delegate so Android creates real components
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && componentFactory != null) {
-                var delegate = (DelegateComponentFactory) componentFactory;
-                if (appInfo.appComponentFactory == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && component_factory != null) {
+                var delegate = (DelegateComponentFactory) component_factory;
+                if (app_info.appComponentFactory == null) {
                     delegate.receiver = new AppComponentFactory();
                 } else {
-                    Object factory = cl.loadClass(appInfo.appComponentFactory).newInstance();
+                    Object factory = cl.loadClass(app_info.appComponentFactory).newInstance();
                     delegate.receiver = (AppComponentFactory) factory;
                 }
             }
 
-            activeClassLoader = new MappingClassLoader(cl, mapping);
+            active_class_loader = new MappingClassLoader(cl, mapping);
 
-            attachContext(app, context);
+            attach_context(app, context);
         } catch (Exception e) {
             Log.e(DynLoad.class.getSimpleName(), "", e);
             apk.delete();
         } else {
-            activeClassLoader = new StubClassLoader(stubInfo);
+            active_class_loader = new StubClassLoader(stub_info);
         }
     }
 
@@ -215,20 +215,20 @@ public class DynLoad {
      * On API < 29, replaces the platform's LoadedApk.mClassLoader with a DelegateClassLoader
      * so that all component resolution goes through the dynamically loaded APK.
      */
-    private static void replaceClassLoader(Context context) {
+    private static void replace_class_loader(Context context) {
         // Unwrap to the base ContextImpl
         while (context instanceof ContextWrapper) {
             context = ((ContextWrapper) context).getBaseContext();
         }
 
         try {
-            Field mInfo = context.getClass().getDeclaredField("mPackageInfo");
-            mInfo.setAccessible(true);
-            Object loadedApk = mInfo.get(context);
-            assert loadedApk != null;
-            Field mcl = loadedApk.getClass().getDeclaredField("mClassLoader");
+            Field m_info = context.getClass().getDeclaredField("mPackageInfo");
+            m_info.setAccessible(true);
+            Object loaded_apk = m_info.get(context);
+            assert loaded_apk != null;
+            Field mcl = loaded_apk.getClass().getDeclaredField("mClassLoader");
             mcl.setAccessible(true);
-            mcl.set(loadedApk, new DelegateClassLoader());
+            mcl.set(loaded_apk, new DelegateClassLoader());
         } catch (Exception e) {
             Log.e(DynLoad.class.getSimpleName(), "", e);
         }
@@ -241,7 +241,7 @@ public class DynLoad {
      * For activities and services, exported/permission attributes are used to distinguish
      * the main vs. secondary component when ordering differs.
      */
-    private static Map<String, String> generateMapping(PackageInfo stub, PackageInfo app) {
+    private static Map<String, String> generate_mapping(PackageInfo stub, PackageInfo app) {
         var mapping = new HashMap<String, String>();
         {
             var src = stub.activities;

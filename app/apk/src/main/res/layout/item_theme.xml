@@ -6,7 +6,7 @@
     <data>
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.theme.ThemeViewModel" />
 
         <variable
@@ -19,7 +19,7 @@
         style="@style/WidgetFoundation.Card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="@{() -> viewModel.saveTheme(theme)}"
+        android:onClick="@{() -> view_model.save_theme(theme)}"
         app:cardBackgroundColor="@android:color/transparent"
         app:strokeColor="?colorPrimaryVariant"
         app:strokeWidth="1.5dp"
@@ -118,7 +118,7 @@
                 <TextView
                     android:layout_width="125dp"
                     android:layout_height="wrap_content"
-                    android:text="@{theme.themeName}"
+                    android:text="@{theme.theme_name}"
                     android:textAppearance="@style/AppearanceFoundation.Title.OnPrimary"
                     android:textStyle="bold"
                     tools:text="Default" />

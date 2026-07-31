@@ -18,13 +18,13 @@ interface PreferenceConfig {
 
     val context: Context
 
-    val fileName: String
+    val file_name: String
         get() = "${context.packageName}_preferences"
 
     val prefs: SharedPreferences
-        get() = context.getSharedPreferences(fileName, Context.MODE_PRIVATE)
+        get() = context.getSharedPreferences(file_name, Context.MODE_PRIVATE)
 
-    fun preferenceStrInt(
+    fun preference_str_int(
         name: String,
         default: Int,
         commit: Boolean = false
@@ -66,8 +66,8 @@ class BooleanProperty(
         thisRef: PreferenceConfig,
         property: KProperty<*>
     ): Boolean {
-        val prefName = name.ifBlank { property.name }
-        return thisRef.prefs.getBoolean(prefName, default)
+        val pref_name = name.ifBlank { property.name }
+        return thisRef.prefs.getBoolean(pref_name, default)
     }
 
     override operator fun setValue(
@@ -75,8 +75,8 @@ class BooleanProperty(
         property: KProperty<*>,
         value: Boolean
     ) {
-        val prefName = name.ifBlank { property.name }
-        thisRef.prefs.edit(commit) { putBoolean(prefName, value) }
+        val pref_name = name.ifBlank { property.name }
+        thisRef.prefs.edit(commit) { putBoolean(pref_name, value) }
     }
 }
 
@@ -90,8 +90,8 @@ class IntProperty(
         thisRef: PreferenceConfig,
         property: KProperty<*>
     ): Int {
-        val prefName = name.ifBlank { property.name }
-        return thisRef.prefs.getInt(prefName, default)
+        val pref_name = name.ifBlank { property.name }
+        return thisRef.prefs.getInt(pref_name, default)
     }
 
     override operator fun setValue(
@@ -99,8 +99,8 @@ class IntProperty(
         property: KProperty<*>,
         value: Int
     ) {
-        val prefName = name.ifBlank { property.name }
-        thisRef.prefs.edit(commit) { putInt(prefName, value) }
+        val pref_name = name.ifBlank { property.name }
+        thisRef.prefs.edit(commit) { putInt(pref_name, value) }
     }
 }
 
@@ -114,8 +114,8 @@ class StringProperty(
         thisRef: PreferenceConfig,
         property: KProperty<*>
     ): String {
-        val prefName = name.ifBlank { property.name }
-        return thisRef.prefs.getString(prefName, default) ?: default
+        val pref_name = name.ifBlank { property.name }
+        return thisRef.prefs.getString(pref_name, default) ?: default
     }
 
     override operator fun setValue(
@@ -123,7 +123,7 @@ class StringProperty(
         property: KProperty<*>,
         value: String
     ) {
-        val prefName = name.ifBlank { property.name }
-        thisRef.prefs.edit(commit) { putString(prefName, value) }
+        val pref_name = name.ifBlank { property.name }
+        thisRef.prefs.edit(commit) { putString(pref_name, value) }
     }
 }

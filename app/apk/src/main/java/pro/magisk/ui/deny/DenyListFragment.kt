@@ -16,7 +16,7 @@ import androidx.core.view.MenuProvider
 import androidx.recyclerview.widget.RecyclerView
 import pro.magisk.R
 import pro.magisk.arch.BaseFragment
-import pro.magisk.arch.viewModel
+import pro.magisk.arch.view_model
 import pro.magisk.core.ktx.hideKeyboard
 import pro.magisk.databinding.FragmentDenyMd2Binding
 import rikka.recyclerview.addEdgeSpacing
@@ -27,21 +27,21 @@ import pro.magisk.core.R as CoreR
 /** Fragment for managing the Zygisk DenyList. */
 class DenyListFragment : BaseFragment<FragmentDenyMd2Binding>(), MenuProvider {
 
-    override val layoutRes = R.layout.fragment_deny_md2
-    override val viewModel by viewModel<DenyListViewModel>()
+    override val layout_res = R.layout.fragment_deny_md2
+    override val view_model by view_model<DenyListViewModel>()
 
-    private lateinit var searchView: SearchView
+    private lateinit var search_view: SearchView
 
     override fun onStart() {
         super.onStart()
         activity?.setTitle(CoreR.string.denylist)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onViewCreated(view: View, saved_instance_state: Bundle?) {
+        super.onViewCreated(view, saved_instance_state)
 
         binding.appList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            override fun onScrollStateChanged(recycler_view: RecyclerView, newState: Int) {
                 if (newState != RecyclerView.SCROLL_STATE_IDLE) activity?.hideKeyboard()
             }
         })
@@ -53,12 +53,12 @@ class DenyListFragment : BaseFragment<FragmentDenyMd2Binding>(), MenuProvider {
         }
     }
 
-    override fun onPreBind(binding: FragmentDenyMd2Binding) = Unit
+    override fun on_pre_bind(binding: FragmentDenyMd2Binding) = Unit
 
     override fun onBackPressed(): Boolean {
         // Collapse the search view on back-press instead of navigating away
-        if (searchView.isIconfiedByDefault && !searchView.isIconified) {
-            searchView.isIconified = true
+        if (search_view.isIconfiedByDefault && !search_view.isIconified) {
+            search_view.isIconified = true
             return true
         }
         return super.onBackPressed()
@@ -66,16 +66,16 @@ class DenyListFragment : BaseFragment<FragmentDenyMd2Binding>(), MenuProvider {
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_deny_md2, menu)
-        searchView = menu.findItem(R.id.action_search).actionView as SearchView
-        searchView.queryHint = searchView.context.getString(CoreR.string.hide_filter_hint)
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        search_view = menu.findItem(R.id.action_search).actionView as SearchView
+        search_view.queryHint = search_view.context.getString(CoreR.string.hide_filter_hint)
+        search_view.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                viewModel.query = query ?: ""
+                view_model.query = query ?: ""
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                viewModel.query = newText ?: ""
+                view_model.query = newText ?: ""
                 return true
             }
         })
@@ -85,13 +85,13 @@ class DenyListFragment : BaseFragment<FragmentDenyMd2Binding>(), MenuProvider {
         when (item.itemId) {
             R.id.action_show_system -> {
                 val check = !item.isChecked
-                viewModel.isShowSystem = check
+                view_model.is_show_system = check
                 item.isChecked = check
                 return true
             }
             R.id.action_show_OS -> {
                 val check = !item.isChecked
-                viewModel.isShowOS = check
+                view_model.is_show_o_s = check
                 item.isChecked = check
                 return true
             }
@@ -100,8 +100,8 @@ class DenyListFragment : BaseFragment<FragmentDenyMd2Binding>(), MenuProvider {
     }
 
     override fun onPrepareMenu(menu: Menu) {
-        val showSystem = menu.findItem(R.id.action_show_system)
-        val showOS = menu.findItem(R.id.action_show_OS)
-        showOS.isEnabled = showSystem.isChecked
+        val show_system = menu.findItem(R.id.action_show_system)
+        val show_o_s = menu.findItem(R.id.action_show_OS)
+        show_o_s.isEnabled = show_system.isChecked
     }
 }

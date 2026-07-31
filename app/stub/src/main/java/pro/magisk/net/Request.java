@@ -53,19 +53,19 @@ public class Request {
     public class Result<T> {
         T result;
 
-        public T getResult() {
+        public T get_result() {
             return result;
         }
 
-        public int getCode() {
+        public int get_code() {
             return code;
         }
 
-        public boolean isSuccess() {
+        public boolean is_success() {
             return code >= 200 && code <= 299;
         }
 
-        public HttpURLConnection getConnection() {
+        public HttpURLConnection get_connection() {
             return conn;
         }
     }
@@ -75,13 +75,13 @@ public class Request {
     }
 
     /** Sets a request header property. */
-    public Request addHeaders(String key, String value) {
+    public Request add_headers(String key, String value) {
         conn.setRequestProperty(key, value);
         return this;
     }
 
     /** Registers a handler for request errors. */
-    public Request setErrorHandler(ErrorHandler handler) {
+    public Request set_error_handler(ErrorHandler handler) {
         err = handler;
         return this;
     }
@@ -90,7 +90,7 @@ public class Request {
      * Sets an executor for delivering async callbacks.
      * If not set, results are posted on the main thread.
      */
-    public Request setExecutor(Executor e) {
+    public Request set_executor(Executor e) {
         executor = e;
         return this;
     }
@@ -107,63 +107,63 @@ public class Request {
     }
 
     /** Synchronously executes the request and returns the response as an InputStream. */
-    public Result<InputStream> execForInputStream() {
+    public Result<InputStream> exec_for_input_stream() {
         return exec(this::getInputStream);
     }
 
     /** Asynchronously downloads the response as an InputStream. */
-    public void getAsInputStream(ResponseListener<InputStream> rs) {
+    public void get_as_input_stream(ResponseListener<InputStream> rs) {
         submit(this::getInputStream, rs);
     }
 
     /** Asynchronously downloads the response to a file. */
-    public void getAsFile(File out, ResponseListener<File> rs) {
-        submit(() -> dlFile(out), rs);
+    public void get_as_file(File out, ResponseListener<File> rs) {
+        submit(() -> dl_file(out), rs);
     }
 
     /** Synchronously downloads the response to a file. */
-    public void execForFile(File out) {
-        exec(() -> dlFile(out));
+    public void exec_for_file(File out) {
+        exec(() -> dl_file(out));
     }
 
     /** Asynchronously downloads the response as a byte array. */
-    public void getAsBytes(ResponseListener<byte[]> rs) {
-        submit(this::dlBytes, rs);
+    public void get_as_bytes(ResponseListener<byte[]> rs) {
+        submit(this::dl_bytes, rs);
     }
 
     /** Synchronously downloads the response as a byte array. */
-    public Result<byte[]> execForBytes() {
-        return exec(this::dlBytes);
+    public Result<byte[]> exec_for_bytes() {
+        return exec(this::dl_bytes);
     }
 
     /** Asynchronously downloads the response body as a String (UTF-8). */
-    public void getAsString(ResponseListener<String> rs) {
-        submit(this::dlString, rs);
+    public void get_as_string(ResponseListener<String> rs) {
+        submit(this::dl_string, rs);
     }
 
     /** Synchronously downloads the response body as a String. */
-    public Result<String> execForString() {
-        return exec(this::dlString);
+    public Result<String> exec_for_string() {
+        return exec(this::dl_string);
     }
 
     /** Asynchronously downloads and parses the response as a JSONObject. */
-    public void getAsJSONObject(ResponseListener<JSONObject> rs) {
-        submit(this::dlJSONObject, rs);
+    public void get_as_j_s_o_n_object(ResponseListener<JSONObject> rs) {
+        submit(this::dl_j_s_o_n_object, rs);
     }
 
     /** Synchronously downloads and parses the response as a JSONObject. */
-    public Result<JSONObject> execForJSONObject() {
-        return exec(this::dlJSONObject);
+    public Result<JSONObject> exec_for_j_s_o_n_object() {
+        return exec(this::dl_j_s_o_n_object);
     }
 
     /** Asynchronously downloads and parses the response as a JSONArray. */
-    public void getAsJSONArray(ResponseListener<JSONArray> rs) {
-        submit(this::dlJSONArray, rs);
+    public void get_as_j_s_o_n_array(ResponseListener<JSONArray> rs) {
+        submit(this::dl_j_s_o_n_array, rs);
     }
 
     /** Synchronously downloads and parses the response as a JSONArray. */
-    public Result<JSONArray> execForJSONArray() {
-        return exec(this::dlJSONArray);
+    public Result<JSONArray> exec_for_j_s_o_n_array() {
+        return exec(this::dl_j_s_o_n_array);
     }
 
     /** Establishes the connection and reads the response code. */
@@ -191,7 +191,7 @@ public class Request {
                 T t = req.request();
                 Runnable cb = () -> rs.onResponse(t);
                 if (executor == null)
-                    Networking.mainHandler.post(cb);
+                    Networking.main_handler.post(cb);
                 else
                     executor.execute(cb);
             } catch (Exception e) {
@@ -215,7 +215,7 @@ public class Request {
     }
 
     /** Reads the full response body as a UTF-8 String. */
-    private String dlString() throws IOException {
+    private String dl_string() throws IOException {
         try (Scanner s = new Scanner(getInputStream(), "UTF-8")) {
             s.useDelimiter("\\A");
             return s.next();
@@ -223,17 +223,17 @@ public class Request {
     }
 
     /** Downloads and parses the response as a JSONObject. */
-    private JSONObject dlJSONObject() throws IOException, JSONException {
-        return new JSONObject(dlString());
+    private JSONObject dl_j_s_o_n_object() throws IOException, JSONException {
+        return new JSONObject(dl_string());
     }
 
     /** Downloads and parses the response as a JSONArray. */
-    private JSONArray dlJSONArray() throws IOException, JSONException {
-        return new JSONArray(dlString());
+    private JSONArray dl_j_s_o_n_array() throws IOException, JSONException {
+        return new JSONArray(dl_string());
     }
 
     /** Downloads the response body to the specified file. */
-    private File dlFile(File f) throws IOException {
+    private File dl_file(File f) throws IOException {
         try (InputStream in = getInputStream();
              OutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
             APKInstall.transfer(in, out);
@@ -242,7 +242,7 @@ public class Request {
     }
 
     /** Downloads the response body as a byte array. */
-    private byte[] dlBytes() throws IOException {
+    private byte[] dl_bytes() throws IOException {
         int len = conn.getContentLength();
         len = len > 0 ? len : 32;
         ByteArrayOutputStream out = new ByteArrayOutputStream(len);

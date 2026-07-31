@@ -21,16 +21,16 @@ import pro.magisk.ui.surequest.SuRequestViewModel
 /** Marks a lifecycle owner that holds a [BaseViewModel] and can receive [ViewEvent]s. */
 interface ViewModelHolder : LifecycleOwner, ViewModelStoreOwner {
 
-    val viewModel: BaseViewModel
+    val view_model: BaseViewModel
 
-    fun startObserveLiveData() {
-        viewModel.viewEvents.observe(this, this::onEventDispatched)
+    fun start_observe_live_data() {
+        view_model.view_events.observe(this, this::on_event_dispatched)
     }
 
     /**
      * Called for all [ViewEvent]s published by associated viewModel.
      */
-    fun onEventDispatched(event: ViewEvent) {}
+    fun on_event_dispatched(event: ViewEvent) {}
 }
 
 /**
@@ -42,18 +42,18 @@ object VMFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when (modelClass) {
             HomeViewModel::class.java -> HomeViewModel()
-            LogViewModel::class.java -> LogViewModel(ServiceLocator.logRepo)
-            SuperuserViewModel::class.java -> SuperuserViewModel(ServiceLocator.policyDB)
+            LogViewModel::class.java -> LogViewModel(ServiceLocator.log_repo)
+            SuperuserViewModel::class.java -> SuperuserViewModel(ServiceLocator.policy_d_b)
             InstallViewModel::class.java -> InstallViewModel()
             SuRequestViewModel::class.java ->
-                SuRequestViewModel(ServiceLocator.policyDB, ServiceLocator.timeoutPrefs)
+                SuRequestViewModel(ServiceLocator.policy_d_b, ServiceLocator.timeout_prefs)
             else -> modelClass.getDeclaredConstructor().newInstance()
         } as T
     }
 }
 
 /** Lazily obtains a ViewModel scoped to the [ViewModelHolder] using [VMFactory]. */
-inline fun <reified VM : ViewModel> ViewModelHolder.viewModel() =
+inline fun <reified VM : ViewModel> ViewModelHolder.view_model() =
     lazy(LazyThreadSafetyMode.NONE) {
         ViewModelProvider(this, VMFactory)[VM::class.java]
     }

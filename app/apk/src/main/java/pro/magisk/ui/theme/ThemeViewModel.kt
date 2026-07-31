@@ -15,15 +15,15 @@ import pro.magisk.view.TappableHeadlineItem
 /** ViewModel for theme selection. */
 class ThemeViewModel : BaseViewModel(), TappableHeadlineItem.Listener {
 
-    val themeHeadline = TappableHeadlineItem.ThemeMode
+    val theme_headline = TappableHeadlineItem.ThemeMode
 
-    override fun onItemPressed(item: TappableHeadlineItem) = when (item) {
+    override fun on_item_pressed(item: TappableHeadlineItem) = when (item) {
         is TappableHeadlineItem.ThemeMode -> DarkThemeDialog().show()
     }
 
-    fun saveTheme(theme: Theme) {
+    fun save_theme(theme: Theme) {
         if (!theme.isSelected) {
-            Config.themeOrdinal = theme.ordinal
+            Config.theme_ordinal = theme.ordinal
             RecreateEvent().publish()
         }
     }

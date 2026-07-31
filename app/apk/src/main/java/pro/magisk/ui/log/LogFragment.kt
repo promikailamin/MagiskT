@@ -17,7 +17,7 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import pro.magisk.R
 import pro.magisk.arch.BaseFragment
-import pro.magisk.arch.viewModel
+import pro.magisk.arch.view_model
 import pro.magisk.databinding.FragmentLogMd2Binding
 import pro.magisk.ui.MainActivity
 import pro.magisk.utils.AccessibilityUtils
@@ -30,21 +30,21 @@ import pro.magisk.core.R as CoreR
 /** Fragment displaying Superuser logs and Magisk daemon logs. */
 class LogFragment : BaseFragment<FragmentLogMd2Binding>(), MenuProvider {
 
-    override val layoutRes = R.layout.fragment_log_md2
-    override val viewModel by viewModel<LogViewModel>()
-    override val snackbarView: View?
-        get() = if (isMagiskLogVisible) binding.logFilterSuperuser.snackbarContainer
-                else super.snackbarView
-    override val snackbarAnchorView get() = binding.logFilterToggle
+    override val layout_res = R.layout.fragment_log_md2
+    override val view_model by view_model<LogViewModel>()
+    override val snackbar_view: View?
+        get() = if (is_magisk_log_visible) binding.logFilterSuperuser.snackbarContainer
+                else super.snackbar_view
+    override val snackbar_anchor_view get() = binding.logFilterToggle
 
-    private var actionSave: MenuItem? = null
-    private var isMagiskLogVisible
+    private var action_save: MenuItem? = null
+    private var is_magisk_log_visible
         get() = binding.logFilter.isVisible
         set(value) {
             MotionRevealHelper.withViews(binding.logFilter, binding.logFilterToggle, value)
-            actionSave?.isVisible = !value
+            action_save?.isVisible = !value
             with(activity as MainActivity) {
-                requestNavigationHidden(value)
+                request_navigation_hidden(value)
             }
         }
 
@@ -53,10 +53,10 @@ class LogFragment : BaseFragment<FragmentLogMd2Binding>(), MenuProvider {
         activity?.setTitle(CoreR.string.logs)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onViewCreated(view: View, saved_instance_state: Bundle?) {
+        super.onViewCreated(view, saved_instance_state)
         binding.logFilterToggle.setOnClickListener {
-            isMagiskLogVisible = true
+            is_magisk_log_visible = true
         }
 
         binding.logFilterSuperuser.logSuperuser.apply {
@@ -65,35 +65,35 @@ class LogFragment : BaseFragment<FragmentLogMd2Binding>(), MenuProvider {
             fixEdgeEffect()
         }
 
-        if (!AccessibilityUtils.isAnimationEnabled(requireContext().contentResolver)) {
-            val scrollView = view.findViewById<HorizontalScrollView>(R.id.log_scroll_magisk)
-            scrollView.setOverScrollMode(View.OVER_SCROLL_NEVER)
+        if (!AccessibilityUtils.is_animation_enabled(requireContext().contentResolver)) {
+            val scroll_view = view.findViewById<HorizontalScrollView>(R.id.log_scroll_magisk)
+            scroll_view.setOverScrollMode(View.OVER_SCROLL_NEVER)
         }
     }
 
     override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_log_md2, menu)
-        actionSave = menu.findItem(R.id.action_save)?.also {
-            it.isVisible = !isMagiskLogVisible
+        action_save = menu.findItem(R.id.action_save)?.also {
+            it.isVisible = !is_magisk_log_visible
         }
     }
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_save -> viewModel.saveMagiskLog()
+            R.id.action_save -> view_model.save_magisk_log()
             R.id.action_clear ->
-                if (!isMagiskLogVisible) viewModel.clearMagiskLog()
-                else viewModel.clearLog()
+                if (!is_magisk_log_visible) view_model.clear_magisk_log()
+                else view_model.clear_log()
         }
         return false
     }
 
-    override fun onPreBind(binding: FragmentLogMd2Binding) = Unit
+    override fun on_pre_bind(binding: FragmentLogMd2Binding) = Unit
 
     // Dismiss the Magisk log view when back is pressed
     override fun onBackPressed(): Boolean {
         if (binding.logFilter.isVisible) {
-            isMagiskLogVisible = false
+            is_magisk_log_visible = false
             return true
         }
         return super.onBackPressed()

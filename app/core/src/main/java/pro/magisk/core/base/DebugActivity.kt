@@ -23,15 +23,15 @@ import java.io.File
 
 class DebugActivity : ComponentActivity(), UntrackedActivity {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreate(saved_instance_state: Bundle?) {
+        super.onCreate(saved_instance_state)
         setContentView(R.layout.activity_debug)
 
-        val crashFile = File(cacheDir, "crash_reports/crash_info.txt")
-        val crashInfo = if (crashFile.exists()) crashFile.readText() else "No crash info available."
+        val crash_file = File(cacheDir, "crash_reports/crash_info.txt")
+        val crash_info = if (crash_file.exists()) crash_file.readText() else "No crash info available."
 
-        findViewById<TextView>(R.id.crash_info).text = crashInfo
-        findViewById<TextView>(R.id.crash_timestamp).text = crashFile
+        findViewById<TextView>(R.id.crash_info).text = crash_info
+        findViewById<TextView>(R.id.crash_timestamp).text = crash_file
             .takeIf { it.exists() }
             ?.lastModified()
             ?.let { java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.US).format(java.util.Date(it)) }
@@ -39,20 +39,20 @@ class DebugActivity : ComponentActivity(), UntrackedActivity {
 
         findViewById<Button>(R.id.btn_copy).setOnClickListener {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            clipboard.setPrimaryClip(ClipData.newPlainText("crash", crashInfo))
+            clipboard.setPrimaryClip(ClipData.newPlainText("crash", crash_info))
             Toast.makeText(this, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
 
         findViewById<Button>(R.id.btn_share).setOnClickListener {
             val share = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, crashInfo)
+                putExtra(Intent.EXTRA_TEXT, crash_info)
             }
             startActivity(Intent.createChooser(share, "Share crash report"))
         }
 
         findViewById<Button>(R.id.btn_restart).setOnClickListener {
-            crashFile.delete()
+            crash_file.delete()
             val intent = packageManager.getLaunchIntentForPackage(packageName)
             if (intent != null) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)

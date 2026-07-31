@@ -24,7 +24,7 @@ import pro.magisk.core.R as CoreR
 /** Abstract dialog that renders Markdown content using Markwon. */
 abstract class MarkDownDialog : DialogBuilder {
 
-    abstract suspend fun getMarkdownText(): String
+    abstract suspend fun get_markdown_text(): String
 
     @CallSuper
     override fun build(dialog: MagiskDialog) {
@@ -34,7 +34,7 @@ abstract class MarkDownDialog : DialogBuilder {
             val tv = view.findViewById<TextView>(R.id.md_txt)
             activity.lifecycleScope.launch {
                 try {
-                    val text = withContext(Dispatchers.IO) { getMarkdownText() }
+                    val text = withContext(Dispatchers.IO) { get_markdown_text() }
                     ServiceLocator.markwon.setMarkdown(tv, text)
                 } catch (e: IOException) {
                     Timber.e(e)

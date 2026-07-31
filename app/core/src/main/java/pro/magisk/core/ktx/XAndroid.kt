@@ -68,7 +68,7 @@ fun ApplicationInfo.getLabel(pm: PackageManager): String {
     runCatching {
         if (labelRes > 0) {
             val res = pm.getResourcesForApplication(this)
-            LocaleSetting.instance.updateResource(res)
+            LocaleSetting.instance.update_resource(res)
             return res.getString(labelRes)
         }
     }
@@ -106,7 +106,7 @@ val View.activity: Activity get() {
 
 /** Read a system property via reflection (`android.os.SystemProperties`). */
 @SuppressLint("PrivateApi")
-fun getProperty(key: String, def: String): String {
+fun get_property(key: String, def: String): String {
     runCatching {
         val clazz = Class.forName("android.os.SystemProperties")
         val get = clazz.getMethod("get", String::class.java, String::class.java)
@@ -167,6 +167,6 @@ fun Context.toast(msg: CharSequence, duration: Int) {
 }
 
 /** Show a toast from a string resource on the UI thread. */
-fun Context.toast(resId: Int, duration: Int) {
-    UiThreadHandler.run { Toast.makeText(this, resId, duration).show() }
+fun Context.toast(res_id: Int, duration: Int) {
+    UiThreadHandler.run { Toast.makeText(this, res_id, duration).show() }
 }

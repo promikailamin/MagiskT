@@ -36,7 +36,7 @@ import pro.magisk.core.utils.RequestInstall
 
 /** Callback for content-picker results that is also [Parcelable] for state saving. */
 interface ContentResultCallback: ActivityResultCallback<Uri>, Parcelable {
-    fun onActivityLaunch() {}
+    fun on_activity_launch() {}
     override fun onActivityResult(result: Uri)
 }
 
@@ -46,14 +46,14 @@ interface UntrackedActivity
 /** Interface for activities that delegate runtime-request logic to [ActivityExtension]. */
 interface IActivityExtension {
     val extension: ActivityExtension
-    fun withPermission(permission: String, callback: (Boolean) -> Unit) {
-        extension.withPermission(permission, callback)
+    fun with_permission(permission: String, callback: (Boolean) -> Unit) {
+        extension.with_permission(permission, callback)
     }
-    fun withAuthentication(callback: (Boolean) -> Unit) {
-        extension.withAuthentication(callback)
+    fun with_authentication(callback: (Boolean) -> Unit) {
+        extension.with_authentication(callback)
     }
-    fun getContent(type: String, callback: ContentResultCallback) {
-        extension.getContent(type, callback)
+    fun get_content(type: String, callback: ContentResultCallback) {
+        extension.get_content(type, callback)
     }
 }
 
@@ -64,47 +64,47 @@ interface IActivityExtension {
  */
 class ActivityExtension(private val activity: ComponentActivity) {
 
-    private var permissionCallback: ((Boolean) -> Unit)? = null
-    private val requestPermission = activity.registerForActivityResult(RequestPermission()) {
-        permissionCallback?.invoke(it)
-        permissionCallback = null
+    private var permission_callback: ((Boolean) -> Unit)? = null
+    private val request_permission = activity.registerForActivityResult(RequestPermission()) {
+        permission_callback?.invoke(it)
+        permission_callback = null
     }
 
-    private var installCallback: ((Boolean) -> Unit)? = null
-    private val requestInstall = activity.registerForActivityResult(RequestInstall()) {
-        installCallback?.invoke(it)
-        installCallback = null
+    private var install_callback: ((Boolean) -> Unit)? = null
+    private val request_install = activity.registerForActivityResult(RequestInstall()) {
+        install_callback?.invoke(it)
+        install_callback = null
     }
 
-    private var authenticateCallback: ((Boolean) -> Unit)? = null
-    private val requestAuthenticate = activity.registerForActivityResult(RequestAuthentication()) {
-        authenticateCallback?.invoke(it)
-        authenticateCallback = null
+    private var authenticate_callback: ((Boolean) -> Unit)? = null
+    private val request_authenticate = activity.registerForActivityResult(RequestAuthentication()) {
+        authenticate_callback?.invoke(it)
+        authenticate_callback = null
     }
 
-    private var contentCallback: ContentResultCallback? = null
-    private val getContent = activity.registerForActivityResult(GetContent()) {
-        if (it != null) contentCallback?.onActivityResult(it)
-        contentCallback = null
+    private var content_callback: ContentResultCallback? = null
+    private val get_content = activity.registerForActivityResult(GetContent()) {
+        if (it != null) content_callback?.onActivityResult(it)
+        content_callback = null
     }
 
-    fun onCreate(savedInstanceState: Bundle?) {
-        contentCallback = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+    fun onCreate(saved_instance_state: Bundle?) {
+        content_callback = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             @Suppress("DEPRECATION")
-            savedInstanceState?.getParcelable(CONTENT_CALLBACK_KEY)
+            saved_instance_state?.getParcelable(CONTENT_CALLBACK_KEY)
         } else {
-            savedInstanceState
+            saved_instance_state
                 ?.getParcelable(CONTENT_CALLBACK_KEY, ContentResultCallback::class.java)
         }
     }
 
     fun onSaveInstanceState(outState: Bundle) {
-        contentCallback?.let {
+        content_callback?.let {
             outState.putParcelable(CONTENT_CALLBACK_KEY, it)
         }
     }
 
-    fun withPermission(permission: String, callback: (Boolean) -> Unit) {
+    fun with_permission(permission: String, callback: (Boolean) -> Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
             permission == WRITE_EXTERNAL_STORAGE) {
             callback(true)
@@ -116,24 +116,24 @@ class ActivityExtension(private val activity: ComponentActivity) {
             return
         }
         if (permission == REQUEST_INSTALL_PACKAGES) {
-            installCallback = callback
-            requestInstall.launch(Unit)
+            install_callback = callback
+            request_install.launch(Unit)
         } else {
-            permissionCallback = callback
-            requestPermission.launch(permission)
+            permission_callback = callback
+            request_permission.launch(permission)
         }
     }
 
-    fun withAuthentication(callback: (Boolean) -> Unit) {
-        authenticateCallback = callback
-        requestAuthenticate.launch(Unit)
+    fun with_authentication(callback: (Boolean) -> Unit) {
+        authenticate_callback = callback
+        request_authenticate.launch(Unit)
     }
 
-    fun getContent(type: String, callback: ContentResultCallback) {
-        contentCallback = callback
+    fun get_content(type: String, callback: ContentResultCallback) {
+        content_callback = callback
         try {
-            getContent.launch(type)
-            callback.onActivityLaunch()
+            get_content.launch(type)
+            callback.on_activity_launch()
         } catch (e: ActivityNotFoundException) {
             activity.toast(R.string.app_not_found, Toast.LENGTH_SHORT)
         }

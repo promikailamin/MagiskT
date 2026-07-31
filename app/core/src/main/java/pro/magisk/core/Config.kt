@@ -22,11 +22,11 @@ import kotlinx.coroutines.GlobalScope
 
 object Config : PreferenceConfig, DBConfig {
 
-    override val stringDB get() = ServiceLocator.stringDB
-    override val settingsDB get() = ServiceLocator.settingsDB
-    override val context get() = ServiceLocator.deContext
+    override val string_d_b get() = ServiceLocator.string_d_b
+    override val settings_d_b get() = ServiceLocator.settings_d_b
+    override val context get() = ServiceLocator.de_context
     @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
-    override val coroutineScope get() = GlobalScope
+    override val coroutine_scope get() = GlobalScope
 
     /** Setting keys that are persisted through MagiskDB (shell-backed). */
     object Key {
@@ -88,49 +88,49 @@ object Config : PreferenceConfig, DBConfig {
     }
 
     /** Boot-image flags set during init, read-only after boot. */
-    @JvmField var keepVerity = false
-    @JvmField var keepEnc = false
+    @JvmField var keep_verity = false
+    @JvmField var keep_enc = false
     @JvmField var recovery = false
-    var denyList by dbSettings(Key.DENYLIST, Info.isEmulator)
+    var deny_list by db_settings(Key.DENYLIST, Info.is_emulator)
 
     // ---- Preference-backed settings ----
-    var askedHome by preference(Key.ASKED_HOME, false)
-    var bootloop by dbSettings(Key.BOOTLOOP, 0)
+    var asked_home by preference(Key.ASKED_HOME, false)
+    var bootloop by db_settings(Key.BOOTLOOP, 0)
 
-    var safetyNotice by preference(Key.SAFETY, true)
-    var darkTheme by preference(Key.DARK_THEME, -1)
-    var themeOrdinal by preference(Key.THEME_ORDINAL, 0)
-    var colorMode by preference(Key.COLOR_MODE, 0)
+    var safety_notice by preference(Key.SAFETY, true)
+    var dark_theme by preference(Key.DARK_THEME, -1)
+    var theme_ordinal by preference(Key.THEME_ORDINAL, 0)
+    var color_mode by preference(Key.COLOR_MODE, 0)
 
-    private var localePrefs by preference(Key.LOCALE, "")
-    var randName by preference(Key.RAND_NAME, true)
+    private var locale_prefs by preference(Key.LOCALE, "")
+    var rand_name by preference(Key.RAND_NAME, true)
     var locale
-        get() = localePrefs
+        get() = locale_prefs
         set(value) {
-            localePrefs = value
+            locale_prefs = value
             LocaleSetting.instance.setLocale(value)
         }
 
     // ---- MagiskDB-backed settings ----
-    var zygisk by dbSettings(Key.ZYGISK, Info.isEmulator)
-    var suManager by dbStrings(Key.SU_MANAGER, "", true)
-    var keyStoreRaw by dbStrings(Key.KEYSTORE, "", true)
+    var zygisk by db_settings(Key.ZYGISK, Info.is_emulator)
+    var su_manager by db_strings(Key.SU_MANAGER, "", true)
+    var key_store_raw by db_strings(Key.KEYSTORE, "", true)
 
-    var suDefaultTimeout by preferenceStrInt(Key.SU_REQUEST_TIMEOUT, 10)
-    var suAutoResponse by preferenceStrInt(Key.SU_AUTO_RESPONSE, Value.SU_PROMPT)
-    var suNotification by preferenceStrInt(Key.SU_NOTIFICATION, Value.NOTIFICATION_TOAST)
-    var rootMode by dbSettings(Key.ROOT_ACCESS, Value.ROOT_ACCESS_APPS_AND_ADB)
-    var suMntNamespaceMode by dbSettings(Key.SU_MNT_NS, Value.NAMESPACE_MODE_REQUESTER)
-    var suMultiuserMode by dbSettings(Key.SU_MULTIUSER_MODE, Value.MULTIUSER_MODE_OWNER_ONLY)
-    private var suBiometric by dbSettings(Key.SU_BIOMETRIC, false)
-    var suAuth
-        get() = Info.isDeviceSecure && suBiometric
+    var su_default_timeout by preference_str_int(Key.SU_REQUEST_TIMEOUT, 10)
+    var su_auto_response by preference_str_int(Key.SU_AUTO_RESPONSE, Value.SU_PROMPT)
+    var su_notification by preference_str_int(Key.SU_NOTIFICATION, Value.NOTIFICATION_TOAST)
+    var root_mode by db_settings(Key.ROOT_ACCESS, Value.ROOT_ACCESS_APPS_AND_ADB)
+    var su_mnt_namespace_mode by db_settings(Key.SU_MNT_NS, Value.NAMESPACE_MODE_REQUESTER)
+    var su_multiuser_mode by db_settings(Key.SU_MULTIUSER_MODE, Value.MULTIUSER_MODE_OWNER_ONLY)
+    private var su_biometric by db_settings(Key.SU_BIOMETRIC, false)
+    var su_auth
+        get() = Info.isDeviceSecure && su_biometric
         set(value) {
-            suBiometric = value
+            su_biometric = value
         }
-    var suReAuth by preference(Key.SU_REAUTH, false)
-    var suTapjack by preference(Key.SU_TAPJACK, true)
-    var suRestrict by preference(Key.SU_RESTRICT, false)
+    var su_re_auth by preference(Key.SU_REAUTH, false)
+    var su_tapjack by preference(Key.SU_TAPJACK, true)
+    var su_restrict by preference(Key.SU_RESTRICT, false)
 
     /** Serialises current prefs (minus [Key.NO_MIGRATION]) into a Bundle
      *  for cross-process hand-off (stub → real APK). */

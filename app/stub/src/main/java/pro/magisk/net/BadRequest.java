@@ -21,34 +21,34 @@ class BadRequest extends Request {
     BadRequest(IOException e) { super(null); ex = e; }
 
     @Override
-    public Request addHeaders(String key, String value) { return this; }
+    public Request add_headers(String key, String value) { return this; }
 
     @Override
-    public Result<InputStream> execForInputStream() { fail(); return new Result<>(); }
+    public Result<InputStream> exec_for_input_stream() { fail(); return new Result<>(); }
 
     @Override
-    public void getAsFile(File out, ResponseListener<File> rs) { fail(); }
+    public void get_as_file(File out, ResponseListener<File> rs) { fail(); }
 
     @Override
-    public void execForFile(File out) { fail(); }
+    public void exec_for_file(File out) { fail(); }
 
     @Override
-    public void getAsString(ResponseListener<String> rs) { fail(); }
+    public void get_as_string(ResponseListener<String> rs) { fail(); }
 
     @Override
-    public Result<String> execForString() { fail(); return new Result<>(); }
+    public Result<String> exec_for_string() { fail(); return new Result<>(); }
 
     @Override
-    public void getAsJSONObject(ResponseListener<JSONObject> rs) { fail(); }
+    public void get_as_j_s_o_n_object(ResponseListener<JSONObject> rs) { fail(); }
 
     @Override
-    public Result<JSONObject> execForJSONObject() { fail(); return new Result<>(); }
+    public Result<JSONObject> exec_for_j_s_o_n_object() { fail(); return new Result<>(); }
 
     @Override
-    public void getAsJSONArray(ResponseListener<JSONArray> rs) { fail(); }
+    public void get_as_j_s_o_n_array(ResponseListener<JSONArray> rs) { fail(); }
 
     @Override
-    public Result<JSONArray> execForJSONArray() { fail(); return new Result<>(); }
+    public Result<JSONArray> exec_for_j_s_o_n_array() { fail(); return new Result<>(); }
 
     /** Invokes the error handler with the stored exception. */
     private void fail() {

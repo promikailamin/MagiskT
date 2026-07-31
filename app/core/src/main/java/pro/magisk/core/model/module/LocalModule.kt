@@ -24,45 +24,45 @@ data class LocalModule(
     var author: String = ""
     var description: String = ""
 
-    private val removeFile = base.getChildFile("remove")
-    private val disableFile = base.getChildFile("disable")
-    private val updateFile = base.getChildFile("update")
-    val zygiskFolder = base.getChildFile("zygisk")
+    private val remove_file = base.getChildFile("remove")
+    private val disable_file = base.getChildFile("disable")
+    private val update_file = base.getChildFile("update")
+    val zygisk_folder = base.getChildFile("zygisk")
 
-    val updated get() = updateFile.exists()
-    val isRiru = (id == "riru-core") || base.getChildFile("riru").exists()
-    val isZygisk = zygiskFolder.exists()
-    val zygiskUnloaded = zygiskFolder.getChildFile("unloaded").exists()
-    val hasAction = base.getChildFile("action.sh").exists()
+    val updated get() = update_file.exists()
+    val is_riru = (id == "riru-core") || base.getChildFile("riru").exists()
+    val is_zygisk = zygisk_folder.exists()
+    val zygisk_unloaded = zygisk_folder.getChildFile("unloaded").exists()
+    val has_action = base.getChildFile("action.sh").exists()
 
     var enable: Boolean
-        get() = !disableFile.exists()
+        get() = !disable_file.exists()
         set(enable) {
             if (enable) {
-                disableFile.delete()
+                disable_file.delete()
                 Shell.cmd("copy_preinit_files").submit()
             } else {
-                !disableFile.createNewFile()
+                !disable_file.createNewFile()
                 Shell.cmd("copy_preinit_files").submit()
             }
         }
 
     var remove: Boolean
-        get() = removeFile.exists()
+        get() = remove_file.exists()
         set(remove) {
             if (remove) {
-                if (updateFile.exists()) return
-                removeFile.createNewFile()
+                if (update_file.exists()) return
+                remove_file.createNewFile()
                 Shell.cmd("copy_preinit_files").submit()
             } else {
-                removeFile.delete()
+                remove_file.delete()
                 Shell.cmd("copy_preinit_files").submit()
             }
         }
 
     /** Parse module.prop into the model fields. */
     @Throws(NumberFormatException::class)
-    private fun parseProps(props: List<String>) {
+    private fun parse_props(props: List<String>) {
         for (line in props) {
             val prop = line.split("=".toRegex(), 2).map { it.trim() }
             if (prop.size != 2)
@@ -86,7 +86,7 @@ data class LocalModule(
 
     init {
         runCatching {
-            parseProps(Shell.cmd("dos2unix < $base/module.prop").exec().out)
+            parse_props(Shell.cmd("dos2unix < $base/module.prop").exec().out)
         }
 
         if (id.isEmpty()) {
@@ -101,11 +101,11 @@ data class LocalModule(
     companion object {
 
         /** Check whether the module path exists. */
-        fun loaded() = RootUtils.fs.getFile(Const.MODULE_PATH).exists()
+        fun loaded() = RootUtils.fs.get_file(Const.MODULE_PATH).exists()
 
         /** List all installed modules, sorted by name. */
         suspend fun installed() = withContext(Dispatchers.IO) {
-            RootUtils.fs.getFile(Const.MODULE_PATH)
+            RootUtils.fs.get_file(Const.MODULE_PATH)
                 .listFiles()
                 .orEmpty()
                 .filter { !it.isFile && !it.isHidden }

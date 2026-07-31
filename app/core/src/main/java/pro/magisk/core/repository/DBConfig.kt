@@ -17,21 +17,21 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 interface DBConfig {
-    val settingsDB: SettingsDao
-    val stringDB: StringDao
-    val coroutineScope: CoroutineScope
+    val settings_d_b: SettingsDao
+    val string_d_b: StringDao
+    val coroutine_scope: CoroutineScope
 
-    fun dbSettings(
+    fun db_settings(
         name: String,
         default: Int
     ) = IntDBProperty(name, default)
 
-    fun dbSettings(
+    fun db_settings(
         name: String,
         default: Boolean
     ) = BoolDBProperty(name, default)
 
-    fun dbStrings(
+    fun db_strings(
         name: String,
         default: String,
         sync: Boolean = false
@@ -50,7 +50,7 @@ class IntDBProperty(
     @Synchronized
     override fun getValue(thisRef: DBConfig, property: KProperty<*>): Int {
         if (value == null)
-            value = runBlocking { thisRef.settingsDB.fetch(name, default) }
+            value = runBlocking { thisRef.settings_d_b.fetch(name, default) }
         return value as Int
     }
 
@@ -58,8 +58,8 @@ class IntDBProperty(
         synchronized(this) {
             this.value = value
         }
-        thisRef.coroutineScope.launch {
-            thisRef.settingsDB.put(name, value)
+        thisRef.coroutine_scope.launch {
+            thisRef.settings_d_b.put(name, value)
         }
     }
 }
@@ -92,7 +92,7 @@ class StringDBProperty(
     override fun getValue(thisRef: DBConfig, property: KProperty<*>): String {
         if (value == null)
             value = runBlocking {
-                thisRef.stringDB.fetch(name, default)
+                thisRef.string_d_b.fetch(name, default)
             }
         return value!!
     }
@@ -104,21 +104,21 @@ class StringDBProperty(
         if (value.isEmpty()) {
             if (sync) {
                 runBlocking {
-                    thisRef.stringDB.delete(name)
+                    thisRef.string_d_b.delete(name)
                 }
             } else {
-                thisRef.coroutineScope.launch {
-                    thisRef.stringDB.delete(name)
+                thisRef.coroutine_scope.launch {
+                    thisRef.string_d_b.delete(name)
                 }
             }
         } else {
             if (sync) {
                 runBlocking {
-                    thisRef.stringDB.put(name, value)
+                    thisRef.string_d_b.put(name, value)
                 }
             } else {
-                thisRef.coroutineScope.launch {
-                    thisRef.stringDB.put(name, value)
+                thisRef.coroutine_scope.launch {
+                    thisRef.string_d_b.put(name, value)
                 }
             }
         }

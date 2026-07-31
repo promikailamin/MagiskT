@@ -26,7 +26,7 @@ class SuPolicy(
     }
 
     /** Serialise to a map suitable for an SQL REPLACE query. */
-    fun toMap(): MutableMap<String, Any> {
+    fun to_map(): MutableMap<String, Any> {
         val until = if (remain <= 0) {
             remain
         } else {

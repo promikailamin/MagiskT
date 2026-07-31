@@ -6,7 +6,7 @@
     <data>
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.settings.SettingsViewModel" />
 
     </data>
@@ -16,8 +16,8 @@
         android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
-            app:items="@{viewModel.items}"
-            app:extraBindings="@{viewModel.extraBindings}"
+            app:items="@{view_model.items}"
+            app:extra_bindings="@{view_model.extra_bindings}"
             android:id="@+id/settings_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

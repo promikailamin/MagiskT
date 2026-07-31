@@ -46,7 +46,7 @@ object LanguageSystem : BaseSettingsItem.Blank() {
     override val title = CoreR.string.language.asText()
     override val description: TextHolder
         get() {
-            val locale = LocaleSetting.instance.appLocale
+            val locale = LocaleSetting.instance.app_locale
             return locale?.getDisplayName(locale)?.asText() ?: CoreR.string.system_default.asText()
         }
 }
@@ -75,7 +75,7 @@ object SystemlessHosts : BaseSettingsItem.Blank() {
 object RandNameToggle : BaseSettingsItem.Toggle() {
     override val title = CoreR.string.settings_random_name_title.asText()
     override val description = CoreR.string.settings_random_name_description.asText()
-    override var value by Config::randName
+    override var value by Config::rand_name
 }
 
 // --- Magisk
@@ -95,7 +95,7 @@ object Zygisk : BaseSettingsItem.Toggle() {
             Config.zygisk = value
             notifyPropertyChanged(BR.description)
         }
-    val mismatch get() = value != Info.isZygiskEnabled
+    val mismatch get() = value != Info.is_zygisk_enabled
 }
 
 object DenyList : BaseSettingsItem.Toggle() {
@@ -105,13 +105,13 @@ object DenyList : BaseSettingsItem.Toggle() {
         else CoreR.string.settings_denylist_summary.asText()
 
     override var value
-        get() = Config.denyList
+        get() = Config.deny_list
         set(value) {
-            Config.denyList = value
+            Config.deny_list = value
             Shell.cmd("magisk --denylist ${if (value) "enable" else "disable"}").submit()
             notifyPropertyChanged(BR.description)
         }
-    val mismatch get() = value != Info.isDenylistEnforced
+    val mismatch get() = value != Info.is_denylist_enforced
 }
 
 object DenyListConfig : BaseSettingsItem.Blank() {
@@ -124,13 +124,13 @@ object DenyListConfig : BaseSettingsItem.Blank() {
 object Tapjack : BaseSettingsItem.Toggle() {
     override val title = CoreR.string.settings_su_tapjack_title.asText()
     override val description = CoreR.string.settings_su_tapjack_summary.asText()
-    override var value by Config::suTapjack
+    override var value by Config::su_tapjack
 }
 
 object Authentication : BaseSettingsItem.Toggle() {
     override val title = CoreR.string.settings_su_auth_title.asText()
     override var description = CoreR.string.settings_su_auth_summary.asText()
-    override var value by Config::suAuth
+    override var value by Config::su_auth
 
     override fun refresh() {
         isEnabled = Info.isDeviceSecure
@@ -146,15 +146,15 @@ object Superuser : BaseSettingsItem.Section() {
 
 object AccessMode : BaseSettingsItem.Selector() {
     override val title = CoreR.string.superuser_access.asText()
-    override val entryRes = CoreR.array.su_access
-    override var value by Config::rootMode
+    override val entry_res = CoreR.array.su_access
+    override var value by Config::root_mode
 }
 
 object MultiuserMode : BaseSettingsItem.Selector() {
     override val title = CoreR.string.multiuser_mode.asText()
-    override val entryRes = CoreR.array.multiuser_mode
-    override val descriptionRes = CoreR.array.multiuser_summary
-    override var value by Config::suMultiuserMode
+    override val entry_res = CoreR.array.multiuser_mode
+    override val description_res = CoreR.array.multiuser_summary
+    override var value by Config::su_multiuser_mode
 
     override fun refresh() {
         isEnabled = Const.USER_ID == 0
@@ -163,39 +163,39 @@ object MultiuserMode : BaseSettingsItem.Selector() {
 
 object MountNamespaceMode : BaseSettingsItem.Selector() {
     override val title = CoreR.string.mount_namespace_mode.asText()
-    override val entryRes = CoreR.array.namespace
-    override val descriptionRes = CoreR.array.namespace_summary
-    override var value by Config::suMntNamespaceMode
+    override val entry_res = CoreR.array.namespace
+    override val description_res = CoreR.array.namespace_summary
+    override var value by Config::su_mnt_namespace_mode
 }
 
 object AutomaticResponse : BaseSettingsItem.Selector() {
     override val title = CoreR.string.auto_response.asText()
-    override val entryRes = CoreR.array.auto_response
-    override var value by Config::suAutoResponse
+    override val entry_res = CoreR.array.auto_response
+    override var value by Config::su_auto_response
 }
 
 object RequestTimeout : BaseSettingsItem.Selector() {
     override val title = CoreR.string.request_timeout.asText()
-    override val entryRes = CoreR.array.request_timeout
+    override val entry_res = CoreR.array.request_timeout
 
-    private val entryValues = listOf(10, 15, 20, 30, 45, 60)
-    override var value = entryValues.indexOfFirst { it == Config.suDefaultTimeout }
+    private val entry_values = listOf(10, 15, 20, 30, 45, 60)
+    override var value = entry_values.indexOfFirst { it == Config.su_default_timeout }
         set(value) {
             field = value
-            Config.suDefaultTimeout = entryValues[value]
+            Config.su_default_timeout = entry_values[value]
         }
 }
 
 object SUNotification : BaseSettingsItem.Selector() {
     override val title = CoreR.string.superuser_notification.asText()
-    override val entryRes = CoreR.array.su_notification
-    override var value by Config::suNotification
+    override val entry_res = CoreR.array.su_notification
+    override var value by Config::su_notification
 }
 
 object Reauthenticate : BaseSettingsItem.Toggle() {
     override val title = CoreR.string.settings_su_reauth_title.asText()
     override val description = CoreR.string.settings_su_reauth_summary.asText()
-    override var value by Config::suReAuth
+    override var value by Config::su_re_auth
 
     override fun refresh() {
         isEnabled = Build.VERSION.SDK_INT < Build.VERSION_CODES.O
@@ -205,5 +205,5 @@ object Reauthenticate : BaseSettingsItem.Toggle() {
 object Restrict : BaseSettingsItem.Toggle() {
     override val title = CoreR.string.settings_su_restrict_title.asText()
     override val description = CoreR.string.settings_su_restrict_summary.asText()
-    override var value by Config::suRestrict
+    override var value by Config::su_restrict
 }

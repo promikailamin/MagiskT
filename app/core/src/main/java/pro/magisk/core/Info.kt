@@ -12,7 +12,7 @@ import android.app.KeyguardManager
 import android.os.Build
 import androidx.lifecycle.MutableLiveData
 import pro.magisk.StubApk
-import pro.magisk.core.ktx.getProperty
+import pro.magisk.core.ktx.get_property
 import com.topjohnwu.superuser.CallbackList
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.ShellUtils.fastCmd
@@ -20,7 +20,7 @@ import com.topjohnwu.superuser.ShellUtils.fastCmdResult
 import kotlinx.coroutines.Runnable
 
 /** `true` while the real APK is hosted inside the stub wrapper. */
-val isRunningAsStub get() = Info.stub != null
+val is_running_as_stub get() = Info.stub != null
 
 object Info {
 
@@ -28,41 +28,41 @@ object Info {
     var stub: StubApk.Data? = null
 
     /** Whether a rooted shell was obtained. */
-    var isRooted = false
-    var noDataExec = false
-    var patchBootVbmeta = false
+    var is_rooted = false
+    var no_data_exec = false
+    var patch_boot_vbmeta = false
 
     /** Magisk daemon version envelope. */
     @JvmStatic var env = Env()
         private set
     /** System-as-root (SAR) flag. */
-    @JvmStatic var isSAR = false
+    @JvmStatic var is_s_a_r = false
         private set
-    var legacySAR = false
+    var legacy_s_a_r = false
         private set
-    var isAB = false
+    var is_a_b = false
         private set
     var slot = ""
         private set
-    var isVendorBoot = false
+    var is_vendor_boot = false
         private set
-    @JvmField val isZygiskEnabled = System.getenv("ZYGISK_ENABLED") == "1"
-    @JvmField val isDenylistEnforced = System.getenv("DENYLIST_ENFORCED") == "1"
-    @JvmStatic val isFDE get() = crypto == "block"
+    @JvmField val is_zygisk_enabled = System.getenv("ZYGISK_ENABLED") == "1"
+    @JvmField val is_denylist_enforced = System.getenv("DENYLIST_ENFORCED") == "1"
+    @JvmStatic val is_f_d_e get() = crypto == "block"
     @JvmStatic var ramdisk = false
         private set
     private var crypto = ""
 
     /** Detects emulator environments through device property heuristics. */
-    val isEmulator =
+    val is_emulator =
         Build.DEVICE.contains("vsoc")
-            || getProperty("ro.kernel.qemu", "0") == "1"
-            || getProperty("ro.boot.qemu", "0") == "1"
+            || get_property("ro.kernel.qemu", "0") == "1"
+            || get_property("ro.boot.qemu", "0") == "1"
 
     /** Whether the SuperUser tab should be visible. */
-    val showSuperUser: Boolean get() {
+    val show_super_user: Boolean get() {
         return env.isActive && (Const.USER_ID == 0
-                || Config.suMultiuserMode == Config.Value.MULTIUSER_MODE_USER)
+                || Config.su_multiuser_mode == Config.Value.MULTIUSER_MODE_USER)
     }
 
     val isDeviceSecure get() =
@@ -70,16 +70,16 @@ object Info {
 
     /** Snapshot of the running Magisk daemon version. */
     class Env(
-        val versionString: String = "",
-        val isDebug: Boolean = false,
+        val version_string: String = "",
+        val is_debug: Boolean = false,
         code: Int = -1
     ) {
         val versionCode = when {
             code < Const.Version.MIN_VERCODE -> -1
-            isRooted -> code
+            is_rooted -> code
             else -> -1
         }
-        val isUnsupported = code > 0 && code < Const.Version.MIN_VERCODE
+        val is_unsupported = code > 0 && code < Const.Version.MIN_VERCODE
         val isActive = versionCode > 0
     }
 
@@ -91,7 +91,7 @@ object Info {
                 v[0], v.size >= 3 && v[2] == "D",
                 runCatching { fastCmd("magisk -V").toInt() }.getOrDefault(-1)
             )
-            Config.denyList = fastCmdResult(shell, "magisk --denylist status")
+            Config.deny_list = fastCmdResult(shell, "magisk --denylist status")
         }
 
         val map = mutableMapOf<String, String>()
@@ -105,20 +105,20 @@ object Info {
         }
         shell.newJob().add("(app_init)").to(list).exec()
 
-        fun getVar(name: String) = map[name] ?: ""
-        fun getBool(name: String) = map[name].toBoolean()
+        fun get_var(name: String) = map[name] ?: ""
+        fun get_bool(name: String) = map[name].toBoolean()
 
-        isSAR = getBool("SYSTEM_AS_ROOT")
-        ramdisk = getBool("RAMDISKEXIST")
-        isAB = getBool("ISAB")
-        patchBootVbmeta = getBool("PATCHVBMETAFLAG")
-        crypto = getVar("CRYPTOTYPE")
-        slot = getVar("SLOT")
-        legacySAR = getBool("LEGACYSAR")
-        isVendorBoot = getBool("VENDORBOOT")
+        is_s_a_r = get_bool("SYSTEM_AS_ROOT")
+        ramdisk = get_bool("RAMDISKEXIST")
+        is_a_b = get_bool("ISAB")
+        patch_boot_vbmeta = get_bool("PATCHVBMETAFLAG")
+        crypto = get_var("CRYPTOTYPE")
+        slot = get_var("SLOT")
+        legacy_s_a_r = get_bool("LEGACYSAR")
+        is_vendor_boot = get_bool("VENDORBOOT")
 
-        Config.recovery = getBool("RECOVERYMODE")
-        Config.keepVerity = getBool("KEEPVERITY")
-        Config.keepEnc = getBool("KEEPFORCEENCRYPT")
+        Config.recovery = get_bool("RECOVERYMODE")
+        Config.keep_verity = get_bool("KEEPVERITY")
+        Config.keep_enc = get_bool("KEEPFORCEENCRYPT")
     }
 }

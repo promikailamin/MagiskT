@@ -26,7 +26,7 @@
             android:alpha="@{item.enabled ? 1f : .5f}"
             android:focusable="true"
             android:nextFocusRight="@id/policy_indicator"
-            android:onClick="@{() -> item.toggleExpand()}">
+            android:onClick="@{() -> item.toggle_expand()}">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -98,18 +98,18 @@
                         app:layout_constraintTop_toTopOf="parent">
 
                         <com.google.android.material.switchmaterial.SwitchMaterial
-                            gone="@{item.showSlider}"
+                            gone="@{item.show_slider}"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checked="@={item.enabled}" />
 
                         <com.google.android.material.slider.Slider
-                            goneUnless="@{item.showSlider}"
-                            labelFormatter="@{item.sliderValueToPolicyString}"
+                            goneUnless="@{item.show_slider}"
+                            labelFormatter="@{item.slider_value_to_policy_string}"
                             android:layout_width="96dp"
                             android:layout_height="wrap_content"
                             android:stepSize="1"
-                            android:value="@={DataBindingAdaptersKt.policyToSliderValue(item.sliderValue)}"
+                            android:value="@={DataBindingAdaptersKt.policy_to_slider_value(item.slider_value)}"
                             android:valueFrom="1"
                             android:valueTo="3" />
                     </FrameLayout>
@@ -118,7 +118,7 @@
 
                 <LinearLayout
                     android:id="@+id/policy_expand_container"
-                    gone="@{!item.isExpanded}"
+                    gone="@{!item.is_expanded}"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="?colorSurfaceVariant"
@@ -128,12 +128,12 @@
                     <Button
                         android:id="@+id/policy_notify"
                         style="@style/WidgetFoundation.Button.Text"
-                        isSelected="@{item.shouldNotify}"
+                        isSelected="@{item.should_notify}"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:minHeight="24dp"
-                        android:onClick="@{() -> item.toggleNotify()}"
+                        android:onClick="@{() -> item.toggle_notify()}"
                         android:text="@string/superuser_toggle_notification"
                         android:textAllCaps="false"
                         android:textAppearance="@style/AppearanceFoundation.Tiny"
@@ -152,12 +152,12 @@
                     <Button
                         android:id="@+id/policy_log"
                         style="@style/WidgetFoundation.Button.Text"
-                        isSelected="@{item.shouldLog}"
+                        isSelected="@{item.should_log}"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:minHeight="24dp"
-                        android:onClick="@{() -> item.toggleLog()}"
+                        android:onClick="@{() -> item.toggle_log()}"
                         android:text="@string/logs"
                         android:textAllCaps="false"
                         android:textAppearance="@style/AppearanceFoundation.Tiny"

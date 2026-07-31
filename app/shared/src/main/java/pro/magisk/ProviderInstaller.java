@@ -23,8 +23,8 @@ public class ProviderInstaller {
      */
     public static void install(Context context) {
         try {
-            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(GMS_PACKAGE_NAME, 0);
-            if ((appInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+            ApplicationInfo app_info = context.getPackageManager().getApplicationInfo(GMS_PACKAGE_NAME, 0);
+            if ((app_info.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
                 return;
             }
 

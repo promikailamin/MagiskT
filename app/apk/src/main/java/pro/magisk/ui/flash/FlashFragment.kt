@@ -24,7 +24,7 @@ import androidx.navigation.NavDeepLinkBuilder
 import pro.magisk.MainDirections
 import pro.magisk.R
 import pro.magisk.arch.BaseFragment
-import pro.magisk.arch.viewModel
+import pro.magisk.arch.view_model
 import pro.magisk.core.Const
 import pro.magisk.core.cmp
 import pro.magisk.databinding.FragmentFlashMd2Binding
@@ -34,24 +34,24 @@ import pro.magisk.core.R as CoreR
 /** Fragment that streams console output for install/patch/uninstall operations. */
 class FlashFragment : BaseFragment<FragmentFlashMd2Binding>(), MenuProvider {
 
-    override val layoutRes = R.layout.fragment_flash_md2
-    override val viewModel by viewModel<FlashViewModel>()
-    override val snackbarView: View get() = binding.snackbarContainer
-    override val snackbarAnchorView: View?
-        get() = if (binding.restartBtn.isShown) binding.restartBtn else super.snackbarAnchorView
+    override val layout_res = R.layout.fragment_flash_md2
+    override val view_model by view_model<FlashViewModel>()
+    override val snackbar_view: View get() = binding.snackbarContainer
+    override val snackbar_anchor_view: View?
+        get() = if (binding.restartBtn.isShown) binding.restartBtn else super.snackbar_anchor_view
 
-    private var defaultOrientation = -1
+    private var default_orientation = -1
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel.args = FlashFragmentArgs.fromBundle(requireArguments())
+    override fun onCreate(saved_instance_state: Bundle?) {
+        super.onCreate(saved_instance_state)
+        view_model.args = FlashFragmentArgs.fromBundle(requireArguments())
     }
 
     override fun onStart() {
         super.onStart()
         activity?.setTitle(CoreR.string.flash_screen_title)
 
-        viewModel.state.observe(this) {
+        view_model.state.observe(this) {
             activity?.supportActionBar?.setSubtitle(
                 when (it) {
                     FlashViewModel.State.FLASHING -> CoreR.string.flashing
@@ -60,7 +60,7 @@ class FlashFragment : BaseFragment<FragmentFlashMd2Binding>(), MenuProvider {
                 }
             )
             // Show restart button on success when user has root
-            if (it == FlashViewModel.State.SUCCESS && viewModel.showReboot) {
+            if (it == FlashViewModel.State.SUCCESS && view_model.show_reboot) {
                 binding.restartBtn.apply {
                     if (!this.isVisible) this.show()
                     if (!this.isFocused) this.requestFocus()
@@ -74,29 +74,29 @@ class FlashFragment : BaseFragment<FragmentFlashMd2Binding>(), MenuProvider {
     }
 
     override fun onMenuItemSelected(item: MenuItem): Boolean {
-        return viewModel.onMenuItemClicked(item)
+        return view_model.on_menu_item_clicked(item)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onViewCreated(view: View, saved_instance_state: Bundle?) {
+        super.onViewCreated(view, saved_instance_state)
 
-        defaultOrientation = activity?.requestedOrientation ?: -1
+        default_orientation = activity?.requestedOrientation ?: -1
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
-        if (savedInstanceState == null) {
-            viewModel.startFlashing()
+        if (saved_instance_state == null) {
+            view_model.start_flashing()
         }
     }
 
     @SuppressLint("WrongConstant")
     override fun onDestroyView() {
-        if (defaultOrientation != -1) {
-            activity?.requestedOrientation = defaultOrientation
+        if (default_orientation != -1) {
+            activity?.requestedOrientation = default_orientation
         }
         super.onDestroyView()
     }
 
     // Capture volume keys so the flashing script can use them for prompts
-    override fun onKeyEvent(event: KeyEvent): Boolean {
+    override fun on_key_event(event: KeyEvent): Boolean {
         return when (event.keyCode) {
             KeyEvent.KEYCODE_VOLUME_UP,
             KeyEvent.KEYCODE_VOLUME_DOWN -> true
@@ -106,12 +106,12 @@ class FlashFragment : BaseFragment<FragmentFlashMd2Binding>(), MenuProvider {
 
     // Disable back-press while a flash operation is in progress
     override fun onBackPressed(): Boolean {
-        if (viewModel.flashing.value == true)
+        if (view_model.flashing.value == true)
             return true
         return super.onBackPressed()
     }
 
-    override fun onPreBind(binding: FragmentFlashMd2Binding) = Unit
+    override fun on_pre_bind(binding: FragmentFlashMd2Binding) = Unit
 
     companion object {
 
@@ -123,13 +123,13 @@ class FlashFragment : BaseFragment<FragmentFlashMd2Binding>(), MenuProvider {
                 .setArguments(args.toBundle())
                 .createPendingIntent()
 
-        private fun flashType(isSecondSlot: Boolean) =
-            if (isSecondSlot) Const.Value.FLASH_INACTIVE_SLOT else Const.Value.FLASH_MAGISK
+        private fun flash_type(is_second_slot: Boolean) =
+            if (is_second_slot) Const.Value.FLASH_INACTIVE_SLOT else Const.Value.FLASH_MAGISK
 
         /* Flashing is understood as installing / flashing magisk itself */
 
-        fun flash(isSecondSlot: Boolean) = MainDirections.actionFlashFragment(
-            action = flashType(isSecondSlot)
+        fun flash(is_second_slot: Boolean) = MainDirections.actionFlashFragment(
+            action = flash_type(is_second_slot)
         )
 
         /* Patching is understood as injecting img files with magisk */
@@ -147,7 +147,7 @@ class FlashFragment : BaseFragment<FragmentFlashMd2Binding>(), MenuProvider {
 
         /* Installing is understood as flashing modules / zips */
 
-        fun installIntent(context: Context, file: Uri) = FlashFragmentArgs(
+        fun install_intent(context: Context, file: Uri) = FlashFragmentArgs(
             action = Const.Value.FLASH_ZIP,
             additionalData = file,
         ).let { createIntent(context, it) }

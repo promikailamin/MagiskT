@@ -6,11 +6,11 @@
     <data>
 
         <variable
-            name="isTop"
+            name="is_top"
             type="Boolean" />
 
         <variable
-            name="isBottom"
+            name="is_bottom"
             type="Boolean" />
 
         <variable
@@ -31,7 +31,7 @@
 
         <ImageView
             android:id="@+id/track_top"
-            invisible="@{isTop}"
+            invisible="@{is_top}"
             android:layout_width="2dp"
             android:layout_height="0dp"
             android:layout_marginBottom="2dp"
@@ -57,7 +57,7 @@
 
         <ImageView
             android:id="@+id/track_bottom"
-            invisible="@{isBottom}"
+            invisible="@{is_bottom}"
             android:layout_width="2dp"
             android:layout_height="0dp"
             android:layout_marginTop="2dp"

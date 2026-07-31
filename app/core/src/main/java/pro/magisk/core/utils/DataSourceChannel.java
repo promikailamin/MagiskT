@@ -32,7 +32,7 @@ public class DataSourceChannel implements SeekableByteChannel {
     private static final int SEQ_READ_THRESHOLD = 1024;
     private static final int DIRECT_READ_THRESHOLD = 512 * 1024;
 
-    private final FileChannel fileChannel;
+    private final FileChannel file_channel;
     private final long startOffset;
     private final long size;
 
@@ -42,16 +42,16 @@ public class DataSourceChannel implements SeekableByteChannel {
     private byte[] cache = null;
     private long cacheStart = -1;
 
-    private DataSourceChannel(FileChannel fileChannel,
+    private DataSourceChannel(FileChannel file_channel,
                               long startOffset, long size) {
-        this.fileChannel = fileChannel;
+        this.file_channel = file_channel;
         this.startOffset = startOffset;
         this.size = size;
     }
 
     /** Wraps the entire {@link FileChannel} as a readable channel. */
-    public DataSourceChannel(FileChannel fileChannel) throws IOException {
-        this(fileChannel, 0, fileChannel.size());
+    public DataSourceChannel(FileChannel file_channel) throws IOException {
+        this(file_channel, 0, file_channel.size());
     }
 
     /**
@@ -65,14 +65,14 @@ public class DataSourceChannel implements SeekableByteChannel {
         if (offset < 0 || sliceSize <= 0 || offset + sliceSize >= size) {
             throw new IllegalArgumentException("Invalid slice parameters");
         }
-        return new DataSourceChannel(fileChannel, startOffset + offset, sliceSize);
+        return new DataSourceChannel(file_channel, startOffset + offset, sliceSize);
     }
 
     @Override
     public int read(ByteBuffer dst) throws IOException {
-        var bytesRead = read(dst, position);
-        position += bytesRead;
-        return bytesRead;
+        var bytes_read = read(dst, position);
+        position += bytes_read;
+        return bytes_read;
     }
 
     /**
@@ -90,49 +90,49 @@ public class DataSourceChannel implements SeekableByteChannel {
         if (requestSize == 0) return 0;
 
         if (requestSize > DIRECT_READ_THRESHOLD) {
-            return handleLargeRead(dst, position);
+            return handle_large_read(dst, position);
         }
 
         int totalBytesRead = 0;
-        if (isCacheHit(position, 1)) {
-            int bytesFromCache = readFromCache(dst, position);
+        if (is_cache_hit(position, 1)) {
+            int bytesFromCache = read_from_cache(dst, position);
             totalBytesRead += bytesFromCache;
             position += bytesFromCache;
         }
 
         if (dst.hasRemaining() && position < size) {
-            loadCache(position, requestSize);
-            if (isCacheHit(position, dst.remaining())) {
-                totalBytesRead += readFromCache(dst, position);
+            load_cache(position, requestSize);
+            if (is_cache_hit(position, dst.remaining())) {
+                totalBytesRead += read_from_cache(dst, position);
             } else {
-                totalBytesRead += readDirectly(dst, position);
+                totalBytesRead += read_directly(dst, position);
             }
         }
 
         return totalBytesRead;
     }
 
-    private int handleLargeRead(ByteBuffer dst, long position) throws IOException {
+    private int handle_large_read(ByteBuffer dst, long position) throws IOException {
         int bytesFromCache = 0;
-        if (isCacheHit(position, 1)) {
-            bytesFromCache = readFromCache(dst, position);
+        if (is_cache_hit(position, 1)) {
+            bytesFromCache = read_from_cache(dst, position);
             position += bytesFromCache;
         }
 
         if (dst.hasRemaining() && position < size) {
-            int directBytesRead = readDirectly(dst, position);
+            int directBytesRead = read_directly(dst, position);
             return bytesFromCache + directBytesRead;
         } else {
             return bytesFromCache;
         }
     }
 
-    private void loadCache(long requestPos, int requestSize) throws IOException {
+    private void load_cache(long requestPos, int requestSize) throws IOException {
         int cacheSize;
         long cacheStart;
 
-        var lastCacheEnd = cache != null ? this.cacheStart + cache.length : -1;
-        if (requestSize > SEQ_READ_THRESHOLD || lastCacheEnd == requestPos) {
+        var last_cache_end = cache != null ? this.cacheStart + cache.length : -1;
+        if (requestSize > SEQ_READ_THRESHOLD || last_cache_end == requestPos) {
             cacheSize = SEQ_READ_CACHE_SIZE;
             cacheStart = requestPos;
         } else {
@@ -140,16 +140,16 @@ public class DataSourceChannel implements SeekableByteChannel {
             cacheStart = Math.max(0, requestPos - cacheSize / 2);
         }
 
-        loadCacheAt(cacheStart, cacheSize);
+        load_cache_at(cacheStart, cacheSize);
     }
 
-    private void loadCacheAt(long cacheStart, int cacheSize) throws IOException {
+    private void load_cache_at(long cacheStart, int cacheSize) throws IOException {
         long maxEnd = Math.min(cacheStart + cacheSize, size);
         cacheStart = Math.max(0, maxEnd - cacheSize);
 
         var buffer = ByteBuffer.allocate((int) (maxEnd - cacheStart));
-        var bytesRead = readDirectly(buffer, cacheStart);
-        if (bytesRead != buffer.capacity()) {
+        var bytes_read = read_directly(buffer, cacheStart);
+        if (bytes_read != buffer.capacity()) {
             throw new IOException("Failed to fill cache.");
         }
 
@@ -158,14 +158,14 @@ public class DataSourceChannel implements SeekableByteChannel {
 
     }
 
-    private boolean isCacheHit(long pos, int bytesToRead) {
+    private boolean is_cache_hit(long pos, int bytesToRead) {
         if (cache == null) return false;
         long cacheEnd = cacheStart + cache.length;
         long readEnd = Math.min(pos + bytesToRead, size);
         return pos >= cacheStart && readEnd <= cacheEnd;
     }
 
-    private int readFromCache(ByteBuffer dst, long position) {
+    private int read_from_cache(ByteBuffer dst, long position) {
         long relativePos = position - cacheStart;
         int available = (int) Math.min(dst.remaining(), cache.length - relativePos);
 
@@ -174,15 +174,15 @@ public class DataSourceChannel implements SeekableByteChannel {
         return available;
     }
 
-    private int readDirectly(ByteBuffer dst, long position) throws IOException {
-        try (var channel = Channels.newChannel(streamRead(position, dst.remaining()))) {
+    private int read_directly(ByteBuffer dst, long position) throws IOException {
+        try (var channel = Channels.newChannel(stream_read(position, dst.remaining()))) {
             int totalBytesRead = 0;
             while (true) {
-                int bytesRead = channel.read(dst);
-                if (bytesRead <= 0) {
+                int bytes_read = channel.read(dst);
+                if (bytes_read <= 0) {
                     break;
                 }
-                totalBytesRead += bytesRead;
+                totalBytesRead += bytes_read;
             }
 
             return totalBytesRead;
@@ -193,16 +193,16 @@ public class DataSourceChannel implements SeekableByteChannel {
      * Opens a bounded {@link InputStream} over the specified range of data.
      * The returned stream reads from the backing {@link FileChannel} directly.
      */
-    public InputStream streamRead(long position, long length) throws IOException {
+    public InputStream stream_read(long position, long length) throws IOException {
         long endPosition = Math.min(position + length, size) + startOffset;
-        var startPosition = startOffset + position;
-        var readLength = endPosition - startPosition;
+        var start_position = startOffset + position;
+        var read_length = endPosition - start_position;
 
-        if (fileChannel != null) {
-            fileChannel.position(startPosition);
+        if (file_channel != null) {
+            file_channel.position(start_position);
             return BoundedInputStream.builder()
-                    .setInputStream(Channels.newInputStream(fileChannel))
-                    .setMaxCount(readLength)
+                    .setInputStream(Channels.newInputStream(file_channel))
+                    .setMaxCount(read_length)
                     .setPropagateClose(false)
                     .get();
         }
@@ -239,8 +239,8 @@ public class DataSourceChannel implements SeekableByteChannel {
     public void close() throws IOException {
         open = false;
         cache = null;
-        if (fileChannel != null) {
-            fileChannel.close();
+        if (file_channel != null) {
+            file_channel.close();
         }
     }
 

@@ -12,18 +12,18 @@ import android.content.res.Resources
 abstract class TextHolder {
 
     open val isEmpty: Boolean get() = false
-    abstract fun getText(resources: Resources): String
+    abstract fun get_text(resources: Resources): String
 
     /** A [TextHolder] backed by an already-resolved [String]. */
     class Str(private val value: String) : TextHolder() {
         override val isEmpty get() = value.isEmpty()
-        override fun getText(resources: Resources) = value
+        override fun get_text(resources: Resources) = value
     }
 
     /** A [TextHolder] backed by a string resource ID. */
     open class Resource(protected val value: Int) : TextHolder() {
         override val isEmpty get() = value == 0
-        override fun getText(resources: Resources) = resources.getString(value)
+        override fun get_text(resources: Resources) = resources.getString(value)
     }
 
     /** A [TextHolder] backed by a formatted string resource with vararg arguments. */
@@ -31,8 +31,8 @@ abstract class TextHolder {
         value: Int,
         private vararg val params: Any
     ) : Resource(value) {
-        override fun getText(resources: Resources): String {
-            val args = params.map { if (it is TextHolder) it.getText(resources) else it }
+        override fun get_text(resources: Resources): String {
+            val args = params.map { if (it is TextHolder) it.get_text(resources) else it }
             return resources.getString(value, *args.toTypedArray())
         }
     }

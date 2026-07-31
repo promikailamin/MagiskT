@@ -35,7 +35,7 @@ import pro.magisk.databinding.DiffItem
 import pro.magisk.databinding.ItemWrapper
 import pro.magisk.databinding.ObservableHost
 import pro.magisk.databinding.RvItem
-import pro.magisk.databinding.bindExtra
+import pro.magisk.databinding.bind_extra
 import pro.magisk.databinding.set
 import pro.magisk.databinding.setAdapter
 import pro.magisk.view.MagiskDialog.DialogClickListener
@@ -75,9 +75,9 @@ class MagiskDialog(
         var message: CharSequence = ""
             set(value) = set(value, field, { field = it }, BR.message)
 
-        val buttonPositive = ButtonViewModel()
-        val buttonNeutral = ButtonViewModel()
-        val buttonNegative = ButtonViewModel()
+        val button_positive = ButtonViewModel()
+        val button_neutral = ButtonViewModel()
+        val button_negative = ButtonViewModel()
     }
 
     enum class ButtonType {
@@ -88,7 +88,7 @@ class MagiskDialog(
         var icon: Int
         var text: Any
         var isEnabled: Boolean
-        var doNotDismiss: Boolean
+        var do_not_dismiss: Boolean
 
         fun onClick(listener: DialogButtonClickListener)
     }
@@ -109,7 +109,7 @@ class MagiskDialog(
             get() = message
             set(value) {
                 message = when (value) {
-                    is Int -> context.getText(value)
+                    is Int -> context.get_text(value)
                     else -> value
                 }.toString()
             }
@@ -121,37 +121,37 @@ class MagiskDialog(
         override var isEnabled = true
             set(value) = set(value, field, { field = it }, BR.enabled)
 
-        override var doNotDismiss = false
+        override var do_not_dismiss = false
 
-        private var onClickAction: DialogButtonClickListener = {}
+        private var on_click_action: DialogButtonClickListener = {}
 
         override fun onClick(listener: DialogButtonClickListener) {
-            onClickAction = listener
+            on_click_action = listener
         }
 
         fun clicked() {
-            onClickAction(this@MagiskDialog)
-            if (!doNotDismiss) {
+            on_click_action(this@MagiskDialog)
+            if (!do_not_dismiss) {
                 dismiss()
             }
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreate(saved_instance_state: Bundle?) {
+        super.onCreate(saved_instance_state)
         super.setContentView(binding.root)
 
         val default = MaterialColors.getColor(context, com.google.android.material.R.attr.colorSurface, javaClass.canonicalName)
-        val surfaceColor = MaterialColors.getColor(context, R.attr.colorSurfaceSurfaceVariant, default)
-        val materialShapeDrawable = MaterialShapeDrawable(context, null, androidx.appcompat.R.attr.alertDialogStyle, com.google.android.material.R.style.MaterialAlertDialog_MaterialComponents)
-        materialShapeDrawable.initializeElevationOverlay(context)
-        materialShapeDrawable.fillColor = ColorStateList.valueOf(surfaceColor)
-        materialShapeDrawable.elevation = context.resources.getDimension(R.dimen.margin_generic)
-        materialShapeDrawable.setCornerSize(context.resources.getDimension(R.dimen.l_50))
+        val surface_color = MaterialColors.getColor(context, R.attr.colorSurfaceSurfaceVariant, default)
+        val material_shape_drawable = MaterialShapeDrawable(context, null, androidx.appcompat.R.attr.alertDialogStyle, com.google.android.material.R.style.MaterialAlertDialog_MaterialComponents)
+        material_shape_drawable.initializeElevationOverlay(context)
+        material_shape_drawable.fillColor = ColorStateList.valueOf(surface_color)
+        material_shape_drawable.elevation = context.resources.getDimension(R.dimen.margin_generic)
+        material_shape_drawable.setCornerSize(context.resources.getDimension(R.dimen.l_50))
 
         val inset = context.resources.getDimensionPixelSize(com.google.android.material.R.dimen.appcompat_dialog_background_inset)
         window?.apply {
-            setBackgroundDrawable(InsetDrawable(materialShapeDrawable, inset, inset, inset, inset))
+            setBackgroundDrawable(InsetDrawable(material_shape_drawable, inset, inset, inset, inset))
             setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         }
     }
@@ -172,11 +172,11 @@ class MagiskDialog(
 
     fun setIcon(drawable: Drawable) { data.icon = drawable }
 
-    fun setButton(buttonType: ButtonType, builder: Button.() -> Unit) {
-        val button = when (buttonType) {
-            ButtonType.POSITIVE -> data.buttonPositive
-            ButtonType.NEUTRAL -> data.buttonNeutral
-            ButtonType.NEGATIVE -> data.buttonNegative
+    fun setButton(button_type: ButtonType, builder: Button.() -> Unit) {
+        val button = when (button_type) {
+            ButtonType.POSITIVE -> data.button_positive
+            ButtonType.NEUTRAL -> data.button_neutral
+            ButtonType.NEGATIVE -> data.button_negative
         }
         button.apply(builder)
     }
@@ -186,7 +186,7 @@ class MagiskDialog(
         override val item: CharSequence,
         val position: Int
     ) : RvItem(), DiffItem<DialogItem>, ItemWrapper<CharSequence> {
-        override val layoutRes = R.layout.item_list_single_line
+        override val layout_res = R.layout.item_list_single_line
     }
 
     fun interface DialogClickListener {
@@ -194,7 +194,7 @@ class MagiskDialog(
     }
 
     /** Replaces the dialog body with a RecyclerView of selectable items. */
-    fun setListItems(
+    fun set_list_items(
         list: Array<out CharSequence>,
         listener: DialogClickListener
     ) = setView(
@@ -203,13 +203,13 @@ class MagiskDialog(
             it.layoutManager = LinearLayoutManager(context)
 
             val items = list.mapIndexed { i, cs -> DialogItem(cs, i) }
-            val extraBindings = bindExtra { sa ->
+            val extra_bindings = bind_extra { sa ->
                 sa.put(BR.listener, DialogClickListener { pos ->
                     listener.onClick(pos)
                     dismiss()
                 })
             }
-            it.setAdapter(items, extraBindings)
+            it.setAdapter(items, extra_bindings)
         }
     )
 
@@ -223,13 +223,13 @@ class MagiskDialog(
     }
 
     /** Clears all button configurations (title, icon, listeners). */
-    fun resetButtons() {
+    fun reset_buttons() {
         ButtonType.values().forEach {
             setButton(it) {
                 text = ""
                 icon = 0
                 isEnabled = true
-                doNotDismiss = false
+                do_not_dismiss = false
                 onClick {}
             }
         }

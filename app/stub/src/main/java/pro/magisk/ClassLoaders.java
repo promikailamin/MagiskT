@@ -87,6 +87,6 @@ class DelegateClassLoader extends ClassLoader {
 
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        return DynLoad.activeClassLoader.loadClass(name);
+        return DynLoad.active_class_loader.loadClass(name);
     }
 }

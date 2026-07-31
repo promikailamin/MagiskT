@@ -11,46 +11,46 @@ import pro.magisk.core.Config
 
 /** Enum of all app colour themes with their display name and style resource. */
 enum class Theme(
-    val themeName: String,
-    val themeRes: Int
+    val theme_name: String,
+    val theme_res: Int
 ) {
     Rayquaza(
-        themeName = "Rayquaza",
-        themeRes = R.style.ThemeFoundationMD2_Rayquaza
+        theme_name = "Rayquaza",
+        theme_res = R.style.ThemeFoundationMD2_Rayquaza
     ),
     Piplup(
-        themeName = "Piplup",
-        themeRes = R.style.ThemeFoundationMD2_Piplup
+        theme_name = "Piplup",
+        theme_res = R.style.ThemeFoundationMD2_Piplup
     ),
     PiplupAmoled(
-        themeName = "AMOLED",
-        themeRes = R.style.ThemeFoundationMD2_Amoled
+        theme_name = "AMOLED",
+        theme_res = R.style.ThemeFoundationMD2_Amoled
     ),
     Zapdos(
-        themeName = "Zapdos",
-        themeRes = R.style.ThemeFoundationMD2_Zapdos
+        theme_name = "Zapdos",
+        theme_res = R.style.ThemeFoundationMD2_Zapdos
     ),
     Charmeleon(
-        themeName = "Charmeleon",
-        themeRes = R.style.ThemeFoundationMD2_Charmeleon
+        theme_name = "Charmeleon",
+        theme_res = R.style.ThemeFoundationMD2_Charmeleon
     ),
     Mew(
-        themeName = "Mew",
-        themeRes = R.style.ThemeFoundationMD2_Mew
+        theme_name = "Mew",
+        theme_res = R.style.ThemeFoundationMD2_Mew
     ),
     Salamence(
-        themeName = "Salamence",
-        themeRes = R.style.ThemeFoundationMD2_Salamence
+        theme_name = "Salamence",
+        theme_res = R.style.ThemeFoundationMD2_Salamence
     ),
     Fraxure(
-        themeName = "Fraxure (Legacy)",
-        themeRes = R.style.ThemeFoundationMD2_Fraxure
+        theme_name = "Fraxure (Legacy)",
+        theme_res = R.style.ThemeFoundationMD2_Fraxure
     );
 
-    val isSelected get() = Config.themeOrdinal == ordinal
+    val isSelected get() = Config.theme_ordinal == ordinal
 
     companion object {
-        val selected get() = values().getOrNull(Config.themeOrdinal) ?: Piplup
+        val selected get() = values().getOrNull(Config.theme_ordinal) ?: Piplup
     }
 
 }

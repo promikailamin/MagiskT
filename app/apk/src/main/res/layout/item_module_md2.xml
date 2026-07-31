@@ -12,7 +12,7 @@
             type="pro.magisk.ui.module.LocalModuleRvItem" />
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.module.ModuleViewModel" />
 
     </data>
@@ -24,10 +24,10 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/module"
             style="@style/WidgetFoundation.Card"
-            isEnabled="@{!item.removed &amp;&amp; item.enabled &amp;&amp; !item.showNotice}"
+            isEnabled="@{!item.removed &amp;&amp; item.enabled &amp;&amp; !item.show_notice}"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:focusable="@{!item.removed &amp;&amp; item.enabled &amp;&amp; !item.showNotice}"
+            android:focusable="@{!item.removed &amp;&amp; item.enabled &amp;&amp; !item.show_notice}"
             android:nextFocusRight="@id/module_indicator"
             app:cardBackgroundColor="@color/color_card_background_color_selector"
             tools:isEnabled="false"
@@ -151,17 +151,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:barrierDirection="start"
-                    app:referencedIds="@{viewModel.bottomBarBarrierIds}" />
+                    app:referencedIds="@{view_model.bottom_bar_barrier_ids}" />
 
                 <TextView
                     android:id="@+id/module_notice_text"
-                    goneUnless="@{item.showNotice}"
+                    goneUnless="@{item.show_notice}"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/l1"
                     android:layout_marginEnd="@dimen/l_50"
                     android:fontFamily="sans-serif-medium"
-                    android:text="@{item.noticeText}"
+                    android:text="@{item.notice_text}"
                     android:textAppearance="@style/AppearanceFoundation.Caption.Primary"
                     android:textColor="?colorError"
                     app:layout_constraintBottom_toBottomOf="@+id/module_remove"
@@ -175,13 +175,13 @@
                 <Button
                     android:id="@+id/module_config"
                     style="@style/WidgetFoundation.Button.Text"
-                    goneUnless="@{item.showAction}"
+                    goneUnless="@{item.show_action}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="true"
                     android:enabled="@{item.enabled}"
                     android:focusable="true"
-                    android:onClick="@{() -> viewModel.runAction(item.item.id, item.item.name)}"
+                    android:onClick="@{() -> view_model.run_action(item.item.id, item.item.name)}"
                     android:text="@string/module_action"
                     android:textAllCaps="false"
                     android:visibility="gone"

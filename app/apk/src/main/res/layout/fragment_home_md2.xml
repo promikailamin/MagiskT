@@ -12,7 +12,7 @@
         <import type="pro.magisk.ui.home.IconLink" />
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.home.HomeViewModel" />
 
     </data>
@@ -34,18 +34,18 @@
 
             <Button
                 style="@style/WidgetFoundation.Button"
-                gone="@{!viewModel.showTest}"
+                gone="@{!view_model.show_test}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:onClick="@{() -> viewModel.onTestPressed()}"
+                android:onClick="@{() -> view_model.on_test_pressed()}"
                 android:text="TEST"
                 android:textAllCaps="false"
                 tools:visibility="gone" />
 
             <com.google.android.material.card.MaterialCardView
                 style="@style/WidgetFoundation.Card.Primary"
-                goneUnless="@{viewModel.noticeVisible}"
+                goneUnless="@{view_model.noticeVisible}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/l1"
@@ -73,7 +73,7 @@
                         style="@style/WidgetFoundation.Button.Text.OnPrimary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:onClick="@{() -> viewModel.hideNotice()}"
+                        android:onClick="@{() -> view_model.hide_notice()}"
                         android:text="@string/hide"
                         android:textAllCaps="false"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -87,7 +87,7 @@
             <include
                 android:id="@+id/home_magisk_wrapper"
                 layout="@layout/include_home_magisk"
-                viewModel="@{viewModel}"
+                view_model="@{view_model}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/l1"
@@ -101,7 +101,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/l1"
                 android:layout_marginEnd="@dimen/l1"
-                android:onClick="@{() -> viewModel.onDeletePressed()}"
+                android:onClick="@{() -> view_model.on_delete_pressed()}"
                 android:text="@string/uninstall_magisk_title"
                 android:textAllCaps="false"
                 android:textSize="12sp"
@@ -115,7 +115,7 @@
                 android:layout_marginStart="@dimen/l1"
                 android:layout_marginTop="@dimen/l_50"
                 android:layout_marginEnd="@dimen/l1"
-                android:onClick="@{() -> viewModel.onSettingsPressed()}"
+                android:onClick="@{() -> view_model.on_settings_pressed()}"
                 android:text="@string/settings"
                 android:textAllCaps="false"
                 android:textSize="12sp"
@@ -165,7 +165,7 @@
                         <include
                             item="@{IconLink.Patreon.INSTANCE}"
                             layout="@layout/item_icon_link"
-                            viewModel="@{viewModel}"
+                            view_model="@{view_model}"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1" />
@@ -173,7 +173,7 @@
                         <include
                             item="@{IconLink.PayPal.Project.INSTANCE}"
                             layout="@layout/item_icon_link"
-                            viewModel="@{viewModel}"
+                            view_model="@{view_model}"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1" />
@@ -210,7 +210,7 @@
                     <include
                         item="@{DeveloperItem.mikail.INSTANCE}"
                         layout="@layout/item_developer"
-                        viewModel="@{viewModel}"
+                        view_model="@{view_model}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/l_50" />
@@ -218,7 +218,7 @@
                     <include
                         item="@{DeveloperItem.john.INSTANCE}"
                         layout="@layout/item_developer"
-                        viewModel="@{viewModel}"
+                        view_model="@{view_model}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/l_50" />

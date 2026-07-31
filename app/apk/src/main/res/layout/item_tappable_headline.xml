@@ -19,7 +19,7 @@
         style="@style/WidgetFoundation.Card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="@{() -> listener.onItemPressed(item)}"
+        android:onClick="@{() -> listener.on_item_pressed(item)}"
         tools:layout_gravity="center">
 
         <androidx.constraintlayout.widget.ConstraintLayout

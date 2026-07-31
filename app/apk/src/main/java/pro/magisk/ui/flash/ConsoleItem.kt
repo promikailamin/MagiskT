@@ -14,5 +14,5 @@ import pro.magisk.databinding.RvItem
 class ConsoleItem(
     override val item: String
 ) : RvItem(), DiffItem<ConsoleItem>, ItemWrapper<String> {
-    override val layoutRes = R.layout.item_console_md2
+    override val layout_res = R.layout.item_console_md2
 }

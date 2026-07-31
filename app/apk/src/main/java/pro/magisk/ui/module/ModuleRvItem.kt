@@ -23,7 +23,7 @@ import pro.magisk.core.R as CoreR
 
 /** A clickable "Install from storage" item at the top of the module list. */
 object InstallModule : RvItem(), DiffItem<InstallModule> {
-    override val layoutRes = R.layout.item_module_download
+    override val layout_res = R.layout.item_module_download
 }
 
 /** An installed module item with enable/remove toggles and compatibility notices. */
@@ -31,26 +31,26 @@ class LocalModuleRvItem(
     override val item: LocalModule
 ) : ObservableRvItem(), DiffItem<LocalModuleRvItem>, ItemWrapper<LocalModule> {
 
-    override val layoutRes = R.layout.item_module_md2
+    override val layout_res = R.layout.item_module_md2
 
-    val showNotice: Boolean
-    val showAction: Boolean
-    val noticeText: TextHolder
+    val show_notice: Boolean
+    val show_action: Boolean
+    val notice_text: TextHolder
 
     init {
-        val isZygisk = item.isZygisk
-        val isRiru = item.isRiru
-        val zygiskUnloaded = isZygisk && item.zygiskUnloaded
+        val is_zygisk = item.is_zygisk
+        val is_riru = item.is_riru
+        val zygisk_unloaded = is_zygisk && item.zygisk_unloaded
 
         // Show a compatibility notice if the module targets the wrong environment
-        showNotice = zygiskUnloaded ||
-            (Info.isZygiskEnabled && isRiru) ||
-            (!Info.isZygiskEnabled && isZygisk)
-        showAction = item.hasAction && !showNotice
-        noticeText =
+        show_notice = zygisk_unloaded ||
+            (Info.is_zygisk_enabled && is_riru) ||
+            (!Info.is_zygisk_enabled && is_zygisk)
+        show_action = item.has_action && !show_notice
+        notice_text =
             when {
-                zygiskUnloaded -> CoreR.string.zygisk_module_unloaded.asText()
-                isRiru -> CoreR.string.suspend_text_riru.asText(CoreR.string.zygisk.asText())
+                zygisk_unloaded -> CoreR.string.zygisk_module_unloaded.asText()
+                is_riru -> CoreR.string.suspend_text_riru.asText(CoreR.string.zygisk.asText())
                 else -> CoreR.string.suspend_text_zygisk.asText(CoreR.string.zygisk.asText())
             }
     }
@@ -62,16 +62,16 @@ class LocalModuleRvItem(
         }
 
     @get:Bindable
-    var isRemoved = item.remove
+    var is_removed = item.remove
         set(value) = set(value, field, { field = it }, BR.removed) {
             item.remove = value
         }
 
-    val isUpdated = item.updated
+    val is_updated = item.updated
 
     fun delete() {
-        isRemoved = !isRemoved
+        is_removed = !is_removed
     }
 
-    override fun itemSameAs(other: LocalModuleRvItem): Boolean = item.id == other.item.id
+    override fun item_same_as(other: LocalModuleRvItem): Boolean = item.id == other.item.id
 }

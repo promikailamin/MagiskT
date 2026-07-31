@@ -35,17 +35,17 @@ abstract class BaseViewModel : ViewModel(), ObservableHost {
     override var callbacks: PropertyChangeRegistry? = null
 
     private val _viewEvents = MutableLiveData<ViewEvent>()
-    val viewEvents: LiveData<ViewEvent> get() = _viewEvents
+    val view_events: LiveData<ViewEvent> get() = _viewEvents
 
-    open fun onSaveState(state: Bundle) {}
-    open fun onRestoreState(state: Bundle) {}
+    open fun on_save_state(state: Bundle) {}
+    open fun on_restore_state(state: Bundle) {}
 
-    fun withPermission(permission: String, callback: (Boolean) -> Unit) {
+    fun with_permission(permission: String, callback: (Boolean) -> Unit) {
         PermissionEvent(permission, callback).publish()
     }
 
-    inline fun withExternalRW(crossinline callback: () -> Unit) {
-        withPermission(WRITE_EXTERNAL_STORAGE) {
+    inline fun with_external_r_w(crossinline callback: () -> Unit) {
+        with_permission(WRITE_EXTERNAL_STORAGE) {
             if (!it) {
                 SnackbarEvent(R.string.external_rw_permission_denied).publish()
             } else {
@@ -55,8 +55,8 @@ abstract class BaseViewModel : ViewModel(), ObservableHost {
     }
 
     @SuppressLint("InlinedApi")
-    inline fun withInstallPermission(crossinline callback: () -> Unit) {
-        withPermission(REQUEST_INSTALL_PACKAGES) {
+    inline fun with_install_permission(crossinline callback: () -> Unit) {
+        with_permission(REQUEST_INSTALL_PACKAGES) {
             if (!it) {
                 SnackbarEvent(R.string.install_unknown_denied).publish()
             } else {
@@ -66,8 +66,8 @@ abstract class BaseViewModel : ViewModel(), ObservableHost {
     }
 
     @SuppressLint("InlinedApi")
-    inline fun withPostNotificationPermission(crossinline callback: () -> Unit) {
-        withPermission(POST_NOTIFICATIONS) {
+    inline fun with_post_notification_permission(crossinline callback: () -> Unit) {
+        with_permission(POST_NOTIFICATIONS) {
             if (!it) {
                 SnackbarEvent(R.string.post_notifications_denied).publish()
             } else {

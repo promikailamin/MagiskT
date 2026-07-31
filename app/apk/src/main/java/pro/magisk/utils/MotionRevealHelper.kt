@@ -36,14 +36,14 @@ object MotionRevealHelper {
         revealable.revealInfo = revealable.createRevealInfo(!expanded)
 
         val revealInfo = revealable.createRevealInfo(expanded)
-        val revealAnim = revealable.createRevealAnim(revealInfo)
-        val moveAnim = fab.createMoveAnim(revealInfo)
+        val reveal_anim = revealable.createRevealAnim(revealInfo)
+        val move_anim = fab.createMoveAnim(revealInfo)
 
         AnimatorSet().also {
             if (expanded) {
-                it.play(revealAnim).after(moveAnim)
+                it.play(reveal_anim).after(move_anim)
             } else {
-                it.play(moveAnim).after(revealAnim)
+                it.play(move_anim).after(reveal_anim)
             }
         }.start()
     }
@@ -72,24 +72,24 @@ object MotionRevealHelper {
         it.interpolator = FastOutSlowInInterpolator()
         it.addListener(onStart = { show() }, onEnd = { if (revealInfo.radius != 0f) hide() })
 
-        val rtlMod =
-            if (LocaleSetting.instance.currentLocale.layoutDirection == View.LAYOUT_DIRECTION_RTL)
+        val rtl_mod =
+            if (LocaleSetting.instance.current_locale.layoutDirection == View.LAYOUT_DIRECTION_RTL)
                 1f else -1f
-        val maxX = revealInfo.centerX - marginEnd - measuredWidth / 2f
-        val targetX = if (revealInfo.radius == 0f) 0f else maxX * rtlMod
-        val moveX = ObjectAnimator.ofFloat(this, View.TRANSLATION_X, targetX)
+        val max_x = revealInfo.centerX - marginEnd - measuredWidth / 2f
+        val target_x = if (revealInfo.radius == 0f) 0f else max_x * rtl_mod
+        val move_x = ObjectAnimator.ofFloat(this, View.TRANSLATION_X, target_x)
 
-        val maxY = revealInfo.centerY - marginBottom - measuredHeight / 2f
-        val targetY = if (revealInfo.radius == 0f) 0f else -maxY
-        val moveY = ObjectAnimator.ofFloat(this, View.TRANSLATION_Y, targetY)
+        val max_y = revealInfo.centerY - marginBottom - measuredHeight / 2f
+        val target_y = if (revealInfo.radius == 0f) 0f else -max_y
+        val move_y = ObjectAnimator.ofFloat(this, View.TRANSLATION_Y, target_y)
 
-        it.playTogether(moveX, moveY)
+        it.playTogether(move_x, move_y)
     }
 
     private fun View.createRevealInfo(expanded: Boolean): CircularRevealWidget.RevealInfo {
-        val cX = measuredWidth / 2f
-        val cY = measuredHeight / 2f - paddingBottom
-        return CircularRevealWidget.RevealInfo(cX, cY, if (expanded) hypot(cX, cY) else 0f)
+        val c_x = measuredWidth / 2f
+        val c_y = measuredHeight / 2f - paddingBottom
+        return CircularRevealWidget.RevealInfo(c_x, c_y, if (expanded) hypot(c_x, c_y) else 0f)
     }
 
 }

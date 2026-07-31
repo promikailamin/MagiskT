@@ -22,7 +22,7 @@ import pro.magisk.core.Const
 import pro.magisk.core.Info
 import pro.magisk.core.R
 import pro.magisk.core.di.ServiceLocator
-import pro.magisk.core.isRunningAsStub
+import pro.magisk.core.is_running_as_stub
 import pro.magisk.view.Notifications
 import pro.magisk.core.utils.RootUtils
 import pro.magisk.view.Shortcuts
@@ -30,10 +30,10 @@ import com.topjohnwu.superuser.Shell
 
 /** Interface that an activity must implement to work with [SplashController]. */
 interface SplashScreenHost : IActivityExtension {
-    val splashController: SplashController<*>
+    val splash_controller: SplashController<*>
 
-    fun onCreateUi(savedInstanceState: Bundle?)
-    fun showInvalidStateMessage()
+    fun on_create_ui(saved_instance_state: Bundle?)
+    fun show_invalid_state_message()
 }
 
 /**
@@ -47,41 +47,41 @@ class SplashController<T>(private val activity: T)
     where T: ComponentActivity, T: SplashScreenHost {
 
     companion object {
-        private var splashShown = false
+        private var splash_shown = false
     }
 
-    private var shouldCreateUiOnResume = false
+    private var should_create_ui_on_resume = false
 
-    fun preOnCreate() {
-        if (isRunningAsStub && !splashShown) {
+    fun pre_on_create() {
+        if (is_running_as_stub && !splash_shown) {
             activity.theme.applyStyle(R.style.StubSplashTheme, true)
         }
     }
 
-    fun onCreate(savedInstanceState: Bundle?) {
-        if (!isRunningAsStub) {
-            val splashScreen = activity.installSplashScreen()
-            splashScreen.setKeepOnScreenCondition { !splashShown }
+    fun onCreate(saved_instance_state: Bundle?) {
+        if (!is_running_as_stub) {
+            val splash_screen = activity.installSplashScreen()
+            splash_screen.setKeepOnScreenCondition { !splash_shown }
         }
 
-        if (splashShown) {
-            doCreateUi(savedInstanceState)
+        if (splash_shown) {
+            do_create_ui(saved_instance_state)
         } else {
             Shell.getShell(Shell.EXECUTOR) {
-                if (isRunningAsStub && !it.isRoot) {
-                    activity.showInvalidStateMessage()
+                if (is_running_as_stub && !it.isRoot) {
+                    activity.show_invalid_state_message()
                     return@getShell
                 }
                 activity.initializeApp()
                 activity.runOnUiThread {
-                    splashShown = true
-                    if (isRunningAsStub) {
+                    splash_shown = true
+                    if (is_running_as_stub) {
                         activity.relaunch()
                     } else {
                         if (activity.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-                            doCreateUi(savedInstanceState)
+                            do_create_ui(saved_instance_state)
                         } else {
-                            shouldCreateUiOnResume = true
+                            should_create_ui_on_resume = true
                         }
                     }
                 }
@@ -90,23 +90,23 @@ class SplashController<T>(private val activity: T)
     }
 
     fun onResume() {
-        if (shouldCreateUiOnResume) {
-            doCreateUi(null)
+        if (should_create_ui_on_resume) {
+            do_create_ui(null)
         }
     }
 
-    private fun doCreateUi(savedInstanceState: Bundle?) {
-        shouldCreateUiOnResume = false
-        activity.onCreateUi(savedInstanceState)
+    private fun do_create_ui(saved_instance_state: Bundle?) {
+        should_create_ui_on_resume = false
+        activity.on_create_ui(saved_instance_state)
     }
 
     /** One-time startup initialisation (shell, config, stub validation). */
     private fun T.initializeApp() {
-        val prevPkg = launchPackage
-        val prevConfig = intent.getBundleExtra(Const.Key.PREV_CONFIG)
-        val isPackageMigration = prevPkg != null && prevConfig != null
+        val prev_pkg = launchPackage
+        val prev_config = intent.getBundleExtra(Const.Key.PREV_CONFIG)
+        val is_package_migration = prev_pkg != null && prev_config != null
 
-        Config.init(prevConfig)
+        Config.init(prev_config)
 
         if (packageName != APP_PACKAGE_NAME) {
             runCatching {
@@ -114,23 +114,23 @@ class SplashController<T>(private val activity: T)
                 Shell.cmd("(pm uninstall $APP_PACKAGE_NAME)& >/dev/null 2>&1").exec()
             }
         } else {
-            if (Config.suManager.isNotEmpty()) {
-                Config.suManager = ""
+            if (Config.su_manager.isNotEmpty()) {
+                Config.su_manager = ""
             }
-            if (isPackageMigration) {
-                Shell.cmd("(pm uninstall $prevPkg)& >/dev/null 2>&1").exec()
+            if (is_package_migration) {
+                Shell.cmd("(pm uninstall $prev_pkg)& >/dev/null 2>&1").exec()
             }
         }
 
-        if (isPackageMigration) {
+        if (is_package_migration) {
             runOnUiThread {
-                StubApk.restartProcess(this)
+                StubApk.restart_process(this)
             }
             return
         }
 
         Notifications.setup()
-        Shortcuts.setupDynamic(this)
+        Shortcuts.setup_dynamic(this)
 
         RootUtils.Connection.await()
     }

@@ -11,16 +11,16 @@ import kotlinx.coroutines.flow.asSharedFlow
 
 object SuEvents {
     private val _policyChanged = MutableSharedFlow<Unit>(extraBufferCapacity = 64)
-    val policyChanged = _policyChanged.asSharedFlow()
+    val policy_changed = _policyChanged.asSharedFlow()
 
     private val _logUpdated = MutableSharedFlow<Unit>(extraBufferCapacity = 64)
-    val logUpdated = _logUpdated.asSharedFlow()
+    val log_updated = _logUpdated.asSharedFlow()
 
-    fun notifyPolicyChanged() {
+    fun notify_policy_changed() {
         _policyChanged.tryEmit(Unit)
     }
 
-    fun notifyLogUpdated() {
+    fun notify_log_updated() {
         _logUpdated.tryEmit(Unit)
     }
 }

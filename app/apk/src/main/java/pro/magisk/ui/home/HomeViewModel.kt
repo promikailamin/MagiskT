@@ -26,7 +26,7 @@ import pro.magisk.core.Info
 import pro.magisk.core.ktx.await
 import pro.magisk.core.ktx.toast
 import pro.magisk.core.utils.asText
-import pro.magisk.databinding.bindExtra
+import pro.magisk.databinding.bind_extra
 import pro.magisk.databinding.set
 import pro.magisk.dialog.EnvFixDialog
 import pro.magisk.dialog.UninstallDialog
@@ -42,36 +42,36 @@ class HomeViewModel : AsyncLoadViewModel() {
         LOADING, INVALID, OUTDATED, UP_TO_DATE
     }
 
-    val extraBindings = bindExtra {
-        it.put(BR.viewModel, this)
+    val extra_bindings = bind_extra {
+        it.put(BR.view_model, this)
     }
-    val magiskTitleBarrierIds =
+    val magisk_title_barrier_ids =
         intArrayOf(R.id.home_magisk_icon, R.id.home_magisk_title, R.id.home_magisk_button)
     @get:Bindable
-    var isNoticeVisible = Config.safetyNotice
+    var is_notice_visible = Config.safety_notice
         set(value) = set(value, field, { field = it }, BR.noticeVisible)
 
-    val magiskState
+    val magisk_state
         get() = when {
-            Info.isRooted && Info.env.isUnsupported -> State.OUTDATED
+            Info.is_rooted && Info.env.is_unsupported -> State.OUTDATED
             !Info.env.isActive -> State.INVALID
             Info.env.versionCode < BuildConfig.APP_VERSION_CODE -> State.OUTDATED
             else -> State.UP_TO_DATE
         }
 
-    val magiskInstalledVersion
+    val magisk_installed_version
         get() = Info.env.run {
             if (isActive)
-                ("$versionString ($versionCode)" + if (isDebug) " (D)" else "").asText()
+                ("$version_string ($versionCode)" + if (is_debug) " (D)" else "").asText()
             else
                 CoreR.string.not_available.asText()
         }
 
-    override suspend fun doLoadWork() {
-        ensureEnv()
+    override suspend fun do_load_work() {
+        ensure_env()
     }
 
-    fun onLinkPressed(link: String) = object : ViewEvent(), ContextExecutor {
+    fun on_link_pressed(link: String) = object : ViewEvent(), ContextExecutor {
         override fun invoke(context: Context) {
             val intent = Intent(Intent.ACTION_VIEW, link.toUri())
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -83,36 +83,36 @@ class HomeViewModel : AsyncLoadViewModel() {
         }
     }.publish()
 
-    fun onDeletePressed() = UninstallDialog().show()
+    fun on_delete_pressed() = UninstallDialog().show()
 
-    fun onSettingsPressed() {
+    fun on_settings_pressed() {
         HomeFragmentDirections.actionHomeFragmentToSettingsFragment().navigate()
     }
 
-    fun onMagiskPressed() = withExternalRW {
+    fun on_magisk_pressed() = with_external_r_w {
         HomeFragmentDirections.actionHomeFragmentToInstallFragment().navigate()
     }
 
-    fun hideNotice() {
-        Config.safetyNotice = false
-        isNoticeVisible = false
+    fun hide_notice() {
+        Config.safety_notice = false
+        is_notice_visible = false
     }
 
-    private var checkedEnv = false
+    private var checked_env = false
 
     /** Runs `env_check` via shell; shows [EnvFixDialog] on non-zero exit. */
-    private suspend fun ensureEnv() {
-        if (magiskState == State.INVALID || checkedEnv) return
-        val cmd = "env_check ${Info.env.versionString} ${Info.env.versionCode}"
+    private suspend fun ensure_env() {
+        if (magisk_state == State.INVALID || checked_env) return
+        val cmd = "env_check ${Info.env.version_string} ${Info.env.versionCode}"
         val code = Shell.cmd(cmd).await().code
         if (code != 0) {
             EnvFixDialog(this, code).show()
         }
-        checkedEnv = true
+        checked_env = true
     }
 
-    val showTest = false
-    fun onTestPressed() = object : ViewEvent(), ActivityExecutor {
+    val show_test = false
+    fun on_test_pressed() = object : ViewEvent(), ActivityExecutor {
         override fun invoke(activity: UIActivity<*>) {
             /* Entry point to trigger test events within the app */
         }

@@ -39,18 +39,18 @@ public class ConcealableBottomNavigationView extends BottomNavigationView {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    private void recreateAnimator(int height) {
-        Animator toHidden = ObjectAnimator.ofFloat(this, "translationY", height);
-        toHidden.setDuration(175);
-        toHidden.setInterpolator(new FastOutLinearInInterpolator());
-        Animator toUnhidden = ObjectAnimator.ofFloat(this, "translationY", 0);
-        toUnhidden.setDuration(225);
-        toUnhidden.setInterpolator(new FastOutLinearInInterpolator());
+    private void recreate_animator(int height) {
+        Animator to_hidden = ObjectAnimator.ofFloat(this, "translationY", height);
+        to_hidden.setDuration(175);
+        to_hidden.setInterpolator(new FastOutLinearInInterpolator());
+        Animator to_unhidden = ObjectAnimator.ofFloat(this, "translationY", 0);
+        to_unhidden.setDuration(225);
+        to_unhidden.setInterpolator(new FastOutLinearInInterpolator());
 
         StateListAnimator animator = new StateListAnimator();
 
-        animator.addState(STATE_SET, toHidden);
-        animator.addState(new int[]{}, toUnhidden);
+        animator.addState(STATE_SET, to_hidden);
+        animator.addState(new int[]{}, to_unhidden);
 
         setStateListAnimator(animator);
     }
@@ -59,7 +59,7 @@ public class ConcealableBottomNavigationView extends BottomNavigationView {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        recreateAnimator(getMeasuredHeight());
+        recreate_animator(getMeasuredHeight());
     }
 
     @Override
@@ -109,8 +109,8 @@ public class ConcealableBottomNavigationView extends BottomNavigationView {
             isHidden = source.readByte() != 0;
         }
 
-        public SavedState(Parcelable superState) {
-            super(superState);
+        public SavedState(Parcelable super_state) {
+            super(super_state);
         }
 
         @Override

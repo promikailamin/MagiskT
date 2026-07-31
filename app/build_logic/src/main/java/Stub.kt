@@ -44,7 +44,7 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 import kotlin.random.asKotlinRandom
 
-private val kRANDOM get() = RANDOM.asKotlinRandom()
+private val k_r_a_n_d_o_m get() = RANDOM.asKotlinRandom()
 
 // Shuffled dictionary pools for generating random class names (1-, 2-, and 3-character)
 private val c1 = mutableListOf<String>()
@@ -59,7 +59,7 @@ private val c3 = mutableListOf<String>()
  * alphanumeric combinations (excluding 'a' and 'A' for single-letter names), shuffles
  * them, and writes them to {@code dict.txt} for diagnostic/reproducibility purposes.
  */
-fun initRandom(dict: File) {
+fun init_random(dict: File) {
     RANDOM = if (RAND_SEED != 0) Random(RAND_SEED.toLong()) else SecureRandom()
     c1.clear()
     c2.clear()
@@ -104,25 +104,25 @@ private abstract class ManifestUpdater: DefaultTask() {
     abstract val applicationId: Property<String>
 
     @get:Input
-    abstract val factoryClass: Property<String>
+    abstract val factory_class: Property<String>
 
     @get:Input
-    abstract val appClass: Property<String>
+    abstract val app_class: Property<String>
 
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val mergedManifest: RegularFileProperty
+    abstract val merged_manifest: RegularFileProperty
 
     @get:OutputFile
-    abstract val outputManifest: RegularFileProperty
+    abstract val output_manifest: RegularFileProperty
 
     @TaskAction
-    fun taskAction() {
+    fun task_action() {
         fun String.ind(level: Int) = replaceIndentByMargin("    ".repeat(level))
 
-        val cmpList = mutableListOf<String>()
+        val cmp_list = mutableListOf<String>()
 
-        cmpList.add("""
+        cmp_list.add("""
             |<provider
             |    android:name="x.COMPONENT_PLACEHOLDER_0"
             |    android:authorities="${'$'}{applicationId}.provider"
@@ -131,7 +131,7 @@ private abstract class ManifestUpdater: DefaultTask() {
             |    android:grantUriPermissions="true" />""".ind(2)
         )
 
-        cmpList.add("""
+        cmp_list.add("""
             |<receiver
             |    android:name="x.COMPONENT_PLACEHOLDER_1"
             |    android:exported="false">
@@ -149,7 +149,7 @@ private abstract class ManifestUpdater: DefaultTask() {
             |</receiver>""".ind(2)
         )
 
-        cmpList.add("""
+        cmp_list.add("""
             |<activity
             |    android:name="x.COMPONENT_PLACEHOLDER_2"
             |    android:exported="true">
@@ -160,7 +160,7 @@ private abstract class ManifestUpdater: DefaultTask() {
             |</activity>""".ind(2)
         )
 
-        cmpList.add("""
+        cmp_list.add("""
             |<activity
             |    android:name="x.COMPONENT_PLACEHOLDER_3"
             |    android:directBootAware="true"
@@ -173,14 +173,14 @@ private abstract class ManifestUpdater: DefaultTask() {
             |</activity>""".ind(2)
         )
 
-        cmpList.add("""
+        cmp_list.add("""
             |<service
             |    android:name="x.COMPONENT_PLACEHOLDER_4"
             |    android:exported="false"
             |    android:foregroundServiceType="dataSync" />""".ind(2)
         )
 
-        cmpList.add("""
+        cmp_list.add("""
             |<service
             |    android:name="x.COMPONENT_PLACEHOLDER_5"
             |    android:exported="false"
@@ -188,27 +188,27 @@ private abstract class ManifestUpdater: DefaultTask() {
         )
 
         // Shuffle the order of the components
-        cmpList.shuffle(RANDOM)
-        val components = cmpList.joinToString("\n\n")
+        cmp_list.shuffle(RANDOM)
+        val components = cmp_list.joinToString("\n\n")
             .replace("\${applicationId}", applicationId.get())
-        val manifest = mergedManifest.asFile.get().readText().replace(Regex(".*\\<application"), """
+        val manifest = merged_manifest.asFile.get().readText().replace(Regex(".*\\<application"), """
             |<application
-            |    android:appComponentFactory="${factoryClass.get()}"
-            |    android:name="${appClass.get()}"""".ind(1)
+            |    android:appComponentFactory="${factory_class.get()}"
+            |    android:name="${app_class.get()}"""".ind(1)
         ).replace(Regex(".*\\<\\/application"), "$components\n    </application")
-        outputManifest.get().asFile.writeText(manifest)
+        output_manifest.get().asFile.writeText(manifest)
     }
 }
 
-private fun genStubClasses(outDir: File): Pair<String, String> {
-    val classNameGenerator = sequence {
-        fun notJavaKeyword(name: String) = when (name) {
+private fun gen_stub_classes(out_dir: File): Pair<String, String> {
+    val class_name_generator = sequence {
+        fun not_java_keyword(name: String) = when (name) {
             "do", "if", "for", "int", "new", "try" -> false
             else -> true
         }
 
         fun List<String>.process() = asSequence()
-            .filter(::notJavaKeyword)
+            .filter(::not_java_keyword)
             // Distinct by lower case to support case insensitive file systems
             .distinctBy { it.lowercase() }
 
@@ -220,35 +220,35 @@ private fun genStubClasses(outDir: File): Pair<String, String> {
 
         while (true) {
             val cls = StringBuilder()
-            cls.append(names.random(kRANDOM))
+            cls.append(names.random(k_r_a_n_d_o_m))
             cls.append('.')
-            cls.append(names.random(kRANDOM))
+            cls.append(names.random(k_r_a_n_d_o_m))
             // Old Android does not support capitalized package names
             // Check Android 7.0.0 PackageParser#buildClassName
             yield(cls.toString().replaceFirstChar { it.lowercase() })
         }
     }.distinct().iterator()
 
-    fun genClass(type: String, outDir: File): String {
-        val clzName = classNameGenerator.next()
-        val (pkg, name) = clzName.split('.')
-        val pkgDir = File(outDir, pkg)
-        pkgDir.mkdirs()
-        PrintStream(File(pkgDir, "$name.java")).use {
+    fun gen_class(type: String, out_dir: File): String {
+        val clz_name = class_name_generator.next()
+        val (pkg, name) = clz_name.split('.')
+        val pkg_dir = File(out_dir, pkg)
+        pkg_dir.mkdirs()
+        PrintStream(File(pkg_dir, "$name.java")).use {
             it.println("package $pkg;")
             it.println("public class $name extends pro.magisk.$type {}")
         }
-        return clzName
+        return clz_name
     }
 
-    val factory = genClass("DelegateComponentFactory", outDir)
-    val app = genClass("StubApplication", outDir)
+    val factory = gen_class("DelegateComponentFactory", out_dir)
+    val app = gen_class("StubApplication", out_dir)
     return Pair(factory, app)
 }
 
-private fun genEncryptedResources(res: ByteArray, outDir: File) {
-    val mainPkgDir = File(outDir, "pro.magisk")
-    mainPkgDir.mkdirs()
+private fun gen_encrypted_resources(res: ByteArray, out_dir: File) {
+    val main_pkg_dir = File(out_dir, "pro.magisk")
+    main_pkg_dir.mkdirs()
 
     // Generate iv and key
     val iv = ByteArray(16)
@@ -266,7 +266,7 @@ private fun genEncryptedResources(res: ByteArray, outDir: File) {
         }
     }
 
-    PrintStream(File(mainPkgDir, "Bytes.java")).use {
+    PrintStream(File(main_pkg_dir, "Bytes.java")).use {
         it.println("package pro.magisk;")
         it.println("public final class Bytes {")
 
@@ -280,7 +280,7 @@ private fun genEncryptedResources(res: ByteArray, outDir: File) {
 
 private abstract class TaskWithDir : DefaultTask() {
     @get:OutputDirectory
-    abstract val outputFolder: DirectoryProperty
+    abstract val output_folder: DirectoryProperty
 }
 
 /**
@@ -297,35 +297,35 @@ fun Project.setupStubApk() {
 
     androidAppComponents {
         onVariants { variant ->
-            val variantName = variant.name
-            val variantCapped = variantName.replaceFirstChar { it.uppercase() }
-            val variantLowered = variantName.lowercase()
+            val variant_name = variant.name
+            val variant_capped = variant_name.replaceFirstChar { it.uppercase() }
+            val variant_lowered = variant_name.lowercase()
 
-            val componentJavaOutDir = layout.buildDirectory
-                .dir("generated/${variantLowered}/components").get().asFile
-            componentJavaOutDir.deleteRecursively()
+            val component_java_out_dir = layout.buildDirectory
+                .dir("generated/${variant_lowered}/components").get().asFile
+            component_java_out_dir.deleteRecursively()
 
-            val (factory, app) = genStubClasses(componentJavaOutDir)
+            val (factory, app) = gen_stub_classes(component_java_out_dir)
 
-            val manifestUpdater =
-                project.tasks.register("${variantName}ManifestProducer", ManifestUpdater::class.java) {
+            val manifest_updater =
+                project.tasks.register("${variant_name}ManifestProducer", ManifestUpdater::class.java) {
                     applicationId = variant.applicationId
-                    factoryClass.set(factory)
-                    appClass.set(app)
+                    factory_class.set(factory)
+                    app_class.set(app)
                 }
-            variant.artifacts.use(manifestUpdater)
+            variant.artifacts.use(manifest_updater)
                 .wiredWithFiles(
-                    ManifestUpdater::mergedManifest,
-                    ManifestUpdater::outputManifest)
+                    ManifestUpdater::merged_manifest,
+                    ManifestUpdater::output_manifest)
                 .toTransform(SingleArtifact.MERGED_MANIFEST)
 
-            val resTask = tasks.getByPath(":stub-res:package$variantCapped")
-            val genResourcesTask = tasks.register("generate${variantCapped}BundledResources", TaskWithDir::class) {
-                dependsOn(resTask)
-                outputFolder.set(layout.buildDirectory.dir("generated/${variantLowered}/resources"))
+            val res_task = tasks.getByPath(":stub-res:package$variant_capped")
+            val gen_resources_task = tasks.register("generate${variant_capped}BundledResources", TaskWithDir::class) {
+                dependsOn(res_task)
+                output_folder.set(layout.buildDirectory.dir("generated/${variant_lowered}/resources"))
 
                 doLast {
-                    val apk = resTask.outputs.files.asFileTree
+                    val apk = res_task.outputs.files.asFileTree
                         .filter { it.name.endsWith(".apk") }.files.first()
 
                     val bos = ByteArrayOutputStream()
@@ -334,7 +334,7 @@ fun Project.setupStubApk() {
                             src.getInputStream(src.getEntry("resources.arsc")).transferTo(it)
                         }
                     }
-                    genEncryptedResources(bos.toByteArray(), outputFolder.get().asFile)
+                    gen_encrypted_resources(bos.toByteArray(), output_folder.get().asFile)
                 }
             }
 
@@ -347,8 +347,8 @@ fun Project.setupStubApk() {
             }
 
             variant.sources.java?.let {
-                it.addStaticSourceDirectory(componentJavaOutDir.path)
-                it.addGeneratedSourceDirectory(genResourcesTask, TaskWithDir::outputFolder)
+                it.addStaticSourceDirectory(component_java_out_dir.path)
+                it.addGeneratedSourceDirectory(gen_resources_task, TaskWithDir::output_folder)
             }
         }
     }

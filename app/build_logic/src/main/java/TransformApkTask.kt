@@ -38,22 +38,22 @@ abstract class TransformApkTask : DefaultTask() {
     abstract val signingConfig: Property<ApkSigningConfig>
 
     @get:InputFiles
-    abstract val apkFolder: DirectoryProperty
+    abstract val apk_folder: DirectoryProperty
 
     @get:OutputDirectory
-    abstract val outFolder: DirectoryProperty
+    abstract val out_folder: DirectoryProperty
 
     @get:Internal
     abstract val transformations: ListProperty<(ZFile) -> Unit>
 
     @get:Internal
-    abstract val transformationRequest: Property<ArtifactTransformationRequest<TransformApkTask>>
+    abstract val transformation_request: Property<ArtifactTransformationRequest<TransformApkTask>>
 
     /** Re-signs and post-processes the APK. */
     @TaskAction
-    fun taskAction() = transformationRequest.get().submit(this) { artifact ->
-        val inFile = File(artifact.outputFile)
-        val outFile = outFolder.file(inFile.name).get().asFile
+    fun task_action() = transformation_request.get().submit(this) { artifact ->
+        val in_file = File(artifact.outputFile)
+        val out_file = out_folder.file(in_file.name).get().asFile
 
         val config = signingConfig.get()
         val info = KeystoreHelper.getCertificateInfo(
@@ -64,7 +64,7 @@ abstract class TransformApkTask : DefaultTask() {
             config.keyAlias
         )
 
-        val signingOptions = SigningOptions.builder()
+        val signing_options = SigningOptions.builder()
             .setMinSdkVersion(0)
             .setV1SigningEnabled(true)
             .setV2SigningEnabled(true)
@@ -76,10 +76,10 @@ abstract class TransformApkTask : DefaultTask() {
             noTimestamps = true
             autoSortFiles = true
         }
-        outFile.parentFile?.mkdirs()
-        inFile.copyTo(outFile, overwrite = true)
-        ZFiles.apk(outFile, options).use {
-            SigningExtension(signingOptions).register(it)
+        out_file.parentFile?.mkdirs()
+        in_file.copyTo(out_file, overwrite = true)
+        ZFiles.apk(out_file, options).use {
+            SigningExtension(signing_options).register(it)
             it.get(IncrementalPackager.APP_METADATA_ENTRY_PATH)?.delete()
             it.get(IncrementalPackager.VERSION_CONTROL_INFO_ENTRY_PATH)?.delete()
             it.get(JarFile.MANIFEST_NAME)?.delete()
@@ -87,6 +87,6 @@ abstract class TransformApkTask : DefaultTask() {
             transformations.get().forEach { transform -> transform(it) }
         }
 
-        outFile
+        out_file
     }
 }

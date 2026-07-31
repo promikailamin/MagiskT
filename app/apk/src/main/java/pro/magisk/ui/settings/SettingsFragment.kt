@@ -10,7 +10,7 @@ import android.os.Bundle
 import android.view.View
 import pro.magisk.R
 import pro.magisk.arch.BaseFragment
-import pro.magisk.arch.viewModel
+import pro.magisk.arch.view_model
 import pro.magisk.databinding.FragmentSettingsMd2Binding
 import rikka.recyclerview.addEdgeSpacing
 import rikka.recyclerview.addItemSpacing
@@ -20,9 +20,9 @@ import pro.magisk.core.R as CoreR
 /** Settings screen — categories and toggles for customisation, Magisk, and Superuser. */
 class SettingsFragment : BaseFragment<FragmentSettingsMd2Binding>() {
 
-    override val layoutRes = R.layout.fragment_settings_md2
-    override val viewModel by viewModel<SettingsViewModel>()
-    override val snackbarView: View get() = binding.snackbarContainer
+    override val layout_res = R.layout.fragment_settings_md2
+    override val view_model by view_model<SettingsViewModel>()
+    override val snackbar_view: View get() = binding.snackbarContainer
 
     override fun onStart() {
         super.onStart()
@@ -30,8 +30,8 @@ class SettingsFragment : BaseFragment<FragmentSettingsMd2Binding>() {
         activity?.title = resources.getString(CoreR.string.settings)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onViewCreated(view: View, saved_instance_state: Bundle?) {
+        super.onViewCreated(view, saved_instance_state)
         binding.settingsList.apply {
             addEdgeSpacing(bottom = R.dimen.l1)
             addItemSpacing(R.dimen.l1, R.dimen.l_50, R.dimen.l1)
@@ -41,7 +41,7 @@ class SettingsFragment : BaseFragment<FragmentSettingsMd2Binding>() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.items.forEach { it.refresh() }
+        view_model.items.forEach { it.refresh() }
     }
 
 }

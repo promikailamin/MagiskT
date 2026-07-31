@@ -15,15 +15,15 @@ import android.widget.ImageView
 import android.widget.TextView
 import pro.magisk.R
 import pro.magisk.arch.BaseFragment
-import pro.magisk.arch.viewModel
+import pro.magisk.arch.view_model
 import pro.magisk.databinding.FragmentHomeMd2Binding
 import pro.magisk.core.R as CoreR
 
 /** Home tab — status, version info, and primary actions. */
 class HomeFragment : BaseFragment<FragmentHomeMd2Binding>() {
 
-    override val layoutRes = R.layout.fragment_home_md2
-    override val viewModel by viewModel<HomeViewModel>()
+    override val layout_res = R.layout.fragment_home_md2
+    override val view_model by view_model<HomeViewModel>()
 
     override fun onStart() {
         super.onStart()
@@ -31,7 +31,7 @@ class HomeFragment : BaseFragment<FragmentHomeMd2Binding>() {
     }
 
     /** If the magisk title text is ellipsized, hide the icon to free space. */
-    private fun checkTitle(text: TextView, icon: ImageView) {
+    private fun check_title(text: TextView, icon: ImageView) {
         text.post {
             if (text.layout?.getEllipsisCount(0) != 0) {
                 with (icon) {
@@ -46,12 +46,12 @@ class HomeFragment : BaseFragment<FragmentHomeMd2Binding>() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        saved_instance_state: Bundle?
     ): View {
-        super.onCreateView(inflater, container, savedInstanceState)
+        super.onCreateView(inflater, container, saved_instance_state)
 
         with(binding.homeMagiskWrapper) {
-            checkTitle(homeMagiskTitle, homeMagiskIcon)
+            check_title(homeMagiskTitle, homeMagiskIcon)
         }
 
         return binding.root

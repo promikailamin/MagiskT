@@ -26,23 +26,23 @@ class DarkThemeDialog : DialogBuilder {
             setButton(MagiskDialog.ButtonType.POSITIVE) {
                 text = CoreR.string.settings_dark_mode_light
                 icon = R.drawable.ic_day
-                onClick { selectTheme(AppCompatDelegate.MODE_NIGHT_NO, activity) }
+                onClick { select_theme(AppCompatDelegate.MODE_NIGHT_NO, activity) }
             }
             setButton(MagiskDialog.ButtonType.NEUTRAL) {
                 text = CoreR.string.settings_dark_mode_system
                 icon = R.drawable.ic_day_night
-                onClick { selectTheme(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM, activity) }
+                onClick { select_theme(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM, activity) }
             }
             setButton(MagiskDialog.ButtonType.NEGATIVE) {
                 text = CoreR.string.settings_dark_mode_dark
                 icon = R.drawable.ic_night
-                onClick { selectTheme(AppCompatDelegate.MODE_NIGHT_YES, activity) }
+                onClick { select_theme(AppCompatDelegate.MODE_NIGHT_YES, activity) }
             }
         }
     }
 
-    private fun selectTheme(mode: Int, activity: Activity) {
-        Config.darkTheme = mode
+    private fun select_theme(mode: Int, activity: Activity) {
+        Config.dark_theme = mode
         (activity as UIActivity<*>).delegate.localNightMode = mode
     }
 }

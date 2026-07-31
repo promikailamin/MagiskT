@@ -12,5 +12,5 @@ import pro.magisk.databinding.RvItem
 
 /** A list item that shows a static text resource. */
 class TextItem(override val item: Int) : RvItem(), DiffItem<TextItem>, ItemWrapper<Int> {
-    override val layoutRes = R.layout.item_text
+    override val layout_res = R.layout.item_text
 }

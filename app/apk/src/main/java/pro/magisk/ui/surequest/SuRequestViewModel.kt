@@ -47,8 +47,8 @@ import java.util.concurrent.TimeUnit.SECONDS
 
 /** ViewModel for the floating Superuser grant/deny dialog. */
 class SuRequestViewModel(
-    policyDB: PolicyDao,
-    private val timeoutPrefs: SharedPreferences
+    policy_d_b: PolicyDao,
+    private val timeout_prefs: SharedPreferences
 ) : BaseViewModel() {
 
     lateinit var icon: Drawable
@@ -56,64 +56,64 @@ class SuRequestViewModel(
     lateinit var packageName: String
 
     @get:Bindable
-    val denyText = DenyText()
+    val deny_text = DenyText()
 
     @get:Bindable
     var selectedItemPosition = 0
         set(value) = set(value, field, { field = it }, BR.selectedItemPosition)
 
     @get:Bindable
-    var grantEnabled = false
-        set(value) = set(value, field, { field = it }, BR.grantEnabled)
+    var grant_enabled = false
+        set(value) = set(value, field, { field = it }, BR.grant_enabled)
 
     /** Filters obscured touches (tapjacking protection). Consumes the event when obscured. */
     @SuppressLint("ClickableViewAccessibility")
-    val grantTouchListener = View.OnTouchListener { _: View, event: MotionEvent ->
+    val grant_touch_listener = View.OnTouchListener { _: View, event: MotionEvent ->
         if (event.flags and MotionEvent.FLAG_WINDOW_IS_OBSCURED != 0
             || event.flags and MotionEvent.FLAG_WINDOW_IS_PARTIALLY_OBSCURED != 0) {
             if (event.action == MotionEvent.ACTION_UP) {
                 AppContext.toast(R.string.touch_filtered_warning, Toast.LENGTH_SHORT)
             }
-            return@OnTouchListener Config.suTapjack
+            return@OnTouchListener Config.su_tapjack
         }
         false
     }
 
-    private val handler = SuRequestHandler(AppContext.packageManager, policyDB)
-    private val millis = SECONDS.toMillis(Config.suDefaultTimeout.toLong())
+    private val handler = SuRequestHandler(AppContext.packageManager, policy_d_b)
+    private val millis = SECONDS.toMillis(Config.su_default_timeout.toLong())
     private var timer = SuTimer(millis, 1000)
     private var initialized = false
 
-    fun grantPressed() {
-        cancelTimer()
-        if (Config.suAuth) {
+    fun grant_pressed() {
+        cancel_timer()
+        if (Config.su_auth) {
             AuthEvent { respond(ALLOW) }.publish()
         } else {
             respond(ALLOW)
         }
     }
 
-    fun denyPressed() {
+    fun deny_pressed() {
         respond(DENY)
     }
 
-    fun spinnerTouched(): Boolean {
-        cancelTimer()
+    fun spinner_touched(): Boolean {
+        cancel_timer()
         return false
     }
 
-    fun handleRequest(intent: Intent) {
+    fun handle_request(intent: Intent) {
         viewModelScope.launch(Dispatchers.Default) {
             if (handler.start(intent))
-                showDialog()
+                show_dialog()
             else
                 DieEvent().publish()
         }
     }
 
-    private fun showDialog() {
+    private fun show_dialog() {
         val pm = handler.pm
-        val info = handler.pkgInfo
+        val info = handler.pkg_info
         val app = info.applicationInfo
 
         if (app == null) {
@@ -128,10 +128,10 @@ class SuRequestViewModel(
             packageName = info.packageName
         }
 
-        selectedItemPosition = timeoutPrefs.getInt(packageName, 0)
+        selectedItemPosition = timeout_prefs.getInt(packageName, 0)
 
         timer.start()
-        ShowUIEvent(if (Config.suTapjack) EmptyAccessibilityDelegate else null).publish()
+        ShowUIEvent(if (Config.su_tapjack) EmptyAccessibilityDelegate else null).publish()
         initialized = true
     }
 
@@ -141,7 +141,7 @@ class SuRequestViewModel(
         timer.cancel()
 
         val pos = selectedItemPosition
-        timeoutPrefs.edit().putInt(packageName, pos).apply()
+        timeout_prefs.edit().putInt(packageName, pos).apply()
 
         viewModelScope.launch {
             handler.respond(action, Config.Value.TIMEOUT_LIST[pos])
@@ -149,9 +149,9 @@ class SuRequestViewModel(
         }
     }
 
-    private fun cancelTimer() {
+    private fun cancel_timer() {
         timer.cancel()
-        denyText.seconds = 0
+        deny_text.seconds = 0
     }
 
     /** Counts down from the configured timeout; auto-denies on expiry. */
@@ -161,14 +161,14 @@ class SuRequestViewModel(
     ) : CountDownTimer(millis, interval) {
 
         override fun onTick(remains: Long) {
-            if (!grantEnabled && remains <= millis - 1000) {
-                grantEnabled = true
+            if (!grant_enabled && remains <= millis - 1000) {
+                grant_enabled = true
             }
-            denyText.seconds = (remains / 1000).toInt() + 1
+            deny_text.seconds = (remains / 1000).toInt() + 1
         }
 
         override fun onFinish() {
-            denyText.seconds = 0
+            deny_text.seconds = 0
             respond(DENY)
         }
 
@@ -177,9 +177,9 @@ class SuRequestViewModel(
     /** A [TextHolder] that appends the remaining seconds to the "Deny" label. */
     inner class DenyText : TextHolder() {
         var seconds = 0
-            set(value) = set(value, field, { field = it }, BR.denyText)
+            set(value) = set(value, field, { field = it }, BR.deny_text)
 
-        override fun getText(resources: Resources): String {
+        override fun get_text(resources: Resources): String {
             return if (seconds != 0)
                 "${resources.getString(R.string.deny)} ($seconds)"
             else

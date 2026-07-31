@@ -12,7 +12,7 @@
         <import type="pro.magisk.ui.home.HomeViewModel.State" />
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.home.HomeViewModel" />
 
     </data>
@@ -65,10 +65,10 @@
 
                 <Button
                     style="@style/WidgetFoundation.Button"
-                    gone="@{viewModel.magiskState != State.OUTDATED}"
+                    gone="@{view_model.magisk_state != State.OUTDATED}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="@{() -> viewModel.onMagiskPressed()}"
+                    android:onClick="@{() -> view_model.on_magisk_pressed()}"
                     android:text="@string/update"
                     android:textAllCaps="false"
                     android:layout_gravity="end"
@@ -76,11 +76,11 @@
 
                 <Button
                     style="@style/WidgetFoundation.Button.Text"
-                    gone="@{viewModel.magiskState == State.OUTDATED}"
+                    gone="@{view_model.magisk_state == State.OUTDATED}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
-                    android:onClick="@{() -> viewModel.onMagiskPressed()}"
+                    android:onClick="@{() -> view_model.on_magisk_pressed()}"
                     android:text="@string/install"
                     android:textAllCaps="false"
                     app:icon="@drawable/ic_install"/>
@@ -92,7 +92,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:barrierDirection="bottom"
-                app:referencedIds="@{viewModel.magiskTitleBarrierIds}"
+                app:referencedIds="@{view_model.magisk_title_barrier_ids}"
                 tools:constraint_referenced_ids="home_magisk_icon,home_magisk_title,home_magisk_button" />
 
             <HorizontalScrollView
@@ -124,7 +124,7 @@
 
                             <TextView
                                 style="@style/W.Home.ItemContent.Right"
-                                android:text="@{viewModel.magiskInstalledVersion}"
+                                android:text="@{view_model.magisk_installed_version}"
                                 tools:text="22.0 (22000)" />
 
                         </LinearLayout>
@@ -141,7 +141,7 @@
 
                             <TextView
                                 style="@style/W.Home.ItemContent.Right"
-                                android:text="@{Info.isZygiskEnabled ? @string/yes : @string/no}"
+                                android:text="@{Info.is_zygisk_enabled ? @string/yes : @string/no}"
                                 tools:text="Yes" />
 
                         </LinearLayout>

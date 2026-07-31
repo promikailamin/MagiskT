@@ -51,15 +51,15 @@ suspend fun InputStream.copyAll(
     dispatcher: CoroutineDispatcher = Dispatchers.IO
 ): Long {
     return withContext(dispatcher) {
-        var bytesCopied: Long = 0
+        var bytes_copied: Long = 0
         val buffer = ByteArray(bufferSize)
         var bytes = read(buffer)
         while (isActive && bytes >= 0) {
             out.write(buffer, 0, bytes)
-            bytesCopied += bytes
+            bytes_copied += bytes
             bytes = read(buffer)
         }
-        bytesCopied
+        bytes_copied
     }
 }
 
@@ -77,7 +77,7 @@ suspend inline fun InputStream.writeTo(
     file: File,
     bufferSize: Int = DEFAULT_BUFFER_SIZE,
     dispatcher: CoroutineDispatcher = Dispatchers.IO
-) = copyAndClose(file.outputStream(), bufferSize, dispatcher)
+) = copyAndClose(file.output_stream(), bufferSize, dispatcher)
 
 /** Operator overload to allow `sparse[key] = value`. */
 operator fun <E> SparseArrayCompat<E>.set(key: Int, value: E) {
@@ -108,12 +108,12 @@ inline fun <T, R> Flow<T>.concurrentMap(crossinline transform: suspend (T) -> R)
 /** Format a millis timestamp to a human-readable string. */
 fun Long.toTime(format: DateTimeFormatter): String = format.format(Instant.ofEpochMilli(this))
 
-val timeFormatStandard: DateTimeFormatter by lazy {
+val time_format_standard: DateTimeFormatter by lazy {
     DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH.mm.ss").withZone(ZoneId.systemDefault())
 }
-val timeDateFormat: DateTimeFormatter by lazy {
+val time_date_format: DateTimeFormatter by lazy {
     DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withZone(ZoneId.systemDefault())
 }
-val dateFormat: DateTimeFormatter by lazy {
+val date_format: DateTimeFormatter by lazy {
     DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withZone(ZoneId.systemDefault())
 }

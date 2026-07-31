@@ -31,12 +31,12 @@ class EnvFixDialog(private val vm: HomeViewModel, private val code: Int) : Dialo
             setMessage(R.string.env_fix_msg)
             setButton(MagiskDialog.ButtonType.POSITIVE) {
                 text = android.R.string.ok
-                doNotDismiss = true
+                do_not_dismiss = true
                 onClick {
                     dialog.apply {
                         setTitle(R.string.setup_title)
                         setMessage(R.string.setup_msg)
-                        resetButtons()
+                        reset_buttons()
                         setCancelable(false)
                     }
                     dialog.activity.lifecycleScope.launch {
@@ -60,12 +60,12 @@ class EnvFixDialog(private val vm: HomeViewModel, private val code: Int) : Dialo
         // code == 2 = module policy not loaded; also handle version mismatches
         if (code == 2 ||
             Info.env.versionCode != BuildConfig.APP_VERSION_CODE ||
-            Info.env.versionString != BuildConfig.APP_VERSION_NAME) {
+            Info.env.version_string != BuildConfig.APP_VERSION_NAME) {
             dialog.setMessage(R.string.env_full_fix_msg)
             dialog.setButton(MagiskDialog.ButtonType.POSITIVE) {
                 text = android.R.string.ok
                 onClick {
-                    vm.onMagiskPressed()
+                    vm.on_magisk_pressed()
                     dialog.dismiss()
                 }
             }

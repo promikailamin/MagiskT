@@ -16,7 +16,7 @@ private const val SELECT_QUERY = "SELECT (until - strftime(\"%s\", \"now\")) AS 
 class PolicyDao : MagiskDB() {
 
     /** Remove expired and negative-`until` entries. */
-    suspend fun deleteOutdated() {
+    suspend fun delete_outdated() {
         val query = "DELETE FROM ${Table.POLICY} WHERE " +
             "(until > 0 AND until < strftime(\"%s\", \"now\")) OR until < 0"
         exec(query)
@@ -31,12 +31,12 @@ class PolicyDao : MagiskDB() {
     /** Fetch the policy for a given [uid], or null if none exists. */
     suspend fun fetch(uid: Int): SuPolicy? {
         val query = "$SELECT_QUERY FROM ${Table.POLICY} WHERE uid=$uid LIMIT 1"
-        return exec(query, ::toPolicy).firstOrNull()
+        return exec(query, ::to_policy).firstOrNull()
     }
 
     /** Insert or replace the given [policy]. */
     suspend fun update(policy: SuPolicy) {
-        val map = policy.toMap()
+        val map = policy.to_map()
         if (!Const.Version.atLeast_25_0()) {
             map["package_name"] = AppContext.packageManager.getNameForUid(policy.uid)!!
         }
@@ -45,13 +45,13 @@ class PolicyDao : MagiskDB() {
     }
 
     /** Fetch all policies for the current user. */
-    suspend fun fetchAll(): List<SuPolicy> {
+    suspend fun fetch_all(): List<SuPolicy> {
         val query = "$SELECT_QUERY FROM ${Table.POLICY} WHERE uid/100000=${Const.USER_ID}"
-        return exec(query, ::toPolicy).filterNotNull()
+        return exec(query, ::to_policy).filterNotNull()
     }
 
     /** Map a row map to a [SuPolicy] instance. */
-    private fun toPolicy(map: Map<String, String>): SuPolicy? {
+    private fun to_policy(map: Map<String, String>): SuPolicy? {
         val uid = map["uid"]?.toInt() ?: return null
         val policy = SuPolicy(uid)
 

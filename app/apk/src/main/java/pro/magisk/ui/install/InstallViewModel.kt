@@ -40,20 +40,20 @@ import pro.magisk.core.R as CoreR
 /** ViewModel for selecting and configuring the Magisk installation method. */
 class InstallViewModel : BaseViewModel() {
 
-    val isRooted get() = Info.isRooted
-    val skipOptions = Info.isEmulator || (Info.isSAR && !Info.isFDE && Info.ramdisk)
-    val noSecondSlot = !isRooted || !Info.isAB || Info.isEmulator
+    val is_rooted get() = Info.is_rooted
+    val skip_options = Info.is_emulator || (Info.is_s_a_r && !Info.is_f_d_e && Info.ramdisk)
+    val no_second_slot = !is_rooted || !Info.is_a_b || Info.is_emulator
 
     @get:Bindable
-    var step = if (skipOptions) 1 else 0
+    var step = if (skip_options) 1 else 0
         set(value) = set(value, field, { field = it }, BR.step)
 
-    private var methodId = -1
+    private var method_id = -1
 
     @get:Bindable
     var method
-        get() = methodId
-        set(value) = set(value, methodId, { methodId = it }, BR.method) {
+        get() = method_id
+        set(value) = set(value, method_id, { method_id = it }, BR.method) {
             when (it) {
                 R.id.method_patch -> {
                     GetContentEvent("*/*", UriCallback()).publish()
@@ -79,31 +79,31 @@ class InstallViewModel : BaseViewModel() {
         }
     }
 
-    override fun onSaveState(state: Bundle) {
+    override fun on_save_state(state: Bundle) {
         state.putParcelable(
             INSTALL_STATE_KEY, InstallState(
-                methodId,
+                method_id,
                 step,
-                Config.keepVerity,
-                Config.keepEnc,
+                Config.keep_verity,
+                Config.keep_enc,
                 Config.recovery
             )
         )
     }
 
-    override fun onRestoreState(state: Bundle) {
+    override fun on_restore_state(state: Bundle) {
         state.getParcelable(INSTALL_STATE_KEY, InstallState::class.java)?.let {
-            methodId = it.method
+            method_id = it.method
             step = it.step
-            Config.keepVerity = it.keepVerity
-            Config.keepEnc = it.keepEnc
+            Config.keep_verity = it.keep_verity
+            Config.keep_enc = it.keep_enc
             Config.recovery = it.recovery
         }
     }
 
     @Parcelize
     class UriCallback : ContentResultCallback {
-        override fun onActivityLaunch() {
+        override fun on_activity_launch() {
             AppContext.toast(CoreR.string.patch_file_msg, Toast.LENGTH_LONG)
         }
 
@@ -116,8 +116,8 @@ class InstallViewModel : BaseViewModel() {
     class InstallState(
         val method: Int,
         val step: Int,
-        val keepVerity: Boolean,
-        val keepEnc: Boolean,
+        val keep_verity: Boolean,
+        val keep_enc: Boolean,
         val recovery: Boolean,
     ) : Parcelable
 

@@ -24,15 +24,15 @@ import kotlinx.coroutines.launch
 
 open class Receiver : BaseReceiver() {
 
-    private val policyDB get() = ServiceLocator.policyDB
+    private val policy_d_b get() = ServiceLocator.policy_d_b
 
     @SuppressLint("InlinedApi")
-    private fun getPkg(intent: Intent): String? {
+    private fun get_pkg(intent: Intent): String? {
         val pkg = intent.getStringExtra(Intent.EXTRA_PACKAGE_NAME)
         return pkg ?: intent.data?.schemeSpecificPart
     }
 
-    private fun getUid(intent: Intent): Int? {
+    private fun get_uid(intent: Intent): Int? {
         val uid = intent.getIntExtra(Intent.EXTRA_UID, -1)
         return if (uid == -1) null else uid
     }
@@ -42,22 +42,22 @@ open class Receiver : BaseReceiver() {
         super.onReceive(context, intent)
 
         @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
-        fun rmPolicy(uid: Int) = GlobalScope.launch {
-            policyDB.delete(uid)
+        fun rm_policy(uid: Int) = GlobalScope.launch {
+            policy_d_b.delete(uid)
         }
 
         when (intent.action ?: return) {
             Intent.ACTION_PACKAGE_REPLACED -> {
-                if (Config.suReAuth)
-                    getUid(intent)?.let { rmPolicy(it) }
+                if (Config.su_re_auth)
+                    get_uid(intent)?.let { rm_policy(it) }
             }
             Intent.ACTION_UID_REMOVED -> {
-                getUid(intent)?.let { rmPolicy(it) }
+                get_uid(intent)?.let { rm_policy(it) }
             }
             Intent.ACTION_PACKAGE_FULLY_REMOVED -> {
-                getPkg(intent)?.let { Shell.cmd("magisk --denylist rm $it").submit() }
+                get_pkg(intent)?.let { Shell.cmd("magisk --denylist rm $it").submit() }
             }
-            Intent.ACTION_LOCALE_CHANGED -> Shortcuts.setupDynamic(context)
+            Intent.ACTION_LOCALE_CHANGED -> Shortcuts.setup_dynamic(context)
         }
     }
 }

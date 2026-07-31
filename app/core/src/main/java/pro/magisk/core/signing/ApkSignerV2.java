@@ -100,7 +100,7 @@ public abstract class ApkSignerV2 {
      */
     public static final class SignerConfig {
         /** Private key. */
-        public PrivateKey privateKey;
+        public PrivateKey private_key;
 
         /**
          * Certificates, with the first certificate containing the public key corresponding to
@@ -111,7 +111,7 @@ public abstract class ApkSignerV2 {
         /**
          * List of signature algorithms with which to sign (see {@code SIGNATURE_...} constants).
          */
-        public List<Integer> signatureAlgorithms;
+        public List<Integer> signature_algorithms;
     }
 
     /**
@@ -133,33 +133,33 @@ public abstract class ApkSignerV2 {
      *         signatures.
      */
     public static ByteBuffer[] sign(
-            ByteBuffer inputApk,
-            List<SignerConfig> signerConfigs)
+            ByteBuffer input_apk,
+            List<SignerConfig> signer_configs)
                     throws ApkParseException, InvalidKeyException, SignatureException {
         // Slice/create a view in the inputApk to make sure that:
         // 1. inputApk is what's between position and limit of the original inputApk, and
         // 2. changes to position, limit, and byte order are not reflected in the original.
-        ByteBuffer originalInputApk = inputApk;
-        inputApk = originalInputApk.slice();
-        inputApk.order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer original_input_apk = input_apk;
+        input_apk = original_input_apk.slice();
+        input_apk.order(ByteOrder.LITTLE_ENDIAN);
 
         // Locate ZIP End of Central Directory (EoCD), Central Directory, and check that Central
         // Directory is immediately followed by the ZIP End of Central Directory.
-        int eocdOffset = ZipUtils.findZipEndOfCentralDirectoryRecord(inputApk);
+        int eocdOffset = ZipUtils.find_zip_end_of_central_directory_record(input_apk);
         if (eocdOffset == -1) {
             throw new ApkParseException("Failed to locate ZIP End of Central Directory");
         }
-        if (ZipUtils.isZip64EndOfCentralDirectoryLocatorPresent(inputApk, eocdOffset)) {
+        if (ZipUtils.is_zip64_end_of_central_directory_locator_present(input_apk, eocdOffset)) {
             throw new ApkParseException("ZIP64 format not supported");
         }
-        inputApk.position(eocdOffset);
-        long centralDirSizeLong = ZipUtils.getZipEocdCentralDirectorySizeBytes(inputApk);
+        input_apk.position(eocdOffset);
+        long centralDirSizeLong = ZipUtils.get_zip_eocd_central_directory_size_bytes(input_apk);
         if (centralDirSizeLong > Integer.MAX_VALUE) {
             throw new ApkParseException(
                     "ZIP Central Directory size out of range: " + centralDirSizeLong);
         }
         int centralDirSize = (int) centralDirSizeLong;
-        long centralDirOffsetLong = ZipUtils.getZipEocdCentralDirectoryOffset(inputApk);
+        long centralDirOffsetLong = ZipUtils.get_zip_eocd_central_directory_offset(input_apk);
         if (centralDirOffsetLong > Integer.MAX_VALUE) {
             throw new ApkParseException(
                     "ZIP Central Directory offset in file out of range: " + centralDirOffsetLong);
@@ -180,66 +180,66 @@ public abstract class ApkSignerV2 {
 
         // Create ByteBuffers holding the contents of everything before ZIP Central Directory,
         // ZIP Central Directory, and ZIP End of Central Directory.
-        inputApk.clear();
-        ByteBuffer beforeCentralDir = getByteBuffer(inputApk, centralDirOffset);
-        ByteBuffer centralDir = getByteBuffer(inputApk, eocdOffset - centralDirOffset);
+        input_apk.clear();
+        ByteBuffer before_central_dir = get_byte_buffer(input_apk, centralDirOffset);
+        ByteBuffer central_dir = get_byte_buffer(input_apk, eocdOffset - centralDirOffset);
         // Create a copy of End of Central Directory because we'll need modify its contents later.
-        byte[] eocdBytes = new byte[inputApk.remaining()];
-        inputApk.get(eocdBytes);
+        byte[] eocdBytes = new byte[input_apk.remaining()];
+        input_apk.get(eocdBytes);
         ByteBuffer eocd = ByteBuffer.wrap(eocdBytes);
-        eocd.order(inputApk.order());
+        eocd.order(input_apk.order());
 
         // Figure which which digests to use for APK contents.
-        Set<Integer> contentDigestAlgorithms = new HashSet<>();
-        for (SignerConfig signerConfig : signerConfigs) {
-            for (int signatureAlgorithm : signerConfig.signatureAlgorithms) {
-                contentDigestAlgorithms.add(
-                        getSignatureAlgorithmContentDigestAlgorithm(signatureAlgorithm));
+        Set<Integer> content_digest_algorithms = new HashSet<>();
+        for (SignerConfig signer_config : signer_configs) {
+            for (int signatureAlgorithm : signer_config.signature_algorithms) {
+                content_digest_algorithms.add(
+                        get_signature_algorithm_content_digest_algorithm(signatureAlgorithm));
             }
         }
 
         // Compute digests of APK contents.
-        Map<Integer, byte[]> contentDigests; // digest algorithm ID -> digest
+        Map<Integer, byte[]> content_digests; // digest algorithm ID -> digest
         try {
-            contentDigests =
-                    computeContentDigests(
-                            contentDigestAlgorithms,
-                            new ByteBuffer[] {beforeCentralDir, centralDir, eocd});
+            content_digests =
+                    compute_content_digests(
+                            content_digest_algorithms,
+                            new ByteBuffer[] {before_central_dir, central_dir, eocd});
         } catch (DigestException e) {
             throw new SignatureException("Failed to compute digests of APK", e);
         }
 
         // Sign the digests and wrap the signatures and signer info into an APK Signing Block.
-        ByteBuffer apkSigningBlock =
-                ByteBuffer.wrap(generateApkSigningBlock(signerConfigs, contentDigests));
+        ByteBuffer apk_signing_block =
+                ByteBuffer.wrap(generate_apk_signing_block(signer_configs, content_digests));
 
         // Update Central Directory Offset in End of Central Directory Record. Central Directory
         // follows the APK Signing Block and thus is shifted by the size of the APK Signing Block.
-        centralDirOffset += apkSigningBlock.remaining();
+        centralDirOffset += apk_signing_block.remaining();
         eocd.clear();
-        ZipUtils.setZipEocdCentralDirectoryOffset(eocd, centralDirOffset);
+        ZipUtils.set_zip_eocd_central_directory_offset(eocd, centralDirOffset);
 
         // Follow the Java NIO pattern for ByteBuffer whose contents have been consumed.
-        originalInputApk.position(originalInputApk.limit());
+        original_input_apk.position(original_input_apk.limit());
 
         // Reset positions (to 0) and limits (to capacity) in the ByteBuffers below to follow the
         // Java NIO pattern for ByteBuffers which are ready for their contents to be read by caller.
         // Contrary to the name, this does not clear the contents of these ByteBuffer.
-        beforeCentralDir.clear();
-        centralDir.clear();
+        before_central_dir.clear();
+        central_dir.clear();
         eocd.clear();
 
         // Insert APK Signing Block immediately before the ZIP Central Directory.
         return new ByteBuffer[] {
-            beforeCentralDir,
-            apkSigningBlock,
-            centralDir,
+            before_central_dir,
+            apk_signing_block,
+            central_dir,
             eocd,
         };
     }
 
-    private static Map<Integer, byte[]> computeContentDigests(
-            Set<Integer> digestAlgorithms,
+    private static Map<Integer, byte[]> compute_content_digests(
+            Set<Integer> digest_algorithms,
             ByteBuffer[] contents) throws DigestException {
         // For each digest algorithm the result is computed as follows:
         // 1. Each segment of contents is split into consecutive chunks of 1 MB in size.
@@ -253,18 +253,18 @@ public abstract class ApkSignerV2 {
 
         int chunkCount = 0;
         for (ByteBuffer input : contents) {
-            chunkCount += getChunkCount(input.remaining(), CONTENT_DIGESTED_CHUNK_MAX_SIZE_BYTES);
+            chunkCount += get_chunk_count(input.remaining(), CONTENT_DIGESTED_CHUNK_MAX_SIZE_BYTES);
         }
 
-        final Map<Integer, byte[]> digestsOfChunks = new HashMap<>(digestAlgorithms.size());
-        for (int digestAlgorithm : digestAlgorithms) {
-            int digestOutputSizeBytes = getContentDigestAlgorithmOutputSizeBytes(digestAlgorithm);
+        final Map<Integer, byte[]> digests_of_chunks = new HashMap<>(digest_algorithms.size());
+        for (int digest_algorithm : digest_algorithms) {
+            int digestOutputSizeBytes = get_content_digest_algorithm_output_size_bytes(digest_algorithm);
             byte[] concatenationOfChunkCountAndChunkDigests =
                     new byte[5 + chunkCount * digestOutputSizeBytes];
             concatenationOfChunkCountAndChunkDigests[0] = 0x5a;
-            setUnsignedInt32LittleEngian(
+            set_unsigned_int32_little_engian(
                     chunkCount, concatenationOfChunkCountAndChunkDigests, 1);
-            digestsOfChunks.put(digestAlgorithm, concatenationOfChunkCountAndChunkDigests);
+            digests_of_chunks.put(digest_algorithm, concatenationOfChunkCountAndChunkDigests);
         }
 
         int chunkIndex = 0;
@@ -275,28 +275,28 @@ public abstract class ApkSignerV2 {
             while (input.hasRemaining()) {
                 int chunkSize =
                         Math.min(input.remaining(), CONTENT_DIGESTED_CHUNK_MAX_SIZE_BYTES);
-                final ByteBuffer chunk = getByteBuffer(input, chunkSize);
-                for (int digestAlgorithm : digestAlgorithms) {
-                    String jcaAlgorithmName =
-                            getContentDigestAlgorithmJcaDigestAlgorithm(digestAlgorithm);
+                final ByteBuffer chunk = get_byte_buffer(input, chunkSize);
+                for (int digest_algorithm : digest_algorithms) {
+                    String jca_algorithm_name =
+                            get_content_digest_algorithm_jca_digest_algorithm(digest_algorithm);
                     MessageDigest md;
                     try {
-                        md = MessageDigest.getInstance(jcaAlgorithmName);
+                        md = MessageDigest.getInstance(jca_algorithm_name);
                     } catch (NoSuchAlgorithmException e) {
                         throw new DigestException(
-                                jcaAlgorithmName + " MessageDigest not supported", e);
+                                jca_algorithm_name + " MessageDigest not supported", e);
                     }
                     // Reset position to 0 and limit to capacity. Position would've been modified
                     // by the preceding iteration of this loop. NOTE: Contrary to the method name,
                     // this does not modify the contents of the chunk.
                     chunk.clear();
-                    setUnsignedInt32LittleEngian(chunk.remaining(), chunkContentPrefix, 1);
+                    set_unsigned_int32_little_engian(chunk.remaining(), chunkContentPrefix, 1);
                     md.update(chunkContentPrefix);
                     md.update(chunk);
                     byte[] concatenationOfChunkCountAndChunkDigests =
-                            digestsOfChunks.get(digestAlgorithm);
+                            digests_of_chunks.get(digest_algorithm);
                     int expectedDigestSizeBytes =
-                            getContentDigestAlgorithmOutputSizeBytes(digestAlgorithm);
+                            get_content_digest_algorithm_output_size_bytes(digest_algorithm);
                     int actualDigestSizeBytes =
                             md.digest(
                                     concatenationOfChunkCountAndChunkDigests,
@@ -312,42 +312,42 @@ public abstract class ApkSignerV2 {
             }
         }
 
-        Map<Integer, byte[]> result = new HashMap<>(digestAlgorithms.size());
-        for (Map.Entry<Integer, byte[]> entry : digestsOfChunks.entrySet()) {
-            int digestAlgorithm = entry.getKey();
+        Map<Integer, byte[]> result = new HashMap<>(digest_algorithms.size());
+        for (Map.Entry<Integer, byte[]> entry : digests_of_chunks.entrySet()) {
+            int digest_algorithm = entry.getKey();
             byte[] concatenationOfChunkCountAndChunkDigests = entry.getValue();
-            String jcaAlgorithmName = getContentDigestAlgorithmJcaDigestAlgorithm(digestAlgorithm);
+            String jca_algorithm_name = get_content_digest_algorithm_jca_digest_algorithm(digest_algorithm);
             MessageDigest md;
             try {
-                md = MessageDigest.getInstance(jcaAlgorithmName);
+                md = MessageDigest.getInstance(jca_algorithm_name);
             } catch (NoSuchAlgorithmException e) {
-                throw new DigestException(jcaAlgorithmName + " MessageDigest not supported", e);
+                throw new DigestException(jca_algorithm_name + " MessageDigest not supported", e);
             }
-            result.put(digestAlgorithm, md.digest(concatenationOfChunkCountAndChunkDigests));
+            result.put(digest_algorithm, md.digest(concatenationOfChunkCountAndChunkDigests));
         }
         return result;
     }
 
-    private static int getChunkCount(int inputSize, int chunkSize) {
+    private static int get_chunk_count(int inputSize, int chunkSize) {
         return (inputSize + chunkSize - 1) / chunkSize;
     }
 
-    private static void setUnsignedInt32LittleEngian(int value, byte[] result, int offset) {
+    private static void set_unsigned_int32_little_engian(int value, byte[] result, int offset) {
         result[offset] = (byte) (value & 0xff);
         result[offset + 1] = (byte) ((value >> 8) & 0xff);
         result[offset + 2] = (byte) ((value >> 16) & 0xff);
         result[offset + 3] = (byte) ((value >> 24) & 0xff);
     }
 
-    private static byte[] generateApkSigningBlock(
-            List<SignerConfig> signerConfigs,
-            Map<Integer, byte[]> contentDigests) throws InvalidKeyException, SignatureException {
+    private static byte[] generate_apk_signing_block(
+            List<SignerConfig> signer_configs,
+            Map<Integer, byte[]> content_digests) throws InvalidKeyException, SignatureException {
         byte[] apkSignatureSchemeV2Block =
-                generateApkSignatureSchemeV2Block(signerConfigs, contentDigests);
-        return generateApkSigningBlock(apkSignatureSchemeV2Block);
+                generate_apk_signature_scheme_v2_block(signer_configs, content_digests);
+        return generate_apk_signing_block(apkSignatureSchemeV2Block);
     }
 
-    private static byte[] generateApkSigningBlock(byte[] apkSignatureSchemeV2Block) {
+    private static byte[] generate_apk_signing_block(byte[] apkSignatureSchemeV2Block) {
         // FORMAT:
         // uint64:  size (excluding this field)
         // repeated ID-value pairs:
@@ -379,66 +379,66 @@ public abstract class ApkSignerV2 {
         return result.array();
     }
 
-    private static byte[] generateApkSignatureSchemeV2Block(
-            List<SignerConfig> signerConfigs,
-            Map<Integer, byte[]> contentDigests) throws InvalidKeyException, SignatureException {
+    private static byte[] generate_apk_signature_scheme_v2_block(
+            List<SignerConfig> signer_configs,
+            Map<Integer, byte[]> content_digests) throws InvalidKeyException, SignatureException {
         // FORMAT:
         // * length-prefixed sequence of length-prefixed signer blocks.
 
-        List<byte[]> signerBlocks = new ArrayList<>(signerConfigs.size());
+        List<byte[]> signer_blocks = new ArrayList<>(signer_configs.size());
         int signerNumber = 0;
-        for (SignerConfig signerConfig : signerConfigs) {
+        for (SignerConfig signer_config : signer_configs) {
             signerNumber++;
             byte[] signerBlock;
             try {
-                signerBlock = generateSignerBlock(signerConfig, contentDigests);
+                signerBlock = generate_signer_block(signer_config, content_digests);
             } catch (InvalidKeyException e) {
                 throw new InvalidKeyException("Signer #" + signerNumber + " failed", e);
             } catch (SignatureException e) {
                 throw new SignatureException("Signer #" + signerNumber + " failed", e);
             }
-            signerBlocks.add(signerBlock);
+            signer_blocks.add(signerBlock);
         }
 
-        return encodeAsSequenceOfLengthPrefixedElements(
+        return encode_as_sequence_of_length_prefixed_elements(
                 new byte[][] {
-                    encodeAsSequenceOfLengthPrefixedElements(signerBlocks),
+                    encode_as_sequence_of_length_prefixed_elements(signer_blocks),
                 });
     }
 
-    private static byte[] generateSignerBlock(
-            SignerConfig signerConfig,
-            Map<Integer, byte[]> contentDigests) throws InvalidKeyException, SignatureException {
-        if (signerConfig.certificates.isEmpty()) {
+    private static byte[] generate_signer_block(
+            SignerConfig signer_config,
+            Map<Integer, byte[]> content_digests) throws InvalidKeyException, SignatureException {
+        if (signer_config.certificates.isEmpty()) {
             throw new SignatureException("No certificates configured for signer");
         }
-        PublicKey publicKey = signerConfig.certificates.get(0).getPublicKey();
+        PublicKey public_key = signer_config.certificates.get(0).getPublicKey();
 
-        byte[] encodedPublicKey = encodePublicKey(publicKey);
+        byte[] encodedPublicKey = encode_public_key(public_key);
 
-        V2SignatureSchemeBlock.SignedData signedData = new V2SignatureSchemeBlock.SignedData();
+        V2SignatureSchemeBlock.SignedData signed_data = new V2SignatureSchemeBlock.SignedData();
         try {
-            signedData.certificates = encodeCertificates(signerConfig.certificates);
+            signed_data.certificates = encode_certificates(signer_config.certificates);
         } catch (CertificateEncodingException e) {
             throw new SignatureException("Failed to encode certificates", e);
         }
 
         List<Pair<Integer, byte[]>> digests =
-                new ArrayList<>(signerConfig.signatureAlgorithms.size());
-        for (int signatureAlgorithm : signerConfig.signatureAlgorithms) {
+                new ArrayList<>(signer_config.signature_algorithms.size());
+        for (int signatureAlgorithm : signer_config.signature_algorithms) {
             int contentDigestAlgorithm =
-                    getSignatureAlgorithmContentDigestAlgorithm(signatureAlgorithm);
-            byte[] contentDigest = contentDigests.get(contentDigestAlgorithm);
+                    get_signature_algorithm_content_digest_algorithm(signatureAlgorithm);
+            byte[] contentDigest = content_digests.get(contentDigestAlgorithm);
             if (contentDigest == null) {
                 throw new RuntimeException(
-                        getContentDigestAlgorithmJcaDigestAlgorithm(contentDigestAlgorithm)
+                        get_content_digest_algorithm_jca_digest_algorithm(contentDigestAlgorithm)
                         + " content digest for "
                         + getSignatureAlgorithmJcaSignatureAlgorithm(signatureAlgorithm)
                         + " not computed");
             }
             digests.add(Pair.create(signatureAlgorithm, contentDigest));
         }
-        signedData.digests = digests;
+        signed_data.digests = digests;
 
         V2SignatureSchemeBlock.Signer signer = new V2SignatureSchemeBlock.Signer();
         // FORMAT:
@@ -450,51 +450,51 @@ public abstract class ApkSignerV2 {
         // * length-prefixed sequence of length-prefixed additional attributes:
         //   * uint32: ID
         //   * (length - 4) bytes: value
-        signer.signedData = encodeAsSequenceOfLengthPrefixedElements(new byte[][] {
-            encodeAsSequenceOfLengthPrefixedPairsOfIntAndLengthPrefixedBytes(signedData.digests),
-            encodeAsSequenceOfLengthPrefixedElements(signedData.certificates),
+        signer.signed_data = encode_as_sequence_of_length_prefixed_elements(new byte[][] {
+            encode_as_sequence_of_length_prefixed_pairs_of_int_and_length_prefixed_bytes(signed_data.digests),
+            encode_as_sequence_of_length_prefixed_elements(signed_data.certificates),
             // additional attributes
             new byte[0],
         });
-        signer.publicKey = encodedPublicKey;
+        signer.public_key = encodedPublicKey;
         signer.signatures = new ArrayList<>();
-        for (int signatureAlgorithm : signerConfig.signatureAlgorithms) {
-            Pair<String, ? extends AlgorithmParameterSpec> signatureParams =
+        for (int signatureAlgorithm : signer_config.signature_algorithms) {
+            Pair<String, ? extends AlgorithmParameterSpec> signature_params =
                     getSignatureAlgorithmJcaSignatureAlgorithm(signatureAlgorithm);
-            String jcaSignatureAlgorithm = signatureParams.getFirst();
-            AlgorithmParameterSpec jcaSignatureAlgorithmParams = signatureParams.getSecond();
+            String jca_signature_algorithm = signature_params.getFirst();
+            AlgorithmParameterSpec jca_signature_algorithm_params = signature_params.get_second();
             byte[] signatureBytes;
             try {
-                Signature signature = Signature.getInstance(jcaSignatureAlgorithm);
-                signature.initSign(signerConfig.privateKey);
-                if (jcaSignatureAlgorithmParams != null) {
-                    signature.setParameter(jcaSignatureAlgorithmParams);
+                Signature signature = Signature.getInstance(jca_signature_algorithm);
+                signature.initSign(signer_config.private_key);
+                if (jca_signature_algorithm_params != null) {
+                    signature.setParameter(jca_signature_algorithm_params);
                 }
-                signature.update(signer.signedData);
+                signature.update(signer.signed_data);
                 signatureBytes = signature.sign();
             } catch (InvalidKeyException e) {
-                throw new InvalidKeyException("Failed sign using " + jcaSignatureAlgorithm, e);
+                throw new InvalidKeyException("Failed sign using " + jca_signature_algorithm, e);
             } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException
                     | SignatureException e) {
-                throw new SignatureException("Failed sign using " + jcaSignatureAlgorithm, e);
+                throw new SignatureException("Failed sign using " + jca_signature_algorithm, e);
             }
 
             try {
-                Signature signature = Signature.getInstance(jcaSignatureAlgorithm);
-                signature.initVerify(publicKey);
-                if (jcaSignatureAlgorithmParams != null) {
-                    signature.setParameter(jcaSignatureAlgorithmParams);
+                Signature signature = Signature.getInstance(jca_signature_algorithm);
+                signature.initVerify(public_key);
+                if (jca_signature_algorithm_params != null) {
+                    signature.setParameter(jca_signature_algorithm_params);
                 }
-                signature.update(signer.signedData);
+                signature.update(signer.signed_data);
                 if (!signature.verify(signatureBytes)) {
                     throw new SignatureException("Signature did not verify");
                 }
             } catch (InvalidKeyException e) {
-                throw new InvalidKeyException("Failed to verify generated " + jcaSignatureAlgorithm
+                throw new InvalidKeyException("Failed to verify generated " + jca_signature_algorithm
                         + " signature using public key from certificate", e);
             } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException
                     | SignatureException e) {
-                throw new SignatureException("Failed to verify generated " + jcaSignatureAlgorithm
+                throw new SignatureException("Failed to verify generated " + jca_signature_algorithm
                         + " signature using public key from certificate", e);
             }
 
@@ -507,20 +507,20 @@ public abstract class ApkSignerV2 {
         //   * uint32: signature algorithm ID
         //   * length-prefixed bytes: signature of signed data
         // * length-prefixed bytes: public key (X.509 SubjectPublicKeyInfo, ASN.1 DER encoded)
-        return encodeAsSequenceOfLengthPrefixedElements(
+        return encode_as_sequence_of_length_prefixed_elements(
                 new byte[][] {
-                    signer.signedData,
-                    encodeAsSequenceOfLengthPrefixedPairsOfIntAndLengthPrefixedBytes(
+                    signer.signed_data,
+                    encode_as_sequence_of_length_prefixed_pairs_of_int_and_length_prefixed_bytes(
                             signer.signatures),
-                    signer.publicKey,
+                    signer.public_key,
                 });
     }
 
     private static final class V2SignatureSchemeBlock {
         private static final class Signer {
-            public byte[] signedData;
+            public byte[] signed_data;
             public List<Pair<Integer, byte[]>> signatures;
-            public byte[] publicKey;
+            public byte[] public_key;
         }
 
         private static final class SignedData {
@@ -529,33 +529,33 @@ public abstract class ApkSignerV2 {
         }
     }
 
-    private static byte[] encodePublicKey(PublicKey publicKey) throws InvalidKeyException {
+    private static byte[] encode_public_key(PublicKey public_key) throws InvalidKeyException {
         byte[] encodedPublicKey = null;
-        if ("X.509".equals(publicKey.getFormat())) {
-            encodedPublicKey = publicKey.getEncoded();
+        if ("X.509".equals(public_key.getFormat())) {
+            encodedPublicKey = public_key.getEncoded();
         }
         if (encodedPublicKey == null) {
             try {
                 encodedPublicKey =
-                        KeyFactory.getInstance(publicKey.getAlgorithm())
-                                .getKeySpec(publicKey, X509EncodedKeySpec.class)
+                        KeyFactory.getInstance(public_key.getAlgorithm())
+                                .getKeySpec(public_key, X509EncodedKeySpec.class)
                                 .getEncoded();
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 throw new InvalidKeyException(
-                        "Failed to obtain X.509 encoded form of public key " + publicKey
-                                + " of class " + publicKey.getClass().getName(),
+                        "Failed to obtain X.509 encoded form of public key " + public_key
+                                + " of class " + public_key.getClass().getName(),
                         e);
             }
         }
         if ((encodedPublicKey == null) || (encodedPublicKey.length == 0)) {
             throw new InvalidKeyException(
-                    "Failed to obtain X.509 encoded form of public key " + publicKey
-                            + " of class " + publicKey.getClass().getName());
+                    "Failed to obtain X.509 encoded form of public key " + public_key
+                            + " of class " + public_key.getClass().getName());
         }
         return encodedPublicKey;
     }
 
-    public static List<byte[]> encodeCertificates(List<X509Certificate> certificates)
+    public static List<byte[]> encode_certificates(List<X509Certificate> certificates)
             throws CertificateEncodingException {
         List<byte[]> result = new ArrayList<>();
         for (X509Certificate certificate : certificates) {
@@ -564,12 +564,12 @@ public abstract class ApkSignerV2 {
         return result;
     }
 
-    private static byte[] encodeAsSequenceOfLengthPrefixedElements(List<byte[]> sequence) {
-        return encodeAsSequenceOfLengthPrefixedElements(
+    private static byte[] encode_as_sequence_of_length_prefixed_elements(List<byte[]> sequence) {
+        return encode_as_sequence_of_length_prefixed_elements(
                 sequence.toArray(new byte[sequence.size()][]));
     }
 
-    private static byte[] encodeAsSequenceOfLengthPrefixedElements(byte[][] sequence) {
+    private static byte[] encode_as_sequence_of_length_prefixed_elements(byte[][] sequence) {
         int payloadSize = 0;
         for (byte[] element : sequence) {
             payloadSize += 4 + element.length;
@@ -583,16 +583,16 @@ public abstract class ApkSignerV2 {
         return result.array();
       }
 
-    private static byte[] encodeAsSequenceOfLengthPrefixedPairsOfIntAndLengthPrefixedBytes(
+    private static byte[] encode_as_sequence_of_length_prefixed_pairs_of_int_and_length_prefixed_bytes(
             List<Pair<Integer, byte[]>> sequence) {
         int resultSize = 0;
         for (Pair<Integer, byte[]> element : sequence) {
-            resultSize += 12 + element.getSecond().length;
+            resultSize += 12 + element.get_second().length;
         }
         ByteBuffer result = ByteBuffer.allocate(resultSize);
         result.order(ByteOrder.LITTLE_ENDIAN);
         for (Pair<Integer, byte[]> element : sequence) {
-            byte[] second = element.getSecond();
+            byte[] second = element.get_second();
             result.putInt(8 + second.length);
             result.putInt(element.getFirst());
             result.putInt(second.length);
@@ -610,7 +610,7 @@ public abstract class ApkSignerV2 {
      * {@code size}, byte order set to this buffer's byte order; and then increments the position by
      * {@code size}.
      */
-    private static ByteBuffer getByteBuffer(ByteBuffer source, int size) {
+    private static ByteBuffer get_byte_buffer(ByteBuffer source, int size) {
         if (size < 0) {
             throw new IllegalArgumentException("size: " + size);
         }
@@ -663,7 +663,7 @@ public abstract class ApkSignerV2 {
         }
     }
 
-    private static int getSignatureAlgorithmContentDigestAlgorithm(int sigAlgorithm) {
+    private static int get_signature_algorithm_content_digest_algorithm(int sigAlgorithm) {
         switch (sigAlgorithm) {
             case SIGNATURE_RSA_PSS_WITH_SHA256:
             case SIGNATURE_RSA_PKCS1_V1_5_WITH_SHA256:
@@ -682,27 +682,27 @@ public abstract class ApkSignerV2 {
         }
     }
 
-    private static String getContentDigestAlgorithmJcaDigestAlgorithm(int digestAlgorithm) {
-        switch (digestAlgorithm) {
+    private static String get_content_digest_algorithm_jca_digest_algorithm(int digest_algorithm) {
+        switch (digest_algorithm) {
             case CONTENT_DIGEST_CHUNKED_SHA256:
                 return "SHA-256";
             case CONTENT_DIGEST_CHUNKED_SHA512:
                 return "SHA-512";
             default:
                 throw new IllegalArgumentException(
-                        "Unknown content digest algorithm: " + digestAlgorithm);
+                        "Unknown content digest algorithm: " + digest_algorithm);
         }
     }
 
-    private static int getContentDigestAlgorithmOutputSizeBytes(int digestAlgorithm) {
-        switch (digestAlgorithm) {
+    private static int get_content_digest_algorithm_output_size_bytes(int digest_algorithm) {
+        switch (digest_algorithm) {
             case CONTENT_DIGEST_CHUNKED_SHA256:
                 return 256 / 8;
             case CONTENT_DIGEST_CHUNKED_SHA512:
                 return 512 / 8;
             default:
                 throw new IllegalArgumentException(
-                        "Unknown content digest algorithm: " + digestAlgorithm);
+                        "Unknown content digest algorithm: " + digest_algorithm);
         }
     }
 
@@ -725,12 +725,12 @@ public abstract class ApkSignerV2 {
      * Pair of two elements.
      */
     private static class Pair<A, B> {
-        private final A mFirst;
-        private final B mSecond;
+        private final A m_first;
+        private final B m_second;
 
         private Pair(A first, B second) {
-            mFirst = first;
-            mSecond = second;
+            m_first = first;
+            m_second = second;
         }
 
         public static <A, B> Pair<A, B> create(A first, B second) {
@@ -738,19 +738,19 @@ public abstract class ApkSignerV2 {
         }
 
         public A getFirst() {
-            return mFirst;
+            return m_first;
         }
 
-        public B getSecond() {
-            return mSecond;
+        public B get_second() {
+            return m_second;
         }
 
         @Override
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ((mFirst == null) ? 0 : mFirst.hashCode());
-            result = prime * result + ((mSecond == null) ? 0 : mSecond.hashCode());
+            result = prime * result + ((m_first == null) ? 0 : m_first.hashCode());
+            result = prime * result + ((m_second == null) ? 0 : m_second.hashCode());
             return result;
         }
 
@@ -767,16 +767,16 @@ public abstract class ApkSignerV2 {
             }
             @SuppressWarnings("rawtypes")
             Pair other = (Pair) obj;
-            if (mFirst == null) {
-                if (other.mFirst != null) {
+            if (m_first == null) {
+                if (other.m_first != null) {
                     return false;
                 }
-            } else if (!mFirst.equals(other.mFirst)) {
+            } else if (!m_first.equals(other.m_first)) {
                 return false;
             }
-            if (mSecond == null) {
-                return other.mSecond == null;
-            } else return mSecond.equals(other.mSecond);
+            if (m_second == null) {
+                return other.m_second == null;
+            } else return m_second.equals(other.m_second);
         }
     }
 }

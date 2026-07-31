@@ -28,36 +28,36 @@ import pro.magisk.BR
 /** Adapter that renders [RvItem] subclasses via DataBinding. */
 class RvItemAdapter<T: RvItem>(
     val items: List<T>,
-    val extraBindings: SparseArray<*>?
+    val extra_bindings: SparseArray<*>?
 ) : RecyclerView.Adapter<RvItemAdapter.ViewHolder>() {
 
     private var lifecycleOwner: LifecycleOwner? = null
-    private var recyclerView: RecyclerView? = null
+    private var recycler_view: RecyclerView? = null
     private val observer by lazy(LazyThreadSafetyMode.NONE) { ListObserver<T>() }
 
     override fun onAttachedToRecyclerView(rv: RecyclerView) {
         lifecycleOwner = rv.findViewTreeLifecycleOwner()
-        recyclerView = rv
+        recycler_view = rv
         if (items is ObservableList)
             items.addOnListChangedCallback(observer)
     }
 
     override fun onDetachedFromRecyclerView(rv: RecyclerView) {
         lifecycleOwner = null
-        recyclerView = null
+        recycler_view = null
         if (items is ObservableList)
             items.removeOnListChangedCallback(observer)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, layoutRes: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, layout_res: Int): ViewHolder {
         val inflator = LayoutInflater.from(parent.context)
-        return ViewHolder(DataBindingUtil.inflate(inflator, layoutRes, parent, false))
+        return ViewHolder(DataBindingUtil.inflate(inflator, layout_res, parent, false))
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         holder.binding.setVariable(BR.item, item)
-        extraBindings?.let {
+        extra_bindings?.let {
             for (i in 0 until it.size()) {
                 holder.binding.setVariable(it.keyAt(i), it.valueAt(i))
             }
@@ -68,7 +68,7 @@ class RvItemAdapter<T: RvItem>(
 
     override fun getItemCount() = items.size
 
-    override fun getItemViewType(position: Int) = items[position].layoutRes
+    override fun getItemViewType(position: Int) = items[position].layout_res
 
     class ViewHolder(val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -98,12 +98,12 @@ class RvItemAdapter<T: RvItem>(
 
         override fun onItemRangeMoved(
             sender: ObservableList<T>?,
-            fromPosition: Int,
+            from_position: Int,
             toPosition: Int,
             itemCount: Int
         ) {
             for (i in 0 until itemCount) {
-                notifyItemMoved(fromPosition + i, toPosition + i)
+                notifyItemMoved(from_position + i, toPosition + i)
             }
         }
 
@@ -118,15 +118,15 @@ class RvItemAdapter<T: RvItem>(
 }
 
 /** Helper to build a [SparseArray] of extra DataBinding variables. */
-inline fun bindExtra(body: (SparseArray<Any?>) -> Unit) = SparseArray<Any?>().also(body)
+inline fun bind_extra(body: (SparseArray<Any?>) -> Unit) = SparseArray<Any?>().also(body)
 
 /** DataBinding adapter: sets a [RvItemAdapter] on a RecyclerView. */
-@BindingAdapter("items", "extraBindings", requireAll = false)
-fun <T: RvItem> RecyclerView.setAdapter(items: List<T>?, extraBindings: SparseArray<*>?) {
+@BindingAdapter("items", "extra_bindings", requireAll = false)
+fun <T: RvItem> RecyclerView.setAdapter(items: List<T>?, extra_bindings: SparseArray<*>?) {
     if (items != null) {
         val rva = (adapter as? RvItemAdapter<*>)
-        if (rva == null || rva.items !== items || rva.extraBindings !== extraBindings) {
-            adapter = RvItemAdapter(items, extraBindings)
+        if (rva == null || rva.items !== items || rva.extra_bindings !== extra_bindings) {
+            adapter = RvItemAdapter(items, extra_bindings)
         }
     }
 }

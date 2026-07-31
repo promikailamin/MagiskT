@@ -27,7 +27,7 @@ import pro.magisk.core.model.su.SuPolicy
 import pro.magisk.core.utils.asText
 import pro.magisk.databinding.MergeObservableList
 import pro.magisk.databinding.RvItem
-import pro.magisk.databinding.bindExtra
+import pro.magisk.databinding.bind_extra
 import pro.magisk.databinding.diffList
 import pro.magisk.databinding.set
 import pro.magisk.dialog.SuperuserRevokeDialog
@@ -44,15 +44,15 @@ class SuperuserViewModel(
     private val db: PolicyDao
 ) : AsyncLoadViewModel() {
 
-    private val itemNoData = TextItem(R.string.superuser_policy_none)
+    private val item_no_data = TextItem(R.string.superuser_policy_none)
 
-    private val itemsHelpers = ObservableArrayList<TextItem>()
-    private val itemsPolicies = diffList<PolicyRvItem>()
+    private val items_helpers = ObservableArrayList<TextItem>()
+    private val items_policies = diffList<PolicyRvItem>()
 
     val items = MergeObservableList<RvItem>()
-        .insertList(itemsHelpers)
-        .insertList(itemsPolicies)
-    val extraBindings = bindExtra {
+        .insert_list(items_helpers)
+        .insert_list(items_policies)
+    val extra_bindings = bind_extra {
         it.put(BR.listener, this)
     }
 
@@ -61,18 +61,18 @@ class SuperuserViewModel(
         private set(value) = set(value, field, { field = it }, BR.loading)
 
     @SuppressLint("InlinedApi")
-    override suspend fun doLoadWork() {
-        if (!Info.showSuperUser) {
+    override suspend fun do_load_work() {
+        if (!Info.show_super_user) {
             loading = false
             return
         }
         loading = true
         withContext(Dispatchers.IO) {
-            db.deleteOutdated()
+            db.delete_outdated()
             db.delete(AppContext.applicationInfo.uid)
             val policies = ArrayList<PolicyRvItem>()
             val pm = AppContext.packageManager
-            for (policy in db.fetchAll()) {
+            for (policy in db.fetch_all()) {
                 val pkgs =
                     if (policy.uid == Process.SYSTEM_UID) arrayOf("android")
                     else pm.getPackagesForUid(policy.uid)
@@ -101,87 +101,87 @@ class SuperuserViewModel(
                 policies.addAll(map)
             }
             policies.sortWith(compareBy(
-                { it.appName.lowercase(Locale.ROOT) },
+                { it.app_name.lowercase(Locale.ROOT) },
                 { it.packageName }
             ))
-            itemsPolicies.update(policies)
+            items_policies.update(policies)
         }
-        if (itemsPolicies.isNotEmpty())
-            itemsHelpers.clear()
-        else if (itemsHelpers.isEmpty())
-            itemsHelpers.add(itemNoData)
+        if (items_policies.isNotEmpty())
+            items_helpers.clear()
+        else if (items_helpers.isEmpty())
+            items_helpers.add(item_no_data)
         loading = false
     }
 
-    fun deletePressed(item: PolicyRvItem) {
-        fun updateState() = viewModelScope.launch {
+    fun delete_pressed(item: PolicyRvItem) {
+        fun update_state() = viewModelScope.launch {
             db.delete(item.item.uid)
-            val list = ArrayList(itemsPolicies)
+            val list = ArrayList(items_policies)
             list.removeAll { it.item.uid == item.item.uid }
-            itemsPolicies.update(list)
-            if (list.isEmpty() && itemsHelpers.isEmpty()) {
-                itemsHelpers.add(itemNoData)
+            items_policies.update(list)
+            if (list.isEmpty() && items_helpers.isEmpty()) {
+                items_helpers.add(item_no_data)
             }
         }
 
-        if (Config.suAuth) {
-            AuthEvent { updateState() }.publish()
+        if (Config.su_auth) {
+            AuthEvent { update_state() }.publish()
         } else {
-            SuperuserRevokeDialog(item.title) { updateState() }.show()
+            SuperuserRevokeDialog(item.title) { update_state() }.show()
         }
     }
 
-    fun updateNotify(item: PolicyRvItem) {
+    fun update_notify(item: PolicyRvItem) {
         viewModelScope.launch {
             db.update(item.item)
             val res = when {
                 item.item.notification -> R.string.su_snack_notif_on
                 else -> R.string.su_snack_notif_off
             }
-            itemsPolicies.forEach {
+            items_policies.forEach {
                 if (it.item.uid == item.item.uid) {
-                    it.notifyPropertyChanged(BR.shouldNotify)
+                    it.notifyPropertyChanged(BR.should_notify)
                 }
             }
-            SnackbarEvent(res.asText(item.appName)).publish()
+            SnackbarEvent(res.asText(item.app_name)).publish()
         }
     }
 
-    fun updateLogging(item: PolicyRvItem) {
+    fun update_logging(item: PolicyRvItem) {
         viewModelScope.launch {
             db.update(item.item)
             val res = when {
                 item.item.logging -> R.string.su_snack_log_on
                 else -> R.string.su_snack_log_off
             }
-            itemsPolicies.forEach {
+            items_policies.forEach {
                 if (it.item.uid == item.item.uid) {
-                    it.notifyPropertyChanged(BR.shouldLog)
+                    it.notifyPropertyChanged(BR.should_log)
                 }
             }
-            SnackbarEvent(res.asText(item.appName)).publish()
+            SnackbarEvent(res.asText(item.app_name)).publish()
         }
     }
 
-    fun updatePolicy(item: PolicyRvItem, policy: Int) {
-        val items = itemsPolicies.filter { it.item.uid == item.item.uid }
-        fun updateState() {
+    fun update_policy(item: PolicyRvItem, policy: Int) {
+        val items = items_policies.filter { it.item.uid == item.item.uid }
+        fun update_state() {
             viewModelScope.launch {
                 val res = if (policy >= SuPolicy.ALLOW) R.string.su_snack_grant else R.string.su_snack_deny
                 item.item.policy = policy
                 db.update(item.item)
                 items.forEach {
                     it.notifyPropertyChanged(BR.enabled)
-                    it.notifyPropertyChanged(BR.sliderValue)
+                    it.notifyPropertyChanged(BR.slider_value)
                 }
-                SnackbarEvent(res.asText(item.appName)).publish()
+                SnackbarEvent(res.asText(item.app_name)).publish()
             }
         }
 
-        if (Config.suAuth) {
-            AuthEvent { updateState() }.publish()
+        if (Config.su_auth) {
+            AuthEvent { update_state() }.publish()
         } else {
-            updateState()
+            update_state()
         }
     }
 }

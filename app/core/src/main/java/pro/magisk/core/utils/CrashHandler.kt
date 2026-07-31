@@ -22,18 +22,18 @@ import java.util.Locale
 object CrashHandler : Thread.UncaughtExceptionHandler {
 
     private const val CRASH_FILE = "crash_info.txt"
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+    private val date_format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
 
     override fun uncaughtException(thread: Thread, throwable: Throwable) {
         Timber.e(throwable, "Uncaught exception in thread: %s", thread.name)
 
         try {
-            val crashDir = File(AppContext.cacheDir, "crash_reports")
-            crashDir.mkdirs()
-            val crashFile = File(crashDir, CRASH_FILE)
+            val crash_dir = File(AppContext.cacheDir, "crash_reports")
+            crash_dir.mkdirs()
+            val crash_file = File(crash_dir, CRASH_FILE)
 
-            val report = buildCrashReport(thread, throwable)
-            crashFile.writeText(report)
+            val report = build_crash_report(thread, throwable)
+            crash_file.writeText(report)
 
             val intent = Intent(AppContext, DebugActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -47,12 +47,12 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
         System.exit(1)
     }
 
-    private fun buildCrashReport(thread: Thread, throwable: Throwable): String {
+    private fun build_crash_report(thread: Thread, throwable: Throwable): String {
         val sw = StringWriter()
         val pw = PrintWriter(sw)
 
         pw.println("=== CRASH REPORT ===")
-        pw.println("Time: ${dateFormat.format(Date())}")
+        pw.println("Time: ${date_format.format(Date())}")
         pw.println()
         pw.println("--- DEVICE INFO ---")
         pw.println("Brand: ${Build.BRAND}")
@@ -87,8 +87,8 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
         }
 
         pw.println("--- ALL THREADS ---")
-        val threadMap = Thread.getAllStackTraces()
-        threadMap.forEach { (t, stack) ->
+        val thread_map = Thread.getAllStackTraces()
+        thread_map.forEach { (t, stack) ->
             @Suppress("DEPRECATION")
             if (t.id != thread.id) {
                 @Suppress("DEPRECATION")

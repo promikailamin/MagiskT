@@ -21,21 +21,21 @@ import androidx.core.graphics.drawable.IconCompat
 import pro.magisk.core.Const
 import pro.magisk.core.Info
 import pro.magisk.core.R
-import pro.magisk.core.isRunningAsStub
+import pro.magisk.core.is_running_as_stub
 import pro.magisk.core.ktx.getBitmap
 
 object Shortcuts {
 
     /** Set dynamic shortcuts when supported (API 25+). */
-    fun setupDynamic(context: Context) {
+    fun setup_dynamic(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             val manager = context.getSystemService<ShortcutManager>() ?: return
-            manager.dynamicShortcuts = getShortCuts(context)
+            manager.dynamicShortcuts = get_short_cuts(context)
         }
     }
 
     /** Pin a home-screen shortcut via [ShortcutManagerCompat]. */
-    fun addHomeIcon(context: Context) {
+    fun add_home_icon(context: Context) {
         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName) ?: return
         val info = ShortcutInfoCompat.Builder(context, Const.Nav.HOME)
             .setShortLabel(context.getString(R.string.magisk))
@@ -47,7 +47,7 @@ object Shortcuts {
 
     /** Resolve an [Icon] from a drawable resource ID. */
     private fun Context.getIcon(id: Int): Icon {
-        return if (isRunningAsStub) {
+        return if (is_running_as_stub) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                 Icon.createWithAdaptiveBitmap(getBitmap(id))
             else
@@ -59,7 +59,7 @@ object Shortcuts {
 
     /** Resolve an [IconCompat] from a drawable resource ID. */
     private fun Context.getIconCompat(id: Int): IconCompat {
-        return if (isRunningAsStub) {
+        return if (is_running_as_stub) {
             val bitmap = getBitmap(id)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                 IconCompat.createWithAdaptiveBitmap(bitmap)
@@ -72,14 +72,14 @@ object Shortcuts {
 
     /** Build the list of dynamic shortcuts. */
     @RequiresApi(api = 25)
-    private fun getShortCuts(context: Context): List<ShortcutInfo> {
+    private fun get_short_cuts(context: Context): List<ShortcutInfo> {
         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
             ?: return emptyList()
 
-        val shortCuts = mutableListOf<ShortcutInfo>()
+        val short_cuts = mutableListOf<ShortcutInfo>()
 
-        if (Info.showSuperUser) {
-            shortCuts.add(
+        if (Info.show_super_user) {
+            short_cuts.add(
                 ShortcutInfo.Builder(context, Const.Nav.SUPERUSER)
                     .setShortLabel(context.getString(R.string.superuser))
                     .setIntent(
@@ -91,7 +91,7 @@ object Shortcuts {
             )
         }
         if (Info.env.isActive) {
-            shortCuts.add(
+            short_cuts.add(
                 ShortcutInfo.Builder(context, Const.Nav.MODULES)
                     .setShortLabel(context.getString(R.string.modules))
                     .setIntent(
@@ -102,6 +102,6 @@ object Shortcuts {
                     .build()
             )
         }
-        return shortCuts
+        return short_cuts
     }
 }

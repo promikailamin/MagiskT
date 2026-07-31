@@ -26,57 +26,57 @@ object MediaStoreUtils {
 
     private val cr get() = AppContext.contentResolver
 
-    private fun relativePath(name: String) =
+    private fun relative_path(name: String) =
         if (name.isEmpty()) Environment.DIRECTORY_DOWNLOADS
         else Environment.DIRECTORY_DOWNLOADS + File.separator + name
 
-    fun fullPath(name: String): String =
-        File(Environment.getExternalStorageDirectory(), relativePath(name)).canonicalPath
+    fun full_path(name: String): String =
+        File(Environment.getExternalStorageDirectory(), relative_path(name)).canonicalPath
 
-    private val downloadPath get() = relativePath("")
+    private val download_path get() = relative_path("")
 
     /** Insert a new file into MediaStore Downloads (API 30+). */
     @RequiresApi(api = 30)
     @Throws(IOException::class)
-    private fun insertFile(displayName: String): MediaStoreFile {
+    private fun insert_file(display_name: String): MediaStoreFile {
         val values = ContentValues()
-        values.put(MediaStore.MediaColumns.RELATIVE_PATH, downloadPath)
-        values.put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)
+        values.put(MediaStore.MediaColumns.RELATIVE_PATH, download_path)
+        values.put(MediaStore.MediaColumns.DISPLAY_NAME, display_name)
 
-        val fileUri = cr.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
-            ?: throw IOException("Can't insert $displayName.")
+        val file_uri = cr.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+            ?: throw IOException("Can't insert $display_name.")
 
         val projection = arrayOf(MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DATA)
-        cr.query(fileUri, projection, null, null, null)?.use { cursor ->
-            val idIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
-            val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
+        cr.query(file_uri, projection, null, null, null)?.use { cursor ->
+            val id_index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+            val data_column = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
             if (cursor.moveToFirst()) {
-                val id = cursor.getLong(idIndex)
-                val data = cursor.getString(dataColumn)
+                val id = cursor.getLong(id_index)
+                val data = cursor.getString(data_column)
                 return MediaStoreFile(id, data)
             }
         }
 
-        throw IOException("Can't insert $displayName.")
+        throw IOException("Can't insert $display_name.")
     }
 
     /** Look up an existing file in MediaStore by display name (API 29+). */
     @RequiresApi(api = 29)
-    private fun queryFile(displayName: String): UriFile? {
+    private fun query_file(display_name: String): UriFile? {
         val projection = arrayOf(MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DATA)
         val selection = "${MediaStore.MediaColumns.DISPLAY_NAME} == ?"
-        val selectionArgs = arrayOf(displayName)
-        val sortOrder = "${MediaStore.MediaColumns.DATE_ADDED} DESC"
+        val selection_args = arrayOf(display_name)
+        val sort_order = "${MediaStore.MediaColumns.DATE_ADDED} DESC"
         val query = cr.query(
             MediaStore.Downloads.EXTERNAL_CONTENT_URI,
-            projection, selection, selectionArgs, sortOrder)
+            projection, selection, selection_args, sort_order)
         query?.use { cursor ->
-            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
-            val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
+            val id_column = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+            val data_column = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA)
             while (cursor.moveToNext()) {
-                val id = cursor.getLong(idColumn)
-                val data = cursor.getString(dataColumn)
-                if (data.endsWith(downloadPath + File.separator + displayName)) {
+                val id = cursor.getLong(id_column)
+                val data = cursor.getString(data_column)
+                if (data.endsWith(download_path + File.separator + display_name)) {
                     return MediaStoreFile(id, data)
                 }
             }
@@ -89,13 +89,13 @@ object MediaStoreUtils {
      * on API 30+ and falls back to raw file I/O on older versions.
      */
     @Throws(IOException::class)
-    fun getFile(displayName: String): UriFile {
+    fun get_file(display_name: String): UriFile {
         return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            val parent = File(Environment.getExternalStorageDirectory(), downloadPath)
+            val parent = File(Environment.getExternalStorageDirectory(), download_path)
             parent.mkdirs()
-            LegacyUriFile(File(parent, displayName))
+            LegacyUriFile(File(parent, display_name))
         } else {
-            queryFile(displayName) ?: insertFile(displayName)
+            query_file(display_name) ?: insert_file(display_name)
         }
     }
 
@@ -103,22 +103,22 @@ object MediaStoreUtils {
     fun Uri.inputStream() = cr.openInputStream(this) ?: throw FileNotFoundException()
 
     /** Open the content URI for writing ("rwt" = read-write truncate). */
-    fun Uri.outputStream() = cr.openOutputStream(this, "rwt") ?: throw FileNotFoundException()
+    fun Uri.output_stream() = cr.openOutputStream(this, "rwt") ?: throw FileNotFoundException()
 
     /** Open a file descriptor for reading. */
     fun Uri.openFd() = cr.openFileDescriptor(this, "r") ?: throw FileNotFoundException()
 
     /** Resolve the display name of a content or file URI. */
-    val Uri.displayName: String get() {
+    val Uri.display_name: String get() {
         if (scheme == "file") {
             return toFile().name
         }
         require(scheme == "content") { "Uri lacks 'content' scheme: $this" }
         val projection = arrayOf(OpenableColumns.DISPLAY_NAME)
         cr.query(this, projection, null, null, null)?.use { cursor ->
-            val displayNameColumn = cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME)
+            val display_name_column = cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME)
             if (cursor.moveToFirst()) {
-                return cursor.getString(displayNameColumn)
+                return cursor.getString(display_name_column)
             }
         }
         return this.toString()
@@ -144,8 +144,8 @@ object MediaStoreUtils {
         override fun toString() = data
         override fun delete(): Boolean {
             val selection = "${MediaStore.MediaColumns._ID} == ?"
-            val selectionArgs = arrayOf(id.toString())
-            return cr.delete(uri, selection, selectionArgs) == 1
+            val selection_args = arrayOf(id.toString())
+            return cr.delete(uri, selection, selection_args) == 1
         }
     }
 }

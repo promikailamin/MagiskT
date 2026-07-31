@@ -6,7 +6,7 @@
     <data>
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.log.LogViewModel" />
 
     </data>
@@ -18,12 +18,12 @@
         <include
             android:id="@+id/log_filter_magisk"
             layout="@layout/include_log_magisk"
-            viewModel="@{viewModel}"
+            view_model="@{view_model}"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            gone="@{viewModel.loading}"
+            gone="@{view_model.loading}"
             android:id="@+id/log_filter_toggle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
             <include
                 android:id="@+id/log_filter_superuser"
                 layout="@layout/include_log_superuser"
-                viewModel="@{viewModel}"
+                view_model="@{view_model}"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 

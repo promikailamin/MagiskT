@@ -6,7 +6,7 @@
     <data>
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.superuser.SuperuserViewModel" />
 
     </data>
@@ -17,9 +17,9 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/superuser_list"
-            gone="@{viewModel.loading}"
-            app:items="@{viewModel.items}"
-            app:extraBindings="@{viewModel.extraBindings}"
+            gone="@{view_model.loading}"
+            app:items="@{view_model.items}"
+            app:extra_bindings="@{view_model.extra_bindings}"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
@@ -30,7 +30,7 @@
             tools:listitem="@layout/item_policy_md2" />
 
         <LinearLayout
-            goneUnless="@{viewModel.loading}"
+            goneUnless="@{view_model.loading}"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

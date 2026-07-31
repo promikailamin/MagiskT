@@ -30,7 +30,7 @@ class PermissionEvent(
 ) : ViewEvent(), ActivityExecutor {
 
     override fun invoke(activity: UIActivity<*>) =
-        activity.withPermission(permission, callback)
+        activity.with_permission(permission, callback)
 }
 
 /** Triggers the system back button. */
@@ -69,7 +69,7 @@ class AuthEvent(
 ) : ViewEvent(), ActivityExecutor {
 
     override fun invoke(activity: UIActivity<*>) {
-        activity.withAuthentication { if (it) callback() }
+        activity.with_authentication { if (it) callback() }
     }
 }
 
@@ -79,7 +79,7 @@ class GetContentEvent(
     private val callback: ContentResultCallback
 ) : ViewEvent(), ActivityExecutor {
     override fun invoke(activity: UIActivity<*>) {
-        activity.getContent(type, callback)
+        activity.get_content(type, callback)
     }
 }
 
@@ -99,7 +99,7 @@ class NavigationEvent(
 /** Requests a home-screen shortcut to be added. */
 class AddHomeIconEvent : ViewEvent(), ContextExecutor {
     override fun invoke(context: Context) {
-        Shortcuts.addHomeIcon(context)
+        Shortcuts.add_home_icon(context)
     }
 }
 
@@ -123,7 +123,7 @@ class SnackbarEvent(
     ) : this(msg.asText(), length, builder)
 
     override fun invoke(activity: UIActivity<*>) {
-        activity.showSnackbar(msg.getText(activity.resources), length, builder)
+        activity.show_snackbar(msg.get_text(activity.resources), length, builder)
     }
 }
 

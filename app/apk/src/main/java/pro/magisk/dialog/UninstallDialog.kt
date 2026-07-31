@@ -33,7 +33,7 @@ class UninstallDialog : DialogBuilder {
             }
             setButton(MagiskDialog.ButtonType.NEGATIVE) {
                 text = R.string.complete_uninstall
-                onClick { completeUninstall(dialog) }
+                onClick { complete_uninstall(dialog) }
             }
         }
     }
@@ -56,7 +56,7 @@ class UninstallDialog : DialogBuilder {
         }
     }
 
-    private fun completeUninstall(dialog: MagiskDialog) {
+    private fun complete_uninstall(dialog: MagiskDialog) {
         (dialog.ownerActivity as NavigationActivity<*>)
             .navigation.navigate(FlashFragment.uninstall())
     }

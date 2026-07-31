@@ -15,12 +15,12 @@ import pro.magisk.arch.AsyncLoadViewModel
 import pro.magisk.core.BuildConfig
 import pro.magisk.core.Info
 import pro.magisk.core.R
-import pro.magisk.core.ktx.timeFormatStandard
+import pro.magisk.core.ktx.time_format_standard
 import pro.magisk.core.ktx.toTime
 import pro.magisk.core.repository.LogRepository
 import pro.magisk.core.utils.MediaStoreUtils
-import pro.magisk.core.utils.MediaStoreUtils.outputStream
-import pro.magisk.databinding.bindExtra
+import pro.magisk.core.utils.MediaStoreUtils.output_stream
+import pro.magisk.databinding.bind_extra
 import pro.magisk.databinding.diffList
 import pro.magisk.databinding.set
 import pro.magisk.events.SnackbarEvent
@@ -38,46 +38,46 @@ class LogViewModel(
     var loading = true
         private set(value) = set(value, field, { field = it }, BR.loading)
 
-    val itemEmpty = TextItem(R.string.log_data_none)
-    val itemMagiskEmpty = TextItem(R.string.log_data_magisk_none)
+    val item_empty = TextItem(R.string.log_data_none)
+    val item_magisk_empty = TextItem(R.string.log_data_magisk_none)
 
     val items = diffList<SuLogRvItem>()
-    val extraBindings = bindExtra {
-        it.put(BR.viewModel, this)
+    val extra_bindings = bind_extra {
+        it.put(BR.view_model, this)
     }
 
     val logs = diffList<LogRvItem>()
-    var magiskLogRaw = " "
+    var magisk_log_raw = " "
 
-    override suspend fun doLoadWork() {
+    override suspend fun do_load_work() {
         loading = true
 
-        val (suLogs, suDiff) = withContext(Dispatchers.Default) {
-            magiskLogRaw = repo.fetchMagiskLogs()
-            val newLogs = magiskLogRaw.split('\n').map { LogRvItem(it) }
-            logs.update(newLogs)
-            val suLogs = repo.fetchSuLogs().map { SuLogRvItem(it) }
-            suLogs to items.calculateDiff(suLogs)
+        val (su_logs, suDiff) = withContext(Dispatchers.Default) {
+            magisk_log_raw = repo.fetch_magisk_logs()
+            val new_logs = magisk_log_raw.split('\n').map { LogRvItem(it) }
+            logs.update(new_logs)
+            val su_logs = repo.fetch_su_logs().map { SuLogRvItem(it) }
+            su_logs to items.calculate_diff(su_logs)
         }
 
-        items.firstOrNull()?.isTop = false
-        items.lastOrNull()?.isBottom = false
-        items.update(suLogs, suDiff)
-        items.firstOrNull()?.isTop = true
-        items.lastOrNull()?.isBottom = true
+        items.firstOrNull()?.is_top = false
+        items.lastOrNull()?.is_bottom = false
+        items.update(su_logs, suDiff)
+        items.firstOrNull()?.is_top = true
+        items.lastOrNull()?.is_bottom = true
         loading = false
     }
 
     /** Writes a comprehensive debug log file to the MediaStore. */
-    fun saveMagiskLog() = withExternalRW {
+    fun save_magisk_log() = with_external_r_w {
         viewModelScope.launch(Dispatchers.IO) {
             val filename = "magisk_log_%s.log".format(
-                System.currentTimeMillis().toTime(timeFormatStandard))
-            val logFile = MediaStoreUtils.getFile(filename)
-            logFile.uri.outputStream().bufferedWriter().use { file ->
+                System.currentTimeMillis().toTime(time_format_standard))
+            val log_file = MediaStoreUtils.get_file(filename)
+            log_file.uri.output_stream().bufferedWriter().use { file ->
                 file.write("---Detected Device Info---\n\n")
-                file.write("isAB=${Info.isAB}\n")
-                file.write("isSAR=${Info.isSAR}\n")
+                file.write("isAB=${Info.is_a_b}\n")
+                file.write("isSAR=${Info.is_s_a_r}\n")
                 file.write("ramdisk=${Info.ramdisk}\n")
                 val uname = Os.uname()
                 file.write("kernel=${uname.sysname} ${uname.machine} ${uname.release} ${uname.version}\n")
@@ -93,26 +93,26 @@ class LogViewModel(
                 FileInputStream("/proc/self/mountinfo").reader().use { it.copyTo(file) }
 
                 file.write("\n---Magisk Logs---\n")
-                file.write("${Info.env.versionString} (${Info.env.versionCode})\n\n")
-                if (Info.env.isActive) file.write(magiskLogRaw)
+                file.write("${Info.env.version_string} (${Info.env.versionCode})\n\n")
+                if (Info.env.isActive) file.write(magisk_log_raw)
 
                 file.write("\n---Manager Logs---\n")
                 file.write("${BuildConfig.APP_VERSION_NAME} (${BuildConfig.APP_VERSION_CODE})\n\n")
                 ProcessBuilder("logcat", "-d").start()
                     .inputStream.reader().use { it.copyTo(file) }
             }
-            SnackbarEvent(logFile.toString()).publish()
+            SnackbarEvent(log_file.toString()).publish()
         }
     }
 
-    fun clearMagiskLog() = repo.clearMagiskLogs {
+    fun clear_magisk_log() = repo.clear_magisk_logs {
         SnackbarEvent(R.string.logs_cleared).publish()
-        startLoading()
+        start_loading()
     }
 
-    fun clearLog() = viewModelScope.launch {
-        repo.clearLogs()
+    fun clear_log() = viewModelScope.launch {
+        repo.clear_logs()
         SnackbarEvent(R.string.logs_cleared).publish()
-        startLoading()
+        start_loading()
     }
 }

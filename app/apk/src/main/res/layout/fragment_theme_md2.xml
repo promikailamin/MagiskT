@@ -7,7 +7,7 @@
         <import type="pro.magisk.ui.theme.Theme" />
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.theme.ThemeViewModel" />
 
     </data>
@@ -32,9 +32,9 @@
 
             <include
                 android:id="@+id/theme_card_dark"
-                item="@{viewModel.themeHeadline}"
+                item="@{view_model.theme_headline}"
                 layout="@layout/item_tappable_headline"
-                listener="@{viewModel}" />
+                listener="@{view_model}" />
 
         </LinearLayout>
 

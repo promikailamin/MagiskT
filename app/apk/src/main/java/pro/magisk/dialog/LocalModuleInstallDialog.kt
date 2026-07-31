@@ -15,18 +15,18 @@ import pro.magisk.view.MagiskDialog
 
 /** Dialog that asks the user to confirm installing the selected module ZIP. */
 class LocalModuleInstallDialog(
-    private val viewModel: ModuleViewModel,
+    private val view_model: ModuleViewModel,
     private val uri: Uri,
-    private val displayName: String
+    private val display_name: String
 ) : DialogBuilder {
     override fun build(dialog: MagiskDialog) {
         dialog.apply {
             setTitle(R.string.confirm_install_title)
-            setMessage(context.getString(R.string.confirm_install, displayName))
+            setMessage(context.getString(R.string.confirm_install, display_name))
             setButton(MagiskDialog.ButtonType.POSITIVE) {
                 text = android.R.string.ok
                 onClick {
-                    viewModel.apply {
+                    view_model.apply {
                         MainDirections.actionFlashFragment(Const.Value.FLASH_ZIP, uri).navigate()
                     }
                 }

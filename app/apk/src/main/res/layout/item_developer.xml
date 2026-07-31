@@ -10,7 +10,7 @@
             type="pro.magisk.ui.home.DeveloperItem" />
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.home.HomeViewModel" />
 
     </data>
@@ -33,7 +33,7 @@
 
         <androidx.recyclerview.widget.RecyclerView
             app:items="@{item.items}"
-            app:extraBindings="@{viewModel.extraBindings}"
+            app:extra_bindings="@{view_model.extra_bindings}"
             app:nestedScrollingEnabled="@{false}"
             android:overScrollMode="never"
             android:layout_width="wrap_content"

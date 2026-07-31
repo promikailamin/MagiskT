@@ -33,51 +33,51 @@ import java.util.Map;
 
 public class StubApk {
     /** Cached dynamic files directory. */
-    private static File dynDir;
+    private static File dyn_dir;
     /** Cached AssetManager.addAssetPath reflection Method. */
-    private static Method addAssetPath;
+    private static Method add_asset_path;
 
     /**
      * Returns (and creates if needed) the directory for dynamic APK storage.
      * Uses device-protected storage on N+ for direct boot awareness.
      */
-    private static File getDynDir(ApplicationInfo info) {
-        if (dynDir == null) {
-            final String dataDir;
+    private static File get_dyn_dir(ApplicationInfo info) {
+        if (dyn_dir == null) {
+            final String data_dir;
             if (SDK_INT >= Build.VERSION_CODES.N) {
-                dataDir = info.deviceProtectedDataDir;
+                data_dir = info.deviceProtectedDataDir;
             } else {
-                dataDir = info.dataDir;
+                data_dir = info.data_dir;
             }
-            dynDir = new File(dataDir, "dyn");
-            dynDir.mkdirs();
+            dyn_dir = new File(data_dir, "dyn");
+            dyn_dir.mkdirs();
         }
-        return dynDir;
+        return dyn_dir;
     }
 
     /** Returns the current APK file path. */
     public static File current(Context c) {
-        return new File(getDynDir(c.getApplicationInfo()), "current.apk");
+        return new File(get_dyn_dir(c.getApplicationInfo()), "current.apk");
     }
 
     /** Returns the current APK file path. */
     public static File current(ApplicationInfo info) {
-        return new File(getDynDir(info), "current.apk");
+        return new File(get_dyn_dir(info), "current.apk");
     }
 
     /** Returns the update APK file path (staged for next launch). */
     public static File update(Context c) {
-        return new File(getDynDir(c.getApplicationInfo()), "update.apk");
+        return new File(get_dyn_dir(c.getApplicationInfo()), "update.apk");
     }
 
     /** Returns the update APK file path (staged for next launch). */
     public static File update(ApplicationInfo info) {
-        return new File(getDynDir(info), "update.apk");
+        return new File(get_dyn_dir(info), "update.apk");
     }
 
     /** Creates a ResourcesLoader for the given path (directory or APK file), API 30+. */
     @TargetApi(Build.VERSION_CODES.R)
-    private static ResourcesLoader getResourcesLoader(File path) throws IOException {
+    private static ResourcesLoader get_resources_loader(File path) throws IOException {
         var loader = new ResourcesLoader();
         ResourcesProvider provider;
         if (path.isDirectory()) {
@@ -94,17 +94,17 @@ public class StubApk {
      * Injects additional resources (from a file path) into the given Resources object.
      * Uses Resources.addLoaders on R+ or AssetManager.addAssetPath via reflection on older.
      */
-    public static void addAssetPath(Resources res, String path) {
+    public static void add_asset_path(Resources res, String path) {
         if (SDK_INT >= Build.VERSION_CODES.R) {
             try {
-                res.addLoaders(getResourcesLoader(new File(path)));
+                res.addLoaders(get_resources_loader(new File(path)));
             } catch (IOException ignored) {}
         } else {
             AssetManager asset = res.getAssets();
             try {
-                if (addAssetPath == null)
-                    addAssetPath = AssetManager.class.getMethod("addAssetPath", String.class);
-                addAssetPath.invoke(asset, path);
+                if (add_asset_path == null)
+                    add_asset_path = AssetManager.class.getMethod("addAssetPath", String.class);
+                add_asset_path.invoke(asset, path);
             } catch (Exception ignored) {}
         }
     }
@@ -114,7 +114,7 @@ public class StubApk {
      * Runtime.exit. The activity finishes its affinity first so it does not
      * reappear in the back stack.
      */
-    public static void restartProcess(Activity activity) {
+    public static void restart_process(Activity activity) {
         Intent intent = activity.getPackageManager()
                 .getLaunchIntentForPackage(activity.getPackageName());
         activity.finishAffinity();
@@ -145,18 +145,18 @@ public class StubApk {
 
         public Data() { arr = new Object[ARR_SIZE]; }
         public Data(Object o) { arr = (Object[]) o; }
-        public Object getObject() { return arr; }
+        public Object get_object() { return arr; }
 
-        public int getVersion() { return (int) arr[STUB_VERSION]; }
-        public void setVersion(int version) { arr[STUB_VERSION] = version; }
-        public Map<String, String> getClassToComponent() {
+        public int get_version() { return (int) arr[STUB_VERSION]; }
+        public void set_version(int version) { arr[STUB_VERSION] = version; }
+        public Map<String, String> get_class_to_component() {
             // noinspection unchecked
             return (Map<String, String>) arr[CLASS_COMPONENT_MAP];
         }
-        public void setClassToComponent(Map<String, String> map) {
+        public void set_class_to_component(Map<String, String> map) {
             arr[CLASS_COMPONENT_MAP] = map;
         }
-        public Class<?> getRootService() { return (Class<?>) arr[ROOT_SERVICE]; }
-        public void setRootService(Class<?> service) { arr[ROOT_SERVICE] = service; }
+        public Class<?> get_root_service() { return (Class<?>) arr[ROOT_SERVICE]; }
+        public void set_root_service(Class<?> service) { arr[ROOT_SERVICE] = service; }
     }
 }

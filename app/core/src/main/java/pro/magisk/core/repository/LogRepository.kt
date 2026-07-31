@@ -16,13 +16,13 @@ import com.topjohnwu.superuser.Shell
 
 
 class LogRepository(
-    private val logDao: SuLogDao
+    private val log_dao: SuLogDao
 ) {
 
-    suspend fun fetchSuLogs() = logDao.fetchAll()
+    suspend fun fetch_su_logs() = log_dao.fetch_all()
 
     /** Fetch Magisk daemon logs (from file or logcat). */
-    suspend fun fetchMagiskLogs(): String {
+    suspend fun fetch_magisk_logs(): String {
         val list = object : AbstractMutableList<String>() {
             val buf = StringBuilder()
             override val size get() = 0
@@ -44,11 +44,11 @@ class LogRepository(
         return list.buf.toString()
     }
 
-    suspend fun clearLogs() = logDao.deleteAll()
+    suspend fun clear_logs() = log_dao.delete_all()
 
-    fun clearMagiskLogs(cb: (Shell.Result) -> Unit) =
+    fun clear_magisk_logs(cb: (Shell.Result) -> Unit) =
         Shell.cmd("echo -n > ${Const.MAGISK_LOG}").submit(cb)
 
-    suspend fun insert(log: SuLog) = logDao.insert(log)
+    suspend fun insert(log: SuLog) = log_dao.insert(log)
 
 }

@@ -18,17 +18,17 @@ import kotlinx.coroutines.launch
  */
 abstract class AsyncLoadViewModel : BaseViewModel() {
 
-    private var loadingJob: Job? = null
+    private var loading_job: Job? = null
 
     @MainThread
-    fun startLoading() {
+    fun start_loading() {
         // Prevent multiple loading jobs from running concurrently
-        if (loadingJob?.isActive == true) {
+        if (loading_job?.isActive == true) {
             return
         }
-        loadingJob = viewModelScope.launch { doLoadWork() }
+        loading_job = viewModelScope.launch { do_load_work() }
     }
 
     /** Implement this to perform the actual async data-loading work. */
-    protected abstract suspend fun doLoadWork()
+    protected abstract suspend fun do_load_work()
 }

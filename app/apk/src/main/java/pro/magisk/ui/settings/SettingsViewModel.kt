@@ -24,12 +24,12 @@ import pro.magisk.core.Config
 import pro.magisk.core.Const
 import pro.magisk.core.Info
 import pro.magisk.core.R
-import pro.magisk.core.isRunningAsStub
+import pro.magisk.core.is_running_as_stub
 import pro.magisk.core.ktx.activity
 import pro.magisk.core.ktx.toast
 import pro.magisk.core.utils.LocaleSetting
 import pro.magisk.core.utils.RootUtils
-import pro.magisk.databinding.bindExtra
+import pro.magisk.databinding.bind_extra
 import pro.magisk.events.AddHomeIconEvent
 import pro.magisk.events.AuthEvent
 import pro.magisk.events.SnackbarEvent
@@ -38,20 +38,20 @@ import kotlinx.coroutines.launch
 /** ViewModel that builds and manages the settings item list. */
 class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
 
-    val items = createItems()
-    val extraBindings = bindExtra {
+    val items = create_items()
+    val extra_bindings = bind_extra {
         it.put(BR.handler, this)
     }
 
     /** Assembles the settings list based on current device and app state. */
-    private fun createItems(): List<BaseSettingsItem> {
+    private fun create_items(): List<BaseSettingsItem> {
         val context = AppContext
 
         val list = mutableListOf(
             Customization,
-            Theme, if (LocaleSetting.useLocaleManager) LanguageSystem else Language
+            Theme, if (LocaleSetting.use_locale_manager) LanguageSystem else Language
         )
-        if (isRunningAsStub && ShortcutManagerCompat.isRequestPinShortcutSupported(context))
+        if (is_running_as_stub && ShortcutManagerCompat.isRequestPinShortcutSupported(context))
             list.add(AddShortcut)
 
         list.addAll(listOf(
@@ -65,7 +65,7 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
             }
         }
 
-        if (Info.showSuperUser) {
+        if (Info.show_super_user) {
             list.addAll(listOf(
                 Superuser, Tapjack, Authentication, AccessMode, MultiuserMode,
                 MountNamespaceMode, AutomaticResponse, RequestTimeout, SUNotification
@@ -84,20 +84,20 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
         return list
     }
 
-    override fun onItemPressed(view: View, item: BaseSettingsItem, doAction: () -> Unit) {
+    override fun on_item_pressed(view: View, item: BaseSettingsItem, doAction: () -> Unit) {
         when (item) {
             Authentication -> AuthEvent(doAction).publish()
-            AutomaticResponse -> if (Config.suAuth) AuthEvent(doAction).publish() else doAction()
+            AutomaticResponse -> if (Config.su_auth) AuthEvent(doAction).publish() else doAction()
             else -> doAction()
         }
     }
 
-    override fun onItemAction(view: View, item: BaseSettingsItem) {
+    override fun on_item_action(view: View, item: BaseSettingsItem) {
         when (item) {
             Theme -> SettingsFragmentDirections.actionSettingsFragmentToThemeFragment().navigate()
-            LanguageSystem -> view.activity.startActivity(LocaleSetting.localeSettingsIntent)
+            LanguageSystem -> view.activity.startActivity(LocaleSetting.locale_settings_intent)
             AddShortcut -> AddHomeIconEvent().publish()
-            SystemlessHosts -> createHosts()
+            SystemlessHosts -> create_hosts()
             DenyListConfig -> SettingsFragmentDirections.actionSettingsFragmentToDenyFragment().navigate()
             Zygisk -> if (Zygisk.mismatch) SnackbarEvent(R.string.reboot_apply_change).publish()
             DenyList -> if (DenyList.mismatch) SnackbarEvent(R.string.reboot_apply_change).publish()
@@ -105,7 +105,7 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
         }
     }
 
-    private fun createHosts() {
+    private fun create_hosts() {
         viewModelScope.launch {
             RootUtils.addSystemlessHosts()
             AppContext.toast(R.string.settings_hosts_toast, Toast.LENGTH_SHORT)

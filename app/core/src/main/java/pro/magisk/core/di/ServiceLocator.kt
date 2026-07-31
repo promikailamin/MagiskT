@@ -28,29 +28,29 @@ import io.noties.markwon.utils.NoCopySpannableFactory
 object ServiceLocator {
 
     /** Device-protected context – survives reboots. */
-    val deContext by lazy { AppContext.deviceProtectedContext }
-    val timeoutPrefs by lazy { deContext.getSharedPreferences("su_timeout", 0) }
+    val de_context by lazy { AppContext.deviceProtectedContext }
+    val timeout_prefs by lazy { de_context.getSharedPreferences("su_timeout", 0) }
 
     // ---- Shell-backed MagiskDB DAOs ----
-    val policyDB = PolicyDao()
-    val settingsDB = SettingsDao()
-    val stringDB = StringDao()
+    val policy_d_b = PolicyDao()
+    val settings_d_b = SettingsDao()
+    val string_d_b = StringDao()
 
     // ---- Room (SU access logs) ----
-    val sulogDB by lazy { createSuLogDatabase(deContext).suLogDao() }
-    val logRepo by lazy { LogRepository(sulogDB) }
+    val sulog_d_b by lazy { create_su_log_database(de_context).su_log_dao() }
+    val log_repo by lazy { LogRepository(sulog_d_b) }
 
     // ---- Markdown renderer ----
-    val markwon by lazy { createMarkwon(AppContext) }
+    val markwon by lazy { create_markwon(AppContext) }
 }
 
-private fun createSuLogDatabase(context: Context) =
+private fun create_su_log_database(context: Context) =
     Room.databaseBuilder(context, SuLogDatabase::class.java, "sulogs.db")
         .addMigrations(SuLogDatabase.MIGRATION_1_2)
         .fallbackToDestructiveMigration(true)
         .build()
 
-private fun createMarkwon(context: Context) =
+private fun create_markwon(context: Context) =
     Markwon.builder(context).textSetter { textView, spanned, bufferType, onComplete ->
         textView.apply {
             movementMethod = LinkMovementMethod.getInstance()

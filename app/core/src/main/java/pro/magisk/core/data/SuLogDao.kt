@@ -22,7 +22,7 @@ import java.util.Calendar
 @Database(version = 2, entities = [SuLog::class], exportSchema = false)
 abstract class SuLogDatabase : RoomDatabase() {
 
-    abstract fun suLogDao(): SuLogDao
+    abstract fun su_log_dao(): SuLogDao
 
     companion object {
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -38,14 +38,14 @@ abstract class SuLogDatabase : RoomDatabase() {
 @Dao
 abstract class SuLogDao(private val db: SuLogDatabase) {
 
-    private val twoWeeksAgo =
+    private val two_weeks_ago =
         Calendar.getInstance().apply { add(Calendar.WEEK_OF_YEAR, -2) }.timeInMillis
 
-    suspend fun deleteAll() = withContext(Dispatchers.IO) { db.clearAllTables() }
+    suspend fun delete_all() = withContext(Dispatchers.IO) { db.clearAllTables() }
 
     /** Fetch all log entries (deleting outdated ones first). */
-    suspend fun fetchAll(): MutableList<SuLog> {
-        deleteOutdated()
+    suspend fun fetch_all(): MutableList<SuLog> {
+        delete_outdated()
         return fetch()
     }
 
@@ -53,7 +53,7 @@ abstract class SuLogDao(private val db: SuLogDatabase) {
     protected abstract suspend fun fetch(): MutableList<SuLog>
 
     @Query("DELETE FROM logs WHERE time < :timeout")
-    protected abstract suspend fun deleteOutdated(timeout: Long = twoWeeksAgo)
+    protected abstract suspend fun delete_outdated(timeout: Long = two_weeks_ago)
 
     @Insert
     abstract suspend fun insert(log: SuLog)

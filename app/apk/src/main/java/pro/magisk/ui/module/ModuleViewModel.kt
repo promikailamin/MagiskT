@@ -20,7 +20,7 @@ import pro.magisk.core.base.ContentResultCallback
 import pro.magisk.core.model.module.LocalModule
 import pro.magisk.databinding.MergeObservableList
 import pro.magisk.databinding.RvItem
-import pro.magisk.databinding.bindExtra
+import pro.magisk.databinding.bind_extra
 import pro.magisk.databinding.diffList
 import pro.magisk.databinding.set
 import pro.magisk.dialog.LocalModuleInstallDialog
@@ -33,13 +33,13 @@ import pro.magisk.core.R as CoreR
 /** ViewModel for the module list — loading, display, and install flows. */
 class ModuleViewModel : AsyncLoadViewModel() {
 
-    val bottomBarBarrierIds = intArrayOf(R.id.module_remove)
+    val bottom_bar_barrier_ids = intArrayOf(R.id.module_remove)
 
-    private val itemsInstalled = diffList<LocalModuleRvItem>()
+    private val items_installed = diffList<LocalModuleRvItem>()
 
     val items = MergeObservableList<RvItem>()
-    val extraBindings = bindExtra {
-        it.put(BR.viewModel, this)
+    val extra_bindings = bind_extra {
+        it.put(BR.view_model, this)
     }
 
     val data get() = uri
@@ -48,33 +48,33 @@ class ModuleViewModel : AsyncLoadViewModel() {
     var loading = true
         private set(value) = set(value, field, { field = it }, BR.loading)
 
-    override suspend fun doLoadWork() {
+    override suspend fun do_load_work() {
         loading = true
-        val moduleLoaded = Info.env.isActive &&
+        val module_loaded = Info.env.isActive &&
                 withContext(Dispatchers.IO) { LocalModule.loaded() }
-        if (moduleLoaded) {
-            loadInstalled()
+        if (module_loaded) {
+            load_installed()
             if (items.isEmpty()) {
-                items.insertItem(InstallModule)
-                    .insertList(itemsInstalled)
+                items.insert_item(InstallModule)
+                    .insert_list(items_installed)
             }
         }
         loading = false
     }
 
-    private suspend fun loadInstalled() {
+    private suspend fun load_installed() {
         withContext(Dispatchers.Default) {
             val installed = LocalModule.installed().map { LocalModuleRvItem(it) }
-            itemsInstalled.update(installed)
+            items_installed.update(installed)
         }
     }
 
-    fun installPressed() = withExternalRW {
+    fun install_pressed() = with_external_r_w {
         GetContentEvent("application/zip", UriCallback()).publish()
     }
 
-    fun requestInstallLocalModule(uri: Uri, displayName: String) {
-        LocalModuleInstallDialog(this, uri, displayName).show()
+    fun request_install_local_module(uri: Uri, display_name: String) {
+        LocalModuleInstallDialog(this, uri, display_name).show()
     }
 
     @Parcelize
@@ -84,7 +84,7 @@ class ModuleViewModel : AsyncLoadViewModel() {
         }
     }
 
-    fun runAction(id: String, name: String) {
+    fun run_action(id: String, name: String) {
         MainDirections.actionActionFragment(id, name).navigate()
     }
 

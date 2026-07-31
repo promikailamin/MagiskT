@@ -14,6 +14,6 @@ public class StubApplication extends Application {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        DynLoad.loadAndInitializeApp(this);
+        DynLoad.load_and_initialize_app(this);
     }
 }

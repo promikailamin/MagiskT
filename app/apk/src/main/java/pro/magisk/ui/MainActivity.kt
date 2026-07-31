@@ -26,13 +26,13 @@ import pro.magisk.MainDirections
 import pro.magisk.R
 import pro.magisk.arch.BaseViewModel
 import pro.magisk.arch.NavigationActivity
-import pro.magisk.arch.viewModel
+import pro.magisk.arch.view_model
 import pro.magisk.core.Config
 import pro.magisk.core.Const
 import pro.magisk.core.Info
 import pro.magisk.core.base.SplashController
 import pro.magisk.core.base.SplashScreenHost
-import pro.magisk.core.isRunningAsStub
+import pro.magisk.core.is_running_as_stub
 import pro.magisk.core.ktx.toast
 import pro.magisk.core.model.module.LocalModule
 import pro.magisk.databinding.ActivityMainMd2Binding
@@ -47,51 +47,51 @@ class MainViewModel : BaseViewModel()
 
 class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenHost {
 
-    override val layoutRes = R.layout.activity_main_md2
-    override val viewModel by viewModel<MainViewModel>()
-    override val navHostId: Int = R.id.main_nav_host
-    override val splashController = SplashController(this)
-    override val snackbarView: View
+    override val layout_res = R.layout.activity_main_md2
+    override val view_model by view_model<MainViewModel>()
+    override val nav_host_id: Int = R.id.main_nav_host
+    override val splash_controller = SplashController(this)
+    override val snackbar_view: View
         get() {
-            val fragmentOverride = currentFragment?.snackbarView
-            return fragmentOverride ?: super.snackbarView
+            val fragment_override = current_fragment?.snackbar_view
+            return fragment_override ?: super.snackbar_view
         }
-    override val snackbarAnchorView: View?
+    override val snackbar_anchor_view: View?
         get() {
-            val fragmentAnchor = currentFragment?.snackbarAnchorView
+            val fragment_anchor = current_fragment?.snackbar_anchor_view
             return when {
-                fragmentAnchor?.isVisible == true -> fragmentAnchor
+                fragment_anchor?.isVisible == true -> fragment_anchor
                 binding.mainNavigation.isVisible -> return binding.mainNavigation
                 else -> null
             }
         }
 
-    private var isRootFragment = true
+    private var is_root_fragment = true
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(Theme.selected.themeRes)
-        splashController.preOnCreate()
-        super.onCreate(savedInstanceState)
-        splashController.onCreate(savedInstanceState)
+    override fun onCreate(saved_instance_state: Bundle?) {
+        setTheme(Theme.selected.theme_res)
+        splash_controller.pre_on_create()
+        super.onCreate(saved_instance_state)
+        splash_controller.onCreate(saved_instance_state)
     }
 
     override fun onResume() {
         super.onResume()
-        splashController.onResume()
+        splash_controller.onResume()
     }
 
     @SuppressLint("InlinedApi")
-    override fun onCreateUi(savedInstanceState: Bundle?) {
+    override fun on_create_ui(saved_instance_state: Bundle?) {
         setContentView()
-        showUnsupportedMessage()
-        askForHomeShortcut()
+        show_unsupported_message()
+        ask_for_home_shortcut()
 
         @Suppress("DEPRECATION")
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         // Track navigation destination changes to update toolbar and bottom-nav state
         navigation.addOnDestinationChangedListener { _, destination, _ ->
-            isRootFragment = when (destination.id) {
+            is_root_fragment = when (destination.id) {
                 R.id.homeFragment,
                 R.id.modulesFragment,
                 R.id.superuserFragment,
@@ -99,7 +99,7 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
                 else -> false
             }
 
-            requestNavigationHidden(!isRootFragment)
+            request_navigation_hidden(!is_root_fragment)
 
             // Sync the checked bottom-nav item with the current destination
             binding.mainNavigation.menu.forEach {
@@ -110,7 +110,7 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
         }
 
         binding.mainNavigation.setOnItemSelectedListener {
-            getScreen(it.itemId)?.navigate()
+            get_screen(it.itemId)?.navigate()
             true
         }
         // Reselection listener is intentionally a no-op (Google bug workaround)
@@ -118,7 +118,7 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
             // https://issuetracker.google.com/issues/124538620
         }
         binding.mainNavigation.menu.apply {
-            findItem(R.id.superuserFragment)?.isEnabled = Info.showSuperUser
+            findItem(R.id.superuserFragment)?.isEnabled = Info.show_super_user
             findItem(R.id.modulesFragment)?.isEnabled = Info.env.isActive && LocalModule.loaded()
         }
 
@@ -128,24 +128,24 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
             else
                 intent.getStringExtra(Const.Key.OPEN_SECTION)
 
-        getScreen(section)?.navigate()
+        get_screen(section)?.navigate()
 
-        if (!isRootFragment) {
-            requestNavigationHidden(requiresAnimation = savedInstanceState == null)
+        if (!is_root_fragment) {
+            request_navigation_hidden(requiresAnimation = saved_instance_state == null)
         }
     }
 
-    internal fun requestNavigationHidden(hide: Boolean = true, requiresAnimation: Boolean = true) {
-        val bottomView = binding.mainNavigation
+    internal fun request_navigation_hidden(hide: Boolean = true, requiresAnimation: Boolean = true) {
+        val bottom_view = binding.mainNavigation
         if (requiresAnimation) {
-            bottomView.isVisible = true
-            bottomView.isHidden = hide
+            bottom_view.isVisible = true
+            bottom_view.isHidden = hide
         } else {
-            bottomView.isGone = hide
+            bottom_view.isGone = hide
         }
     }
 
-    private fun getScreen(name: String?): NavDirections? {
+    private fun get_screen(name: String?): NavDirections? {
         return when (name) {
             Const.Nav.SUPERUSER -> MainDirections.actionSuperuserFragment()
             Const.Nav.MODULES -> MainDirections.actionModuleFragment()
@@ -154,7 +154,7 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
         }
     }
 
-    private fun getScreen(id: Int): NavDirections? {
+    private fun get_screen(id: Int): NavDirections? {
         return when (id) {
             R.id.homeFragment -> MainDirections.actionHomeFragment()
             R.id.modulesFragment -> MainDirections.actionModuleFragment()
@@ -165,17 +165,17 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
     }
 
     @SuppressLint("InlinedApi")
-    override fun showInvalidStateMessage(): Unit = runOnUiThread {
+    override fun show_invalid_state_message(): Unit = runOnUiThread {
         MagiskDialog(this).apply {
             setTitle(CoreR.string.unsupport_nonroot_stub_title)
             setMessage(CoreR.string.unsupport_nonroot_stub_msg)
             setButton(MagiskDialog.ButtonType.POSITIVE) {
                 text = CoreR.string.install
                 onClick {
-                    withPermission(REQUEST_INSTALL_PACKAGES) {
+                    with_permission(REQUEST_INSTALL_PACKAGES) {
                         if (!it) {
                             toast(CoreR.string.install_unknown_denied, Toast.LENGTH_SHORT)
-                            showInvalidStateMessage()
+                            show_invalid_state_message()
                         }
                     }
                 }
@@ -186,9 +186,9 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
     }
 
     /** Shows dialogs for known unsupported configurations. */
-    private fun showUnsupportedMessage() {
+    private fun show_unsupported_message() {
         // Magisk version too old or unsupported
-        if (Info.env.isUnsupported) {
+        if (Info.env.is_unsupported) {
             MagiskDialog(this).apply {
                 setTitle(CoreR.string.unsupport_magisk_title)
                 setMessage(CoreR.string.unsupport_magisk_msg, Const.Version.MIN_VERSION)
@@ -198,7 +198,7 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
         }
 
         // Another su binary is present on the PATH alongside magisk
-        if (!Info.isEmulator && Info.env.isActive && System.getenv("PATH")
+        if (!Info.is_emulator && Info.env.isActive && System.getenv("PATH")
                 ?.split(':')
                 ?.filterNot { File("$it/magisk").exists() }
                 ?.any { File("$it/su").exists() } == true) {
@@ -232,10 +232,10 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
     }
 
     /** Prompts the user to pin a home-screen shortcut when running as stub. */
-    private fun askForHomeShortcut() {
-        if (isRunningAsStub && !Config.askedHome &&
+    private fun ask_for_home_shortcut() {
+        if (is_running_as_stub && !Config.asked_home &&
             ShortcutManagerCompat.isRequestPinShortcutSupported(this)) {
-            Config.askedHome = true
+            Config.asked_home = true
             MagiskDialog(this).apply {
                 setTitle(CoreR.string.add_shortcut_title)
                 setMessage(CoreR.string.add_shortcut_msg)
@@ -245,7 +245,7 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
                 setButton(MagiskDialog.ButtonType.POSITIVE) {
                     text = android.R.string.ok
                     onClick {
-                        Shortcuts.addHomeIcon(this@MainActivity)
+                        Shortcuts.add_home_icon(this@MainActivity)
                     }
                 }
                 setCancelable(true)

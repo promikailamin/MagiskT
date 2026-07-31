@@ -48,7 +48,7 @@ lateinit var AppApkPath: String
 object AppContext : ContextWrapper(null),
     Application.ActivityLifecycleCallbacks, ComponentCallbacks2 {
 
-    val foregroundActivity: Activity? get() = ref.get()
+    val foreground_activity: Activity? get() = ref.get()
 
     private var ref = WeakReference<Activity>(null)
     private lateinit var application: Application
@@ -61,7 +61,7 @@ object AppContext : ContextWrapper(null),
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
-        LocaleSetting.instance.updateResource(resources)
+        LocaleSetting.instance.update_resource(resources)
     }
 
     override fun onActivityStarted(activity: Activity) {}
@@ -78,39 +78,39 @@ object AppContext : ContextWrapper(null),
 
     override fun getApplicationContext() = application
 
-    fun attachApplication(app: Application) {
+    fun attach_application(app: Application) {
         application = app
         val base = app.baseContext
         attachBaseContext(base)
         app.registerActivityLifecycleCallbacks(this)
         app.registerComponentCallbacks(this)
 
-        AppApkPath = if (isRunningAsStub) {
+        AppApkPath = if (is_running_as_stub) {
             StubApk.current(base).path
         } else {
             base.packageResourcePath
         }
         resources.patch()
 
-        val shellBuilder = Shell.Builder.create()
+        val shell_builder = Shell.Builder.create()
             .setFlags(Shell.FLAG_MOUNT_MASTER)
             .setInitializers(ShellInit::class.java)
             .setContext(this)
             .setTimeout(2)
-        Shell.setDefaultBuilder(shellBuilder)
+        Shell.setDefaultBuilder(shell_builder)
         Shell.EXECUTOR = Dispatchers.IO.asExecutor()
-        RootUtils.bindTask = RootService.bindOrTask(
+        RootUtils.bind_task = RootService.bindOrTask(
             intent<RootUtils>(),
             UiThreadHandler.executor,
             RootUtils.Connection
         )
         Shell.getShell(null) {}
 
-        if (SDK_INT >= 34 && isRunningAsStub) {
+        if (SDK_INT >= 34 && is_running_as_stub) {
             val lm = getSystemService(LocaleManager::class.java)
-            lm.overrideLocaleConfig = LocaleSetting.localeConfig
+            lm.overrideLocaleConfig = LocaleSetting.locale_config
         }
-        if (!BuildConfig.DEBUG && !isRunningAsStub) {
+        if (!BuildConfig.DEBUG && !is_running_as_stub) {
             @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
             GlobalScope.launch(Dispatchers.IO) {
                 ProfileInstaller.writeProfile(this@AppContext)

@@ -6,7 +6,7 @@
     <data>
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.surequest.SuRequestViewModel" />
 
     </data>
@@ -53,7 +53,7 @@
                     android:layout_marginEnd="@dimen/l1"
                     android:layout_weight="0"
                     android:padding="0dp"
-                    android:src="@{viewModel.icon}"
+                    android:src="@{view_model.icon}"
                     app:tint="@null"
                     tools:src="@drawable/ic_delete_md2" />
 
@@ -73,7 +73,7 @@
                         android:maxWidth="300dp"
                         android:maxLines="1"
                         android:minWidth="200dp"
-                        android:text="@{viewModel.title}"
+                        android:text="@{view_model.title}"
                         android:textAppearance="@style/AppearanceFoundation.Body"
                         android:textStyle="bold"
                         tools:text="Magisk" />
@@ -86,7 +86,7 @@
                         android:maxWidth="300dp"
                         android:maxLines="1"
                         android:minWidth="200dp"
-                        android:text="@{viewModel.packageName}"
+                        android:text="@{view_model.packageName}"
                         android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
                         tools:text="pro.magisk" />
                 </LinearLayout>
@@ -94,14 +94,14 @@
 
             <Spinner
                 android:id="@+id/timeout"
-                onTouch="@{() -> viewModel.spinnerTouched()}"
+                onTouch="@{() -> view_model.spinner_touched()}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:enabled="@{viewModel.grantEnabled}"
+                android:enabled="@{view_model.grant_enabled}"
                 app:items="@{@stringArray/allow_timeout}"
                 app:layout="@{@layout/item_spinner}"
-                android:selection="@={viewModel.selectedItemPosition}" />
+                android:selection="@={view_model.selectedItemPosition}" />
 
             <TextView
                 android:id="@+id/warning"
@@ -131,20 +131,20 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:onClick="@{() -> viewModel.denyPressed()}"
-                    android:text="@{viewModel.denyText}"
+                    android:onClick="@{() -> view_model.deny_pressed()}"
+                    android:text="@{view_model.deny_text}"
                     android:textColor="?colorOnSurfaceVariant"
                     tools:text="@string/deny" />
 
                 <Button
                     android:id="@+id/grant_btn"
                     style="@style/WidgetFoundation.Button.Text"
-                    onTouch="@{viewModel.grantTouchListener}"
+                    onTouch="@{view_model.grant_touch_listener}"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:onClick="@{() -> viewModel.grantPressed()}"
-                    android:enabled="@{viewModel.grantEnabled}"
+                    android:onClick="@{() -> view_model.grant_pressed()}"
+                    android:enabled="@{view_model.grant_enabled}"
                     android:text="@string/grant" />
 
                 <requestFocus />

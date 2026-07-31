@@ -12,7 +12,7 @@
             type="pro.magisk.ui.log.SuLogRvItem" />
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.log.LogViewModel" />
 
     </data>
@@ -26,9 +26,9 @@
         <include
             android:id="@+id/log_track_container"
             bullet="@{item.log.action >= 2 ? R.drawable.ic_check_md2 : R.drawable.ic_close_md2}"
-            isBottom="@{item.isBottom}"
+            is_bottom="@{item.is_bottom}"
             isSelected="@{item.log.action != 2}"
-            isTop="@{item.isTop}"
+            is_top="@{item.is_top}"
             layout="@layout/item_log_track_md2"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
@@ -51,7 +51,7 @@
                 android:id="@+id/log_app_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{item.log.appName}"
+                android:text="@{item.log.app_name}"
                 android:textAppearance="@style/AppearanceFoundation.Body"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@+id/log_info"

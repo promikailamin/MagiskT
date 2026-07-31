@@ -22,7 +22,7 @@ import pro.magisk.core.ktx.getLabel
 import pro.magisk.core.ktx.getPackageInfo
 import pro.magisk.core.ktx.toast
 import pro.magisk.core.model.su.SuPolicy
-import pro.magisk.core.model.su.createSuLog
+import pro.magisk.core.model.su.create_su_log
 import pro.magisk.view.Notifications
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
@@ -55,8 +55,8 @@ object SuCallbackHandler {
         }
 
         when (action) {
-            LOG -> handleLogging(context, data)
-            NOTIFY -> handleNotify(context, data)
+            LOG -> handle_logging(context, data)
+            NOTIFY -> handle_notify(context, data)
         }
     }
 
@@ -76,71 +76,71 @@ object SuCallbackHandler {
     }
 
     /** Handle a log callback: persist the entry and optionally notify. */
-    private fun handleLogging(context: Context, data: Bundle) {
-        val fromUid = data.getIntComp("from.uid", -1)
+    private fun handle_logging(context: Context, data: Bundle) {
+        val from_uid = data.getIntComp("from.uid", -1)
         val notify = data.getBoolean("notify", true)
         val policy = data.getIntComp("policy", SuPolicy.ALLOW)
-        val toUid = data.getIntComp("to.uid", -1)
+        val to_uid = data.getIntComp("to.uid", -1)
         val pid = data.getIntComp("pid", -1)
         val command = data.getString("command", "")
         val target = data.getIntComp("target", -1)
-        val seContext = data.getString("context", "")
+        val se_context = data.getString("context", "")
         val gids = data.getString("gids", "")
 
         val pm = context.packageManager
 
         val log = runCatching {
-            pm.getPackageInfo(fromUid, pid)?.applicationInfo?.let {
-                pm.createSuLog(it, toUid, pid, command, policy, target, seContext, gids)
+            pm.getPackageInfo(from_uid, pid)?.applicationInfo?.let {
+                pm.create_su_log(it, to_uid, pid, command, policy, target, se_context, gids)
             }
-        }.getOrNull() ?: createSuLog(fromUid, toUid, pid, command, policy, target, seContext, gids)
+        }.getOrNull() ?: create_su_log(from_uid, to_uid, pid, command, policy, target, se_context, gids)
 
-        runBlocking { ServiceLocator.logRepo.insert(log) }
+        runBlocking { ServiceLocator.log_repo.insert(log) }
 
-        if (notify || Config.suNotification == Config.Value.NOTIFICATION_STATUS_BAR)
-            notify(context, log.action >= SuPolicy.ALLOW, log.appName)
-        SuEvents.notifyLogUpdated()
-        SuEvents.notifyPolicyChanged()
+        if (notify || Config.su_notification == Config.Value.NOTIFICATION_STATUS_BAR)
+            notify(context, log.action >= SuPolicy.ALLOW, log.app_name)
+        SuEvents.notify_log_updated()
+        SuEvents.notify_policy_changed()
     }
 
     /** Handle a notify callback: show a toast or notification. */
-    private fun handleNotify(context: Context, data: Bundle) {
+    private fun handle_notify(context: Context, data: Bundle) {
         val uid = data.getIntComp("from.uid", -1)
         val pid = data.getIntComp("pid", -1)
         val policy = data.getIntComp("policy", SuPolicy.ALLOW)
 
         val pm = context.packageManager
 
-        val appName = runCatching {
+        val app_name = runCatching {
             pm.getPackageInfo(uid, pid)?.applicationInfo?.getLabel(pm)
         }.getOrNull() ?: "[UID] $uid"
 
-        notify(context, policy >= SuPolicy.ALLOW, appName)
-        SuEvents.notifyPolicyChanged()
+        notify(context, policy >= SuPolicy.ALLOW, app_name)
+        SuEvents.notify_policy_changed()
     }
 
     /** Notify the user (toast or status-bar notification) using [AppContext]. */
-    fun notify(granted: Boolean, appName: String) {
-        when (Config.suNotification) {
+    fun notify(granted: Boolean, app_name: String) {
+        when (Config.su_notification) {
             Config.Value.NOTIFICATION_TOAST -> {
-                val resId = if (granted) R.string.su_allow_toast else R.string.su_deny_toast
-                AppContext.toast(AppContext.getString(resId, appName), Toast.LENGTH_SHORT)
+                val res_id = if (granted) R.string.su_allow_toast else R.string.su_deny_toast
+                AppContext.toast(AppContext.getString(res_id, app_name), Toast.LENGTH_SHORT)
             }
             Config.Value.NOTIFICATION_STATUS_BAR -> {
-                Notifications.suNotification(granted, appName)
+                Notifications.su_notification(granted, app_name)
             }
         }
     }
 
     /** Notify the user (toast or status-bar notification) using the provided context. */
-    private fun notify(context: Context, granted: Boolean, appName: String) {
-        when (Config.suNotification) {
+    private fun notify(context: Context, granted: Boolean, app_name: String) {
+        when (Config.su_notification) {
             Config.Value.NOTIFICATION_TOAST -> {
-                val resId = if (granted) R.string.su_allow_toast else R.string.su_deny_toast
-                context.toast(context.getString(resId, appName), Toast.LENGTH_SHORT)
+                val res_id = if (granted) R.string.su_allow_toast else R.string.su_deny_toast
+                context.toast(context.getString(res_id, app_name), Toast.LENGTH_SHORT)
             }
             Config.Value.NOTIFICATION_STATUS_BAR -> {
-                Notifications.suNotification(granted, appName)
+                Notifications.su_notification(granted, app_name)
             }
         }
     }

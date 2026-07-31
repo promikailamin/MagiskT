@@ -54,7 +54,7 @@ sealed class IconLink : RvItem() {
     abstract val title: Int
     abstract val link: String
 
-    override val layoutRes get() = R.layout.item_icon_link
+    override val layout_res get() = R.layout.item_icon_link
 
     abstract class PayPal : IconLink(), Dev {
         override val icon get() = CoreR.drawable.ic_paypal

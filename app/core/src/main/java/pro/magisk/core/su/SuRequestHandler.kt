@@ -34,13 +34,13 @@ import java.util.concurrent.TimeUnit
 
 class SuRequestHandler(
     val pm: PackageManager,
-    private val policyDB: PolicyDao
+    private val policy_d_b: PolicyDao
 ) {
 
     private lateinit var output: File
     private lateinit var policy: SuPolicy
     private var pid: Int = -1
-    lateinit var pkgInfo: PackageInfo
+    lateinit var pkg_info: PackageInfo
         private set
 
     /**
@@ -51,12 +51,12 @@ class SuRequestHandler(
         if (!init(intent))
             return false
 
-        if (pkgInfo.packageName == BuildConfig.APP_PACKAGE_NAME) {
+        if (pkg_info.packageName == BuildConfig.APP_PACKAGE_NAME) {
             Shell.cmd("(pm uninstall ${BuildConfig.APP_PACKAGE_NAME} >/dev/null 2>&1)&").exec()
             return false
         }
 
-        when (Config.suAutoResponse) {
+        when (Config.su_auto_response) {
             Config.Value.SU_AUTO_DENY -> {
                 respond(SuPolicy.DENY, 0)
                 return false
@@ -80,9 +80,9 @@ class SuRequestHandler(
             return false
         }
         output = File(fifo)
-        policy = policyDB.fetch(uid) ?: SuPolicy(uid)
+        policy = policy_d_b.fetch(uid) ?: SuPolicy(uid)
         try {
-            pkgInfo = pm.getPackageInfo(uid, pid) ?: PackageInfo().apply {
+            pkg_info = pm.getPackageInfo(uid, pid) ?: PackageInfo().apply {
                 val name = pm.getNameForUid(uid) ?: throw PackageManager.NameNotFoundException()
                 sharedUserId = name.split(":")[0]
             }
@@ -105,7 +105,7 @@ class SuRequestHandler(
      * @param time   Timeout in minutes, or -1 for forever, 0 for single use.
      */
     suspend fun respond(action: Int, time: Long) {
-        if (action == SuPolicy.ALLOW && Config.suRestrict) {
+        if (action == SuPolicy.ALLOW && Config.su_restrict) {
             policy.policy = SuPolicy.RESTRICT
         } else {
             policy.policy = action
@@ -126,33 +126,33 @@ class SuRequestHandler(
                 Timber.e(e)
             }
             if (time >= 0) {
-                policyDB.update(policy)
+                policy_d_b.update(policy)
 
-                val appInfo = pkgInfo.applicationInfo
-                val appName = appInfo?.getLabel(pm)
-                    ?: pkgInfo.sharedUserId ?: "[UID] ${policy.uid}"
-                val packageName = appInfo?.let { pm.getNameForUid(it.uid) }
-                    ?: pkgInfo.sharedUserId ?: "[UID] ${policy.uid}"
+                val app_info = pkg_info.applicationInfo
+                val app_name = app_info?.getLabel(pm)
+                    ?: pkg_info.sharedUserId ?: "[UID] ${policy.uid}"
+                val packageName = app_info?.let { pm.getNameForUid(it.uid) }
+                    ?: pkg_info.sharedUserId ?: "[UID] ${policy.uid}"
 
                 val log = SuLog(
-                    fromUid = policy.uid,
-                    toUid = 0,
-                    fromPid = pid,
+                    from_uid = policy.uid,
+                    to_uid = 0,
+                    from_pid = pid,
                     packageName = packageName,
-                    appName = appName,
+                    app_name = app_name,
                     command = "",
                     action = policy.policy,
                     target = -1,
                     context = "",
                     gids = "",
                 )
-                ServiceLocator.logRepo.insert(log)
+                ServiceLocator.log_repo.insert(log)
 
                 val granted = policy.policy >= SuPolicy.ALLOW
-                SuCallbackHandler.notify(granted, appName)
+                SuCallbackHandler.notify(granted, app_name)
 
-                SuEvents.notifyPolicyChanged()
-                SuEvents.notifyLogUpdated()
+                SuEvents.notify_policy_changed()
+                SuEvents.notify_log_updated()
             }
         }
     }

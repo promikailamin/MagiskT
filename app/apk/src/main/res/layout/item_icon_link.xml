@@ -10,7 +10,7 @@
             type="pro.magisk.ui.home.IconLink" />
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.home.HomeViewModel" />
 
     </data>
@@ -22,7 +22,7 @@
         android:clickable="true"
         android:focusable="true"
         android:minWidth="48dp"
-        android:onClick="@{() -> viewModel.onLinkPressed(item.link)}"
+        android:onClick="@{() -> view_model.on_link_pressed(item.link)}"
         android:padding="@dimen/l_50"
         tools:layout_gravity="center">
 

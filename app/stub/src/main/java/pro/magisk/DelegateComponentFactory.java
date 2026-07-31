@@ -32,7 +32,7 @@ public class DelegateComponentFactory extends AppComponentFactory {
      * Registers this instance in DynLoad so the loading pipeline can set {@link #receiver}.
      */
     public DelegateComponentFactory() {
-        DynLoad.componentFactory = this;
+        DynLoad.component_factory = this;
     }
 
     /** Replaces the platform class loader with DelegateClassLoader to route through our DCL. */
@@ -52,7 +52,7 @@ public class DelegateComponentFactory extends AppComponentFactory {
     public Activity instantiateActivity(ClassLoader cl, String className, Intent intent)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         if (receiver != null)
-            return receiver.instantiateActivity(DynLoad.activeClassLoader, className, intent);
+            return receiver.instantiateActivity(DynLoad.active_class_loader, className, intent);
         return create(className, DownloadActivity.class);
     }
 
@@ -61,7 +61,7 @@ public class DelegateComponentFactory extends AppComponentFactory {
     public BroadcastReceiver instantiateReceiver(ClassLoader cl, String className, Intent intent)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         if (receiver != null)
-            return receiver.instantiateReceiver(DynLoad.activeClassLoader, className, intent);
+            return receiver.instantiateReceiver(DynLoad.active_class_loader, className, intent);
         return create(className, DummyReceiver.class);
     }
 
@@ -70,7 +70,7 @@ public class DelegateComponentFactory extends AppComponentFactory {
     public Service instantiateService(ClassLoader cl, String className, Intent intent)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         if (receiver != null)
-            return receiver.instantiateService(DynLoad.activeClassLoader, className, intent);
+            return receiver.instantiateService(DynLoad.active_class_loader, className, intent);
         return create(className, DummyService.class);
     }
 
@@ -79,7 +79,7 @@ public class DelegateComponentFactory extends AppComponentFactory {
     public ContentProvider instantiateProvider(ClassLoader cl, String className)
             throws ClassNotFoundException, IllegalAccessException, InstantiationException {
         if (receiver != null)
-            return receiver.instantiateProvider(DynLoad.activeClassLoader, className);
+            return receiver.instantiateProvider(DynLoad.active_class_loader, className);
         return create(className, DummyProvider.class);
     }
 
@@ -91,7 +91,7 @@ public class DelegateComponentFactory extends AppComponentFactory {
             throws IllegalAccessException, InstantiationException {
         try {
             // noinspection unchecked
-            return (T) DynLoad.activeClassLoader.loadClass(name).newInstance();
+            return (T) DynLoad.active_class_loader.loadClass(name).newInstance();
         } catch (ClassNotFoundException e) {
             return fallback.newInstance();
         }

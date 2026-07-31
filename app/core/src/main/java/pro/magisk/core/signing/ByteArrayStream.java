@@ -16,8 +16,8 @@ import java.nio.ByteBuffer;
 public class ByteArrayStream extends ByteArrayOutputStream {
 
     /** Reads all available data from the given input stream into this buffer. */
-    public synchronized void readFrom(InputStream is) {
-        readFrom(is, Integer.MAX_VALUE);
+    public synchronized void read_from(InputStream is) {
+        read_from(is, Integer.MAX_VALUE);
     }
 
     /**
@@ -26,7 +26,7 @@ public class ByteArrayStream extends ByteArrayOutputStream {
      * @param is  source input stream
      * @param len maximum number of bytes to read
      */
-    public synchronized void readFrom(InputStream is, int len) {
+    public synchronized void read_from(InputStream is, int len) {
         int read;
         byte buffer[] = new byte[4096];
         try {

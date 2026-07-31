@@ -18,7 +18,7 @@ import android.content.Context
 import pro.magisk.StubApk
 import pro.magisk.core.Const
 import pro.magisk.core.Info
-import pro.magisk.core.isRunningAsStub
+import pro.magisk.core.is_running_as_stub
 import pro.magisk.core.ktx.cachedFile
 import pro.magisk.core.ktx.deviceProtectedContext
 import pro.magisk.core.ktx.writeTo
@@ -38,47 +38,47 @@ import java.util.jar.JarFile
 class ShellInit : Shell.Initializer() {
     override fun onInit(context: Context, shell: Shell): Boolean {
         if (shell.isRoot) {
-            Info.isRooted = true
-            RootUtils.bindTask?.let { shell.execTask(it) }
-            RootUtils.bindTask = null
+            Info.is_rooted = true
+            RootUtils.bind_task?.let { shell.execTask(it) }
+            RootUtils.bind_task = null
         }
         shell.newJob().apply {
             add("export ASH_STANDALONE=1")
 
-            val localBB: File
-            if (isRunningAsStub) {
+            val local_b_b: File
+            if (is_running_as_stub) {
                 if (!shell.isRoot)
                     return true
                 val jar = JarFile(StubApk.current(context))
                 val bb = jar.getJarEntry("lib/${Const.CPU_ABI}/libbusybox.so")
-                localBB = context.deviceProtectedContext.cachedFile("busybox")
-                localBB.delete()
+                local_b_b = context.deviceProtectedContext.cachedFile("busybox")
+                local_b_b.delete()
                 runBlocking {
-                    jar.getInputStream(bb).writeTo(localBB, dispatcher = Dispatchers.Unconfined)
+                    jar.getInputStream(bb).writeTo(local_b_b, dispatcher = Dispatchers.Unconfined)
                 }
-                localBB.setExecutable(true)
+                local_b_b.setExecutable(true)
             } else {
-                localBB = File(context.applicationInfo.nativeLibraryDir, "libbusybox.so")
+                local_b_b = File(context.applicationInfo.nativeLibraryDir, "libbusybox.so")
             }
 
             if (shell.isRoot) {
                 add("export MAGISKTMP=\$(magisk --path)")
-                Info.noDataExec = !shell.newJob()
-                    .add("$localBB sh -c '$localBB true'").exec().isSuccess
+                Info.no_data_exec = !shell.newJob()
+                    .add("$local_b_b sh -c '$local_b_b true'").exec().is_success
             }
 
-            if (Info.noDataExec) {
+            if (Info.no_data_exec) {
                 add(
                     "if [ -x \$MAGISKTMP/.magisk/busybox/busybox ]; then",
-                    "  cp -af $localBB \$MAGISKTMP/.magisk/busybox/busybox",
+                    "  cp -af $local_b_b \$MAGISKTMP/.magisk/busybox/busybox",
                     "  exec \$MAGISKTMP/.magisk/busybox/busybox sh",
                     "else",
-                    "  cp -af $localBB /dev/busybox",
+                    "  cp -af $local_b_b /dev/busybox",
                     "  exec /dev/busybox sh",
                     "fi"
                 )
             } else {
-                add("exec $localBB sh")
+                add("exec $local_b_b sh")
             }
 
             add(context.assets.open("app_functions.sh"))

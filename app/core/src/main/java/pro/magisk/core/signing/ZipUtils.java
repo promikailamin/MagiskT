@@ -34,8 +34,8 @@ public abstract class ZipUtils {
      *
      * <p>NOTE: Byte order of {@code zipContents} must be little-endian.
      */
-    public static int findZipEndOfCentralDirectoryRecord(ByteBuffer zipContents) {
-        assertByteOrderLittleEndian(zipContents);
+    public static int find_zip_end_of_central_directory_record(ByteBuffer zip_contents) {
+        assert_byte_order_little_endian(zip_contents);
 
         // ZIP End of Central Directory (EOCD) record is located at the very end of the ZIP archive.
         // The record can be identified by its 4-byte signature/magic which is located at the very
@@ -47,7 +47,7 @@ public abstract class ZipUtils {
         // exactly the remaining bytes in the buffer. The search is bounded because the maximum
         // size of the comment field is 65535 bytes because the field is an unsigned 16-bit number.
 
-        int archiveSize = zipContents.capacity();
+        int archiveSize = zip_contents.capacity();
         if (archiveSize < ZIP_EOCD_REC_MIN_SIZE) {
             return -1;
         }
@@ -55,8 +55,8 @@ public abstract class ZipUtils {
         int eocdWithEmptyCommentStartPosition = archiveSize - ZIP_EOCD_REC_MIN_SIZE;
         for (int expectedCommentLength = 0; expectedCommentLength < maxCommentLength; expectedCommentLength++) {
             int eocdStartPos = eocdWithEmptyCommentStartPosition - expectedCommentLength;
-            if (zipContents.getInt(eocdStartPos) == ZIP_EOCD_REC_SIG) {
-                int actualCommentLength = getUnsignedInt16(zipContents, eocdStartPos + ZIP_EOCD_COMMENT_LENGTH_FIELD_OFFSET);
+            if (zip_contents.getInt(eocdStartPos) == ZIP_EOCD_REC_SIG) {
+                int actualCommentLength = get_unsigned_int16(zip_contents, eocdStartPos + ZIP_EOCD_COMMENT_LENGTH_FIELD_OFFSET);
                 if (actualCommentLength == expectedCommentLength) {
                     return eocdStartPos;
                 }
@@ -72,8 +72,8 @@ public abstract class ZipUtils {
      *
      * <p>NOTE: Byte order of {@code zipContents} must be little-endian.
      */
-    public static boolean isZip64EndOfCentralDirectoryLocatorPresent(ByteBuffer zipContents, int zipEndOfCentralDirectoryPosition) {
-        assertByteOrderLittleEndian(zipContents);
+    public static boolean is_zip64_end_of_central_directory_locator_present(ByteBuffer zip_contents, int zipEndOfCentralDirectoryPosition) {
+        assert_byte_order_little_endian(zip_contents);
 
         // ZIP64 End of Central Directory Locator immediately precedes the ZIP End of Central
         // Directory Record.
@@ -83,7 +83,7 @@ public abstract class ZipUtils {
             return false;
         }
 
-        return zipContents.getInt(locatorPosition) == ZIP64_EOCD_LOCATOR_SIG;
+        return zip_contents.getInt(locatorPosition) == ZIP64_EOCD_LOCATOR_SIG;
     }
 
     /**
@@ -91,9 +91,9 @@ public abstract class ZipUtils {
      *
      * <p>NOTE: Byte order of {@code zipEndOfCentralDirectory} must be little-endian.
      */
-    public static long getZipEocdCentralDirectoryOffset(ByteBuffer zipEndOfCentralDirectory) {
-        assertByteOrderLittleEndian(zipEndOfCentralDirectory);
-        return getUnsignedInt32(zipEndOfCentralDirectory, zipEndOfCentralDirectory.position() + ZIP_EOCD_CENTRAL_DIR_OFFSET_FIELD_OFFSET);
+    public static long get_zip_eocd_central_directory_offset(ByteBuffer zip_end_of_central_directory) {
+        assert_byte_order_little_endian(zip_end_of_central_directory);
+        return get_unsigned_int32(zip_end_of_central_directory, zip_end_of_central_directory.position() + ZIP_EOCD_CENTRAL_DIR_OFFSET_FIELD_OFFSET);
     }
 
     /**
@@ -101,9 +101,9 @@ public abstract class ZipUtils {
      *
      * <p>NOTE: Byte order of {@code zipEndOfCentralDirectory} must be little-endian.
      */
-    public static void setZipEocdCentralDirectoryOffset(ByteBuffer zipEndOfCentralDirectory, long offset) {
-        assertByteOrderLittleEndian(zipEndOfCentralDirectory);
-        setUnsignedInt32(zipEndOfCentralDirectory, zipEndOfCentralDirectory.position() + ZIP_EOCD_CENTRAL_DIR_OFFSET_FIELD_OFFSET, offset);
+    public static void set_zip_eocd_central_directory_offset(ByteBuffer zip_end_of_central_directory, long offset) {
+        assert_byte_order_little_endian(zip_end_of_central_directory);
+        set_unsigned_int32(zip_end_of_central_directory, zip_end_of_central_directory.position() + ZIP_EOCD_CENTRAL_DIR_OFFSET_FIELD_OFFSET, offset);
     }
 
     /**
@@ -111,26 +111,26 @@ public abstract class ZipUtils {
      *
      * <p>NOTE: Byte order of {@code zipEndOfCentralDirectory} must be little-endian.
      */
-    public static long getZipEocdCentralDirectorySizeBytes(ByteBuffer zipEndOfCentralDirectory) {
-        assertByteOrderLittleEndian(zipEndOfCentralDirectory);
-        return getUnsignedInt32(zipEndOfCentralDirectory, zipEndOfCentralDirectory.position() + ZIP_EOCD_CENTRAL_DIR_SIZE_FIELD_OFFSET);
+    public static long get_zip_eocd_central_directory_size_bytes(ByteBuffer zip_end_of_central_directory) {
+        assert_byte_order_little_endian(zip_end_of_central_directory);
+        return get_unsigned_int32(zip_end_of_central_directory, zip_end_of_central_directory.position() + ZIP_EOCD_CENTRAL_DIR_SIZE_FIELD_OFFSET);
     }
 
-    private static void assertByteOrderLittleEndian(ByteBuffer buffer) {
+    private static void assert_byte_order_little_endian(ByteBuffer buffer) {
         if (buffer.order() != ByteOrder.LITTLE_ENDIAN) {
             throw new IllegalArgumentException("ByteBuffer byte order must be little endian");
         }
     }
 
-    private static int getUnsignedInt16(ByteBuffer buffer, int offset) {
+    private static int get_unsigned_int16(ByteBuffer buffer, int offset) {
         return buffer.getShort(offset) & 0xffff;
     }
 
-    private static long getUnsignedInt32(ByteBuffer buffer, int offset) {
+    private static long get_unsigned_int32(ByteBuffer buffer, int offset) {
         return buffer.getInt(offset) & 0xffffffffL;
     }
 
-    private static void setUnsignedInt32(ByteBuffer buffer, int offset, long value) {
+    private static void set_unsigned_int32(ByteBuffer buffer, int offset, long value) {
         if ((value < 0) || (value > 0xffffffffL)) {
             throw new IllegalArgumentException("uint32 value of out range: " + value);
         }

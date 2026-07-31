@@ -6,7 +6,7 @@
     <data>
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.log.LogViewModel" />
 
     </data>
@@ -17,7 +17,7 @@
 
         <HorizontalScrollView
             android:id="@+id/log_scroll_magisk"
-            gone="@{viewModel.loading}"
+            gone="@{view_model.loading}"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
@@ -25,8 +25,8 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/log_magisk"
-                app:items="@{viewModel.logs}"
-                app:extraBindings="@{viewModel.extraBindings}"
+                app:items="@{view_model.logs}"
+                app:extra_bindings="@{view_model.extra_bindings}"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
@@ -46,7 +46,7 @@
             android:orientation="vertical">
 
             <TextView
-                goneUnless="@{viewModel.loading}"
+                goneUnless="@{view_model.loading}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/loading"
@@ -55,17 +55,17 @@
 
             <ProgressBar
                 style="@style/WidgetFoundation.ProgressBar.Indeterminate"
-                goneUnless="@{viewModel.loading}"
+                goneUnless="@{view_model.loading}"
                 android:layout_marginTop="@dimen/l1" />
 
             <FrameLayout
-                gone="@{viewModel.loading || !viewModel.magiskLogRaw.empty}"
+                gone="@{view_model.loading || !view_model.magisk_log_raw.empty}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center">
 
                 <include
-                    item="@{viewModel.itemMagiskEmpty}"
+                    item="@{view_model.item_magisk_empty}"
                     layout="@layout/item_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />

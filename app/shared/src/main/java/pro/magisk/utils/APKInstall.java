@@ -65,8 +65,8 @@ public final class APKInstall {
     }
 
     /** Starts a PackageInstaller session without tracking a specific package. */
-    public static Session startSession(Context context) {
-        return startSession(context, null, null, null);
+    public static Session start_session(Context context) {
+        return start_session(context, null, null, null);
     }
 
     /**
@@ -79,28 +79,28 @@ public final class APKInstall {
      * @param onSuccess runnable invoked on successful installation completion
      * @return a Session for writing APK data and waiting for the result
      */
-    public static Session startSession(Context context, String pkg,
-                                        Runnable onFailure, Runnable onSuccess) {
-        var receiver = new InstallReceiver(pkg, onSuccess, onFailure);
+    public static Session start_session(Context context, String pkg,
+                                        Runnable on_failure, Runnable on_success) {
+        var receiver = new InstallReceiver(pkg, on_success, on_failure);
         context = context.getApplicationContext();
         if (pkg != null) {
             var filter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
             filter.addDataScheme("package");
             registerReceiver(context, receiver, filter);
         }
-        registerReceiver(context, receiver, new IntentFilter(receiver.sessionId));
+        registerReceiver(context, receiver, new IntentFilter(receiver.session_id));
         return receiver;
     }
 
     /** Represents an ongoing PackageInstaller session. */
     public interface Session {
         /** Opens an OutputStream to write the APK content into the install session. */
-        OutputStream openStream(Context context) throws IOException;
+        OutputStream open_stream(Context context) throws IOException;
         /**
          * Waits (up to 5 seconds) for the installation result and returns a
          * PendingIntent for user confirmation, or null if not needed.
          */
-        Intent waitIntent();
+        Intent wait_intent();
     }
 
     /**
@@ -110,18 +110,18 @@ public final class APKInstall {
      */
     private static class InstallReceiver extends BroadcastReceiver implements Session {
         private final String packageName;
-        private final Runnable onSuccess;
-        private final Runnable onFailure;
+        private final Runnable on_success;
+        private final Runnable on_failure;
         private final CountDownLatch latch = new CountDownLatch(1);
-        private Intent userAction = null;
+        private Intent user_action = null;
 
         /** Unique identifier used as the custom broadcast action for this session. */
-        final String sessionId = UUID.randomUUID().toString();
+        final String session_id = UUID.randomUUID().toString();
 
-        private InstallReceiver(String packageName, Runnable onSuccess, Runnable onFailure) {
+        private InstallReceiver(String packageName, Runnable on_success, Runnable on_failure) {
             this.packageName = packageName;
-            this.onSuccess = onSuccess;
-            this.onFailure = onFailure;
+            this.on_success = on_success;
+            this.on_failure = on_failure;
         }
 
         @Override
@@ -132,16 +132,16 @@ public final class APKInstall {
                     return;
                 String pkg = data.getSchemeSpecificPart();
                 if (pkg.equals(packageName)) {
-                    onSuccess(context);
+                    on_success(context);
                 }
-            } else if (sessionId.equals(intent.getAction())) {
+            } else if (session_id.equals(intent.getAction())) {
                 int status = intent.getIntExtra(EXTRA_STATUS, STATUS_FAILURE_INVALID);
                 switch (status) {
                     case STATUS_PENDING_USER_ACTION ->
-                            userAction = intent.getParcelableExtra(Intent.EXTRA_INTENT);
+                            user_action = intent.getParcelableExtra(Intent.EXTRA_INTENT);
                     case STATUS_SUCCESS -> {
                         if (packageName == null) {
-                            onSuccess(context);
+                            on_success(context);
                         }
                     }
                     default -> {
@@ -151,8 +151,8 @@ public final class APKInstall {
                             installer.abandonSession(id);
                         } catch (SecurityException ignored) {
                         }
-                        if (onFailure != null) {
-                            onFailure.run();
+                        if (on_failure != null) {
+                            on_failure.run();
                         }
                         try {
                             context.getApplicationContext().unregisterReceiver(this);
@@ -164,9 +164,9 @@ public final class APKInstall {
             }
         }
 
-        private void onSuccess(Context context) {
-            if (onSuccess != null)
-                onSuccess.run();
+        private void on_success(Context context) {
+            if (on_success != null)
+                on_success.run();
             try {
                 context.getApplicationContext().unregisterReceiver(this);
             } catch (IllegalArgumentException ignored) {
@@ -175,12 +175,12 @@ public final class APKInstall {
 
         /** Waits up to 5 seconds for the install result broadcast. */
         @Override
-        public Intent waitIntent() {
+        public Intent wait_intent() {
             try {
                 // noinspection ResultOfMethodCallIgnored
                 latch.await(5, TimeUnit.SECONDS);
             } catch (Exception ignored) {}
-            return userAction;
+            return user_action;
         }
 
         /**
@@ -188,10 +188,10 @@ public final class APKInstall {
          * a FilterOutputStream that commits the session on close.
          */
         @Override
-        public OutputStream openStream(Context context) throws IOException {
+        public OutputStream open_stream(Context context) throws IOException {
             // noinspection InlinedApi
             var flag = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE;
-            var intent = new Intent(sessionId).setPackage(context.getPackageName());
+            var intent = new Intent(session_id).setPackage(context.getPackageName());
             var pending = PendingIntent.getBroadcast(context, 0, intent, flag);
 
             var installer = context.getPackageManager().getPackageInstaller();
@@ -200,7 +200,7 @@ public final class APKInstall {
                 params.setRequireUserAction(SessionParams.USER_ACTION_NOT_REQUIRED);
             }
             var session = installer.openSession(installer.createSession(params));
-            var out = session.openWrite(sessionId, 0, -1);
+            var out = session.openWrite(session_id, 0, -1);
             return new FilterOutputStream(out) {
                 @Override
                 public void write(byte[] b, int off, int len) throws IOException {

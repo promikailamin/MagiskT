@@ -26,13 +26,13 @@ import java.util.AbstractList
 
 /** A [List] that supports DiffUtil-based efficient updates. */
 interface DiffList<T : DiffItem<*>> : List<T> {
-    fun calculateDiff(newItems: List<T>): DiffUtil.DiffResult
+    fun calculate_diff(new_items: List<T>): DiffUtil.DiffResult
 
     @MainThread
-    fun update(newItems: List<T>, diffResult: DiffUtil.DiffResult)
+    fun update(new_items: List<T>, diff_result: DiffUtil.DiffResult)
 
     @WorkerThread
-    suspend fun update(newItems: List<T>)
+    suspend fun update(new_items: List<T>)
 }
 
 /** A [List] that supports background filtering with diff animations. */
@@ -40,7 +40,7 @@ interface FilterList<T : DiffItem<*>> : List<T> {
     fun filter(filter: (T) -> Boolean)
 
     @MainThread
-    fun set(newItems: List<T>)
+    fun set(new_items: List<T>)
 }
 
 fun <T : DiffItem<*>> diffList(): DiffList<T> = DiffObservableList()
@@ -59,42 +59,42 @@ private open class DiffObservableList<T : DiffItem<*>>
 
     override fun get(index: Int) = list[index]
 
-    override fun calculateDiff(newItems: List<T>): DiffUtil.DiffResult {
-        return doCalculateDiff(list, newItems)
+    override fun calculate_diff(new_items: List<T>): DiffUtil.DiffResult {
+        return do_calculate_diff(list, new_items)
     }
 
-    protected fun doCalculateDiff(oldItems: List<T>, newItems: List<T>): DiffUtil.DiffResult {
-        return DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-            override fun getOldListSize() = oldItems.size
-            override fun getNewListSize() = newItems.size
+    protected fun do_calculate_diff(old_items: List<T>, new_items: List<T>): DiffUtil.DiffResult {
+        return DiffUtil.calculate_diff(object : DiffUtil.Callback() {
+            override fun getOldListSize() = old_items.size
+            override fun getNewListSize() = new_items.size
 
             @Suppress("UNCHECKED_CAST")
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                val oldItem = oldItems[oldItemPosition]
-                val newItem = newItems[newItemPosition]
-                return (oldItem as DiffItem<Any>).itemSameAs(newItem)
+                val old_item = old_items[oldItemPosition]
+                val new_item = new_items[newItemPosition]
+                return (old_item as DiffItem<Any>).item_same_as(new_item)
             }
 
             @Suppress("UNCHECKED_CAST")
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                val oldItem = oldItems[oldItemPosition]
-                val newItem = newItems[newItemPosition]
-                return (oldItem as DiffItem<Any>).contentSameAs(newItem)
+                val old_item = old_items[oldItemPosition]
+                val new_item = new_items[newItemPosition]
+                return (old_item as DiffItem<Any>).content_same_as(new_item)
             }
         }, true)
     }
 
     @MainThread
-    override fun update(newItems: List<T>, diffResult: DiffUtil.DiffResult) {
-        list = ArrayList(newItems)
-        diffResult.dispatchUpdatesTo(this)
+    override fun update(new_items: List<T>, diff_result: DiffUtil.DiffResult) {
+        list = ArrayList(new_items)
+        diff_result.dispatchUpdatesTo(this)
     }
 
     @WorkerThread
-    override suspend fun update(newItems: List<T>) {
-        val diffResult = calculateDiff(newItems)
+    override suspend fun update(new_items: List<T>) {
+        val diff_result = calculate_diff(new_items)
         withContext(Dispatchers.Main) {
-            update(newItems, diffResult)
+            update(new_items, diff_result)
         }
     }
 
@@ -110,8 +110,8 @@ private open class DiffObservableList<T : DiffItem<*>>
         listeners.notifyChanged(this, position, count)
     }
 
-    override fun onMoved(fromPosition: Int, toPosition: Int) {
-        listeners.notifyMoved(this, fromPosition, toPosition, 1)
+    override fun onMoved(from_position: Int, toPosition: Int) {
+        listeners.notifyMoved(this, from_position, toPosition, 1)
     }
 
     override fun onInserted(position: Int, count: Int) {
@@ -132,17 +132,17 @@ private class FilterableDiffObservableList<T : DiffItem<*>>(
 
     private var sublist: List<T> = emptyList()
     private var job: Job? = null
-    private var lastFilter: ((T) -> Boolean)? = null
+    private var last_filter: ((T) -> Boolean)? = null
 
     override fun filter(filter: (T) -> Boolean) {
-        lastFilter = filter
+        last_filter = filter
         job?.cancel()
         job = scope.launch(Dispatchers.Default) {
-            val oldList = sublist
-            val newList = list.filter(filter)
-            val diff = doCalculateDiff(oldList, newList)
+            val old_list = sublist
+            val new_list = list.filter(filter)
+            val diff = do_calculate_diff(old_list, new_list)
             withContext(Dispatchers.Main) {
-                sublist = newList
+                sublist = new_list
                 diff.dispatchUpdatesTo(this@FilterableDiffObservableList)
             }
         }
@@ -156,10 +156,10 @@ private class FilterableDiffObservableList<T : DiffItem<*>>(
         get() = sublist.size
 
     @MainThread
-    override fun set(newItems: List<T>) {
+    override fun set(new_items: List<T>) {
         onRemoved(0, sublist.size)
-        list = newItems
+        list = new_items
         sublist = emptyList()
-        lastFilter?.let { filter(it) }
+        last_filter?.let { filter(it) }
     }
 }

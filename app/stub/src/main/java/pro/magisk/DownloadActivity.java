@@ -58,7 +58,7 @@ public class DownloadActivity extends Activity {
     private static final String RES_PKG_NAME = "pro.magisk";
 
     /** Whether the app is running under a hidden (non-stock) package name and needs dynamic loading. */
-    private boolean dynLoad;
+    private boolean dyn_load;
 
     /** Resource ID for the "downloading" string. */
     private int dling;
@@ -68,14 +68,14 @@ public class DownloadActivity extends Activity {
     private int upgrade_msg;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(Bundle saved_instance_state) {
+        super.onCreate(saved_instance_state);
         getTheme().applyStyle(android.R.style.Theme_DeviceDefault_Dialog_NoActionBar, true);
 
-        dynLoad = !getPackageName().equals(BuildConfig.APPLICATION_ID);
+        dyn_load = !getPackageName().equals(BuildConfig.APPLICATION_ID);
 
         try {
-            loadResources();
+            load_resources();
         } catch (Exception e) {
             error(e);
             return;
@@ -83,8 +83,8 @@ public class DownloadActivity extends Activity {
 
         ProviderInstaller.install(this);
 
-        if (Networking.checkNetworkStatus(this)) {
-            showDialog();
+        if (Networking.check_network_status(this)) {
+            show_dialog();
         } else {
             new AlertDialog.Builder(this)
                     .setCancelable(false)
@@ -110,16 +110,16 @@ public class DownloadActivity extends Activity {
 
     /** Convenience to create a GET request with the error handler wired up. */
     private Request request(String url) {
-        return Networking.get(url).setErrorHandler((conn, e) -> error(e));
+        return Networking.get(url).set_error_handler((conn, e) -> error(e));
     }
 
     /** Show the upgrade confirmation dialog. */
-    private void showDialog() {
+    private void show_dialog() {
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setTitle(APP_NAME)
                 .setMessage(getString(upgrade_msg))
-                .setPositiveButton(yes, (d, w) -> dlAPK())
+                .setPositiveButton(yes, (d, w) -> dl_a_p_k())
                 .setNegativeButton(no, (d, w) -> finish())
                 .show();
     }
@@ -130,21 +130,21 @@ public class DownloadActivity extends Activity {
      * In dynLoad mode: save as current.apk and restart the process.
      * In direct mode: install via PackageInstaller session and launch the install confirmation intent.
      */
-    private void dlAPK() {
+    private void dl_a_p_k() {
         ProgressDialog.show(this, getString(dling), getString(dling) + " " + APP_NAME, true);
-        var request = request(BuildConfig.APK_URL).setExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        if (dynLoad) {
-            request.getAsFile(StubApk.current(this), file -> StubApk.restartProcess(this));
+        var request = request(BuildConfig.APK_URL).set_executor(AsyncTask.THREAD_POOL_EXECUTOR);
+        if (dyn_load) {
+            request.get_as_file(StubApk.current(this), file -> StubApk.restart_process(this));
         } else {
-            request.getAsInputStream(input -> {
-                var session = APKInstall.startSession(this);
-                try (input; var out = session.openStream(this)) {
+            request.get_as_input_stream(input -> {
+                var session = APKInstall.start_session(this);
+                try (input; var out = session.open_stream(this)) {
                     if (out != null)
                         APKInstall.transfer(input, out);
                 } catch (IOException e) {
                     error(e);
                 }
-                Intent intent = session.waitIntent();
+                Intent intent = session.wait_intent();
                 if (intent != null)
                     startActivity(intent);
             });
@@ -157,7 +157,7 @@ public class DownloadActivity extends Activity {
      * Uses AES/CBC decryption followed by Inflater decompression on the embedded
      * resource blob (from the Bytes class).
      */
-    private void decryptResources(OutputStream out) throws Exception {
+    private void decrypt_resources(OutputStream out) throws Exception {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         SecretKey key = new SecretKeySpec(Bytes.key(), "AES");
         IvParameterSpec iv = new IvParameterSpec(Bytes.iv());
@@ -178,12 +178,12 @@ public class DownloadActivity extends Activity {
      *
      * After loading, resolves the string resource IDs used by the UI.
      */
-    private void loadResources() throws Exception {
+    private void load_resources() throws Exception {
         var res = getResources();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             var fd = Os.memfd_create("res", 0);
             try {
-                decryptResources(new FileOutputStream(fd));
+                decrypt_resources(new FileOutputStream(fd));
                 Os.lseek(fd, 0, OsConstants.SEEK_SET);
                 var loader = new ResourcesLoader();
                 try (var pfd = ParcelFileDescriptor.dup(fd)) {
@@ -198,13 +198,13 @@ public class DownloadActivity extends Activity {
             try (var out = new ZipOutputStream(new FileOutputStream(apk))) {
                 // AndroidManifest.xml is required on Android 6-, directory support is broken on 9-10
                 out.putNextEntry(new ZipEntry("AndroidManifest.xml"));
-                try (var stubApk = new ZipFile(getPackageCodePath())) {
-                    APKInstall.transfer(stubApk.getInputStream(stubApk.getEntry("AndroidManifest.xml")), out);
+                try (var stub_apk = new ZipFile(getPackageCodePath())) {
+                    APKInstall.transfer(stub_apk.getInputStream(stub_apk.getEntry("AndroidManifest.xml")), out);
                 }
                 out.putNextEntry(new ZipEntry("resources.arsc"));
-                decryptResources(out);
+                decrypt_resources(out);
             }
-            StubApk.addAssetPath(res, apk.getPath());
+            StubApk.add_asset_path(res, apk.getPath());
         }
         dling = res.getIdentifier("dling", "string", RES_PKG_NAME);
         no_internet_msg = res.getIdentifier("no_internet_msg", "string", RES_PKG_NAME);

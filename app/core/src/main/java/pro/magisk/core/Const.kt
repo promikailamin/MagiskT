@@ -45,11 +45,11 @@ object Const {
         const val MIN_VERCODE = 22000
 
         /** A non-zero last-two digits signals a canary build. */
-        private fun isCanary() = (Info.env.versionCode % 100) != 0
-        fun atLeast_24_0() = Info.env.versionCode >= 24000 || isCanary()
-        fun atLeast_25_0() = Info.env.versionCode >= 25000 || isCanary()
-        fun atLeast_28_0() = Info.env.versionCode >= 28000 || isCanary()
-        fun atLeast_30_1() = Info.env.versionCode >= 30100 || isCanary()
+        private fun is_canary() = (Info.env.versionCode % 100) != 0
+        fun atLeast_24_0() = Info.env.versionCode >= 24000 || is_canary()
+        fun atLeast_25_0() = Info.env.versionCode >= 25000 || is_canary()
+        fun atLeast_28_0() = Info.env.versionCode >= 28000 || is_canary()
+        fun atLeast_30_1() = Info.env.versionCode >= 30100 || is_canary()
     }
 
     /** Community / project URLs. */

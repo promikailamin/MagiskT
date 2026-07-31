@@ -9,7 +9,7 @@
             type="pro.magisk.ui.module.InstallModule" />
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.module.ModuleViewModel" />
 
     </data>
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/l_50"
-        android:onClick="@{() -> viewModel.installPressed()}"
+        android:onClick="@{() -> view_model.install_pressed()}"
         android:text="@string/module_action_install_external"
         android:textAllCaps="false"
         android:textSize="12sp"

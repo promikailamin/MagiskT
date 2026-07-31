@@ -6,7 +6,7 @@
     <data>
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.module.ModuleViewModel" />
 
     </data>
@@ -17,9 +17,9 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/module_list"
-            gone="@{viewModel.loading}"
-            app:items="@{viewModel.items}"
-            app:extraBindings="@{viewModel.extraBindings}"
+            gone="@{view_model.loading}"
+            app:items="@{view_model.items}"
+            app:extra_bindings="@{view_model.extra_bindings}"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
@@ -37,7 +37,7 @@
             android:orientation="vertical">
 
             <TextView
-                goneUnless="@{viewModel.loading}"
+                goneUnless="@{view_model.loading}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/loading"
@@ -46,11 +46,11 @@
 
             <ProgressBar
                 style="@style/WidgetFoundation.ProgressBar.Indeterminate"
-                goneUnless="@{viewModel.loading}"
+                goneUnless="@{view_model.loading}"
                 android:layout_marginTop="@dimen/l1" />
 
             <TextView
-                gone="@{viewModel.loading || viewModel.items.size() != 1 }"
+                gone="@{view_model.loading || view_model.items.size() != 1 }"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/module_empty"

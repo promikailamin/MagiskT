@@ -10,7 +10,7 @@ import android.os.Bundle
 import android.view.View
 import pro.magisk.R
 import pro.magisk.arch.BaseFragment
-import pro.magisk.arch.viewModel
+import pro.magisk.arch.view_model
 import pro.magisk.databinding.FragmentSuperuserMd2Binding
 import rikka.recyclerview.addEdgeSpacing
 import rikka.recyclerview.addItemSpacing
@@ -20,16 +20,16 @@ import pro.magisk.core.R as CoreR
 /** Fragment listing all Superuser permission grants. */
 class SuperuserFragment : BaseFragment<FragmentSuperuserMd2Binding>() {
 
-    override val layoutRes = R.layout.fragment_superuser_md2
-    override val viewModel by viewModel<SuperuserViewModel>()
+    override val layout_res = R.layout.fragment_superuser_md2
+    override val view_model by view_model<SuperuserViewModel>()
 
     override fun onStart() {
         super.onStart()
         activity?.title = resources.getString(CoreR.string.superuser)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onViewCreated(view: View, saved_instance_state: Bundle?) {
+        super.onViewCreated(view, saved_instance_state)
 
         binding.superuserList.apply {
             addEdgeSpacing(top = R.dimen.l_50, bottom = R.dimen.l1)
@@ -38,6 +38,6 @@ class SuperuserFragment : BaseFragment<FragmentSuperuserMd2Binding>() {
         }
     }
 
-    override fun onPreBind(binding: FragmentSuperuserMd2Binding) {}
+    override fun on_pre_bind(binding: FragmentSuperuserMd2Binding) {}
 
 }

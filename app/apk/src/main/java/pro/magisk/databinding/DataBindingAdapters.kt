@@ -57,38 +57,38 @@ import com.topjohnwu.widget.IndeterminateCheckBox
 import kotlin.math.roundToInt
 
 @BindingAdapter("gone")
-fun setGone(view: View, gone: Boolean) {
+fun set_gone(view: View, gone: Boolean) {
     view.isGone = gone
 }
 
 @BindingAdapter("invisible")
-fun setInvisible(view: View, invisible: Boolean) {
+fun set_invisible(view: View, invisible: Boolean) {
     view.isInvisible = invisible
 }
 
 @BindingAdapter("goneUnless")
-fun setGoneUnless(view: View, goneUnless: Boolean) {
-    setGone(view, goneUnless.not())
+fun set_gone_unless(view: View, goneUnless: Boolean) {
+    set_gone(view, goneUnless.not())
 }
 
 @BindingAdapter("invisibleUnless")
-fun setInvisibleUnless(view: View, invisibleUnless: Boolean) {
-    setInvisible(view, invisibleUnless.not())
+fun set_invisible_unless(view: View, invisibleUnless: Boolean) {
+    set_invisible(view, invisibleUnless.not())
 }
 
 @BindingAdapter("markdownText")
-fun setMarkdownText(tv: TextView, markdown: Spanned) {
+fun set_markdown_text(tv: TextView, markdown: Spanned) {
     ServiceLocator.markwon.setParsedMarkdown(tv, markdown)
 }
 
 @BindingAdapter("onNavigationClick")
-fun setOnNavigationClickedListener(view: Toolbar, listener: View.OnClickListener) {
+fun set_on_navigation_clicked_listener(view: Toolbar, listener: View.OnClickListener) {
     view.setNavigationOnClickListener(listener)
 }
 
 @BindingAdapter("srcCompat")
-fun setImageResource(view: ImageView, @DrawableRes resId: Int) {
-    view.setImageResource(resId)
+fun setImageResource(view: ImageView, @DrawableRes res_id: Int) {
+    view.setImageResource(res_id)
 }
 
 @BindingAdapter("srcCompat")
@@ -101,10 +101,10 @@ fun setOnTouchListener(view: View, listener: View.OnTouchListener) {
     view.setOnTouchListener(listener)
 }
 
-@BindingAdapter("scrollToLast")
-fun setScrollToLast(view: RecyclerView, shouldScrollToLast: Boolean) {
+@BindingAdapter("scroll_to_last")
+fun set_scroll_to_last(view: RecyclerView, shouldScrollToLast: Boolean) {
 
-    fun scrollToLast() = UiThreadHandler.handler.postDelayed({
+    fun scroll_to_last() = UiThreadHandler.handler.postDelayed({
         view.scrollToPosition(view.adapter?.itemCount?.minus(1) ?: 0)
     }, 30)
 
@@ -115,7 +115,7 @@ fun setScrollToLast(view: RecyclerView, shouldScrollToLast: Boolean) {
     fun RecyclerView.Adapter<*>.setListener() {
         val observer = object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                scrollToLast()
+                scroll_to_last()
             }
         }
         registerAdapterDataObserver(observer)
@@ -128,10 +128,10 @@ fun setScrollToLast(view: RecyclerView, shouldScrollToLast: Boolean) {
         unregisterAdapterDataObserver(observer)
     }
 
-    fun trySetListener(): Unit = view.adapter?.setListener() ?: wait { trySetListener() }
+    fun try_set_listener(): Unit = view.adapter?.setListener() ?: wait { try_set_listener() }
 
     if (shouldScrollToLast) {
-        trySetListener()
+        try_set_listener()
     } else {
         view.adapter?.removeListener()
     }
@@ -144,9 +144,9 @@ fun setEnabled(view: View, isEnabled: Boolean) {
 
 @BindingAdapter("error")
 fun TextInputLayout.setErrorString(error: String) {
-    val newError = error.let { if (it.isEmpty()) null else it }
-    if (this.error == null && newError == null) return
-    this.error = newError
+    val new_error = error.let { if (it.isEmpty()) null else it }
+    if (this.error == null && new_error == null) return
+    this.error = new_error
 }
 
 // md2
@@ -186,16 +186,16 @@ fun View.isSelected(isSelected: Boolean) {
     this.isSelected = isSelected
 }
 
-@BindingAdapter("dividerVertical", "dividerHorizontal", requireAll = false)
-fun RecyclerView.setDividers(dividerVertical: Drawable?, dividerHorizontal: Drawable?) {
+@BindingAdapter("divider_vertical", "dividerHorizontal", requireAll = false)
+fun RecyclerView.setDividers(divider_vertical: Drawable?, dividerHorizontal: Drawable?) {
     if (dividerHorizontal != null) {
         DividerItemDecoration(context, LinearLayoutManager.HORIZONTAL).apply {
             setDrawable(dividerHorizontal)
         }.let { addItemDecoration(it) }
     }
-    if (dividerVertical != null) {
+    if (divider_vertical != null) {
         DividerItemDecoration(context, LinearLayoutManager.VERTICAL).apply {
-            setDrawable(dividerVertical)
+            setDrawable(divider_vertical)
         }.let { addItemDecoration(it) }
     }
 }
@@ -226,11 +226,11 @@ fun Chip.setOnCloseClickedListenerBinding(listener: View.OnClickListener) {
 }
 
 @BindingAdapter("progressAnimated")
-fun ProgressBar.setProgressAnimated(newProgress: Int) {
+fun ProgressBar.setProgressAnimated(new_progress: Int) {
     val animator = tag as? ValueAnimator
     animator?.cancel()
 
-    ValueAnimator.ofInt(progress, newProgress).apply {
+    ValueAnimator.ofInt(progress, new_progress).apply {
         interpolator = FastOutSlowInInterpolator()
         addUpdateListener { progress = it.animatedValue as Int }
         tag = this
@@ -251,8 +251,8 @@ fun View.setOnLongClickListenerBinding(listener: () -> Unit) {
 }
 
 @BindingAdapter("strikeThrough")
-fun TextView.setStrikeThroughEnabled(useStrikeThrough: Boolean) {
-    paintFlags = if (useStrikeThrough) {
+fun TextView.setStrikeThroughEnabled(use_strike_through: Boolean) {
+    paintFlags = if (use_strike_through) {
         paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
     } else {
         paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
@@ -268,21 +268,21 @@ fun RecyclerView.setSpanCount(count: Int) {
 }
 
 @BindingAdapter("state")
-fun setState(view: IndeterminateCheckBox, state: Boolean?) {
+fun set_state(view: IndeterminateCheckBox, state: Boolean?) {
     if (view.state != state)
         view.state = state
 }
 
 @InverseBindingAdapter(attribute = "state")
-fun getState(view: IndeterminateCheckBox) = view.state
+fun get_state(view: IndeterminateCheckBox) = view.state
 
 @BindingAdapter("stateAttrChanged")
-fun setListeners(
+fun set_listeners(
     view: IndeterminateCheckBox,
-    attrChange: InverseBindingListener
+    attr_change: InverseBindingListener
 ) {
     view.setOnStateChangedListener { _, _ ->
-        attrChange.onChange()
+        attr_change.onChange()
     }
 }
 
@@ -314,12 +314,12 @@ fun TextView.setTextColorAttr(attr: Int) {
 
 @BindingAdapter("android:text")
 fun TextView.setText(text: TextHolder) {
-    this.text = text.getText(context.resources)
+    this.text = text.get_text(context.resources)
 }
 
 @BindingAdapter("items", "layout")
-fun Spinner.setAdapter(items: Array<Any>, layoutRes: Int) {
-    adapter = ArrayAdapter(context, layoutRes, items)
+fun Spinner.setAdapter(items: Array<Any>, layout_res: Int) {
+    adapter = ArrayAdapter(context, layout_res, items)
 }
 
 @BindingAdapter("labelFormatter")
@@ -331,15 +331,15 @@ fun Slider.setLabelFormatter(formatter: (Float) -> Int) {
 fun Slider.getValueBinding() = value
 
 @BindingAdapter("android:valueAttrChanged")
-fun Slider.setListener(attrChange: InverseBindingListener) {
+fun Slider.setListener(attr_change: InverseBindingListener) {
     addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
         override fun onStartTrackingTouch(slider: Slider) = Unit
-        override fun onStopTrackingTouch(slider: Slider) = attrChange.onChange()
+        override fun onStopTrackingTouch(slider: Slider) = attr_change.onChange()
     })
 }
 
-@InverseMethod("sliderValueToPolicy")
-fun policyToSliderValue(policy: Int): Float {
+@InverseMethod("slider_value_to_policy")
+fun policy_to_slider_value(policy: Int): Float {
     return when (policy) {
         SuPolicy.DENY -> 1f
         SuPolicy.RESTRICT -> 2f
@@ -348,7 +348,7 @@ fun policyToSliderValue(policy: Int): Float {
     }
 }
 
-fun sliderValueToPolicy(value: Float): Int {
+fun slider_value_to_policy(value: Float): Int {
     return when (value) {
         1f -> SuPolicy.DENY
         2f -> SuPolicy.RESTRICT

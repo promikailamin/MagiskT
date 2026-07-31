@@ -68,17 +68,17 @@ class RootUtils(stub: Any?) : RootService() {
 
     override fun onBind(intent: Intent): IBinder {
         return object : IRootUtils.Stub() {
-            override fun getAppProcess(pid: Int) = safe(null) { getAppProcessImpl(pid) }
+            override fun getAppProcess(pid: Int) = safe(null) { get_app_process_impl(pid) }
             override fun getFileSystem(): IBinder = FileSystemManager.getService()
-            override fun addSystemlessHosts() = safe(false) { addSystemlessHostsImpl() }
+            override fun addSystemlessHosts() = safe(false) { add_systemless_hosts_impl() }
         }
     }
 
-    private fun getAppProcessImpl(_pid: Int): ActivityManager.RunningAppProcessInfo? {
-        val procList = am.runningAppProcesses
+    private fun get_app_process_impl(_pid: Int): ActivityManager.RunningAppProcessInfo? {
+        val proc_list = am.runningAppProcesses
         var pid = _pid
         while (pid > 1) {
-            val proc = procList.find { it.pid == pid }
+            val proc = proc_list.find { it.pid == pid }
             if (proc != null)
                 return proc
 
@@ -94,12 +94,12 @@ class RootUtils(stub: Any?) : RootService() {
         return null
     }
 
-    private fun addSystemlessHostsImpl(): Boolean {
+    private fun add_systemless_hosts_impl(): Boolean {
         val module = File(Const.MODULE_PATH, "hosts")
         if (module.exists()) return true
         val hosts = File(module, "system/etc/hosts")
         if (hosts.parentFile?.mkdirs() != true) return false
-        File(module, "module.prop").outputStream().writer().use {
+        File(module, "module.prop").output_stream().writer().use {
             it.write("""
                 id=hosts
                 name=Systemless Hosts
@@ -152,7 +152,7 @@ class RootUtils(stub: Any?) : RootService() {
         }
 
         fun await() {
-            if (!Info.isRooted)
+            if (!Info.is_rooted)
                 return
             if (!ShellUtils.onMainThread()) {
                 acquireSharedInterruptibly(1)
@@ -163,7 +163,7 @@ class RootUtils(stub: Any?) : RootService() {
     }
 
     companion object {
-        var bindTask: Shell.Task? = null
+        var bind_task: Shell.Task? = null
         var fs: FileSystemManager = FileSystemManager.getLocal()
             get() {
                 Connection.await()

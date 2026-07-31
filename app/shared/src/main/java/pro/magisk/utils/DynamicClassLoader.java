@@ -56,11 +56,11 @@ public class DynamicClassLoader extends BaseDexClassLoader {
         } catch (ClassNotFoundException ignored) {
             try {
                 return findClass(name);
-            } catch (ClassNotFoundException fromSuper) {
+            } catch (ClassNotFoundException from_super) {
                 try {
                     return getParent().loadClass(name);
                 } catch (ClassNotFoundException e) {
-                    throw fromSuper;
+                    throw from_super;
                 }
             }
         }

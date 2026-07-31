@@ -21,17 +21,17 @@ import pro.magisk.core.R as CoreR
 
 /** A single Superuser policy entry with action toggles and a policy slider. */
 class PolicyRvItem(
-    private val viewModel: SuperuserViewModel,
+    private val view_model: SuperuserViewModel,
     override val item: SuPolicy,
     val packageName: String,
-    private val isSharedUid: Boolean,
+    private val is_shared_uid: Boolean,
     val icon: Drawable,
-    val appName: String
+    val app_name: String
 ) : ObservableRvItem(), DiffItem<PolicyRvItem>, ItemWrapper<SuPolicy> {
 
-    override val layoutRes = R.layout.item_policy_md2
+    override val layout_res = R.layout.item_policy_md2
 
-    val title get() = if (isSharedUid) "[SharedUID] $appName" else appName
+    val title get() = if (is_shared_uid) "[SharedUID] $app_name" else app_name
 
     private inline fun <reified T> setImpl(new: T, old: T, setter: (T) -> Unit) {
         if (old != new) {
@@ -40,29 +40,29 @@ class PolicyRvItem(
     }
 
     @get:Bindable
-    var isExpanded = false
+    var is_expanded = false
         set(value) = set(value, field, { field = it }, BR.expanded)
 
-    val showSlider = Config.suRestrict || item.policy == SuPolicy.RESTRICT
+    val show_slider = Config.su_restrict || item.policy == SuPolicy.RESTRICT
 
     @get:Bindable
     var isEnabled
         get() = item.policy >= SuPolicy.ALLOW
         set(value) = setImpl(value, isEnabled) {
             notifyPropertyChanged(BR.enabled)
-            viewModel.updatePolicy(this, if (it) SuPolicy.ALLOW else SuPolicy.DENY)
+            view_model.update_policy(this, if (it) SuPolicy.ALLOW else SuPolicy.DENY)
         }
 
     @get:Bindable
-    var sliderValue
+    var slider_value
         get() = item.policy
-        set(value) = setImpl(value, sliderValue) {
-            notifyPropertyChanged(BR.sliderValue)
+        set(value) = setImpl(value, slider_value) {
+            notifyPropertyChanged(BR.slider_value)
             notifyPropertyChanged(BR.enabled)
-            viewModel.updatePolicy(this, it)
+            view_model.update_policy(this, it)
         }
 
-    val sliderValueToPolicyString: (Float) -> Int = { value ->
+    val slider_value_to_policy_string: (Float) -> Int = { value ->
         when (value.toInt()) {
             1 -> CoreR.string.deny
             2 -> CoreR.string.restrict
@@ -72,39 +72,39 @@ class PolicyRvItem(
     }
 
     @get:Bindable
-    var shouldNotify
+    var should_notify
         get() = item.notification
-        private set(value) = setImpl(value, shouldNotify) {
+        private set(value) = setImpl(value, should_notify) {
             item.notification = it
-            viewModel.updateNotify(this)
+            view_model.update_notify(this)
         }
 
     @get:Bindable
-    var shouldLog
+    var should_log
         get() = item.logging
-        private set(value) = setImpl(value, shouldLog) {
+        private set(value) = setImpl(value, should_log) {
             item.logging = it
-            viewModel.updateLogging(this)
+            view_model.update_logging(this)
         }
 
-    fun toggleExpand() {
-        isExpanded = !isExpanded
+    fun toggle_expand() {
+        is_expanded = !is_expanded
     }
 
-    fun toggleNotify() {
-        shouldNotify = !shouldNotify
+    fun toggle_notify() {
+        should_notify = !should_notify
     }
 
-    fun toggleLog() {
-        shouldLog = !shouldLog
+    fun toggle_log() {
+        should_log = !should_log
     }
 
     fun revoke() {
-        viewModel.deletePressed(this)
+        view_model.delete_pressed(this)
     }
 
-    override fun itemSameAs(other: PolicyRvItem) = packageName == other.packageName
+    override fun item_same_as(other: PolicyRvItem) = packageName == other.packageName
 
-    override fun contentSameAs(other: PolicyRvItem) = item.policy == other.item.policy
+    override fun content_same_as(other: PolicyRvItem) = item.policy == other.item.policy
 
 }

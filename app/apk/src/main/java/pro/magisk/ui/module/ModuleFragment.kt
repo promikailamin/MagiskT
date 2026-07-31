@@ -10,8 +10,8 @@ import android.os.Bundle
 import android.view.View
 import pro.magisk.R
 import pro.magisk.arch.BaseFragment
-import pro.magisk.arch.viewModel
-import pro.magisk.core.utils.MediaStoreUtils.displayName
+import pro.magisk.arch.view_model
+import pro.magisk.core.utils.MediaStoreUtils.display_name
 import pro.magisk.databinding.FragmentModuleMd2Binding
 import rikka.recyclerview.addEdgeSpacing
 import rikka.recyclerview.addInvalidateItemDecorationsObserver
@@ -22,22 +22,22 @@ import pro.magisk.core.R as CoreR
 /** Fragment that shows installed Magisk modules and handles local module installs. */
 class ModuleFragment : BaseFragment<FragmentModuleMd2Binding>() {
 
-    override val layoutRes = R.layout.fragment_module_md2
-    override val viewModel by viewModel<ModuleViewModel>()
+    override val layout_res = R.layout.fragment_module_md2
+    override val view_model by view_model<ModuleViewModel>()
 
     override fun onStart() {
         super.onStart()
         activity?.title = resources.getString(CoreR.string.modules)
-        viewModel.data.observe(this) {
+        view_model.data.observe(this) {
             it ?: return@observe
-            val displayName = runCatching { it.displayName }.getOrNull() ?: return@observe
-            viewModel.requestInstallLocalModule(it, displayName)
-            viewModel.data.value = null
+            val display_name = runCatching { it.display_name }.getOrNull() ?: return@observe
+            view_model.request_install_local_module(it, display_name)
+            view_model.data.value = null
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onViewCreated(view: View, saved_instance_state: Bundle?) {
+        super.onViewCreated(view, saved_instance_state)
 
         binding.moduleList.apply {
             addEdgeSpacing(top = R.dimen.l_50, bottom = R.dimen.l1)
@@ -47,6 +47,6 @@ class ModuleFragment : BaseFragment<FragmentModuleMd2Binding>() {
         }
     }
 
-    override fun onPreBind(binding: FragmentModuleMd2Binding) = Unit
+    override fun on_pre_bind(binding: FragmentModuleMd2Binding) = Unit
 
 }

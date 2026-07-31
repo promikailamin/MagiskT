@@ -44,7 +44,7 @@ class MergeObservableList<T> : AbstractList<T>(), ObservableList<T> {
     override val size: Int
         get() = lists.fold(0) { i, it -> i + it.size }
 
-    fun insertItem(obj: T): MergeObservableList<T> {
+    fun insert_item(obj: T): MergeObservableList<T> {
         val idx = size
         lists.add(listOf(obj))
         ++modCount
@@ -52,7 +52,7 @@ class MergeObservableList<T> : AbstractList<T>(), ObservableList<T> {
         return this
     }
 
-    fun insertList(list: List<T>): MergeObservableList<T> {
+    fun insert_list(list: List<T>): MergeObservableList<T> {
         val idx = size
         lists.add(list)
         ++modCount
@@ -62,7 +62,7 @@ class MergeObservableList<T> : AbstractList<T>(), ObservableList<T> {
         return this
     }
 
-    fun removeItem(obj: T): Boolean {
+    fun remove_item(obj: T): Boolean {
         var idx = 0
         for ((i, list) in lists.withIndex()) {
             if (list !is ObservableList<*>) {
@@ -78,10 +78,10 @@ class MergeObservableList<T> : AbstractList<T>(), ObservableList<T> {
         return false
     }
 
-    fun removeList(listToRemove: List<T>): Boolean {
+    fun remove_list(list_to_remove: List<T>): Boolean {
         var idx = 0
         for ((i, list) in lists.withIndex()) {
-            if (listToRemove === list) {
+            if (list_to_remove === list) {
                 (list as? ObservableList<T>)?.removeOnListChangedCallback(callback)
                 lists.removeAt(i)
                 ++modCount
@@ -107,12 +107,12 @@ class MergeObservableList<T> : AbstractList<T>(), ObservableList<T> {
     }
 
     /** Translates a position within a sub-list to the flat merged index. */
-    private fun subIndexToIndex(subList: List<*>, index: Int): Int {
+    private fun sub_index_to_index(sub_list: List<*>, index: Int): Int {
         if (index < 0)
             throw IndexOutOfBoundsException()
         var idx = 0
         for (list in lists) {
-            if (subList === list) {
+            if (sub_list === list) {
                 return idx + index
             }
             idx += list.size
@@ -133,7 +133,7 @@ class MergeObservableList<T> : AbstractList<T>(), ObservableList<T> {
             itemCount: Int
         ) {
             listeners.notifyChanged(this@MergeObservableList,
-                subIndexToIndex(sender, positionStart), itemCount)
+                sub_index_to_index(sender, positionStart), itemCount)
         }
 
         override fun onItemRangeInserted(
@@ -143,18 +143,18 @@ class MergeObservableList<T> : AbstractList<T>(), ObservableList<T> {
         ) {
             ++modCount
             listeners.notifyInserted(this@MergeObservableList,
-                subIndexToIndex(sender, positionStart), itemCount)
+                sub_index_to_index(sender, positionStart), itemCount)
         }
 
         override fun onItemRangeMoved(
             sender: ObservableList<T>,
-            fromPosition: Int,
+            from_position: Int,
             toPosition: Int,
             itemCount: Int
         ) {
-            val idx = subIndexToIndex(sender, 0)
+            val idx = sub_index_to_index(sender, 0)
             listeners.notifyMoved(this@MergeObservableList,
-                idx + fromPosition, idx + toPosition, itemCount)
+                idx + from_position, idx + toPosition, itemCount)
         }
 
         override fun onItemRangeRemoved(
@@ -164,7 +164,7 @@ class MergeObservableList<T> : AbstractList<T>(), ObservableList<T> {
         ) {
             ++modCount
             listeners.notifyRemoved(this@MergeObservableList,
-                subIndexToIndex(sender, positionStart), itemCount)
+                sub_index_to_index(sender, positionStart), itemCount)
         }
     }
 }

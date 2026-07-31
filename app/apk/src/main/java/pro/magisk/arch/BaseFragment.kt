@@ -30,35 +30,35 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), ViewModelHo
 
     val activity get() = getActivity() as? NavigationActivity<*>
     protected lateinit var binding: Binding
-    protected abstract val layoutRes: Int
+    protected abstract val layout_res: Int
 
     private val navigation get() = activity?.navigation
-    open val snackbarView: View? get() = null
-    open val snackbarAnchorView: View? get() = null
+    open val snackbar_view: View? get() = null
+    open val snackbar_anchor_view: View? get() = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        startObserveLiveData()
+    override fun onCreate(saved_instance_state: Bundle?) {
+        super.onCreate(saved_instance_state)
+        start_observe_live_data()
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        saved_instance_state: Bundle?
     ): View? {
-        binding = DataBindingUtil.inflate<Binding>(inflater, layoutRes, container, false).also {
-            it.setVariable(BR.viewModel, viewModel)
+        binding = DataBindingUtil.inflate<Binding>(inflater, layout_res, container, false).also {
+            it.setVariable(BR.view_model, view_model)
             it.lifecycleOwner = viewLifecycleOwner
         }
         if (this is MenuProvider) {
             activity?.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.STARTED)
         }
-        savedInstanceState?.let { viewModel.onRestoreState(it) }
+        saved_instance_state?.let { view_model.on_restore_state(it) }
         return binding.root
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        viewModel.onSaveState(outState)
+        view_model.on_save_state(outState)
     }
 
     override fun onStart() {
@@ -67,24 +67,24 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), ViewModelHo
         activity?.supportActionBar?.subtitle = null
     }
 
-    override fun onEventDispatched(event: ViewEvent) = when(event) {
+    override fun on_event_dispatched(event: ViewEvent) = when(event) {
         is ContextExecutor -> event(requireContext())
         is ActivityExecutor -> activity?.let { event(it) } ?: Unit
         is FragmentExecutor -> event(this)
         else -> Unit
     }
 
-    open fun onKeyEvent(event: KeyEvent): Boolean {
+    open fun on_key_event(event: KeyEvent): Boolean {
         return false
     }
 
     open fun onBackPressed(): Boolean = false
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onViewCreated(view: View, saved_instance_state: Bundle?) {
+        super.onViewCreated(view, saved_instance_state)
         binding.addOnRebindCallback(object : OnRebindCallback<Binding>() {
-            override fun onPreBind(binding: Binding): Boolean {
-                this@BaseFragment.onPreBind(binding)
+            override fun on_pre_bind(binding: Binding): Boolean {
+                this@BaseFragment.on_pre_bind(binding)
                 return true
             }
         })
@@ -92,13 +92,13 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), ViewModelHo
 
     override fun onResume() {
         super.onResume()
-        viewModel.let {
+        view_model.let {
             if (it is AsyncLoadViewModel)
-                it.startLoading()
+                it.start_loading()
         }
     }
 
-    protected open fun onPreBind(binding: Binding) {
+    protected open fun on_pre_bind(binding: Binding) {
         (binding.root as? ViewGroup)?.startAnimations()
     }
 

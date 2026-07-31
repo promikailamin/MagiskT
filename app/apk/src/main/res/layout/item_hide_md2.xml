@@ -12,7 +12,7 @@
             type="pro.magisk.ui.deny.DenyListRvItem" />
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.deny.DenyListViewModel" />
 
     </data>
@@ -38,13 +38,13 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:nextFocusRight="@id/hide_expand_icon"
-                android:onClick="@{item::toggleExpand}">
+                android:onClick="@{item::toggle_expand}">
 
                 <ImageView
                     android:id="@+id/hide_icon"
                     style="@style/WidgetFoundation.Image"
                     android:layout_margin="@dimen/l1"
-                    android:src="@{item.info.iconImage}"
+                    android:src="@{item.info.icon_image}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -96,9 +96,9 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.recyclerview.widget.RecyclerView
-                goneUnless="@{item.isExpanded}"
+                goneUnless="@{item.is_expanded}"
                 app:items="@{item.processes}"
-                app:extraBindings="@{viewModel.extraBindings}"
+                app:extra_bindings="@{view_model.extra_bindings}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?colorSurfaceVariant"
@@ -111,10 +111,10 @@
 
         <ProgressBar
             style="@style/WidgetFoundation.ProgressBar"
-            gone="@{item.checkedPercent == 0}"
+            gone="@{item.checked_percent == 0}"
             android:layout_width="match_parent"
             android:layout_gravity="top"
-            android:progress="@{item.checkedPercent}" />
+            android:progress="@{item.checked_percent}" />
 
     </com.google.android.material.card.MaterialCardView>
 

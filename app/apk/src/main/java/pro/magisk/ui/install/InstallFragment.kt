@@ -8,15 +8,15 @@ package pro.magisk.ui.install
 
 import pro.magisk.R
 import pro.magisk.arch.BaseFragment
-import pro.magisk.arch.viewModel
+import pro.magisk.arch.view_model
 import pro.magisk.databinding.FragmentInstallMd2Binding
 import pro.magisk.core.R as CoreR
 
 /** Fragment with installation method selection (Direct / Patch / Second Slot). */
 class InstallFragment : BaseFragment<FragmentInstallMd2Binding>() {
 
-    override val layoutRes = R.layout.fragment_install_md2
-    override val viewModel by viewModel<InstallViewModel>()
+    override val layout_res = R.layout.fragment_install_md2
+    override val view_model by view_model<InstallViewModel>()
 
     override fun onStart() {
         super.onStart()

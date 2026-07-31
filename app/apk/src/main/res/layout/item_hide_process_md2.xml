@@ -10,7 +10,7 @@
             type="pro.magisk.ui.deny.ProcessRvItem" />
 
         <variable
-            name="viewModel"
+            name="view_model"
             type="pro.magisk.ui.deny.DenyListViewModel" />
 
     </data>
@@ -30,7 +30,7 @@
             android:layout_marginBottom="@dimen/l_75"
             android:singleLine="true"
             android:ellipsize="middle"
-            android:text="@{item.displayName}"
+            android:text="@{item.display_name}"
             android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/hide_process_checkbox"

@@ -27,13 +27,13 @@ import pro.magisk.core.ktx.unwrap
 import pro.magisk.core.utils.LocaleSetting
 
 /** Merge the real APK's asset path into a [Resources] instance. */
-fun Resources.addAssetPath(path: String) = StubApk.addAssetPath(this, path)
+fun Resources.add_asset_path(path: String) = StubApk.add_asset_path(this, path)
 
 /** Apply locale + stub asset overrides to a [Resources] instance. */
 fun Resources.patch(): Resources {
-    if (isRunningAsStub)
-        addAssetPath(AppApkPath)
-    LocaleSetting.instance.updateResource(this)
+    if (is_running_as_stub)
+        add_asset_path(AppApkPath)
+    LocaleSetting.instance.update_resource(this)
     return this
 }
 
@@ -68,7 +68,7 @@ inline fun <reified T> Context.intent() = Intent().setComponent(T::class.java.cm
  * callers). Keeping them here prevents R8 from stripping them as
  * "unused".
  */
-val shouldKeepResources = listOf(
+val should_keep_resources = listOf(
     R.string.no_info_provided,
     R.string.release_notes,
     R.string.home_item_source,

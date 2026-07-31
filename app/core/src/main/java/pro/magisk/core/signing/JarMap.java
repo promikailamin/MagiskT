@@ -30,7 +30,7 @@ import java.util.zip.ZipFile;
 
 public abstract class JarMap implements Closeable {
 
-    LinkedHashMap<String, JarEntry> entryMap;
+    LinkedHashMap<String, JarEntry> entry_map;
 
     /** Opens a JAR from a file on disk. {@code verify} enables JAR signature verification. */
     public static JarMap open(File file, boolean verify) throws IOException {
@@ -43,7 +43,7 @@ public abstract class JarMap implements Closeable {
     }
 
     /** Returns the backing {@link File} if this map is file-backed, or {@code null}. */
-    public File getFile() {
+    public File get_file() {
         return null;
     }
 
@@ -55,7 +55,7 @@ public abstract class JarMap implements Closeable {
      * Checks the in-memory entry map first, then falls back to the backing source.
      */
     public InputStream getInputStream(ZipEntry ze) throws IOException {
-        JarMapEntry e = getMapEntry(ze.getName());
+        JarMapEntry e = get_map_entry(ze.getName());
         return e != null ? e.data.getInputStream() : null;
     }
 
@@ -63,19 +63,19 @@ public abstract class JarMap implements Closeable {
      * Returns an {@link OutputStream} for writing (or overwriting) a ZIP entry.
      * Written data is buffered in memory and takes precedence over the backing source.
      */
-    public OutputStream getOutputStream(ZipEntry ze) {
-        if (entryMap == null)
-            entryMap = new LinkedHashMap<>();
+    public OutputStream get_output_stream(ZipEntry ze) {
+        if (entry_map == null)
+            entry_map = new LinkedHashMap<>();
         JarMapEntry e = new JarMapEntry(ze.getName());
-        entryMap.put(ze.getName(), e);
+        entry_map.put(ze.getName(), e);
         return e.data;
     }
 
     /**
      * Returns the raw byte content for a ZIP entry, or {@code null} if not found.
      */
-    public byte[] getRawData(ZipEntry ze) throws IOException {
-        JarMapEntry e = getMapEntry(ze.getName());
+    public byte[] get_raw_data(ZipEntry ze) throws IOException {
+        JarMapEntry e = get_map_entry(ze.getName());
         return e != null ? e.data.toByteArray() : null;
     }
 
@@ -87,66 +87,66 @@ public abstract class JarMap implements Closeable {
     }
 
     public JarEntry getJarEntry(String name) {
-        return getMapEntry(name);
+        return get_map_entry(name);
     }
 
     /** Looks up an entry by name in the in-memory entry map (thread-safe via synchronization). */
-    JarMapEntry getMapEntry(String name) {
+    JarMapEntry get_map_entry(String name) {
         JarMapEntry e = null;
-        if (entryMap != null)
-            e = (JarMapEntry) entryMap.get(name);
+        if (entry_map != null)
+            e = (JarMapEntry) entry_map.get(name);
         return e;
     }
 
     /** File-backed implementation: delegates to {@link JarFile} and falls back to in-memory map. */
     private static class FileMap extends JarMap {
 
-        private JarFile jarFile;
+        private JarFile jar_file;
 
         FileMap(File file, boolean verify, int mode) throws IOException {
-            jarFile = new JarFile(file, verify, mode);
+            jar_file = new JarFile(file, verify, mode);
         }
 
         @Override
-        public File getFile() {
-            return new File(jarFile.getName());
+        public File get_file() {
+            return new File(jar_file.getName());
         }
 
         @Override
         public Manifest getManifest() throws IOException {
-            return jarFile.getManifest();
+            return jar_file.getManifest();
         }
 
         @Override
         public InputStream getInputStream(ZipEntry ze) throws IOException {
             InputStream is = super.getInputStream(ze);
-            return is != null ? is : jarFile.getInputStream(ze);
+            return is != null ? is : jar_file.getInputStream(ze);
         }
 
         @Override
-        public byte[] getRawData(ZipEntry ze) throws IOException {
-            byte[] b = super.getRawData(ze);
+        public byte[] get_raw_data(ZipEntry ze) throws IOException {
+            byte[] b = super.get_raw_data(ze);
             if (b != null)
                 return b;
             ByteArrayStream bytes = new ByteArrayStream();
-            bytes.readFrom(jarFile.getInputStream(ze));
+            bytes.read_from(jar_file.getInputStream(ze));
             return bytes.toByteArray();
         }
 
         @Override
         public Enumeration<JarEntry> entries() {
-            return jarFile.entries();
+            return jar_file.entries();
         }
 
         @Override
         public JarEntry getJarEntry(String name) {
-            JarEntry e = getMapEntry(name);
-            return e != null ? e : jarFile.getJarEntry(name);
+            JarEntry e = get_map_entry(name);
+            return e != null ? e : jar_file.getJarEntry(name);
         }
 
         @Override
         public void close() throws IOException {
-            jarFile.close();
+            jar_file.close();
         }
     }
 
@@ -157,10 +157,10 @@ public abstract class JarMap implements Closeable {
 
         StreamMap(InputStream is, boolean verify) throws IOException {
             jis = new JarInputStream(is, verify);
-            entryMap = new LinkedHashMap<>();
+            entry_map = new LinkedHashMap<>();
             JarEntry entry;
             while ((entry = jis.getNextJarEntry()) != null) {
-                entryMap.put(entry.getName(), new JarMapEntry(entry, jis));
+                entry_map.put(entry.getName(), new JarMapEntry(entry, jis));
             }
         }
 
@@ -171,7 +171,7 @@ public abstract class JarMap implements Closeable {
 
         @Override
         public Enumeration<JarEntry> entries() {
-            return Collections.enumeration(entryMap.values());
+            return Collections.enumeration(entry_map.values());
         }
 
         @Override
@@ -188,7 +188,7 @@ public abstract class JarMap implements Closeable {
         JarMapEntry(JarEntry je, InputStream is) {
             super(je);
             data = new ByteArrayStream();
-            data.readFrom(is);
+            data.read_from(is);
         }
 
         JarMapEntry(String s) {

@@ -113,8 +113,8 @@ private fun Project.downloadFile(url: String, checksum: String): File {
     }
     if (!file.exists()) {
         file.parentFile.mkdirs()
-        URI(url).toURL().openStream().use { dl ->
-            file.outputStream().use {
+        URI(url).toURL().open_stream().use { dl ->
+            file.output_stream().use {
                 dl.copyTo(it)
             }
         }
@@ -129,7 +129,7 @@ const val BUSYBOX_ZIP_CHECKSUM =
 
 private abstract class SyncWithDir : Sync() {
     @get:OutputDirectory
-    abstract val outputFolder: DirectoryProperty
+    abstract val output_folder: DirectoryProperty
 }
 
 /**
@@ -146,18 +146,18 @@ private abstract class SyncWithDir : Sync() {
 fun Project.setupCoreLib() {
     setupCommon()
 
-    val abiList = Config.abiList
+    val abi_list = Config.abi_list
 
     androidComponents {
         onVariants { variant ->
-            val variantName = variant.name
-            val variantCapped = variantName.replaceFirstChar { it.uppercase() }
+            val variant_name = variant.name
+            val variant_capped = variant_name.replaceFirstChar { it.uppercase() }
 
-            val syncLibs = tasks.register("sync${variantCapped}JniLibs", SyncWithDir::class) {
-                outputFolder.set(layout.buildDirectory.dir("$variantName/jniLibs"))
-                into(outputFolder)
+            val sync_libs = tasks.register("sync${variant_capped}JniLibs", SyncWithDir::class) {
+                output_folder.set(layout.buildDirectory.dir("$variant_name/jniLibs"))
+                into(output_folder)
 
-                for (abi in abiList) {
+                for (abi in abi_list) {
                     into(abi) {
                         from(rootFile("native/out/$abi")) {
                             include("magiskboot", "magiskinit", "magiskpolicy", "magisk", "libinit-ld.so")
@@ -166,19 +166,19 @@ fun Project.setupCoreLib() {
                     }
                 }
                 from(zipTree(downloadFile(BUSYBOX_DOWNLOAD_URL, BUSYBOX_ZIP_CHECKSUM)))
-                include(abiList.map { "$it/libbusybox.so" })
+                include(abi_list.map { "$it/libbusybox.so" })
                 onlyIf {
-                    if (inputs.sourceFiles.files.size != abiList.size * 6)
+                    if (inputs.sourceFiles.files.size != abi_list.size * 6)
                         throw StopExecutionException("Please build binaries first! (./build.py binary)")
                     true
                 }
             }
             variant.sources.jniLibs
-                ?.addGeneratedSourceDirectory(syncLibs, SyncWithDir::outputFolder)
+                ?.addGeneratedSourceDirectory(sync_libs, SyncWithDir::output_folder)
 
-            val syncResources = tasks.register("sync${variantCapped}Resources", SyncWithDir::class) {
-                outputFolder.set(layout.buildDirectory.dir("$variantName/resources"))
-                into(outputFolder)
+            val sync_resources = tasks.register("sync${variant_capped}Resources", SyncWithDir::class) {
+                output_folder.set(layout.buildDirectory.dir("$variant_name/resources"))
+                into(output_folder)
 
                 into("META-INF/com/google/android") {
                     from(rootFile("scripts/update_binary.sh")) {
@@ -190,12 +190,12 @@ fun Project.setupCoreLib() {
                 }
             }
             variant.sources.resources
-                ?.addGeneratedSourceDirectory(syncResources, SyncWithDir::outputFolder)
+                ?.addGeneratedSourceDirectory(sync_resources, SyncWithDir::output_folder)
 
-            val stubTask = tasks.getByPath(":stub:transform${variantCapped}Apk")
-            val syncAssets = tasks.register("sync${variantCapped}Assets", SyncWithDir::class) {
-                outputFolder.set(layout.buildDirectory.dir("$variantName/assets"))
-                into(outputFolder)
+            val stub_task = tasks.getByPath(":stub:transform${variant_capped}Apk")
+            val sync_assets = tasks.register("sync${variant_capped}Assets", SyncWithDir::class) {
+                output_folder.set(layout.buildDirectory.dir("$variant_name/assets"))
+                into(output_folder)
 
                 inputs.property("version", Config.version)
                 inputs.property("versionCode", Config.versionCode)
@@ -210,7 +210,7 @@ fun Project.setupCoreLib() {
                         include("kernel_data_key.vbprivk", "kernel.keyblock")
                     }
                 }
-                from(stubTask) {
+                from(stub_task) {
                     include { it.name.endsWith(".apk") }
                     rename { "stub.apk" }
                 }
@@ -225,7 +225,7 @@ fun Project.setupCoreLib() {
                 }
             }
             variant.sources.assets
-                ?.addGeneratedSourceDirectory(syncAssets, SyncWithDir::outputFolder)
+                ?.addGeneratedSourceDirectory(sync_assets, SyncWithDir::output_folder)
         }
     }
 }
@@ -288,23 +288,23 @@ fun Project.setupAppCommon() {
 
     androidAppComponents {
         onVariants { variant ->
-            val commentTask = tasks.register(
+            val comment_task = tasks.register(
                 "transform${variant.name.replaceFirstChar { it.uppercase() }}Apk",
                 TransformApkTask::class.java
             )
-            val transformationRequest = variant.artifacts.use(commentTask)
-                .wiredWithDirectories(TransformApkTask::apkFolder, TransformApkTask::outFolder)
+            val transformation_request = variant.artifacts.use(comment_task)
+                .wiredWithDirectories(TransformApkTask::apk_folder, TransformApkTask::out_folder)
                 .toTransformMany(SingleArtifact.APK)
             val signingConfig = androidApp.buildTypes.getByName(variant.buildType!!).signingConfig
-            commentTask.configure {
-                this.transformationRequest = transformationRequest
+            comment_task.configure {
+                this.transformation_request = transformation_request
                 this.signingConfig = signingConfig
-                this.outFolder.set(layout.buildDirectory.dir("outputs/apk/${variant.name}"))
+                this.out_folder.set(layout.buildDirectory.dir("outputs/apk/${variant.name}"))
                 // Always add a transformation to set comments on the APK
                 this.transformations.add {
                     it.eocdComment = ("version=${Config.version}\n" +
                             "versionCode=${Config.versionCode}\n" +
-                            "stubVersion=${Config.stubVersion}\n").toByteArray()
+                            "stubVersion=${Config.stub_version}\n").toByteArray()
                 }
             }
 
