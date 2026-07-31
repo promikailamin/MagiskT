@@ -23,7 +23,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "APK_URL", "\"$url\"")
-        buildConfigField("int", "STUB_VERSION", Config.stubVersion)
+        buildConfigField("int", "STUB_VERSION", Config.stub_version)
     }
 
     buildTypes {

@@ -27,7 +27,7 @@ android {
         buildConfigField("int", "APP_VERSION_CODE", "${Config.versionCode}")
         buildConfigField("String", "APP_VERSION_NAME", "\"${Config.version}\"")
         buildConfigField("String", "BUILD_COMMIT", "\"${Config.buildCommit ?: "local"}\"")
-        buildConfigField("int", "STUB_VERSION", Config.stubVersion)
+        buildConfigField("int", "STUB_VERSION", Config.stub_version)
         consumerProguardFile("proguard-rules.pro")
     }
 
