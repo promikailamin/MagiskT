@@ -58,10 +58,6 @@ object Theme : BaseSettingsItem.Blank() {
 
 // --- App
 
-object AppSettings : BaseSettingsItem.Section() {
-    override val title = CoreR.string.home_app_title.asText()
-}
-
 object AddShortcut : BaseSettingsItem.Blank() {
     override val title = CoreR.string.add_shortcut_title.asText()
     override val description = CoreR.string.setting_add_shortcut_summary.asText()
@@ -78,11 +74,12 @@ object RandNameToggle : BaseSettingsItem.Toggle() {
     override var value by Config::randName
 }
 
-// --- Magisk
-
-object Magisk : BaseSettingsItem.Section() {
-    override val title = CoreR.string.magisk.asText()
+object CleanRam : BaseSettingsItem.Blank() {
+    override val title = "Clean Device Ram"
+    override val description = "This will unload all unnecessary items from your ram that loaded before."
 }
+
+// --- Magisk
 
 object Zygisk : BaseSettingsItem.Toggle() {
     override val title = CoreR.string.zygisk.asText()
@@ -138,10 +135,6 @@ object Authentication : BaseSettingsItem.Toggle() {
             description = CoreR.string.settings_su_auth_insecure.asText()
         }
     }
-}
-
-object Superuser : BaseSettingsItem.Section() {
-    override val title = CoreR.string.superuser.asText()
 }
 
 object AccessMode : BaseSettingsItem.Selector() {

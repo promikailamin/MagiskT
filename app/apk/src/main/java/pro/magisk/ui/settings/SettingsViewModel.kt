@@ -34,6 +34,8 @@ import pro.magisk.events.AddHomeIconEvent
 import pro.magisk.events.AuthEvent
 import pro.magisk.events.SnackbarEvent
 import kotlinx.coroutines.launch
+import com.topjohnwu.superuser.Shell
+import com.topjohnwu.superuser.ShellUtils.fastCmd
 
 /** ViewModel that builds and manages the settings item list. */
 class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
@@ -42,6 +44,8 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
     val extraBindings = bindExtra {
         it.put(BR.handler, this)
     }
+    
+    private val shell = Shell.getShell()
 
     /** Assembles the settings list based on current device and app state. */
     private fun createItems(): List<BaseSettingsItem> {
@@ -55,11 +59,10 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
             list.add(AddShortcut)
 
         list.addAll(listOf(
-            AppSettings,
             RandNameToggle
         ))
         if (Info.env.isActive) {
-            list.addAll(listOf(Magisk, SystemlessHosts))
+            list.addAll(listOf(CleanRam, SystemlessHosts))
             if (Const.Version.atLeast_24_0()) {
                 list.addAll(listOf(Zygisk, DenyList, DenyListConfig))
             }
@@ -67,7 +70,7 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
 
         if (Info.showSuperUser) {
             list.addAll(listOf(
-                Superuser, Tapjack, Authentication, AccessMode, MultiuserMode,
+                Tapjack, Authentication, AccessMode, MultiuserMode,
                 MountNamespaceMode, AutomaticResponse, RequestTimeout, SUNotification
             ))
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -97,6 +100,7 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
             Theme -> SettingsFragmentDirections.actionSettingsFragmentToThemeFragment().navigate()
             LanguageSystem -> view.activity.startActivity(LocaleSetting.localeSettingsIntent)
             AddShortcut -> AddHomeIconEvent().publish()
+            CleanRam -> clean_ram()
             SystemlessHosts -> createHosts()
             DenyListConfig -> SettingsFragmentDirections.actionSettingsFragmentToDenyFragment().navigate()
             Zygisk -> if (Zygisk.mismatch) SnackbarEvent(R.string.reboot_apply_change).publish()
@@ -109,6 +113,13 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
         viewModelScope.launch {
             RootUtils.addSystemlessHosts()
             AppContext.toast(R.string.settings_hosts_toast, Toast.LENGTH_SHORT)
+        }
+    }
+    
+    private fun clean_ram() {
+        viewModelScope.launch {
+            val v = fastCmd(shell, "sync && echo 3 > /proc/sys/vm/drop_caches")
+            AppContext.toast("Device ram has been cleaned now!", Toast.LENGTH_SHORT)
         }
     }
 }
