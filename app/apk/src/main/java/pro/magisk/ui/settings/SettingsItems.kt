@@ -75,8 +75,8 @@ object RandNameToggle : BaseSettingsItem.Toggle() {
 }
 
 object CleanRam : BaseSettingsItem.Blank() {
-    override val title = TextHolder.String("Clean Device Ram")
-    override val description = TextHolder.String("This will unload all unnecessary items from your ram that loaded before.")
+    override val title = "Clean Device Ram".asText()
+    override val description = "This will unload all unnecessary items from your ram that loaded before.".asText()
 }
 
 // --- Magisk
