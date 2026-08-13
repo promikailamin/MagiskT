@@ -61,8 +61,7 @@ class AppManagerRvItem(
 
     val isSystemApp get() = info.flags and ApplicationInfo.FLAG_SYSTEM != 0
     val isCoreApp get() = isSystemApp && info.uid < 10000
-    val isDisabled get() = info.enabled == PackageManager.COMPONENT_ENABLED_STATE_DISABLED ||
-        info.enabled == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER
+    val isDisabled get() = !info.enabled
 
     val type: AppType get() = when {
         isCoreApp -> AppType.CORE
