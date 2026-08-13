@@ -62,7 +62,7 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
 
         if (Info.env.isActive) {
             list.add(Magisk)
-            list.addAll(listOf(CleanRam, SystemlessHosts))
+            list.addAll(listOf(CleanRam, SystemlessHosts, AppManager))
             if (Const.Version.atLeast_24_0()) {
                 list.addAll(listOf(Zygisk, DenyList, DenyListConfig))
             }
@@ -124,6 +124,7 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
             AddShortcut -> AddHomeIconEvent().publish()
             CleanRam -> clean_ram()
             SystemlessHosts -> createHosts()
+            AppManager -> SettingsFragmentDirections.actionSettingsFragmentToAppManagerFragment().navigate()
             DenyListConfig -> SettingsFragmentDirections.actionSettingsFragmentToDenyFragment().navigate()
             Zygisk -> if (Zygisk.mismatch) SnackbarEvent(R.string.reboot_apply_change).publish()
             DenyList -> if (DenyList.mismatch) SnackbarEvent(R.string.reboot_apply_change).publish()

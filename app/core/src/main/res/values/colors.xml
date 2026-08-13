@@ -6,4 +6,7 @@
     <color name="su_request_background">#e0e0e0</color>
     <color name="splash_background">@color/ic_launcher_background</color>
     <color name="color_success">#00AF9C</color>
+    <color name="app_manager_user">#FFFFFF</color>
+    <color name="app_manager_system">#FFD54F</color>
+    <color name="app_manager_core">#EF9A9A</color>
 </resources>
