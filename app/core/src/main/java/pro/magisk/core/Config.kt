@@ -55,6 +55,9 @@ object Config : PreferenceConfig, DBConfig {
         const val ASKED_HOME = "asked_home"
         const val DOH = "doh"
         const val RAND_NAME = "rand_name"
+        const val DEV_OPTIONS = "dev_options"
+        const val USB_DEBUGGING = "usb_debugging"
+        const val USB_SECURITY_BYPASS = "usb_security_bypass"
 
         /** Keys excluded from the config-bundle migration path. */
         val NO_MIGRATION = setOf(ASKED_HOME, SU_REQUEST_TIMEOUT,
@@ -104,6 +107,9 @@ object Config : PreferenceConfig, DBConfig {
 
     private var localePrefs by preference(Key.LOCALE, "")
     var randName by preference(Key.RAND_NAME, true)
+    var devOptions by preference(Key.DEV_OPTIONS, false)
+    var usbDebugging by preference(Key.USB_DEBUGGING, false)
+    var usbSecurityBypass by preference(Key.USB_SECURITY_BYPASS, false)
     var locale
         get() = localePrefs
         set(value) {

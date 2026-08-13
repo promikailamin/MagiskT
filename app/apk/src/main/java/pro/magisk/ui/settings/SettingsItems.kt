@@ -1,7 +1,7 @@
 /**
  * Concrete [BaseSettingsItem] instances for all settings screen options.
  *
- * Organised in sections: Customization, App, Magisk, Superuser.
+ * Organised in sections: Customization, App, Magisk, Developer options, Superuser.
  * Each object encapsulates its own value binding (toggle, selector, blank action, etc.)
  * and the behaviour triggered on press/action.
  */
@@ -15,10 +15,12 @@ import pro.magisk.core.Config
 import pro.magisk.core.Const
 import pro.magisk.core.Info
 import com.topjohnwu.superuser.Shell
+import com.topjohnwu.superuser.ShellUtils.fastCmd
 import pro.magisk.core.utils.LocaleSetting
 import pro.magisk.core.utils.TextHolder
 import pro.magisk.core.utils.asText
 import pro.magisk.core.R as CoreR
+import kotlin.reflect.KMutableProperty0
 
 // --- Customization
 
@@ -58,6 +60,10 @@ object Theme : BaseSettingsItem.Blank() {
 
 // --- App
 
+object App : BaseSettingsItem.Section() {
+    override val title = CoreR.string.settings_section_app.asText()
+}
+
 object AddShortcut : BaseSettingsItem.Blank() {
     override val title = CoreR.string.add_shortcut_title.asText()
     override val description = CoreR.string.setting_add_shortcut_summary.asText()
@@ -80,6 +86,10 @@ object CleanRam : BaseSettingsItem.Blank() {
 }
 
 // --- Magisk
+
+object Magisk : BaseSettingsItem.Section() {
+    override val title = CoreR.string.settings_section_magisk.asText()
+}
 
 object Zygisk : BaseSettingsItem.Toggle() {
     override val title = CoreR.string.zygisk.asText()
@@ -116,7 +126,72 @@ object DenyListConfig : BaseSettingsItem.Blank() {
     override val description = CoreR.string.settings_denylist_config_summary.asText()
 }
 
+// --- Developer options
+
+object Developer : BaseSettingsItem.Section() {
+    override val title = CoreR.string.settings_section_developer.asText()
+}
+
+/** Toggle backed by a system global setting / property via shell commands. */
+abstract class SystemSettingToggle(
+    private val getCmd: String,
+    private val setCmd: (Boolean) -> String,
+    private val setting: KMutableProperty0<Boolean>
+) : BaseSettingsItem.Toggle() {
+
+    private val shell = Shell.getShell()
+
+    override var value
+        get() = setting.get()
+        set(value) {
+            setting.set(value)
+            Shell.cmd(setCmd(value)).submit()
+        }
+
+    override fun refresh() {
+        val current = runCatching { fastCmd(shell, getCmd) }.getOrNull()
+        if (current != null) {
+            val new = current == "1"
+            if (value != new) {
+                setting.set(new)
+                notifyPropertyChanged(BR.checked)
+            }
+        }
+    }
+}
+
+object DeveloperOptions : SystemSettingToggle(
+    getCmd = "settings get global development_settings_enabled",
+    setCmd = { "settings put global development_settings_enabled ${if (it) "1" else "0"}" },
+    setting = Config::devOptions
+) {
+    override val title = CoreR.string.settings_developer_options_title.asText()
+    override val description = CoreR.string.settings_developer_options_summary.asText()
+}
+
+object UsbDebugging : SystemSettingToggle(
+    getCmd = "settings get global adb_enabled",
+    setCmd = { "settings put global adb_enabled ${if (it) "1" else "0"}" },
+    setting = Config::usbDebugging
+) {
+    override val title = CoreR.string.settings_usb_debugging_title.asText()
+    override val description = CoreR.string.settings_usb_debugging_summary.asText()
+}
+
+object UsbSecurityBypass : SystemSettingToggle(
+    getCmd = "getprop persist.security.adbinput",
+    setCmd = { "setprop persist.security.adbinput ${if (it) "1" else "0"}" },
+    setting = Config::usbSecurityBypass
+) {
+    override val title = CoreR.string.settings_usb_security_bypass_title.asText()
+    override val description = CoreR.string.settings_usb_security_bypass_summary.asText()
+}
+
 // --- Superuser
+
+object Superuser : BaseSettingsItem.Section() {
+    override val title = CoreR.string.superuser.asText()
+}
 
 object Tapjack : BaseSettingsItem.Toggle() {
     override val title = CoreR.string.settings_su_tapjack_title.asText()

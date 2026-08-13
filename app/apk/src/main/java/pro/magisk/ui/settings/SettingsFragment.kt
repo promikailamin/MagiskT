@@ -34,7 +34,7 @@ class SettingsFragment : BaseFragment<FragmentSettingsMd2Binding>() {
         super.onViewCreated(view, savedInstanceState)
         binding.settingsList.apply {
             addEdgeSpacing(bottom = R.dimen.l1)
-            addItemSpacing(R.dimen.l1, R.dimen.l_50, R.dimen.l1)
+            addItemSpacing(R.dimen.l1, R.dimen.settings_group_gap, R.dimen.l1)
             fixEdgeEffect()
         }
     }

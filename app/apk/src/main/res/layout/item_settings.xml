@@ -18,6 +18,7 @@
     <com.google.android.material.card.MaterialCardView
         style="@style/WidgetFoundation.Card"
         isEnabled="@{item.enabled}"
+        app:cardGroupStyle="@{item.groupStyle}"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="8dp"

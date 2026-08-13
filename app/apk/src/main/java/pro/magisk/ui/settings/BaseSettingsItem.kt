@@ -25,6 +25,9 @@ import pro.magisk.databinding.ObservableRvItem
 import pro.magisk.databinding.set
 import pro.magisk.view.MagiskDialog
 
+/** Corner treatment of a settings card within its group. */
+enum class CardGroupStyle { SINGLE, FIRST, MIDDLE, LAST }
+
 /** Base sealed class for all settings list item types. */
 sealed class BaseSettingsItem : ObservableRvItem() {
 
@@ -42,6 +45,9 @@ sealed class BaseSettingsItem : ObservableRvItem() {
     @get:Bindable
     var isEnabled = true
         set(value) = set(value, field, { field = it }, BR.enabled, BR.description)
+
+    /** Corner treatment applied by the host list when grouping items into cards. */
+    var groupStyle = CardGroupStyle.SINGLE
 
     open fun onPressed(view: View, handler: Handler) {
         handler.onItemPressed(view, this) {

@@ -46,12 +46,14 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
+import com.google.android.material.shape.CornerFamily
 import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputLayout
 import pro.magisk.R
 import pro.magisk.core.di.ServiceLocator
 import pro.magisk.core.model.su.SuPolicy
 import pro.magisk.core.utils.TextHolder
+import pro.magisk.ui.settings.CardGroupStyle
 import com.topjohnwu.superuser.internal.UiThreadHandler
 import com.topjohnwu.widget.IndeterminateCheckBox
 import kotlin.math.roundToInt
@@ -213,6 +215,27 @@ fun Button.setIcon(drawable: Drawable) {
 @BindingAdapter("strokeWidth")
 fun MaterialCardView.setCardStrokeWidthBound(stroke: Float) {
     strokeWidth = stroke.roundToInt()
+}
+
+@BindingAdapter("cardGroupStyle")
+fun MaterialCardView.setCardGroupStyle(style: CardGroupStyle?) {
+    val corner = resources.getDimension(R.dimen.settings_card_corner_radius)
+    val builder = shapeAppearanceModel.toBuilder()
+    when (style) {
+        CardGroupStyle.FIRST -> builder
+            .setTopLeftCorner(CornerFamily.ROUNDED, corner)
+            .setTopRightCorner(CornerFamily.ROUNDED, corner)
+            .setBottomLeftCorner(CornerFamily.ROUNDED, 0f)
+            .setBottomRightCorner(CornerFamily.ROUNDED, 0f)
+        CardGroupStyle.MIDDLE -> builder.setAllCorners(CornerFamily.ROUNDED, 0f)
+        CardGroupStyle.LAST -> builder
+            .setTopLeftCorner(CornerFamily.ROUNDED, 0f)
+            .setTopRightCorner(CornerFamily.ROUNDED, 0f)
+            .setBottomLeftCorner(CornerFamily.ROUNDED, corner)
+            .setBottomRightCorner(CornerFamily.ROUNDED, corner)
+        CardGroupStyle.SINGLE, null -> Unit
+    }
+    shapeAppearanceModel = builder.build()
 }
 
 @BindingAdapter("onMenuClick")

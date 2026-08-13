@@ -53,22 +53,26 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
 
         val list = mutableListOf(
             Customization,
-            Theme, if (LocaleSetting.useLocaleManager) LanguageSystem else Language
+            Theme, if (LocaleSetting.useLocaleManager) LanguageSystem else Language,
+            App
         )
         if (isRunningAsStub && ShortcutManagerCompat.isRequestPinShortcutSupported(context))
             list.add(AddShortcut)
+        list.add(RandNameToggle)
 
-        list.addAll(listOf(
-            RandNameToggle
-        ))
         if (Info.env.isActive) {
+            list.add(Magisk)
             list.addAll(listOf(CleanRam, SystemlessHosts))
             if (Const.Version.atLeast_24_0()) {
                 list.addAll(listOf(Zygisk, DenyList, DenyListConfig))
             }
+
+            list.add(Developer)
+            list.addAll(listOf(DeveloperOptions, UsbDebugging, UsbSecurityBypass))
         }
 
         if (Info.showSuperUser) {
+            list.add(Superuser)
             list.addAll(listOf(
                 Tapjack, Authentication, AccessMode, MultiuserMode,
                 MountNamespaceMode, AutomaticResponse, RequestTimeout, SUNotification
@@ -84,7 +88,25 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
             }
         }
 
+        applyGroupStyles(list)
         return list
+    }
+
+    /** Marks each run of non-section items with its card corner treatment. */
+    private fun applyGroupStyles(items: List<BaseSettingsItem>) {
+        val group = mutableListOf<BaseSettingsItem>()
+        fun flush() {
+            if (group.isEmpty()) return
+            group.first().groupStyle =
+                if (group.size == 1) CardGroupStyle.SINGLE else CardGroupStyle.FIRST
+            for (i in 1 until group.size - 1) group[i].groupStyle = CardGroupStyle.MIDDLE
+            if (group.size > 1) group.last().groupStyle = CardGroupStyle.LAST
+            group.clear()
+        }
+        for (item in items) {
+            if (item is BaseSettingsItem.Section) flush() else group.add(item)
+        }
+        flush()
     }
 
     override fun onItemPressed(view: View, item: BaseSettingsItem, doAction: () -> Unit) {
