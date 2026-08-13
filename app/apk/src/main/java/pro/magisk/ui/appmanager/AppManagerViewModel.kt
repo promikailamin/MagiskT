@@ -23,6 +23,7 @@ import pro.magisk.core.R
 import pro.magisk.core.ktx.concurrentMap
 import pro.magisk.databinding.bindExtra
 import pro.magisk.databinding.diffList
+import pro.magisk.databinding.set
 import pro.magisk.dialog.AppManagerDialog
 import pro.magisk.events.SnackbarEvent
 import com.topjohnwu.superuser.Shell
