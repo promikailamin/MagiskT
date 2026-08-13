@@ -16,5 +16,7 @@
     <dimen name="settings_group_gap">2dp</dimen>
     <dimen name="settings_card_corner_radius">28dp</dimen>
 
+    <dimen name="app_manager_card_stroke_width">2dp</dimen>
+
     <dimen name="internal_action_bar_size">72dp</dimen>
 </resources>

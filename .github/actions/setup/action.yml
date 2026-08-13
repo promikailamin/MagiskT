@@ -9,6 +9,31 @@ inputs:
   cache-key-prefix:
     required: false
     default: ''
+outputs:
+  sccache-cache-hit:
+    description: Whether the sccache cache was restored exactly
+    value: ${{ steps.sccache-cache.outputs.cache-hit }}
+  sccache-cache-key:
+    description: Primary cache key for sccache
+    value: ${{ steps.sccache-cache.outputs.cache-primary-key }}
+  gradle-cache-hit:
+    description: Whether the Gradle dependency cache was restored exactly
+    value: ${{ steps.gradle-cache.outputs.cache-hit }}
+  gradle-cache-key:
+    description: Primary cache key for Gradle dependencies
+    value: ${{ steps.gradle-cache.outputs.cache-primary-key }}
+  gradle-build-cache-hit:
+    description: Whether the Gradle build cache was restored exactly
+    value: ${{ steps.gradle-build-cache.outputs.cache-hit }}
+  gradle-build-cache-key:
+    description: Primary cache key for the Gradle build cache
+    value: ${{ steps.gradle-build-cache.outputs.cache-primary-key }}
+  ondk-cache-hit:
+    description: Whether the ONDK cache was restored exactly
+    value: ${{ steps.ondk-cache.outputs.cache-hit }}
+  ondk-cache-key:
+    description: Primary cache key for ONDK
+    value: ${{ steps.ondk-cache.outputs.cache-primary-key }}
 runs:
   using: "composite"
   steps:
@@ -38,15 +63,16 @@ runs:
     # Rolling sccache cache. The key only changes when native/toolchain inputs
     # change, so entries stay small and hit across most commits. restore-keys
     # falls back to the newest entry for this build type (then any build type).
-    - name: Cache sccache
-      uses: actions/cache@v5
+    # Saving is done by the caller at job end via actions/cache/save.
+    - name: Restore sccache
+      id: sccache-cache
+      uses: actions/cache/restore@v5
       with:
         path: .sccache
         key: sccache-${{ runner.os }}-${{ inputs.cache-key-prefix }}-${{ hashFiles('native/src/**', 'scripts/**', 'config.prop', 'tools/**', '.github/actions/setup/**') }}
         restore-keys: |
           sccache-${{ runner.os }}-${{ inputs.cache-key-prefix }}-
           sccache-${{ runner.os }}-
-        save-always: true
 
     - name: Set up sccache
       shell: bash
@@ -71,8 +97,9 @@ runs:
 
     # Gradle dependency cache. Keyed by dependency descriptor files so it is
     # refreshed only when dependencies actually change.
-    - name: Cache Gradle dependencies
-      uses: actions/cache@v5
+    - name: Restore Gradle dependencies
+      id: gradle-cache
+      uses: actions/cache/restore@v5
       with:
         path: |
           .gradle/caches
@@ -80,19 +107,18 @@ runs:
           !.gradle/caches/build-cache-*
         key: gradle-cache-${{ runner.os }}-${{ hashFiles('app/gradle/**', 'app/gradle.properties', 'app/build.gradle.kts', 'app/settings.gradle.kts') }}
         restore-keys: gradle-cache-${{ runner.os }}-
-        save-always: true
 
     # Gradle build cache. Keyed by source + config so it is refreshed whenever
     # app/native inputs change, without creating an entry per commit.
-    - name: Cache Gradle build cache
-      uses: actions/cache@v5
+    - name: Restore Gradle build cache
+      id: gradle-build-cache
+      uses: actions/cache/restore@v5
       with:
         path: .gradle/caches/build-cache-*
         key: gradle-build-cache-${{ runner.os }}-${{ inputs.cache-key-prefix }}-${{ hashFiles('app/**/src/**', 'app/gradle/**', 'app/gradle.properties', 'app/build.gradle.kts', 'app/settings.gradle.kts', 'config.prop', 'build.py', 'native/src/**') }}
         restore-keys: |
           gradle-build-cache-${{ runner.os }}-${{ inputs.cache-key-prefix }}-
           gradle-build-cache-${{ runner.os }}-
-        save-always: true
 
     # Cache the extracted Magisk NDK (ONDK). This skips the multi-minute
     # download on every run AND keeps the compiler binaries byte-identical
@@ -101,14 +127,13 @@ runs:
       shell: bash
       run: echo "NDK_CACHE_PATH=$ANDROID_HOME/ndk/magisk" >> "$GITHUB_ENV"
 
-    - name: Cache ONDK
+    - name: Restore ONDK
       id: ondk-cache
-      uses: actions/cache@v5
+      uses: actions/cache/restore@v5
       with:
         path: ${{ env.NDK_CACHE_PATH }}
         key: ondk-${{ runner.os }}-${{ hashFiles('scripts/env.py') }}
         restore-keys: ondk-${{ runner.os }}-
-        save-always: true
 
     - name: Set up NDK
       if: steps.ondk-cache.outputs.cache-hit != 'true'

@@ -74,6 +74,11 @@ object SystemlessHosts : BaseSettingsItem.Blank() {
     override val description = CoreR.string.settings_hosts_summary.asText()
 }
 
+object AppManager : BaseSettingsItem.Blank() {
+    override val title = CoreR.string.app_manager_title.asText()
+    override val description = CoreR.string.app_manager_summary.asText()
+}
+
 object RandNameToggle : BaseSettingsItem.Toggle() {
     override val title = CoreR.string.settings_random_name_title.asText()
     override val description = CoreR.string.settings_random_name_description.asText()

@@ -276,4 +276,30 @@
     <string name="app_not_found">No app found to handle this action</string>
     <string name="reboot_apply_change">Reboot to apply changes</string>
     <string name="restore_app_confirmation">This will restore the hidden app back to the original app. Do you really want to do this?</string>
+
+    <!--App manager-->
+    <string name="app_manager_title">App manager</string>
+    <string name="app_manager_summary">Manage installed apps</string>
+    <string name="app_manager_uninstall">Uninstall</string>
+    <string name="app_manager_uninstall_user">!Uninstall</string>
+    <string name="app_manager_disable">Disable</string>
+    <string name="app_manager_enable">Enable</string>
+    <string name="app_manager_search_hint">Search apps</string>
+    <string name="app_manager_info_name">App name</string>
+    <string name="app_manager_info_package">Package name</string>
+    <string name="app_manager_info_install_dir">Installed directory</string>
+    <string name="app_manager_info_data_dir1">Data directory (external)</string>
+    <string name="app_manager_info_data_dir2">Data directory (internal)</string>
+    <string name="app_manager_info_version">Version</string>
+    <string name="app_manager_info_size">App size</string>
+    <string name="app_manager_info_signature">Signature</string>
+    <string name="app_manager_info_uid">App UID</string>
+    <string name="app_manager_info_install_time">Installed time</string>
+    <string name="app_manager_info_install_source">Install source</string>
+    <string name="app_manager_uninstall_success">App uninstalled</string>
+    <string name="app_manager_uninstall_failed">Uninstall failed</string>
+    <string name="app_manager_disable_success">App disabled</string>
+    <string name="app_manager_disable_failed">Disable failed</string>
+    <string name="app_manager_enable_success">App enabled</string>
+    <string name="app_manager_enable_failed">Enable failed</string>
 </resources>

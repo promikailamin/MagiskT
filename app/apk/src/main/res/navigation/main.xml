@@ -108,7 +108,21 @@
             app:popEnterAnim="@anim/fragment_enter_pop"
             app:popExitAnim="@anim/fragment_exit_pop" />
 
+        <action
+            android:id="@+id/action_settingsFragment_to_appManagerFragment"
+            app:destination="@id/appManagerFragment"
+            app:enterAnim="@anim/fragment_enter"
+            app:exitAnim="@anim/fragment_exit"
+            app:popEnterAnim="@anim/fragment_enter_pop"
+            app:popExitAnim="@anim/fragment_exit_pop" />
+
     </fragment>
+
+    <fragment
+        android:id="@+id/appManagerFragment"
+        android:name="pro.magisk.ui.appmanager.AppManagerFragment"
+        android:label="AppManagerFragment"
+        tools:layout="@layout/fragment_app_manager_md2" />
 
     <fragment
         android:id="@+id/superuserFragment"
