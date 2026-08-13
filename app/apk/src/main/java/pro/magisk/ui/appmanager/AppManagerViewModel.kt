@@ -22,8 +22,7 @@ import pro.magisk.core.AppContext
 import pro.magisk.core.R
 import pro.magisk.core.ktx.concurrentMap
 import pro.magisk.databinding.bindExtra
-import pro.magisk.databinding.filterList
-import pro.magisk.databinding.set
+import pro.magisk.databinding.diffList
 import pro.magisk.dialog.AppManagerDialog
 import pro.magisk.events.SnackbarEvent
 import com.topjohnwu.superuser.Shell
@@ -42,7 +41,7 @@ import java.util.Locale
 /** ViewModel for the App manager screen. */
 class AppManagerViewModel : AsyncLoadViewModel() {
 
-    val items = filterList<AppManagerRvItem>(viewModelScope)
+    val items = diffList<AppManagerRvItem>()
     val extraBindings = bindExtra {
         it.put(BR.viewModel, this)
     }
@@ -65,7 +64,7 @@ class AppManagerViewModel : AsyncLoadViewModel() {
             apps.sort()
             apps
         }
-        items.set(apps)
+        items.update(apps)
         loading = false
     }
 
