@@ -143,21 +143,21 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text='@{@string/app_manager_info_version + ": " + (item.detail?.version ?? "")}'
+                        android:text='@{@string/app_manager_info_version + ": " + (item.detail.version ?? "")}'
                         android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
                         tools:text="Version: 1.0 (1)" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text='@{@string/app_manager_info_size + ": " + (item.detail?.size ?? "")}'
+                        android:text='@{@string/app_manager_info_size + ": " + (item.detail.size ?? "")}'
                         android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
                         tools:text="App size: 100 MB" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text='@{@string/app_manager_info_signature + ": " + (item.detail?.signature ?? "")}'
+                        android:text='@{@string/app_manager_info_signature + ": " + (item.detail.signature ?? "")}'
                         android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
                         tools:text="Signature: AB:CD" />
 
@@ -171,14 +171,14 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text='@{@string/app_manager_info_install_time + ": " + (item.detail?.installTime ?? "")}'
+                        android:text='@{@string/app_manager_info_install_time + ": " + (item.detail.installTime ?? "")}'
                         android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
                         tools:text="Installed time: 2026-01-01" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text='@{@string/app_manager_info_install_source + ": " + (item.detail?.installSource ?? "")}'
+                        android:text='@{@string/app_manager_info_install_source + ": " + (item.detail.installSource ?? "")}'
                         android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
                         tools:text="Install source: Play Store" />
 
