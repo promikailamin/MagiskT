@@ -5,7 +5,8 @@
  * user / system / core apps. App details (version, size, signature, install
  * time/source) are gathered on demand when an item is expanded.
  * Uninstall uses `pm uninstall` (with `pm uninstall --user 0` for system apps),
- * disable uses `pm disable-user`.
+ * enable/disable uses `pm enable` / `pm disable-user`. A search query filters
+ * the list by app name or package name.
  */
 package pro.magisk.ui.appmanager
 
@@ -26,7 +27,7 @@ import pro.magisk.core.AppContext
 import pro.magisk.core.R
 import pro.magisk.core.ktx.concurrentMap
 import pro.magisk.databinding.bindExtra
-import pro.magisk.databinding.diffList
+import pro.magisk.databinding.filterList
 import pro.magisk.databinding.set
 import pro.magisk.events.SnackbarEvent
 import com.topjohnwu.superuser.Shell
@@ -47,10 +48,17 @@ class AppManagerViewModel : AsyncLoadViewModel() {
 
     private var expandedItem: AppManagerRvItem? = null
 
-    val items = diffList<AppManagerRvItem>()
+    val items = filterList<AppManagerRvItem>(viewModelScope)
     val extraBindings = bindExtra {
         it.put(BR.viewModel, this)
     }
+
+    /** Search query filtering the list by app name or package name. */
+    var query = ""
+        set(value) {
+            field = value
+            doQuery()
+        }
 
     @get:Bindable
     var loading = true
@@ -71,8 +79,15 @@ class AppManagerViewModel : AsyncLoadViewModel() {
             apps.sort()
             apps
         }
-        items.update(apps)
+        items.set(apps)
+        doQuery()
         loading = false
+    }
+
+    /** Refilters the visible list by the current search query. */
+    private fun doQuery() {
+        val q = query
+        items.filter { it.label.contains(q, true) || it.packageName.contains(q, true) }
     }
 
     /** Expands the tapped item (collapsing any other expanded one) with a fast animation. */
@@ -115,13 +130,21 @@ class AppManagerViewModel : AsyncLoadViewModel() {
         }
     }
 
-    fun disable(item: AppManagerRvItem) {
+    /** Enables or disables the app depending on its current state. */
+    fun toggleEnabled(item: AppManagerRvItem) {
         viewModelScope.launch {
             val success = withContext(Dispatchers.IO) {
-                Shell.cmd("pm disable-user ${item.packageName}").exec().isSuccess
+                val cmd = if (item.isDisabled) "pm enable ${item.packageName}"
+                    else "pm disable-user ${item.packageName}"
+                Shell.cmd(cmd).exec().isSuccess
             }
-            SnackbarEvent(if (success) R.string.app_manager_disable_success
-                else R.string.app_manager_disable_failed).publish()
+            val res = when {
+                success && item.isDisabled -> R.string.app_manager_enable_success
+                success -> R.string.app_manager_disable_success
+                item.isDisabled -> R.string.app_manager_enable_failed
+                else -> R.string.app_manager_disable_failed
+            }
+            SnackbarEvent(res).publish()
             if (success) reload()
         }
     }

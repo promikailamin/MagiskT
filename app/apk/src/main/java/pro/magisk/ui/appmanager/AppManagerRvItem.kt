@@ -3,9 +3,9 @@
  *
  * [AppManagerRvItem] wraps an installed application, classifying it into three
  * categories for visual distinction:
- * - [AppType.USER] — user-installed apps (shown white)
- * - [AppType.SYSTEM] — system apps that can be disabled (shown in warning color)
- * - [AppType.CORE] — core system apps that cannot be disabled (shown in error color)
+ * - [AppType.USER] — user-installed apps (no card outline)
+ * - [AppType.SYSTEM] — system apps that can be disabled (warning outline)
+ * - [AppType.CORE] — core system apps that cannot be disabled (error outline)
  *
  * Detailed app information (version, size, signature, install time/source) is
  * gathered on demand by the ViewModel when the item is expanded.
@@ -14,6 +14,7 @@ package pro.magisk.ui.appmanager
 
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import androidx.databinding.Bindable
@@ -47,7 +48,10 @@ class AppManagerRvItem(
 
     override val layoutRes get() = R.layout.item_app_manager_md2
 
-    val label = info.getLabel(pm)
+    private val baseLabel = info.getLabel(pm)
+
+    /** App label, suffixed with "(disabled)" when the app is currently disabled. */
+    val label: String get() = if (isDisabled) "$baseLabel (disabled)" else baseLabel
     val iconImage: Drawable =
         runCatching { info.loadIcon(pm) }.getOrDefault(pm.defaultActivityIcon)
     val packageName get() = info.packageName
@@ -57,6 +61,7 @@ class AppManagerRvItem(
 
     val isSystemApp get() = info.flags and ApplicationInfo.FLAG_SYSTEM != 0
     val isCoreApp get() = isSystemApp && info.uid < 10000
+    val isDisabled get() = info.flags and ApplicationInfo.FLAG_DISABLED != 0
 
     val type: AppType get() = when {
         isCoreApp -> AppType.CORE
@@ -69,12 +74,12 @@ class AppManagerRvItem(
     /** System apps can't be fully removed, they need `pm uninstall --user 0`. */
     val needsUserUninstall get() = isSystemApp
 
-    /** Card background color by app type (text stays in the default color). */
-    val backgroundColor: Int get() = ContextCompat.getColor(AppContext, when (type) {
-        AppType.USER -> CoreR.color.app_manager_user
-        AppType.SYSTEM -> CoreR.color.app_manager_system
-        AppType.CORE -> CoreR.color.app_manager_core
-    })
+    /** Card outline color by app type (card background stays the default). */
+    val strokeColor: Int get() = when (type) {
+        AppType.USER -> Color.TRANSPARENT
+        AppType.SYSTEM -> ContextCompat.getColor(AppContext, CoreR.color.app_manager_system)
+        AppType.CORE -> ContextCompat.getColor(AppContext, CoreR.color.app_manager_core)
+    }
 
     val dataDir1 get() = "/storage/emulated/0/Android/data/$packageName"
     val dataDir2 get() = dataDir.ifBlank { "/data/data/$packageName" }
@@ -96,8 +101,9 @@ class AppManagerRvItem(
     override fun compareTo(other: AppManagerRvItem) = comparator.compare(this, other)
 
     companion object {
+        /** Sorts by type (user → system → core), then alphabetically by label. */
         private val comparator = compareBy<AppManagerRvItem>(
-            { it.label.lowercase(Locale.ROOT) }, { it.packageName }
+            { it.type.ordinal }, { it.label.lowercase(Locale.ROOT) }, { it.packageName }
         )
     }
 }

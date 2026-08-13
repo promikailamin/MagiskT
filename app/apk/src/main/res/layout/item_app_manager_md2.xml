@@ -20,7 +20,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:focusable="false"
-        app:cardBackgroundColor="@{item.backgroundColor}"
+        app:strokeColor="@{item.strokeColor}"
+        app:strokeWidth="@dimen/app_manager_card_stroke_width"
         tools:layout_gravity="center"
         tools:layout_marginBottom="@dimen/l1">
 
@@ -197,8 +198,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/l_50"
-                        android:onClick="@{() -> viewModel.disable(item)}"
-                        android:text="@string/app_manager_disable"
+                        android:onClick="@{() -> viewModel.toggleEnabled(item)}"
+                        android:text="@{item.isDisabled ? @string/app_manager_enable : @string/app_manager_disable}"
                         tools:text="Disable" />
 
                 </LinearLayout>

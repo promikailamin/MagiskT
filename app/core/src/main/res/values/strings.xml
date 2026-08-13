@@ -283,6 +283,8 @@
     <string name="app_manager_uninstall">Uninstall</string>
     <string name="app_manager_uninstall_user">!Uninstall</string>
     <string name="app_manager_disable">Disable</string>
+    <string name="app_manager_enable">Enable</string>
+    <string name="app_manager_search_hint">Search apps</string>
     <string name="app_manager_info_name">App name</string>
     <string name="app_manager_info_package">Package name</string>
     <string name="app_manager_info_install_dir">Installed directory</string>
@@ -298,4 +300,6 @@
     <string name="app_manager_uninstall_failed">Uninstall failed</string>
     <string name="app_manager_disable_success">App disabled</string>
     <string name="app_manager_disable_failed">Disable failed</string>
+    <string name="app_manager_enable_success">App enabled</string>
+    <string name="app_manager_enable_failed">Enable failed</string>
 </resources>

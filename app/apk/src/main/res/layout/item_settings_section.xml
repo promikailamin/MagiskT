@@ -11,9 +11,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="@dimen/l1"
-        android:paddingBottom="@dimen/l_50" />
+        android:layout_height="@dimen/settings_group_gap"
+        android:orientation="vertical" />
 
 </layout>
