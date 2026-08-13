@@ -24,6 +24,7 @@ import pro.magisk.core.ktx.concurrentMap
 import pro.magisk.databinding.bindExtra
 import pro.magisk.databinding.filterList
 import pro.magisk.databinding.set
+import pro.magisk.dialog.AppManagerDialog
 import pro.magisk.events.SnackbarEvent
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.ShellUtils.fastCmd
@@ -126,7 +127,7 @@ class AppManagerViewModel : AsyncLoadViewModel() {
                     append(it.versionName ?: "")
                     if (it.versionCode > 0) append(" (${it.versionCode})")
                 }
-            }.takeIf { it.isNotBlank() } ?: "?",
+            }.takeIf { !it.isNullOrBlank() } ?: "?",
             size = appSize(item),
             signature = signature(pkg),
             installTime = pkgInfo?.firstInstallTime
