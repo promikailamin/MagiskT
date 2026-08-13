@@ -6,15 +6,14 @@
  */
 package pro.magisk.ui.settings
 
-import android.graphics.Rect
 import android.os.Bundle
 import android.view.View
-import androidx.recyclerview.widget.RecyclerView
 import pro.magisk.R
 import pro.magisk.arch.BaseFragment
 import pro.magisk.arch.viewModel
 import pro.magisk.databinding.FragmentSettingsMd2Binding
 import rikka.recyclerview.addEdgeSpacing
+import rikka.recyclerview.addItemSpacing
 import rikka.recyclerview.fixEdgeEffect
 import pro.magisk.core.R as CoreR
 
@@ -34,26 +33,8 @@ class SettingsFragment : BaseFragment<FragmentSettingsMd2Binding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.settingsList.apply {
-            addEdgeSpacing(top = R.dimen.l1, bottom = R.dimen.l1)
-            val gap = resources.getDimensionPixelSize(R.dimen.l1) / 2
-            addItemDecoration(object : RecyclerView.ItemDecoration() {
-                override fun getItemOffsets(
-                    outRect: Rect,
-                    view: View,
-                    parent: RecyclerView,
-                    state: RecyclerView.State
-                ) {
-                    val pos = parent.getChildAdapterPosition(view)
-                    if (pos == RecyclerView.NO_POSITION) return
-                    if (viewModel.items[pos] is BaseSettingsItem.Section) {
-                        outRect.top = -gap
-                        outRect.bottom = -gap
-                    } else {
-                        outRect.top = gap
-                        outRect.bottom = gap
-                    }
-                }
-            })
+            addEdgeSpacing(bottom = R.dimen.l1)
+            addItemSpacing(R.dimen.l1, R.dimen.settings_group_gap, R.dimen.l1)
             fixEdgeEffect()
         }
     }
