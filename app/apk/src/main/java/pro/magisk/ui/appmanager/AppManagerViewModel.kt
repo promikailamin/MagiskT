@@ -2,9 +2,9 @@
  * ViewModel for the App manager screen.
  *
  * Loads all installed applications (excluding self) and classifies them as
- * user / system / core apps. Opening an app's info dialog gathers detailed
- * information (version, size, signature, install time/source) on demand.
- * Uninstall uses `pm uninstall` with a `pm uninstall --user 0` fallback,
+ * user / system / core apps. App details (version, size, signature, install
+ * time/source) are gathered on demand when an item is expanded.
+ * Uninstall uses `pm uninstall` (with `pm uninstall --user 0` for system apps),
  * disable uses `pm disable-user`.
  */
 package pro.magisk.ui.appmanager
@@ -14,17 +14,20 @@ import android.content.pm.PackageManager.GET_SIGNATURES
 import android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES
 import android.content.pm.PackageManager.MATCH_UNINSTALLED_PACKAGES
 import android.os.Build
+import android.view.View
+import android.view.ViewParent
 import androidx.databinding.Bindable
 import androidx.lifecycle.viewModelScope
+import androidx.recyclerview.widget.RecyclerView
 import pro.magisk.BR
 import pro.magisk.arch.AsyncLoadViewModel
+import pro.magisk.arch.startAnimations
 import pro.magisk.core.AppContext
 import pro.magisk.core.R
 import pro.magisk.core.ktx.concurrentMap
 import pro.magisk.databinding.bindExtra
 import pro.magisk.databinding.diffList
 import pro.magisk.databinding.set
-import pro.magisk.dialog.AppManagerDialog
 import pro.magisk.events.SnackbarEvent
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.ShellUtils.fastCmd
@@ -42,6 +45,8 @@ import java.util.Locale
 /** ViewModel for the App manager screen. */
 class AppManagerViewModel : AsyncLoadViewModel() {
 
+    private var expandedItem: AppManagerRvItem? = null
+
     val items = diffList<AppManagerRvItem>()
     val extraBindings = bindExtra {
         it.put(BR.viewModel, this)
@@ -54,6 +59,7 @@ class AppManagerViewModel : AsyncLoadViewModel() {
     @SuppressLint("InlinedApi")
     override suspend fun doLoadWork() {
         loading = true
+        expandedItem = null
         val apps = withContext(Dispatchers.Default) {
             val pm = AppContext.packageManager
             val apps = pm.getInstalledApplications(MATCH_UNINSTALLED_PACKAGES).run {
@@ -69,24 +75,39 @@ class AppManagerViewModel : AsyncLoadViewModel() {
         loading = false
     }
 
-    /** Gathers detailed info and shows the app info dialog. */
-    fun showAppInfo(item: AppManagerRvItem) {
-        viewModelScope.launch {
-            val detail = withContext(Dispatchers.IO) { gatherDetail(item) }
-            AppManagerDialog(
-                item, detail,
-                onUninstall = { uninstall(item) },
-                onDisable = { disable(item) }
-            ).show()
+    /** Expands the tapped item (collapsing any other expanded one) with a fast animation. */
+    fun onItemClick(item: AppManagerRvItem, v: View) {
+        var parent: ViewParent? = v.parent
+        while (parent != null && parent !is RecyclerView) parent = parent.parent
+        (parent as? RecyclerView)?.startAnimations(FAST_ANIMATION_DURATION)
+        if (expandedItem != item) {
+            expandedItem?.isExpanded = false
+            expandedItem = item
+            item.isExpanded = true
+            if (item.detail == null) loadDetail(item)
+        } else {
+            item.isExpanded = false
+            expandedItem = null
         }
     }
 
-    private fun uninstall(item: AppManagerRvItem) {
+    /** Lazily gathers app detail into the item once it is expanded. */
+    private fun loadDetail(item: AppManagerRvItem) {
+        viewModelScope.launch {
+            item.detail = withContext(Dispatchers.IO) { gatherDetail(item) }
+        }
+    }
+
+    fun uninstall(item: AppManagerRvItem) {
         viewModelScope.launch {
             val success = withContext(Dispatchers.IO) {
                 val pkg = item.packageName
-                val first = Shell.cmd("pm uninstall $pkg").exec()
-                first.isSuccess || Shell.cmd("pm uninstall --user 0 $pkg").exec().isSuccess
+                val (primary, fallback) = if (item.needsUserUninstall) {
+                    "pm uninstall --user 0 $pkg" to "pm uninstall $pkg"
+                } else {
+                    "pm uninstall $pkg" to "pm uninstall --user 0 $pkg"
+                }
+                Shell.cmd(primary).exec().isSuccess || Shell.cmd(fallback).exec().isSuccess
             }
             SnackbarEvent(if (success) R.string.app_manager_uninstall_success
                 else R.string.app_manager_uninstall_failed).publish()
@@ -94,7 +115,7 @@ class AppManagerViewModel : AsyncLoadViewModel() {
         }
     }
 
-    private fun disable(item: AppManagerRvItem) {
+    fun disable(item: AppManagerRvItem) {
         viewModelScope.launch {
             val success = withContext(Dispatchers.IO) {
                 Shell.cmd("pm disable-user ${item.packageName}").exec().isSuccess
@@ -187,5 +208,9 @@ class AppManagerViewModel : AsyncLoadViewModel() {
             }
         }.getOrNull()
         return source?.takeIf { it.isNotBlank() } ?: "?"
+    }
+
+    companion object {
+        private const val FAST_ANIMATION_DURATION = 150L
     }
 }

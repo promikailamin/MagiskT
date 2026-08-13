@@ -146,10 +146,10 @@ abstract class UIActivity<Binding : ViewDataBinding>
 }
 
 /** Applies an [AutoTransition] animation to this [ViewGroup] for layout changes. */
-fun ViewGroup.startAnimations() {
+fun ViewGroup.startAnimations(duration: Long = 400) {
     val transition = AutoTransition()
         .setInterpolator(FastOutSlowInInterpolator())
-        .setDuration(400)
+        .setDuration(duration)
 
     TransitionManager.beginDelayedTransition(
         this,

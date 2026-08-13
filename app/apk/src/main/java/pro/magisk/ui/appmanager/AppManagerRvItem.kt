@@ -8,7 +8,7 @@
  * - [AppType.CORE] — core system apps that cannot be disabled (shown in error color)
  *
  * Detailed app information (version, size, signature, install time/source) is
- * gathered on demand by the ViewModel when the info dialog is opened.
+ * gathered on demand by the ViewModel when the item is expanded.
  */
 package pro.magisk.ui.appmanager
 
@@ -16,18 +16,21 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
+import androidx.databinding.Bindable
+import pro.magisk.BR
 import pro.magisk.R
 import pro.magisk.core.AppContext
 import pro.magisk.core.ktx.getLabel
 import pro.magisk.databinding.DiffItem
 import pro.magisk.databinding.ObservableRvItem
+import pro.magisk.databinding.set
 import pro.magisk.core.R as CoreR
 import java.util.Locale
 
 /** Classification of an installed app on the App manager screen. */
 enum class AppType { USER, SYSTEM, CORE }
 
-/** Extra detail gathered lazily when the app info dialog is opened. */
+/** Extra detail gathered lazily when an app item is expanded. */
 data class AppDetail(
     val version: String,
     val size: String,
@@ -63,11 +66,27 @@ class AppManagerRvItem(
 
     val canDisable get() = type != AppType.CORE
 
-    val nameColor: Int get() = ContextCompat.getColor(AppContext, when (type) {
+    /** System apps can't be fully removed, they need `pm uninstall --user 0`. */
+    val needsUserUninstall get() = isSystemApp
+
+    /** Card background color by app type (text stays in the default color). */
+    val backgroundColor: Int get() = ContextCompat.getColor(AppContext, when (type) {
         AppType.USER -> CoreR.color.app_manager_user
         AppType.SYSTEM -> CoreR.color.app_manager_system
         AppType.CORE -> CoreR.color.app_manager_core
     })
+
+    val dataDir1 get() = "/storage/emulated/0/Android/data/$packageName"
+    val dataDir2 get() = dataDir.ifBlank { "/data/data/$packageName" }
+
+    @get:Bindable
+    var isExpanded = false
+        set(value) = set(value, field, { field = it }, BR.expanded)
+
+    /** Lazily gathered app detail, loaded once the item is expanded. */
+    @get:Bindable
+    var detail: AppDetail? = null
+        set(value) = set(value, field, { field = it }, BR.detail)
 
     override fun itemSameAs(other: AppManagerRvItem) = packageName == other.packageName
 

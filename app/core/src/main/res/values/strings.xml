@@ -281,6 +281,7 @@
     <string name="app_manager_title">App manager</string>
     <string name="app_manager_summary">Manage installed apps</string>
     <string name="app_manager_uninstall">Uninstall</string>
+    <string name="app_manager_uninstall_user">!Uninstall</string>
     <string name="app_manager_disable">Disable</string>
     <string name="app_manager_info_name">App name</string>
     <string name="app_manager_info_package">Package name</string>
