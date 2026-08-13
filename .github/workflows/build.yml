@@ -34,6 +34,7 @@ jobs:
         run: brew untap aws/tap || true
 
       - name: Setup environment
+        id: setup
         uses: ./.github/actions/setup
         with:
           is-asset-build: true
@@ -47,6 +48,43 @@ jobs:
 
       - name: Stop gradle daemon
         run: ./app/gradlew --stop
+
+      - name: Stop sccache server
+        if: always()
+        run: sccache --stop-server || true
+
+      # Caches are restored by the setup action and saved here at job end so
+      # freshly-generated data is captured even when the build fails (always()).
+      - name: Save sccache cache
+        if: always() && steps.setup.outputs.sccache-cache-hit != 'true' && steps.setup.outputs.sccache-cache-key != ''
+        uses: actions/cache/save@v5
+        with:
+          path: .sccache
+          key: ${{ steps.setup.outputs.sccache-cache-key }}
+
+      - name: Save Gradle dependency cache
+        if: always() && steps.setup.outputs.gradle-cache-hit != 'true' && steps.setup.outputs.gradle-cache-key != ''
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            .gradle/caches
+            .gradle/wrapper
+            !.gradle/caches/build-cache-*
+          key: ${{ steps.setup.outputs.gradle-cache-key }}
+
+      - name: Save Gradle build cache
+        if: always() && steps.setup.outputs.gradle-build-cache-hit != 'true' && steps.setup.outputs.gradle-build-cache-key != ''
+        uses: actions/cache/save@v5
+        with:
+          path: .gradle/caches/build-cache-*
+          key: ${{ steps.setup.outputs.gradle-build-cache-key }}
+
+      - name: Save ONDK cache
+        if: always() && steps.setup.outputs.ondk-cache-hit != 'true' && steps.setup.outputs.ondk-cache-key != ''
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ env.NDK_CACHE_PATH }}
+          key: ${{ steps.setup.outputs.ondk-cache-key }}
 
       - name: Prune stale caches
         if: ${{ github.event_name != 'pull_request' }}
