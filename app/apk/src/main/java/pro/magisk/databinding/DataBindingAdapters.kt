@@ -233,7 +233,8 @@ fun MaterialCardView.setCardGroupStyle(style: CardGroupStyle?) {
             .setTopRightCorner(CornerFamily.ROUNDED, 0f)
             .setBottomLeftCorner(CornerFamily.ROUNDED, corner)
             .setBottomRightCorner(CornerFamily.ROUNDED, corner)
-        CardGroupStyle.SINGLE, null -> Unit
+        CardGroupStyle.SINGLE -> builder.setAllCorners(CornerFamily.ROUNDED, corner)
+        null -> Unit
     }
     shapeAppearanceModel = builder.build()
 }
