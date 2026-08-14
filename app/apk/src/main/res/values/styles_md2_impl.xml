@@ -127,6 +127,7 @@
 
     <style name="WidgetFoundation.MaterialSwitch" parent="Widget.AppCompat.CompoundButton.Switch">
         <item name="android:thumb">@drawable/mtrl_switch_thumb</item>
+        <item name="thumbIcon">@drawable/mtrl_switch_thumb_icon</item>
         <item name="track">@drawable/mtrl_switch_track</item>
         <item name="trackDecoration">@drawable/mtrl_switch_track_decoration</item>
         <item name="thumbTint">@color/mtrl_switch_thumb_tint</item>
