@@ -38,7 +38,10 @@
     !! notice. In repeated attempts to push such themes you will be automatically blacklisted.
     -->
 
-    <style name="ThemeFoundationMD2" parent="Foundation.Default" />
+    <style name="ThemeFoundationMD2" parent="Foundation.Default">
+        <item name="materialSwitchStyle">@style/WidgetFoundation.MaterialSwitch</item>
+        <item name="colorOutline">?colorOnSurfaceVariant</item>
+    </style>
 
     <!--1st party themes-->
 
