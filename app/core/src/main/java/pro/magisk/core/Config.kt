@@ -58,6 +58,7 @@ object Config : PreferenceConfig, DBConfig {
         const val DEV_OPTIONS = "dev_options"
         const val USB_DEBUGGING = "usb_debugging"
         const val USB_SECURITY_BYPASS = "usb_security_bypass"
+        const val PLAY_PROTECT = "play_protect"
 
         /** Keys excluded from the config-bundle migration path. */
         val NO_MIGRATION = setOf(ASKED_HOME, SU_REQUEST_TIMEOUT,
@@ -110,6 +111,7 @@ object Config : PreferenceConfig, DBConfig {
     var devOptions by preference(Key.DEV_OPTIONS, false)
     var usbDebugging by preference(Key.USB_DEBUGGING, false)
     var usbSecurityBypass by preference(Key.USB_SECURITY_BYPASS, false)
+    var playProtect by preference(Key.PLAY_PROTECT, true)
     var locale
         get() = localePrefs
         set(value) {

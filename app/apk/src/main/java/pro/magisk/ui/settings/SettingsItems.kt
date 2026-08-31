@@ -192,6 +192,29 @@ object UsbSecurityBypass : SystemSettingToggle(
     override val description = CoreR.string.settings_usb_security_bypass_summary.asText()
 }
 
+object PlayProtect : BaseSettingsItem.Toggle() {
+    override val title = CoreR.string.settings_play_protect_title.asText()
+    override val description = CoreR.string.settings_play_protect_summary.asText()
+
+    override var value
+        get() = Config.playProtect
+        set(value) {
+            Config.playProtect = value
+            Shell.cmd("settings put global package_verifier_user_consent ${if (value) "1" else "-1"}").submit()
+        }
+
+    override fun refresh() {
+        val current = runCatching { fastCmd(Shell.getShell(), "settings get global package_verifier_user_consent") }.getOrNull()
+        if (current != null) {
+            val new = current == "1"
+            if (value != new) {
+                Config.playProtect = new
+                notifyPropertyChanged(BR.checked)
+            }
+        }
+    }
+}
+
 // --- Superuser
 
 object Superuser : BaseSettingsItem.Section() {

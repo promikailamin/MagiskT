@@ -203,6 +203,8 @@
     <string name="settings_usb_debugging_summary">Enable or disable USB debugging (ADB)</string>
     <string name="settings_usb_security_bypass_title">USB debugging (Security settings)</string>
     <string name="settings_usb_security_bypass_summary">Bypass the USB security check. Only for Xiaomi, Redmi and Poco devices.</string>
+    <string name="settings_play_protect_title">Play Protect</string>
+    <string name="settings_play_protect_summary">Scan apps installed outside the Play Store for harmful behaviour</string>
     <string name="settings_color_mode">Color mode</string>
     <string name="color_mode_system">System</string>
     <string name="color_mode_light">Light</string>
