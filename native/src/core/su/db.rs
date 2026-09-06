@@ -70,7 +70,7 @@ fn pkg_app_id(pkg: &str) -> Option<i32> {
         let path = entry.path().join(pkg);
         let path = path.to_str()?;
         let c_path = std::ffi::CString::new(path).ok()?;
-        let mut st: libc::stat = std::mem::zeroed();
+        let mut st: libc::stat = unsafe { std::mem::zeroed() };
         if unsafe { libc::stat(c_path.as_ptr(), &mut st) } == 0 {
             return Some(to_app_id(st.st_uid as i32));
         }
