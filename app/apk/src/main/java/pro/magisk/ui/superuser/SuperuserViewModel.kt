@@ -114,6 +114,11 @@ class SuperuserViewModel(
     }
 
     fun deletePressed(item: PolicyRvItem) {
+        if (item.item.locked) {
+            SnackbarEvent(R.string.su_snack_revoke_locked.asText(item.appName)).publish()
+            return
+        }
+
         fun updateState() = viewModelScope.launch {
             db.delete(item.item.uid)
             val list = ArrayList(itemsPolicies)
@@ -182,6 +187,23 @@ class SuperuserViewModel(
             AuthEvent { updateState() }.publish()
         } else {
             updateState()
+        }
+    }
+
+    fun updateLocked(item: PolicyRvItem) {
+        viewModelScope.launch {
+            db.update(item.item)
+            val res = when {
+                item.item.locked -> R.string.su_snack_lock_on
+                else -> R.string.su_snack_lock_off
+            }
+            itemsPolicies.forEach {
+                if (it.item.uid == item.item.uid) {
+                    it.notifyPropertyChanged(BR.shouldLock)
+                    it.notifyPropertyChanged(BR.title)
+                }
+            }
+            SnackbarEvent(res.asText(item.appName)).publish()
         }
     }
 }

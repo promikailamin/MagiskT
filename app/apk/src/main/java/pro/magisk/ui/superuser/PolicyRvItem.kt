@@ -31,7 +31,10 @@ class PolicyRvItem(
 
     override val layoutRes = R.layout.item_policy_md2
 
-    val title get() = if (isSharedUid) "[SharedUID] $appName" else appName
+    @get:Bindable
+    val title
+        get() = (if (isSharedUid) "[SharedUID] $appName" else appName)
+            .let { if (item.locked) "🔒 $it" else it }
 
     private inline fun <reified T> setImpl(new: T, old: T, setter: (T) -> Unit) {
         if (old != new) {
@@ -87,6 +90,15 @@ class PolicyRvItem(
             viewModel.updateLogging(this)
         }
 
+    @get:Bindable
+    var shouldLock
+        get() = item.locked
+        private set(value) = setImpl(value, shouldLock) {
+            item.locked = it
+            notifyPropertyChanged(BR.title)
+            viewModel.updateLocked(this)
+        }
+
     fun toggleExpand() {
         isExpanded = !isExpanded
     }
@@ -99,12 +111,17 @@ class PolicyRvItem(
         shouldLog = !shouldLog
     }
 
+    fun toggleLock() {
+        shouldLock = !shouldLock
+    }
+
     fun revoke() {
         viewModel.deletePressed(this)
     }
 
     override fun itemSameAs(other: PolicyRvItem) = packageName == other.packageName
 
-    override fun contentSameAs(other: PolicyRvItem) = item.policy == other.item.policy
+    override fun contentSameAs(other: PolicyRvItem) =
+        item.policy == other.item.policy && item.locked == other.item.locked
 
 }

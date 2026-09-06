@@ -32,6 +32,10 @@ static unique_ptr<map<string, set<string, StringCmp>, StringCmp>> pkg_to_procs_;
 static unique_ptr<map<int, set<string_view>>> app_id_to_pkgs_;
 #define app_id_to_pkgs (*app_id_to_pkgs_)
 
+// Package names that are locked (persist across uninstall)
+static unique_ptr<set<string, StringCmp>> locked_pkgs_;
+#define locked_pkgs (*locked_pkgs_)
+
 // Locks the data structures above
 static pthread_mutex_t data_lock = PTHREAD_MUTEX_INITIALIZER;
 
@@ -215,6 +219,11 @@ void scan_deny_apps() {
             it++;
             continue;
         }
+        if (locked_pkgs.count(it->first)) {
+            // Locked entries persist even if the app is uninstalled
+            it++;
+            continue;
+        }
         int app_id = get_app_id(users, it->first);
         if (app_id == 0) {
             LOGI("denylist rm: [%s]\n", it->first.data());
@@ -233,6 +242,7 @@ void scan_deny_apps() {
 static void clear_data() {
     pkg_to_procs_.reset(nullptr);
     app_id_to_pkgs_.reset(nullptr);
+    locked_pkgs_.reset(nullptr);
 }
 
 /** Ensure the denylist data structures are initialised from the database. */
@@ -243,18 +253,26 @@ static bool ensure_data() {
     LOGI("denylist: initializing internal data structures\n");
 
     default_new(pkg_to_procs_);
+    default_new(locked_pkgs_);
     bool res = db_exec("SELECT * FROM denylist", {}, [](StringSlice columns, const DbValues &values) {
         const char *package_name;
         const char *process;
+        int locked = 0;
         for (int i = 0; i < columns.size(); ++i) {
             const auto &name = columns[i];
             if (name == "package_name") {
                 package_name = values.get_text(i);
             } else if (name == "process") {
                 process = values.get_text(i);
+            } else if (name == "locked") {
+                locked = values.get_int(i);
             }
         }
-        add_hide_set(package_name, process);
+        if (locked)
+            locked_pkgs.emplace(package_name);
+        // Sentinel rows (empty process) only carry the lock state
+        if (process[0] != '\0')
+            add_hide_set(package_name, process);
     });
     if (!res)
         goto error;
@@ -311,6 +329,11 @@ static int rm_list(const char *pkg, const char *proc) {
         if (!ensure_data())
             return DenyResponse::ERROR;
 
+        if (locked_pkgs.count(pkg)) {
+            // Locked entries cannot be removed until unlocked
+            return DenyResponse::ITEM_LOCKED;
+        }
+
         bool remove = false;
 
         auto it = pkg_to_procs.find(pkg);
@@ -350,6 +373,55 @@ int rm_list(int client) {
     return rm_list(pkg.data(), proc.data());
 }
 
+/** Set (or clear) the lock flag of a package, persisting it in the database. */
+static int set_locked(const char *pkg, bool locked) {
+    if (str_eql(pkg, ISOLATED_MAGIC))
+        return DenyResponse::INVALID_PKG;
+
+    {
+        mutex_guard lock(data_lock);
+        if (!ensure_data())
+            return DenyResponse::ERROR;
+        if (!validate(pkg, ""))
+            return DenyResponse::INVALID_PKG;
+
+        if (locked) {
+            bool exists = locked_pkgs.count(pkg) != 0 || pkg_to_procs.count(pkg) != 0;
+            if (!exists) {
+                // Insert a sentinel row so the lock persists even with no processes
+                char sql[4096];
+                ssprintf(sql, sizeof(sql),
+                        "INSERT INTO denylist (package_name, process, locked) VALUES('%s', '', 1)",
+                        pkg);
+                if (!db_exec(sql))
+                    return DenyResponse::ERROR;
+            }
+            locked_pkgs.emplace(pkg);
+        } else {
+            locked_pkgs.erase(pkg);
+            if (pkg_to_procs.find(pkg) == pkg_to_procs.end()) {
+                // Drop the sentinel row if there are no real processes left
+                char sql[4096];
+                ssprintf(sql, sizeof(sql),
+                        "DELETE FROM denylist WHERE package_name='%s' AND process=''", pkg);
+                db_exec(sql);
+            }
+        }
+    }
+
+    char sql[4096];
+    ssprintf(sql, sizeof(sql),
+            "UPDATE denylist SET locked=%d WHERE package_name='%s'", locked ? 1 : 0, pkg);
+    return db_exec(sql) ? DenyResponse::OK : DenyResponse::ERROR;
+}
+
+/** Read (pkg, locked) from an IPC client and set the lock flag of a package. */
+int set_locked(int client) {
+    string pkg = read_string(client);
+    int locked = read_int(client);
+    return set_locked(pkg.data(), locked != 0);
+}
+
 /** Write the full denylist (pkg|proc) to an IPC client. */
 void ls_list(int client) {
     {
@@ -362,7 +434,23 @@ void ls_list(int client) {
         scan_deny_apps();
         write_int(client,static_cast<int>(DenyResponse::OK));
 
+        // Emit markers for sentinel-only locked packages (no process entries)
+        for (const auto &pkg : locked_pkgs) {
+            if (pkg_to_procs.count(pkg) == 0) {
+                write_int(client, pkg.size() + sizeof(LOCKED_MAGIC));
+                xwrite(client, LOCKED_MAGIC, sizeof(LOCKED_MAGIC) - 1);
+                xwrite(client, "|", 1);
+                xwrite(client, pkg.data(), pkg.size());
+            }
+        }
         for (const auto &[pkg, procs] : pkg_to_procs) {
+            if (locked_pkgs.count(pkg)) {
+                // Emit a lock marker line: *locked|pkg
+                write_int(client, pkg.size() + sizeof(LOCKED_MAGIC));
+                xwrite(client, LOCKED_MAGIC, sizeof(LOCKED_MAGIC) - 1);
+                xwrite(client, "|", 1);
+                xwrite(client, pkg.data(), pkg.size());
+            }
             for (const auto &proc : procs) {
                 write_int(client, pkg.size() + proc.size() + 1);
                 xwrite(client, pkg.data(), pkg.size());

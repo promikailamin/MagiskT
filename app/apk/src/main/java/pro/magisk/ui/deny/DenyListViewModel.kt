@@ -61,12 +61,13 @@ class DenyListViewModel : AsyncLoadViewModel() {
         loading = true
         val apps = withContext(Dispatchers.Default) {
             val pm = AppContext.packageManager
-            val denyList = Shell.cmd("magisk --denylist ls").exec().out
-                .map { CmdlineListItem(it) }
+            val raw = Shell.cmd("magisk --denylist ls").exec().out.map { CmdlineListItem(it) }
+            val lockedPkgs = raw.filter { it.packageName == LOCKED_MAGIC }.map { it.process }.toSet()
+            val denyList = raw.filter { it.packageName != LOCKED_MAGIC }
             val apps = pm.getInstalledApplications(MATCH_UNINSTALLED_PACKAGES).run {
                 asFlow()
                     .filter { AppContext.packageName != it.packageName }
-                    .concurrentMap { AppProcessInfo(it, pm, denyList) }
+                    .concurrentMap { AppProcessInfo(it, pm, denyList, lockedPkgs) }
                     .filter { it.processes.isNotEmpty() }
                     .concurrentMap { DenyListRvItem(it) }
                     .toCollection(ArrayList(size))

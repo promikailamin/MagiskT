@@ -15,16 +15,17 @@ private const val SELECT_QUERY = "SELECT (until - strftime(\"%s\", \"now\")) AS 
 
 class PolicyDao : MagiskDB() {
 
-    /** Remove expired and negative-`until` entries. */
+    /** Remove expired and negative-`until` entries (locked entries are kept). */
     suspend fun deleteOutdated() {
         val query = "DELETE FROM ${Table.POLICY} WHERE " +
-            "(until > 0 AND until < strftime(\"%s\", \"now\")) OR until < 0"
+            "((until > 0 AND until < strftime(\"%s\", \"now\")) OR until < 0) " +
+            "AND (locked IS NULL OR locked = 0)"
         exec(query)
     }
 
-    /** Delete the policy for a given [uid]. */
+    /** Delete the policy for a given [uid] (locked policies are kept). */
     suspend fun delete(uid: Int) {
-        val query = "DELETE FROM ${Table.POLICY} WHERE uid=$uid"
+        val query = "DELETE FROM ${Table.POLICY} WHERE uid=$uid AND (locked IS NULL OR locked = 0)"
         exec(query)
     }
 
@@ -66,6 +67,7 @@ class PolicyDao : MagiskDB() {
         map["policy"]?.toInt()?.let { policy.policy = it }
         map["logging"]?.toInt()?.let { policy.logging = it != 0 }
         map["notification"]?.toInt()?.let { policy.notification = it != 0 }
+        map["locked"]?.toInt()?.let { policy.locked = it != 0 }
         return policy
     }
 

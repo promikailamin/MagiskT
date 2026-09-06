@@ -39,11 +39,20 @@ impl SqlTable for RootSettings {
     }
 }
 
-struct UidList(Vec<i32>);
+struct UidList(Vec<(i32, bool)>);
 
 impl SqlTable for UidList {
-    fn on_row(&mut self, _: &[String], values: &DbValues) {
-        self.0.push(values.get_int(0));
+    fn on_row(&mut self, columns: &[String], values: &DbValues) {
+        let mut uid = 0i32;
+        let mut locked = false;
+        for (i, column) in columns.iter().enumerate() {
+            match column.as_str() {
+                "uid" => uid = values.get_int(i as i32),
+                "locked" => locked = values.get_int(i as i32) != 0,
+                _ => {}
+            }
+        }
+        self.0.push((uid, locked));
     }
 }
 
@@ -61,7 +70,7 @@ impl MagiskD {
     pub fn prune_su_access(&self) {
         let mut list = UidList(Vec::new());
         if self
-            .db_exec_with_rows("SELECT uid FROM policies", &[], &mut list)
+            .db_exec_with_rows("SELECT uid, locked FROM policies", &[], &mut list)
             .sql_result()
             .log()
             .is_err()
@@ -72,7 +81,11 @@ impl MagiskD {
         let app_list = self.get_app_no_list();
         let mut rm_uids = Vec::new();
 
-        for uid in list.0 {
+        for (uid, locked) in list.0 {
+            if locked {
+                // Locked policies persist even if the app is uninstalled
+                continue;
+            }
             let app_id = to_app_id(uid);
             if (AID_APP_START..=AID_APP_END).contains(&app_id) {
                 let app_no = app_id - AID_APP_START;

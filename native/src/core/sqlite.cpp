@@ -2,7 +2,7 @@
  * SQLite database wrapper for Magisk's internal database.
  * Dynamically loads libsqlite.so (including APEX on Android 10+),
  * provides db_exec API with bind/exec callbacks, and manages
- * schema migrations (versions 7-12) for policies/settings/strings/denylist.
+ * schema migrations (versions 7-13) for policies/settings/strings/denylist.
  */
 #include <dlfcn.h>
 
@@ -12,8 +12,8 @@
 
 using namespace std;
 
-#define DB_VERSION     12
-#define DB_VERSION_STR "12"
+#define DB_VERSION     13
+#define DB_VERSION_STR "13"
 
 // SQLite APIs
 
@@ -226,7 +226,7 @@ sqlite3 *open_and_init_db() {
         return sql_exec_impl(db.get(),
                 "CREATE TABLE IF NOT EXISTS policies "
                 "(uid INT, policy INT, until INT, logging INT, "
-                "notification INT, PRIMARY KEY(uid))");
+                "notification INT, locked INT DEFAULT 0, PRIMARY KEY(uid))");
     };
     auto create_settings = [&] {
         return sql_exec_impl(db.get(),
@@ -241,7 +241,8 @@ sqlite3 *open_and_init_db() {
     auto create_denylist = [&] {
         return sql_exec_impl(db.get(),
                 "CREATE TABLE IF NOT EXISTS denylist "
-                "(package_name TEXT, process TEXT, PRIMARY KEY(package_name, process))");
+                "(package_name TEXT, process TEXT, locked INT DEFAULT 0, "
+                "PRIMARY KEY(package_name, process))");
     };
 
     // Database changelog:
@@ -254,6 +255,7 @@ sqlite3 *open_and_init_db() {
     // 10: remove table `logs`
     // 11: remove table `hidelist` and create table `denylist` (same data structure)
     // 12: rebuild table `policies` to drop column `package_name`
+    // 13: add new column (locked INT DEFAULT 0) to tables `policies` and `denylist`
 
     if (/* 0, 1, 2, 3, 4, 5, 6 */ ver <= 6) {
         sql_chk_log(create_policy);
@@ -315,6 +317,15 @@ sqlite3 *open_and_init_db() {
                 "DROP TABLE policies_tmp;"
                 "COMMIT;");
         ver = 12;
+        upgrade = true;
+    }
+    if (ver == 12) {
+        sql_chk_log(sql_exec_impl, db.get(),
+                "BEGIN TRANSACTION;"
+                "ALTER TABLE policies ADD COLUMN locked INT DEFAULT 0;"
+                "ALTER TABLE denylist ADD COLUMN locked INT DEFAULT 0;"
+                "COMMIT;");
+        ver = 13;
         upgrade = true;
     }
 

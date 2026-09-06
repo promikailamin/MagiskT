@@ -7,6 +7,8 @@
 #include <string_view>
 
 #define ISOLATED_MAGIC "isolated"
+// Pseudo-process name used to mark packages that are locked (persist across uninstall)
+#define LOCKED_MAGIC "*locked"
 
 /** IPC request codes sent from the client to the daemon's denylist handler. */
 namespace DenyRequest {
@@ -17,6 +19,7 @@ enum : int {
     REMOVE,
     LIST,
     STATUS,
+    LOCK,
 
     END
 };
@@ -33,6 +36,7 @@ enum : int {
     INVALID_PKG,
     NO_NS,
     ERROR,
+    ITEM_LOCKED,
 
     END
 };
@@ -46,6 +50,8 @@ int disable_deny();
 int add_list(int client);
 /** Read (pkg, proc) from an IPC client and remove from the denylist. */
 int rm_list(int client);
+/** Read (pkg, locked) from an IPC client and set the lock flag of a package. */
+int set_locked(int client);
 /** Write the full denylist to an IPC client. */
 void ls_list(int client);
 

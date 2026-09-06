@@ -29,11 +29,28 @@ class DenyListRvItem(
 
     override val layoutRes get() = R.layout.item_hide_md2
 
-    val processes = info.processes.map { ProcessRvItem(it) }
+    val processes = info.processes.map { ProcessRvItem(it) { isLocked } }
+
+    @get:Bindable
+    val title get() = if (isLocked) "🔒 ${info.label}" else info.label
 
     @get:Bindable
     var isExpanded = false
         set(value) = set(value, field, { field = it }, BR.expanded)
+
+    @get:Bindable
+    var isLocked
+        get() = info.isLocked
+        set(value) {
+            if (info.isLocked != value) {
+                info.isLocked = value
+                Shell.cmd(
+                    "magisk --denylist lock ${info.packageName} ${if (value) 1 else 0}"
+                ).submit()
+                notifyPropertyChanged(BR.locked)
+                notifyPropertyChanged(BR.title)
+            }
+        }
 
     var itemsChecked = 0
         set(value) = set(value, field, { field = it }, BR.checkedPercent)
@@ -49,26 +66,37 @@ class DenyListRvItem(
     @get:Bindable
     var state: Boolean?
         get() = _state
-        set(value) = set(value, _state, { _state = it }, BR.state) {
-            if (value == true) {
-                // Enable all default or visible processes
-                processes
-                    .filterNot { it.isEnabled }
-                    .filter { isExpanded || it.defaultSelection }
-                    .forEach { it.toggle() }
-            } else {
-                // Remove the entire package from denylist
-                Shell.cmd("magisk --denylist rm ${info.packageName}").submit()
-                processes.filter { it.isEnabled }.forEach {
-                    if (it.process.isIsolated) {
-                        it.toggle()
-                    } else {
-                        it.isEnabled = !it.isEnabled
-                        notifyPropertyChanged(BR.enabled)
+        set(value) {
+            if (value == false && isLocked) {
+                notifyPropertyChanged(BR.state)
+                return
+            }
+            set(value, _state, { _state = it }, BR.state) {
+                if (value == true) {
+                    // Enable all default or visible processes
+                    processes
+                        .filterNot { it.isEnabled }
+                        .filter { isExpanded || it.defaultSelection }
+                        .forEach { it.toggle() }
+                } else {
+                    // Remove the entire package from denylist
+                    Shell.cmd("magisk --denylist rm ${info.packageName}").submit()
+                    processes.filter { it.isEnabled }.forEach {
+                        if (it.process.isIsolated) {
+                            it.toggle()
+                        } else {
+                            it.isEnabled = !it.isEnabled
+                            notifyPropertyChanged(BR.enabled)
+                        }
                     }
                 }
             }
         }
+
+    /** Toggle the lock flag of this entry via long-press. */
+    fun toggleLocked() {
+        isLocked = !isLocked
+    }
 
     init {
         processes.forEach { it.addOnPropertyChangedCallback(BR.enabled) { recalculateChecked() } }
@@ -102,6 +130,9 @@ class DenyListRvItem(
 
     override fun compareTo(other: DenyListRvItem) = comparator.compare(this, other)
 
+    override fun contentSameAs(other: DenyListRvItem) =
+        isChecked == other.isChecked && isLocked == other.isLocked
+
     companion object {
         private val comparator = compareBy<DenyListRvItem>(
             { it.itemsChecked == 0 },
@@ -113,7 +144,8 @@ class DenyListRvItem(
 
 /** A single process entry within an app's denylist. */
 class ProcessRvItem(
-    val process: ProcessInfo
+    val process: ProcessInfo,
+    private val isLocked: () -> Boolean = { false }
 ) : ObservableRvItem(), DiffItem<ProcessRvItem> {
 
     override val layoutRes get() = R.layout.item_hide_process_md2
@@ -123,10 +155,17 @@ class ProcessRvItem(
     @get:Bindable
     var isEnabled
         get() = process.isEnabled
-        set(value) = set(value, process.isEnabled, { process.isEnabled = it }, BR.enabled) {
-            val arg = if (it) "add" else "rm"
-            val (name, pkg) = process
-            Shell.cmd("magisk --denylist $arg $pkg \'$name\'").submit()
+        set(value) {
+            if (!value && isLocked()) {
+                // Locked entries cannot be removed until unlocked; snap the checkbox back
+                notifyPropertyChanged(BR.enabled)
+                return
+            }
+            set(value, process.isEnabled, { process.isEnabled = it }, BR.enabled) {
+                val arg = if (it) "add" else "rm"
+                val (name, pkg) = process
+                Shell.cmd("magisk --denylist $arg $pkg \'$name\'").submit()
+            }
         }
 
     fun toggle() {

@@ -81,6 +81,9 @@
     <string name="su_snack_notif_off">Notifications of %1$s are disabled</string>
     <string name="su_snack_log_on">Logging of %1$s is enabled</string>
     <string name="su_snack_log_off">Logging of %1$s is disabled</string>
+    <string name="su_snack_lock_on">Superuser entry of %1$s is locked</string>
+    <string name="su_snack_lock_off">Superuser entry of %1$s is unlocked</string>
+    <string name="su_snack_revoke_locked">%1$s is locked, unlock it to revoke</string>
     <string name="su_revoke_title">Revoke?</string>
     <string name="su_revoke_msg">Confirm to revoke %1$s Superuser rights</string>
     <string name="toast">Toast</string>
@@ -90,6 +93,7 @@
     <string name="su_notification_granted_title">Superuser Granted</string>
     <string name="su_notification_denied_title">Superuser Denied</string>
     <string name="superuser_toggle_notification">Notifications</string>
+    <string name="superuser_toggle_lock">Lock</string>
     <string name="superuser_toggle_revoke">Revoke</string>
     <string name="superuser_policy_none">No apps have asked for Superuser permission yet.</string>
 

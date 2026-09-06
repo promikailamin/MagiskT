@@ -17,6 +17,7 @@ class SuPolicy(
     var remain: Long = -1L,
     var logging: Boolean = true,
     var notification: Boolean = true,
+    var locked: Boolean = false,
 ) {
     companion object {
         const val QUERY = 0
@@ -37,7 +38,8 @@ class SuPolicy(
             "policy" to policy,
             "until" to until,
             "logging" to logging,
-            "notification" to notification
+            "notification" to notification,
+            "locked" to locked
         )
     }
 }

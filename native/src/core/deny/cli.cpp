@@ -24,6 +24,7 @@ Actions:
    disable         Disable denylist enforcement
    add PKG [PROC]  Add a new target to the denylist
    rm PKG [PROC]   Remove target(s) from the denylist
+   lock PKG 1|0    Set / clear the lock flag of a denylist entry
    ls              Print the current denylist
    exec CMDs...    Execute commands in isolated mount
                    namespace and do all unmounts
@@ -54,6 +55,9 @@ void denylist_handler(int client) {
         break;
     case DenyRequest::REMOVE:
         res = rm_list(client);
+        break;
+    case DenyRequest::LOCK:
+        res = set_locked(client);
         break;
     case DenyRequest::LIST:
         ls_list(client);
@@ -90,6 +94,11 @@ int denylist_cli(rust::Vec<rust::String> &args) {
         req = DenyRequest::ADD;
     else if (argv[0] == "rm"sv)
         req = DenyRequest::REMOVE;
+    else if (argv[0] == "lock"sv) {
+        req = DenyRequest::LOCK;
+        if (argc < 3)
+            usage();
+    }
     else if (argv[0] == "ls"sv)
         req = DenyRequest::LIST;
     else if (argv[0] == "status"sv)
@@ -110,6 +119,9 @@ int denylist_cli(rust::Vec<rust::String> &args) {
     if (req == DenyRequest::ADD || req == DenyRequest::REMOVE) {
         write_string(fd, argv[1]);
         write_string(fd, argv[2] ? argv[2] : "");
+    } else if (req == DenyRequest::LOCK) {
+        write_string(fd, argv[1]);
+        write_int(fd, argv[2] == "1"sv ? 1 : 0);
     }
 
     // Get response
@@ -128,6 +140,9 @@ int denylist_cli(rust::Vec<rust::String> &args) {
         goto return_code;
     case DenyResponse::ITEM_NOT_EXIST:
         fprintf(stderr, "Target does not exist in denylist\n");
+        goto return_code;
+    case DenyResponse::ITEM_LOCKED:
+        fprintf(stderr, "Target is locked\n");
         goto return_code;
     case DenyResponse::NO_NS:
         fprintf(stderr, "The kernel does not support mount namespace\n");
