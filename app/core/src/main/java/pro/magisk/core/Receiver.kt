@@ -3,6 +3,8 @@
  * system configuration changes.
  *
  * Actions handled:
+ * - [ACTION_PACKAGE_ADDED] — follows a policy to the new UID of an
+ *   (re)installed package, so grants/locks survive reinstall.
  * - [ACTION_PACKAGE_REPLACED] — optionally wipes SU policy for the
  *   replaced package (pre-O).
  * - [ACTION_UID_REMOVED] — cleans up SU policy for the removed UID.
@@ -46,7 +48,18 @@ open class Receiver : BaseReceiver() {
             policyDB.delete(uid)
         }
 
+        @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
+        fun remapPolicy(pkg: String, uid: Int) = GlobalScope.launch {
+            policyDB.remapUid(pkg, uid)
+        }
+
         when (intent.action ?: return) {
+            Intent.ACTION_PACKAGE_ADDED -> {
+                // A package was (re)installed; follow its policy to the new uid.
+                val pkg = getPkg(intent)
+                val uid = getUid(intent)
+                if (pkg != null && uid != null) remapPolicy(pkg, uid)
+            }
             Intent.ACTION_PACKAGE_REPLACED -> {
                 if (Config.suReAuth)
                     getUid(intent)?.let { rmPolicy(it) }

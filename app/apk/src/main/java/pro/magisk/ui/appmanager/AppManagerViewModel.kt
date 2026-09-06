@@ -60,6 +60,12 @@ class AppManagerViewModel : AsyncLoadViewModel() {
             doQuery()
         }
 
+    /** Last scroll position, saved before a reload and restored afterwards (search off only). */
+    var savedPos = 0
+
+    /** Pixel offset of the saved scroll position. */
+    var savedOffset = 0
+
     @get:Bindable
     var loading = true
         private set(value) = set(value, field, { field = it }, BR.loading)

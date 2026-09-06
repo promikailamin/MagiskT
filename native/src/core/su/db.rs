@@ -5,12 +5,13 @@
 //! and checking whether a UID has been granted root ([`uid_granted_root`]).
 
 use crate::daemon::{
-    AID_APP_END, AID_APP_START, AID_ROOT, AID_SHELL, MagiskD, to_app_id, to_user_id,
+    AID_APP_END, AID_APP_START, AID_ROOT, AID_SHELL, AID_USER_OFFSET, MagiskD, to_app_id,
+    to_user_id,
 };
-use crate::db::DbArg::Integer;
+use crate::db::DbArg::{Integer, Text};
 use crate::db::{MultiuserMode, RootAccess, SqlTable, SqliteResult, SqliteReturn};
 use crate::ffi::{DbValues, SuPolicy};
-use base::ResultExt;
+use base::{ResultExt, libc};
 
 impl Default for SuPolicy {
     fn default() -> Self {
@@ -39,21 +40,42 @@ impl SqlTable for RootSettings {
     }
 }
 
-struct UidList(Vec<(i32, bool)>);
+struct UidList(Vec<(i32, bool, String)>);
 
 impl SqlTable for UidList {
     fn on_row(&mut self, columns: &[String], values: &DbValues) {
         let mut uid = 0i32;
         let mut locked = false;
+        let mut package_name = String::new();
         for (i, column) in columns.iter().enumerate() {
             match column.as_str() {
                 "uid" => uid = values.get_int(i as i32),
                 "locked" => locked = values.get_int(i as i32) != 0,
+                "package_name" => {
+                    let pkg = values.get_text(i);
+                    package_name.push_str(pkg);
+                }
                 _ => {}
             }
         }
-        self.0.push((uid, locked));
+        self.0.push((uid, locked, package_name));
     }
+}
+
+/// Look up the app ID of an installed package by stat-ing its data directory
+/// across all users. Returns the app ID (not the full UID).
+fn pkg_app_id(pkg: &str) -> Option<i32> {
+    let users = std::fs::read_dir("/data/data").ok()?;
+    for entry in users.flatten() {
+        let path = entry.path().join(pkg);
+        let path = path.to_str()?;
+        let c_path = std::ffi::CString::new(path).ok()?;
+        let mut st: libc::stat = std::mem::zeroed();
+        if unsafe { libc::stat(c_path.as_ptr(), &mut st) } == 0 {
+            return Some(to_app_id(st.st_uid as i32));
+        }
+    }
+    None
 }
 
 impl MagiskD {
@@ -70,7 +92,7 @@ impl MagiskD {
     pub fn prune_su_access(&self) {
         let mut list = UidList(Vec::new());
         if self
-            .db_exec_with_rows("SELECT uid, locked FROM policies", &[], &mut list)
+            .db_exec_with_rows("SELECT uid, locked, package_name FROM policies", &[], &mut list)
             .sql_result()
             .log()
             .is_err()
@@ -81,9 +103,25 @@ impl MagiskD {
         let app_list = self.get_app_no_list();
         let mut rm_uids = Vec::new();
 
-        for (uid, locked) in list.0 {
+        for (uid, locked, package_name) in list.0 {
             if locked {
-                // Locked policies persist even if the app is uninstalled
+                // Locked policies persist even if the app is uninstalled. If the package
+                // was reinstalled and got a new UID, remap the policy to follow it.
+                if !package_name.is_empty() {
+                    if let Some(app_id) = pkg_app_id(&package_name) {
+                        let new_uid = to_user_id(uid) * AID_USER_OFFSET + app_id;
+                        if new_uid != uid {
+                            self.db_exec(
+                                "UPDATE policies SET uid=? WHERE uid=? AND package_name=?",
+                                &[
+                                    Integer(new_uid as i64),
+                                    Integer(uid as i64),
+                                    Text(package_name.as_str()),
+                                ],
+                            );
+                        }
+                    }
+                }
                 continue;
             }
             let app_id = to_app_id(uid);

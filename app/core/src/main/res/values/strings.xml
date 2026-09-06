@@ -93,7 +93,6 @@
     <string name="su_notification_granted_title">Superuser Granted</string>
     <string name="su_notification_denied_title">Superuser Denied</string>
     <string name="superuser_toggle_notification">Notifications</string>
-    <string name="superuser_toggle_lock">Lock</string>
     <string name="superuser_toggle_revoke">Revoke</string>
     <string name="superuser_policy_none">No apps have asked for Superuser permission yet.</string>
 

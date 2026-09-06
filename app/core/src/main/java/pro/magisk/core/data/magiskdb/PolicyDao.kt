@@ -38,10 +38,20 @@ class PolicyDao : MagiskDB() {
     /** Insert or replace the given [policy]. */
     suspend fun update(policy: SuPolicy) {
         val map = policy.toMap()
-        if (!Const.Version.atLeast_25_0()) {
-            map["package_name"] = AppContext.packageManager.getNameForUid(policy.uid)!!
+        val pkg = policy.packageName ?: runCatching {
+            AppContext.packageManager.getNameForUid(policy.uid)
+        }.getOrNull()
+        if (pkg != null) {
+            map["package_name"] = pkg
         }
         val query = "REPLACE INTO ${Table.POLICY} ${map.toQuery()}"
+        exec(query)
+    }
+
+    /** Remap the UID of any policy matching [pkg] to [newUid] (app reinstalled). */
+    suspend fun remapUid(pkg: String, newUid: Int) {
+        val query = "UPDATE ${Table.POLICY} SET uid=$newUid " +
+            "WHERE package_name='$pkg' AND uid<>$newUid"
         exec(query)
     }
 
@@ -68,6 +78,7 @@ class PolicyDao : MagiskDB() {
         map["logging"]?.toInt()?.let { policy.logging = it != 0 }
         map["notification"]?.toInt()?.let { policy.notification = it != 0 }
         map["locked"]?.toInt()?.let { policy.locked = it != 0 }
+        policy.packageName = map["package_name"]
         return policy
     }
 

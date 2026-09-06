@@ -73,11 +73,28 @@ class SuperuserViewModel(
             val policies = ArrayList<PolicyRvItem>()
             val pm = AppContext.packageManager
             for (policy in db.fetchAll()) {
-                val pkgs =
-                    if (policy.uid == Process.SYSTEM_UID) arrayOf("android")
-                    else pm.getPackagesForUid(policy.uid)
+                var uid = policy.uid
+                var pkgs = if (uid == Process.SYSTEM_UID) arrayOf("android")
+                    else pm.getPackagesForUid(uid)
                 if (pkgs == null) {
-                    db.delete(policy.uid)
+                    // UID no longer resolves to an installed app. If the package is
+                    // known, it may have been reinstalled under a new UID: remap.
+                    val remapped = policy.packageName?.let { pkg ->
+                        runCatching {
+                            pm.getApplicationInfo(pkg, MATCH_UNINSTALLED_PACKAGES).uid
+                        }.getOrNull()?.takeIf { it != uid }?.also { newUid ->
+                            policy.uid = newUid
+                            db.update(policy)
+                        }
+                    }
+                    if (remapped != null) {
+                        uid = remapped
+                        pkgs = pm.getPackagesForUid(uid)
+                    }
+                }
+                if (pkgs == null) {
+                    // Not currently installed; locked policies survive, others are dropped
+                    if (!policy.locked) db.delete(uid)
                     continue
                 }
                 val map = pkgs.mapNotNull { pkg ->
@@ -95,8 +112,13 @@ class SuperuserViewModel(
                     }
                 }
                 if (map.isEmpty()) {
-                    db.delete(policy.uid)
+                    if (!policy.locked) db.delete(policy.uid)
                     continue
+                }
+                // Backfill the package name if the row predates the locked/remap feature
+                if (policy.packageName == null) {
+                    policy.packageName = pkgs.firstOrNull() ?: map.first().packageName
+                    db.update(policy)
                 }
                 policies.addAll(map)
             }

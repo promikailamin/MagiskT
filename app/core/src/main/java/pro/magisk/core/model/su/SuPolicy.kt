@@ -6,18 +6,21 @@
  * @property remain  Remaining time in seconds (-1 = forever, 0 = single use).
  * @property logging Whether SU access for this UID is logged.
  * @property notification Whether a notification is shown.
+ * @property packageName Package name of the app, used to remap the policy if the
+ *               app is reinstalled under a new UID.
  */
 package pro.magisk.core.model.su
 
 import pro.magisk.core.data.magiskdb.MagiskDB
 
 class SuPolicy(
-    val uid: Int,
+    var uid: Int,
     var policy: Int = QUERY,
     var remain: Long = -1L,
     var logging: Boolean = true,
     var notification: Boolean = true,
     var locked: Boolean = false,
+    var packageName: String? = null,
 ) {
     companion object {
         const val QUERY = 0
@@ -33,7 +36,7 @@ class SuPolicy(
         } else {
             MagiskDB.Literal("(strftime(\"%s\", \"now\") + $remain)")
         }
-        return mutableMapOf(
+        val map = mutableMapOf(
             "uid" to uid,
             "policy" to policy,
             "until" to until,
@@ -41,5 +44,7 @@ class SuPolicy(
             "notification" to notification,
             "locked" to locked
         )
+        packageName?.let { map["package_name"] = it }
+        return map
     }
 }
