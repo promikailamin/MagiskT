@@ -74,8 +74,12 @@ class AppManagerFragment : BaseFragment<FragmentAppManagerMd2Binding>() {
 
         val items = viewModel.items as ObservableList<AppManagerRvItem>
         val listCallback = object : ObservableList.OnListChangedCallback<ObservableList<AppManagerRvItem>>() {
-            override fun onChanged(sender: ObservableList<AppManagerRvItem>?, position: Int, count: Int) =
-                restoreScroll()
+            override fun onChanged(sender: ObservableList<AppManagerRvItem>?) = restoreScroll()
+            override fun onItemRangeChanged(
+                sender: ObservableList<AppManagerRvItem>?,
+                positionStart: Int,
+                itemCount: Int
+            ) = Unit
             override fun onItemRangeInserted(
                 sender: ObservableList<AppManagerRvItem>?, positionStart: Int, itemCount: Int
             ) = restoreScroll()
@@ -102,7 +106,7 @@ class AppManagerFragment : BaseFragment<FragmentAppManagerMd2Binding>() {
 
     /** Restores the saved scroll position once the rebuilt list is rendered. */
     private fun restoreScroll() {
-        if (viewModel.loading || viewModel.query.isNotEmpty()) return
+        if (viewModel.query.isNotEmpty()) return
         val lm = binding.appList.layoutManager as? LinearLayoutManager ?: return
         // Only restore when the reload actually reset the list to the top
         if (lm.findFirstVisibleItemPosition() == 0) {
