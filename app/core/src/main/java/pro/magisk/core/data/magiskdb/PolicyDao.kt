@@ -50,9 +50,21 @@ class PolicyDao : MagiskDB() {
 
     /** Remap the UID of any policy matching [pkg] to [newUid] (app reinstalled). */
     suspend fun remapUid(pkg: String, newUid: Int) {
-        val query = "UPDATE ${Table.POLICY} SET uid=$newUid " +
-            "WHERE package_name='$pkg' AND uid<>$newUid"
-        exec(query)
+        exec("DELETE FROM policies WHERE uid=$newUid AND package_name='$pkg'")
+        exec("UPDATE policies SET uid=$newUid " +
+            "WHERE package_name='$pkg' AND uid<>$newUid")
+    }
+
+    /** Fetch a locked policy held by any uid for [pkg], or null. */
+    suspend fun fetchLockedByPackage(pkg: String): SuPolicy? {
+        val query = "$SELECT_QUERY FROM ${Table.POLICY} " +
+            "WHERE package_name='$pkg' AND locked=1 LIMIT 1"
+        return exec(query, ::toPolicy).firstOrNull()
+    }
+
+    /** Delete the policy row for [uid] regardless of its locked state. */
+    suspend fun forceDelete(uid: Int) {
+        exec("DELETE FROM policies WHERE uid=$uid")
     }
 
     /** Fetch all policies for the current user. */

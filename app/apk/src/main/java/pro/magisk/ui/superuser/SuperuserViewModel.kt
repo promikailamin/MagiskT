@@ -79,15 +79,18 @@ class SuperuserViewModel(
                 if (pkgs == null) {
                     // UID no longer resolves to an installed app. If the package is
                     // known, it may have been reinstalled under a new UID: remap.
+                    val oldUid = uid
                     val remapped = policy.packageName?.let { pkg ->
                         runCatching {
                             pm.getApplicationInfo(pkg, MATCH_UNINSTALLED_PACKAGES).uid
-                        }.getOrNull()?.takeIf { it != uid }?.also { newUid ->
+                        }.getOrNull()?.takeIf { it != oldUid }?.also { newUid ->
                             policy.uid = newUid
                             db.update(policy)
                         }
                     }
                     if (remapped != null) {
+                        // Drop the stale row for the old UID to avoid duplicates
+                        db.forceDelete(oldUid)
                         uid = remapped
                         pkgs = pm.getPackagesForUid(uid)
                     }

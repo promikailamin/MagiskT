@@ -86,7 +86,21 @@ impl MagiskD {
             &[Integer(uid as i64)],
             settings,
         )
-        .sql_result()
+        .sql_result()?;
+
+        // No policy for this UID: the app may have been reinstalled under a new UID
+        // while a locked policy follows its package name. Remap and auto-grant.
+        if settings.policy == SuPolicy::Query && self.remap_locked_policy(uid) {
+            self.db_exec_with_rows(
+                "SELECT policy, logging, notification FROM policies \
+                 WHERE uid=? AND (until=0 OR until>strftime('%s', 'now'))",
+                &[Integer(uid as i64)],
+                settings,
+            )
+            .sql_result()?;
+        }
+
+        Ok(())
     }
 
     pub fn prune_su_access(&self) {
@@ -111,6 +125,12 @@ impl MagiskD {
                     if let Some(app_id) = pkg_app_id(&package_name) {
                         let new_uid = to_user_id(uid) * AID_USER_OFFSET + app_id;
                         if new_uid != uid {
+                            // Remove any stale row at the target uid for the same package
+                            // so the remap cannot hit a PRIMARY KEY conflict.
+                            self.db_exec(
+                                "DELETE FROM policies WHERE uid=? AND package_name=?",
+                                &[Integer(new_uid as i64), Text(package_name.as_str())],
+                            );
                             self.db_exec(
                                 "UPDATE policies SET uid=? WHERE uid=? AND package_name=?",
                                 &[
@@ -137,6 +157,51 @@ impl MagiskD {
         for uid in rm_uids {
             self.db_exec("DELETE FROM policies WHERE uid=?", &[Integer(uid as i64)]);
         }
+    }
+
+    /// On an SU request, if the requesting [uid] has no policy but the same
+    /// package has a locked policy under an old UID (app reinstalled), remap it
+    /// so the grant/lock follows the app. Returns whether a remap happened.
+    fn remap_locked_policy(&self, uid: i32) -> bool {
+        let target_app_id = to_app_id(uid);
+        if !(AID_APP_START..=AID_APP_END).contains(&target_app_id) {
+            return false;
+        }
+
+        let mut list = UidList(Vec::new());
+        if self
+            .db_exec_with_rows(
+                "SELECT uid, locked, package_name FROM policies WHERE locked=1 AND package_name != ''",
+                &[],
+                &mut list,
+            )
+            .sql_result()
+            .log()
+            .is_err()
+        {
+            return false;
+        }
+
+        for (old_uid, _locked, package_name) in list.0 {
+            if old_uid == uid {
+                continue;
+            }
+            if let Some(app_id) = pkg_app_id(&package_name) {
+                if app_id == target_app_id {
+                    // Remove any stale row at the requesting uid, then move the lock
+                    self.db_exec(
+                        "DELETE FROM policies WHERE uid=? AND package_name=?",
+                        &[Integer(uid as i64), Text(package_name.as_str())],
+                    );
+                    self.db_exec(
+                        "UPDATE policies SET uid=? WHERE uid=?",
+                        &[Integer(uid as i64), Integer(old_uid as i64)],
+                    );
+                    return true;
+                }
+            }
+        }
+        false
     }
 
     pub fn uid_granted_root(&self, mut uid: i32) -> bool {

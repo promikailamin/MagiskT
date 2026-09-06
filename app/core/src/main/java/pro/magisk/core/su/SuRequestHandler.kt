@@ -67,6 +67,12 @@ class SuRequestHandler(
             }
         }
 
+        // A locked policy was adopted above; apply it directly (no prompt)
+        if (policy.policy != SuPolicy.QUERY) {
+            respond(policy.policy, policy.remain)
+            return false
+        }
+
         return true
     }
 
@@ -90,6 +96,19 @@ class SuRequestHandler(
             Timber.e(e)
             respond(SuPolicy.DENY, -1)
             return false
+        }
+        // The app may have been reinstalled under a new UID while a locked policy
+        // follows its package name. Adopt it (remap the row) so the old grant/lock
+        // applies automatically without prompting again.
+        if (policy.policy == SuPolicy.QUERY) {
+            pkgInfo.packageName?.let { pkg ->
+                val locked = policyDB.fetchLockedByPackage(pkg)?.takeIf { it.uid != uid }
+                if (locked != null) {
+                    policyDB.remapUid(pkg, uid)
+                    locked.uid = uid
+                    policy = locked
+                }
+            }
         }
         if (!output.canWrite()) {
             Timber.e("Cannot write to $output")
