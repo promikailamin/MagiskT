@@ -52,7 +52,7 @@ impl SqlTable for UidList {
                 "uid" => uid = values.get_int(i as i32),
                 "locked" => locked = values.get_int(i as i32) != 0,
                 "package_name" => {
-                    let pkg = values.get_text(i);
+                    let pkg = values.get_text(i as i32);
                     package_name.push_str(pkg);
                 }
                 _ => {}
