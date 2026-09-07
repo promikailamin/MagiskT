@@ -15,6 +15,7 @@ import pro.magisk.core.di.ServiceLocator
 import pro.magisk.ui.home.HomeViewModel
 import pro.magisk.ui.install.InstallViewModel
 import pro.magisk.ui.log.LogViewModel
+import pro.magisk.ui.superuser.SuAppDetailViewModel
 import pro.magisk.ui.superuser.SuperuserViewModel
 import pro.magisk.ui.surequest.SuRequestViewModel
 
@@ -44,6 +45,7 @@ object VMFactory : ViewModelProvider.Factory {
             HomeViewModel::class.java -> HomeViewModel()
             LogViewModel::class.java -> LogViewModel(ServiceLocator.logRepo)
             SuperuserViewModel::class.java -> SuperuserViewModel(ServiceLocator.policyDB)
+            SuAppDetailViewModel::class.java -> SuAppDetailViewModel(ServiceLocator.policyDB)
             InstallViewModel::class.java -> InstallViewModel()
             SuRequestViewModel::class.java ->
                 SuRequestViewModel(ServiceLocator.policyDB, ServiceLocator.timeoutPrefs)

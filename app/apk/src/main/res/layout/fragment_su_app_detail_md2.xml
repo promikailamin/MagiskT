@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="pro.magisk.databinding.DataBindingAdaptersKt" />
+
+        <variable
+            name="viewModel"
+            type="pro.magisk.ui.superuser.SuAppDetailViewModel" />
+
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            gone="@{viewModel.loading}"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fillViewport="true"
+            android:paddingStart="@dimen/l1"
+            android:paddingEnd="@dimen/l1"
+            android:paddingBottom="@dimen/l1"
+            app:fitsSystemWindowsInsets="top|bottom"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/l1"
+                android:useDefaultMargins="true">
+
+                <!-- App header -->
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/WidgetFoundation.Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/l1">
+
+                        <ImageView
+                            style="@style/WidgetFoundation.Image"
+                            srcCompat="@{viewModel.icon}"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            tools:srcCompat="@drawable/ic_logo" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/l1"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:maxLines="2"
+                                android:text="@{viewModel.title}"
+                                android:textAppearance="@style/AppearanceFoundation.Body"
+                                android:textStyle="bold"
+                                tools:text="Magisk" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="middle"
+                                android:maxLines="2"
+                                android:text="@{viewModel.packageName}"
+                                android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
+                                android:textColor="@android:color/tertiary_text_dark"
+                                tools:text="pro.magisk" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- App details -->
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/WidgetFoundation.Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/l1">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/l_50"
+                            android:text="@string/su_detail_info"
+                            android:textAppearance="@style/AppearanceFoundation.Body"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text='@{@string/app_manager_info_name + ": " + viewModel.infoName}'
+                            android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
+                            tools:text="App name: Magisk" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text='@{@string/app_manager_info_package + ": " + viewModel.infoPackage}'
+                            android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
+                            tools:text="Package name: pro.magisk" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text='@{@string/app_manager_info_uid + ": " + viewModel.infoUid}'
+                            android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
+                            tools:text="App UID: 10233" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text='@{@string/app_manager_info_version + ": " + viewModel.infoVersion}'
+                            android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
+                            tools:text="Version: 1.0 (1)" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text='@{@string/app_manager_info_install_dir + ": " + viewModel.infoSourceDir}'
+                            android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
+                            tools:text="Installed directory: /data/app" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text='@{@string/app_manager_info_data_dir1 + ": " + viewModel.infoDataDir1}'
+                            android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
+                            tools:text="Data directory (external): /storage" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text='@{@string/app_manager_info_data_dir2 + ": " + viewModel.infoDataDir2}'
+                            android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
+                            tools:text="Data directory (internal): /data/data" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text='@{@string/app_manager_info_size + ": " + viewModel.infoSize}'
+                            android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
+                            tools:text="App size: 100 MB" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text='@{@string/app_manager_info_signature + ": " + viewModel.infoSignature}'
+                            android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
+                            tools:text="Signature: AB:CD" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text='@{@string/app_manager_info_install_time + ": " + viewModel.infoInstallTime}'
+                            android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
+                            tools:text="Installed time: 2026-01-01" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text='@{@string/app_manager_info_install_source + ": " + viewModel.infoInstallSource}'
+                            android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
+                            tools:text="Install source: Play Store" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- SU management -->
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/WidgetFoundation.Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/l1">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/l_50"
+                            android:text="@string/su_detail_access_policy"
+                            android:textAppearance="@style/AppearanceFoundation.Body"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/granted"
+                                android:textAppearance="@style/AppearanceFoundation.Body" />
+
+                            <pro.magisk.widget.MaterialSwitch
+                                gone="@{viewModel.showSlider}"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="@={viewModel.enabled}" />
+
+                            <com.google.android.material.slider.Slider
+                                goneUnless="@{viewModel.showSlider}"
+                                labelFormatter="@{viewModel.sliderValueToPolicyString}"
+                                android:layout_width="96dp"
+                                android:layout_height="wrap_content"
+                                android:stepSize="1"
+                                android:value="@={DataBindingAdaptersKt.policyToSliderValue(viewModel.sliderValue)}"
+                                android:valueFrom="1"
+                                android:valueTo="3" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="@dimen/l1"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/superuser_toggle_notification"
+                                android:textAppearance="@style/AppearanceFoundation.Body" />
+
+                            <pro.magisk.widget.MaterialSwitch
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="@={viewModel.shouldNotify}" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="@dimen/l_50"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/su_detail_logging"
+                                android:textAppearance="@style/AppearanceFoundation.Body" />
+
+                            <pro.magisk.widget.MaterialSwitch
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="@={viewModel.shouldLog}" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="@dimen/l_50"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/su_detail_toggle_lock"
+                                android:textAppearance="@style/AppearanceFoundation.Body" />
+
+                            <pro.magisk.widget.MaterialSwitch
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="@={viewModel.shouldLock}" />
+
+                        </LinearLayout>
+
+                        <Button
+                            style="@style/WidgetFoundation.Button.Outlined.Error"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/l1"
+                            android:onClick="@{() -> viewModel.revoke()}"
+                            android:text="@string/superuser_toggle_revoke" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+        <LinearLayout
+            goneUnless="@{viewModel.loading}"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            tools:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/loading"
+                android:textAppearance="@style/AppearanceFoundation.Title"
+                android:textStyle="bold" />
+
+            <ProgressBar
+                style="@style/WidgetFoundation.ProgressBar.Indeterminate"
+                android:layout_marginTop="@dimen/l1" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+</layout>

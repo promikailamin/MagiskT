@@ -95,6 +95,11 @@
     <string name="superuser_toggle_notification">Notifications</string>
     <string name="superuser_toggle_revoke">Revoke</string>
     <string name="superuser_policy_none">No apps have asked for Superuser permission yet.</string>
+    <string name="su_detail_title">Superuser details</string>
+    <string name="su_detail_access_policy">Access policy</string>
+    <string name="su_detail_toggle_lock">Locked</string>
+    <string name="su_detail_info">About</string>
+    <string name="su_detail_logging">Logging</string>
 
     <!--Logs-->
     <string name="log_data_none">You\'re log-free. Try using your root apps more.</string>

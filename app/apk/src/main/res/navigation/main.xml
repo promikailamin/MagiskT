@@ -128,7 +128,37 @@
         android:id="@+id/superuserFragment"
         android:name="pro.magisk.ui.superuser.SuperuserFragment"
         android:label="SuperuserFragment"
-        tools:layout="@layout/fragment_superuser_md2" />
+        tools:layout="@layout/fragment_superuser_md2">
+
+        <action
+            android:id="@+id/action_superuserFragment_to_suAppDetailFragment"
+            app:destination="@id/suAppDetailFragment"
+            app:enterAnim="@anim/fragment_enter"
+            app:exitAnim="@anim/fragment_exit"
+            app:popEnterAnim="@anim/fragment_enter_pop"
+            app:popExitAnim="@anim/fragment_exit_pop" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/suAppDetailFragment"
+        android:name="pro.magisk.ui.superuser.SuAppDetailFragment"
+        android:label="SuAppDetailFragment"
+        tools:layout="@layout/fragment_su_app_detail_md2">
+
+        <argument
+            android:name="uid"
+            app:argType="integer" />
+
+        <argument
+            android:name="packageName"
+            app:argType="string" />
+
+        <argument
+            android:name="appName"
+            app:argType="string" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/themeFragment"

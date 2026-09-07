@@ -1,9 +1,10 @@
 /**
  * RecyclerView item for a Superuser policy entry.
  *
- * Displays the app icon, name (prefixes "[SharedUID]" for shared-UID apps), and
- * expandable details with toggles for notification, logging, and a three-position
- * slider (Deny / Restrict / Allow). Changes are dispatched to [SuperuserViewModel].
+ * Displays the app icon, name (prefixes "[SharedUID]" for shared-UID apps), and a
+ * quick access-policy control on the right (a Deny/Allow switch, or a
+ * Deny/Restrict/Allow slider when restriction is available). Tapping the row
+ * opens the SU app detail screen; long-pressing toggles the locked state.
  */
 package pro.magisk.ui.superuser
 
@@ -16,10 +17,9 @@ import pro.magisk.core.model.su.SuPolicy
 import pro.magisk.databinding.DiffItem
 import pro.magisk.databinding.ItemWrapper
 import pro.magisk.databinding.ObservableRvItem
-import pro.magisk.databinding.set
 import pro.magisk.core.R as CoreR
 
-/** A single Superuser policy entry with action toggles and a policy slider. */
+/** A single Superuser policy entry with a quick policy control. */
 class PolicyRvItem(
     private val viewModel: SuperuserViewModel,
     override val item: SuPolicy,
@@ -41,10 +41,6 @@ class PolicyRvItem(
             setter(new)
         }
     }
-
-    @get:Bindable
-    var isExpanded = false
-        set(value) = set(value, field, { field = it }, BR.expanded)
 
     val showSlider = Config.suRestrict || item.policy == SuPolicy.RESTRICT
 
@@ -75,22 +71,6 @@ class PolicyRvItem(
     }
 
     @get:Bindable
-    var shouldNotify
-        get() = item.notification
-        private set(value) = setImpl(value, shouldNotify) {
-            item.notification = it
-            viewModel.updateNotify(this)
-        }
-
-    @get:Bindable
-    var shouldLog
-        get() = item.logging
-        private set(value) = setImpl(value, shouldLog) {
-            item.logging = it
-            viewModel.updateLogging(this)
-        }
-
-    @get:Bindable
     var shouldLock
         get() = item.locked
         private set(value) = setImpl(value, shouldLock) {
@@ -99,24 +79,13 @@ class PolicyRvItem(
             viewModel.updateLocked(this)
         }
 
-    fun toggleExpand() {
-        isExpanded = !isExpanded
-    }
-
-    fun toggleNotify() {
-        shouldNotify = !shouldNotify
-    }
-
-    fun toggleLog() {
-        shouldLog = !shouldLog
-    }
-
     fun toggleLock() {
         shouldLock = !shouldLock
     }
 
-    fun revoke() {
-        viewModel.deletePressed(this)
+    /** Opens the SU app detail screen for this entry. */
+    fun openDetail() {
+        viewModel.openDetail(this)
     }
 
     override fun itemSameAs(other: PolicyRvItem) = packageName == other.packageName
