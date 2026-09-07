@@ -202,7 +202,7 @@ class SuAppDetailViewModel(
     }
 
     @SuppressLint("InlinedApi")
-    private fun load(): LoadResult {
+    private suspend fun load(): LoadResult {
         val pm = AppContext.packageManager
         val appInfo = runCatching {
             pm.getApplicationInfo(packageName, MATCH_UNINSTALLED_PACKAGES)
