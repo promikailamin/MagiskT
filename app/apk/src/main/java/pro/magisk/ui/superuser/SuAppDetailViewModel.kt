@@ -59,7 +59,7 @@ class SuAppDetailViewModel(
     private var detail: AppDetail? = null
 
     @get:Bindable
-    var icon: Drawable? = null
+    var icon: Drawable = AppContext.packageManager.defaultActivityIcon
         private set
 
     val packageName get() = args.packageName
