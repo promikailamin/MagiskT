@@ -11,6 +11,7 @@ package pro.magisk.ui.superuser
 
 import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.MATCH_UNINSTALLED_PACKAGES
 import android.graphics.drawable.Drawable
@@ -207,6 +208,12 @@ class SuAppDetailViewModel(
         val appInfo = runCatching {
             pm.getApplicationInfo(packageName, MATCH_UNINSTALLED_PACKAGES)
         }.getOrNull()
+        val pkgInfo = runCatching {
+            pm.getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES or MATCH_UNINSTALLED_PACKAGES)
+        }.getOrNull() ?: runCatching {
+            @Suppress("DEPRECATION")
+            pm.getPackageInfo(packageName, PackageManager.GET_SIGNATURES or MATCH_UNINSTALLED_PACKAGES)
+        }.getOrNull()
 
         var policy = db.fetch(uid)
         if (policy == null) {
@@ -227,22 +234,14 @@ class SuAppDetailViewModel(
             icon = appInfo?.loadIcon(pm) ?: pm.defaultActivityIcon,
             sourceDir = appInfo?.publicSourceDir ?: appInfo?.sourceDir.orEmpty(),
             dataDir = appInfo?.dataDir.orEmpty(),
-            isSharedUid = appInfo?.sharedUserId != null,
+            isSharedUid = pkgInfo?.sharedUserId != null,
             policy = policy,
-            detail = gatherDetail(appInfo)
+            detail = gatherDetail(appInfo, pkgInfo)
         )
     }
 
-    private fun gatherDetail(appInfo: ApplicationInfo?): AppDetail {
-        val pm = AppContext.packageManager
+    private fun gatherDetail(appInfo: ApplicationInfo?, pkgInfo: PackageInfo?): AppDetail {
         val pkg = packageName
-        val pkgInfo = runCatching {
-            pm.getPackageInfo(pkg, PackageManager.GET_SIGNING_CERTIFICATES or MATCH_UNINSTALLED_PACKAGES)
-        }.getOrNull() ?: runCatching {
-            @Suppress("DEPRECATION")
-            pm.getPackageInfo(pkg, PackageManager.GET_SIGNATURES or MATCH_UNINSTALLED_PACKAGES)
-        }.getOrNull()
-
         return AppDetail(
             version = pkgInfo?.let {
                 buildString {
