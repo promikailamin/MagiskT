@@ -90,10 +90,18 @@ class AppManagerFragment : BaseFragment<FragmentAppManagerMd2Binding>() {
     /** Restores the saved scroll position once the rebuilt list is rendered. */
     private fun restoreScroll() {
         if (viewModel.query.isNotEmpty()) return
-        val lm = binding.appList.layoutManager as? LinearLayoutManager ?: return
-        // Only restore when the reload actually reset the list to the top
-        if (lm.findFirstVisibleItemPosition() == 0) {
-            lm.scrollToPositionWithOffset(viewModel.savedPos, viewModel.savedOffset)
+        val pos = viewModel.savedPos
+        val offset = viewModel.savedOffset
+        // Nothing to restore: either the initial load or the user was at the top.
+        if (pos <= 0 && offset == 0) return
+        // A reload wipes and refills the list, so the scroll must be (re)applied only
+        // after the rebuilt list has actually been laid out. Running it now would be
+        // clobbered by the layout pass over the emptied list.
+        binding.appList.post {
+            val lm = binding.appList.layoutManager as? LinearLayoutManager ?: return@post
+            if (lm.itemCount > 0) {
+                lm.scrollToPositionWithOffset(pos, offset)
+            }
         }
     }
 

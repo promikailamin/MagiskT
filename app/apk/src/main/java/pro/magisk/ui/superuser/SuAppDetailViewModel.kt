@@ -184,6 +184,7 @@ class SuAppDetailViewModel(
         val icon: Drawable,
         val sourceDir: String,
         val dataDir: String,
+        val appInfo: ApplicationInfo?,
         val isSharedUid: Boolean,
         val policy: SuPolicy,
         val detail: AppDetail
@@ -200,6 +201,18 @@ class SuAppDetailViewModel(
         detail = result.detail
         loading = false
         notifyChange()
+        loadSize(result)
+    }
+
+    /** Computes the app size (a slow `du` shell walk) off the critical path. */
+    private fun loadSize(result: LoadResult) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val size = appSize(result.appInfo)
+            withContext(Dispatchers.Main) {
+                detail = detail?.copy(size = size)
+                notifyChange()
+            }
+        }
     }
 
     @SuppressLint("InlinedApi")
@@ -234,13 +247,14 @@ class SuAppDetailViewModel(
             icon = appInfo?.loadIcon(pm) ?: pm.defaultActivityIcon,
             sourceDir = appInfo?.publicSourceDir ?: appInfo?.sourceDir.orEmpty(),
             dataDir = appInfo?.dataDir.orEmpty(),
+            appInfo = appInfo,
             isSharedUid = pkgInfo?.sharedUserId != null,
             policy = policy,
-            detail = gatherDetail(appInfo, pkgInfo)
+            detail = gatherDetail(pkgInfo)
         )
     }
 
-    private fun gatherDetail(appInfo: ApplicationInfo?, pkgInfo: PackageInfo?): AppDetail {
+    private fun gatherDetail(pkgInfo: PackageInfo?): AppDetail {
         val pkg = packageName
         return AppDetail(
             version = pkgInfo?.let {
@@ -249,8 +263,8 @@ class SuAppDetailViewModel(
                     if (it.versionCode > 0) append(" (${it.versionCode})")
                 }
             }.takeIf { !it.isNullOrBlank() } ?: "?",
-            size = appSize(appInfo),
-            signature = signature(pkg),
+            size = AppContext.getString(CoreR.string.loading),
+            signature = signature(pkgInfo),
             installTime = pkgInfo?.firstInstallTime
                 ?.let { SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date(it)) }
                 ?: "?",
@@ -279,15 +293,13 @@ class SuAppDetailViewModel(
         }
     }
 
-    private fun signature(pkg: String): String {
-        val pm = AppContext.packageManager
+    private fun signature(pkgInfo: PackageInfo?): String {
         val bytes = runCatching {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                pm.getPackageInfo(pkg, PackageManager.GET_SIGNING_CERTIFICATES)
-                    .signingInfo?.apkContentsSigners?.firstOrNull()?.toByteArray()
+                pkgInfo?.signingInfo?.apkContentsSigners?.firstOrNull()?.toByteArray()
             } else {
                 @Suppress("DEPRECATION")
-                pm.getPackageInfo(pkg, PackageManager.GET_SIGNATURES).signatures?.firstOrNull()?.toByteArray()
+                pkgInfo?.signatures?.firstOrNull()?.toByteArray()
             }
         }.getOrNull() ?: return "?"
         return runCatching {
