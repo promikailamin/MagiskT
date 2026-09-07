@@ -73,24 +73,7 @@ class AppManagerFragment : BaseFragment<FragmentAppManagerMd2Binding>() {
         this.loadingCallback = loadingCallback
 
         val items = viewModel.items as ObservableList<AppManagerRvItem>
-        val listCallback = object : ObservableList.OnListChangedCallback<ObservableList<AppManagerRvItem>>() {
-            override fun onChanged(sender: ObservableList<AppManagerRvItem>?) = restoreScroll()
-            override fun onItemRangeChanged(
-                sender: ObservableList<AppManagerRvItem>?,
-                positionStart: Int,
-                itemCount: Int
-            ) = Unit
-            override fun onItemRangeInserted(
-                sender: ObservableList<AppManagerRvItem>?, positionStart: Int, itemCount: Int
-            ) = restoreScroll()
-            override fun onItemRangeRemoved(
-                sender: ObservableList<AppManagerRvItem>?, positionStart: Int, itemCount: Int
-            ) = Unit
-            override fun onItemRangeMoved(
-                sender: ObservableList<AppManagerRvItem>?,
-                fromPosition: Int, toPosition: Int, itemCount: Int
-            ) = Unit
-        }
+        val listCallback = ScrollRestoreCallback { restoreScroll() }
         items.addOnListChangedCallback(listCallback)
         this.listCallback = listCallback
     }
@@ -112,6 +95,28 @@ class AppManagerFragment : BaseFragment<FragmentAppManagerMd2Binding>() {
         if (lm.findFirstVisibleItemPosition() == 0) {
             lm.scrollToPositionWithOffset(viewModel.savedPos, viewModel.savedOffset)
         }
+    }
+
+    /** List change callback that restores the scroll position on list rebuilds. */
+    private class ScrollRestoreCallback(onRebuild: () -> Unit) :
+        ObservableList.OnListChangedCallback<ObservableList<AppManagerRvItem>>() {
+
+        private val onRebuild = onRebuild
+
+        override fun onChanged(sender: ObservableList<AppManagerRvItem>?) = onRebuild()
+        override fun onItemRangeChanged(
+            sender: ObservableList<AppManagerRvItem>?, positionStart: Int, itemCount: Int
+        ) = Unit
+        override fun onItemRangeInserted(
+            sender: ObservableList<AppManagerRvItem>?, positionStart: Int, itemCount: Int
+        ) = onRebuild()
+        override fun onItemRangeRemoved(
+            sender: ObservableList<AppManagerRvItem>?, positionStart: Int, itemCount: Int
+        ) = Unit
+        override fun onItemRangeMoved(
+            sender: ObservableList<AppManagerRvItem>?,
+            fromPosition: Int, toPosition: Int, itemCount: Int
+        ) = Unit
     }
 
     override fun onPreBind(binding: FragmentAppManagerMd2Binding) = Unit
