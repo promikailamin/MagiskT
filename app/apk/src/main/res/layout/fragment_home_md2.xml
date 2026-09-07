@@ -189,6 +189,7 @@
                 android:layout_gravity="bottom"
                 android:layout_marginLeft="@dimen/l1"
                 android:layout_marginRight="@dimen/l1"
+                android:layout_marginTop="4dp"
                 android:paddingHorizontal="12dp"
                 android:focusable="false">
 

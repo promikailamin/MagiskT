@@ -6,7 +6,7 @@
 - **Config**: `config.prop` (version/ABI/keystore), `app/gradle.properties` (magisk.* prefix)
 - **Native**: Rust (Cargo workspace `native/src/`) + legacy C++ (NDK via `Android.mk`)
 - **Build pipeline**: `build.py` → `load_config()` (reads config.prop + gradle.properties + git commit) → `dump_flags_native()` (generates `native/out/generated/flags.{h,rs}`) → `dump_flags_app()` (generates `app/build/flags.prop`) → Gradle (`MagiskPlugin` loads flags.prop and exposes via `Config` object)
-- **Build commit**: `git rev-parse --short=8 HEAD` is stored as `config["buildCommit"]` → written to `flags.prop` → exposed as `BuildConfig.BUILD_COMMIT`. Falls back to `"local"` if git unavailable.
+- **Build commit**: Local builds (`build.py` outside GitHub Actions) report `"local"`; on GitHub Actions the checked-out commit is used (`GITHUB_SHA` short hash, falling back to `git rev-parse --short=8 HEAD`). Stored as `config["buildCommit"]` → written to `flags.prop` → exposed as `BuildConfig.BUILD_COMMIT`.
 - **BuildConfig**: In `app/core/build.gradle.kts`, defines `APP_PACKAGE_NAME`, `APP_VERSION_CODE`, `APP_VERSION_NAME`, `BUILD_COMMIT`, `STUB_VERSION`
 
 ## Module Tree (`app/`)
