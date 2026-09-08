@@ -193,7 +193,7 @@ class AppManagerViewModel : AsyncLoadViewModel() {
             .filter { it.isNotBlank() }
             .joinToString(" ") { "'$it'" }
         if (dirs.isEmpty()) return "?"
-        val out = runCatching { fastCmd(shell, "du -sk $dirs 2>/dev/null") }.getOrNull().orEmpty()
+        val out = runCatching { fastCmd(shell, "timeout 3 du -sk $dirs 2>/dev/null") }.getOrNull().orEmpty()
         val kb = out.lines().mapNotNull { line ->
             line.trim().substringBefore('\t').toLongOrNull()
         }.sum()

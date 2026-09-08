@@ -280,7 +280,9 @@ class SuAppDetailViewModel(
             .joinToString(" ") { "'$it'" }
         if (dirs.isEmpty()) return "?"
         val shell = Shell.getShell()
-        val out = runCatching { fastCmd(shell, "du -sk $dirs 2>/dev/null") }.getOrNull().orEmpty()
+        // Bounded so the shared root shell is never hogged for long; the command
+        // cannot be interrupted once submitted, so timebox it with `timeout`.
+        val out = runCatching { fastCmd(shell, "timeout 3 du -sk $dirs 2>/dev/null") }.getOrNull().orEmpty()
         val kb = out.lines().mapNotNull { line ->
             line.trim().substringBefore('\t').toLongOrNull()
         }.sum()
