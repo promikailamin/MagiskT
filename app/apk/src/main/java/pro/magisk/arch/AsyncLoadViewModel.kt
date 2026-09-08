@@ -11,6 +11,7 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * Base ViewModel for screens that need to load data once per resume.
@@ -24,11 +25,29 @@ abstract class AsyncLoadViewModel : BaseViewModel() {
     fun startLoading() {
         // Prevent multiple loading jobs from running concurrently
         if (loadingJob?.isActive == true) {
+            Timber.tag(tag).d("startLoading: skip, job ${loadingJob} still active")
             return
         }
-        loadingJob = viewModelScope.launch { doLoadWork() }
+        val time = System.currentTimeMillis()
+        Timber.tag(tag).d("startLoading: launching doLoadWork")
+        loadingJob = viewModelScope.launch {
+            Timber.tag(tag).d("doLoadWork started")
+            try {
+                doLoadWork()
+                Timber.tag(tag).d("doLoadWork finished in ${System.currentTimeMillis() - time} ms")
+            } catch (t: Throwable) {
+                Timber.tag(tag).e(t, "doLoadWork failed after ${System.currentTimeMillis() - time} ms")
+                throw t
+            } finally {
+                loadingJob = null
+            }
+        }
     }
 
     /** Implement this to perform the actual async data-loading work. */
     protected abstract suspend fun doLoadWork()
+
+    /** Per-instance tag so logs identify the concrete screen. */
+    private val tag: String
+        get() = javaClass.simpleName
 }

@@ -23,25 +23,41 @@ import pro.magisk.core.ktx.deviceProtectedContext
 import pro.magisk.core.repository.LogRepository
 import io.noties.markwon.Markwon
 import io.noties.markwon.utils.NoCopySpannableFactory
+import timber.log.Timber
 
 @SuppressLint("StaticFieldLeak")
 object ServiceLocator {
 
     /** Device-protected context – survives reboots. */
-    val deContext by lazy { AppContext.deviceProtectedContext }
-    val timeoutPrefs by lazy { deContext.getSharedPreferences("su_timeout", 0) }
+    val deContext by lazy {
+        Timber.d("ServiceLocator: creating deContext")
+        AppContext.deviceProtectedContext
+    }
+    val timeoutPrefs by lazy {
+        Timber.d("ServiceLocator: creating timeoutPrefs")
+        deContext.getSharedPreferences("su_timeout", 0)
+    }
 
     // ---- Shell-backed MagiskDB DAOs ----
-    val policyDB = PolicyDao()
-    val settingsDB = SettingsDao()
-    val stringDB = StringDao()
+    val policyDB = PolicyDao().also { Timber.d("ServiceLocator: policyDB created") }
+    val settingsDB = SettingsDao().also { Timber.d("ServiceLocator: settingsDB created") }
+    val stringDB = StringDao().also { Timber.d("ServiceLocator: stringDB created") }
 
     // ---- Room (SU access logs) ----
-    val sulogDB by lazy { createSuLogDatabase(deContext).suLogDao() }
-    val logRepo by lazy { LogRepository(sulogDB) }
+    val sulogDB by lazy {
+        Timber.d("ServiceLocator: opening sulogs.db")
+        createSuLogDatabase(deContext).suLogDao()
+    }
+    val logRepo by lazy {
+        Timber.d("ServiceLocator: creating logRepo")
+        LogRepository(sulogDB)
+    }
 
     // ---- Markdown renderer ----
-    val markwon by lazy { createMarkwon(AppContext) }
+    val markwon by lazy {
+        Timber.d("ServiceLocator: creating markwon")
+        createMarkwon(AppContext)
+    }
 }
 
 private fun createSuLogDatabase(context: Context) =

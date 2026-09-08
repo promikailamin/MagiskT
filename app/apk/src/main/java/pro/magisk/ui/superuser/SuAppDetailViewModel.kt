@@ -38,6 +38,7 @@ import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import timber.log.Timber
 import pro.magisk.core.R as CoreR
 
 /** ViewModel for the SU app detail screen. */
@@ -207,7 +208,10 @@ class SuAppDetailViewModel(
     /** Computes the app size (a slow `du` shell walk) off the critical path. */
     private fun loadSize(result: LoadResult) {
         viewModelScope.launch(Dispatchers.IO) {
+            val time = System.currentTimeMillis()
             val size = appSize(result.appInfo)
+            Timber.d("SuAppDetailViewModel: appSize computed in %d ms -> %s",
+                System.currentTimeMillis() - time, size)
             withContext(Dispatchers.Main) {
                 detail = detail?.copy(size = size)
                 notifyChange()

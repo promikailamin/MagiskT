@@ -42,6 +42,7 @@ import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import timber.log.Timber
 
 /** ViewModel for the App manager screen. */
 class AppManagerViewModel : AsyncLoadViewModel() {
@@ -115,7 +116,10 @@ class AppManagerViewModel : AsyncLoadViewModel() {
     /** Lazily gathers app detail into the item once it is expanded. */
     private fun loadDetail(item: AppManagerRvItem) {
         viewModelScope.launch {
+            val time = System.currentTimeMillis()
             item.detail = withContext(Dispatchers.IO) { gatherDetail(item) }
+            Timber.d("AppManagerViewModel: detail for %s gathered in %d ms",
+                item.packageName, System.currentTimeMillis() - time)
         }
     }
 

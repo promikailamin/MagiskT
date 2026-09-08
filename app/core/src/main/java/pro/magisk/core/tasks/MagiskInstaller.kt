@@ -518,11 +518,16 @@ abstract class MagiskInstallImpl protected constructor(
     protected abstract suspend fun operations(): Boolean
 
     open suspend fun exec(): Boolean {
-        if (haveActiveSession.getAndSet(true))
+        if (haveActiveSession.getAndSet(true)) {
+            Timber.w("MagiskInstallImpl: active session in progress, skipping ${javaClass.simpleName}")
             return false
-
+        }
+        val time = System.currentTimeMillis()
+        Timber.i("MagiskInstallImpl.exec: %s", javaClass.simpleName)
         val result = withContext(Dispatchers.IO) { operations() }
         haveActiveSession.set(false)
+        Timber.i("MagiskInstallImpl.exec: %s -> %s in %d ms",
+            javaClass.simpleName, result, System.currentTimeMillis() - time)
         if (result)
             return true
 

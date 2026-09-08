@@ -39,10 +39,13 @@ import pro.magisk.core.ktx.reflectField
 import pro.magisk.core.wrap
 import rikka.insets.WindowInsetsHelper
 import rikka.layoutinflater.view.LayoutInflaterFactory
+import timber.log.Timber
 
 /** Shared base Activity for all UI screens. */
 abstract class UIActivity<Binding : ViewDataBinding>
     : AppCompatActivity(), ViewModelHolder, IActivityExtension {
+
+    private val logTag get() = javaClass.simpleName
 
     protected lateinit var binding: Binding
     protected abstract val layoutRes: Int
@@ -63,6 +66,8 @@ abstract class UIActivity<Binding : ViewDataBinding>
 
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
+        val time = System.currentTimeMillis()
+        Timber.tag(logTag).d("onCreate: savedState=${savedInstanceState != null}")
         layoutInflater.factory2 = LayoutInflaterFactory(delegate)
             .addOnViewCreatedListener(WindowInsetsHelper.LISTENER)
 
@@ -103,11 +108,37 @@ abstract class UIActivity<Binding : ViewDataBinding>
                 }
             }
         }
+        Timber.tag(logTag).d("onCreate done in ${System.currentTimeMillis() - time} ms")
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         extension.onSaveInstanceState(outState)
+    }
+
+    override fun onStart() {
+        Timber.tag(logTag).d("onStart")
+        super.onStart()
+    }
+
+    override fun onResume() {
+        Timber.tag(logTag).d("onResume")
+        super.onResume()
+        // Trigger async loading for screens that need it
+        viewModel.let {
+            if (it is AsyncLoadViewModel)
+                it.startLoading()
+        }
+    }
+
+    override fun onStop() {
+        Timber.tag(logTag).d("onStop")
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        Timber.tag(logTag).d("onDestroy")
+        super.onDestroy()
     }
 
     /** Inflates the layout via DataBinding and wires [viewModel] and lifecycle owner. */
@@ -128,15 +159,6 @@ abstract class UIActivity<Binding : ViewDataBinding>
         builder: Snackbar.() -> Unit = {}
     ) = Snackbar.make(snackbarView, message, length)
         .setAnchorView(snackbarAnchorView).apply(builder).show()
-
-    override fun onResume() {
-        super.onResume()
-        // Trigger async loading for screens that need it
-        viewModel.let {
-            if (it is AsyncLoadViewModel)
-                it.startLoading()
-        }
-    }
 
     override fun onEventDispatched(event: ViewEvent) = when (event) {
         is ContextExecutor -> event(this)

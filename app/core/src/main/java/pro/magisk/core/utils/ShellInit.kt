@@ -27,6 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.jar.JarFile
+import timber.log.Timber
 
 /**
  * [Shell.Initializer] called once per shell process.
@@ -37,8 +38,11 @@ import java.util.jar.JarFile
  */
 class ShellInit : Shell.Initializer() {
     override fun onInit(context: Context, shell: Shell): Boolean {
+        val time = System.currentTimeMillis()
+        Timber.d("ShellInit.onInit: root=%s", shell.isRoot)
         if (shell.isRoot) {
             Info.isRooted = true
+            Timber.d("ShellInit: confirmed root access")
             RootUtils.bindTask?.let { shell.execTask(it) }
             RootUtils.bindTask = null
         }
@@ -88,6 +92,7 @@ class ShellInit : Shell.Initializer() {
         }.exec()
 
         Info.init(shell)
+        Timber.d("ShellInit.onInit done in ${System.currentTimeMillis() - time} ms")
         return true
     }
 }

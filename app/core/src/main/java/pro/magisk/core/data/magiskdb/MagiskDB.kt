@@ -11,6 +11,7 @@ import pro.magisk.core.ktx.await
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 open class MagiskDB {
 
@@ -28,21 +29,31 @@ open class MagiskDB {
         crossinline mapper: (Map<String, String>) -> R
     ): List<R> {
         return withContext(Dispatchers.IO) {
-            val out = Shell.cmd("magisk --sqlite '$query'").await().out
-            out.map { line ->
+            val time = System.currentTimeMillis()
+            val result = Shell.cmd("magisk --sqlite '$query'").await()
+            val rows = result.out.map { line ->
                 line.split("\\|".toRegex())
                     .map { it.split("=", limit = 2) }
                     .filter { it.size == 2 }
                     .associate { it[0] to it[1] }
                     .let(mapper)
             }
+            logQuery(query, result.isSuccess, rows.size, time)
+            rows
         }
     }
 
     /** Execute a query that does not return rows (e.g. DELETE, REPLACE). */
     suspend fun exec(query: String) {
         withContext(Dispatchers.IO) {
-            Shell.cmd("magisk --sqlite '$query'").await()
+            val time = System.currentTimeMillis()
+            val result = Shell.cmd("magisk --sqlite '$query'").await()
+            if (!result.isSuccess) {
+                Timber.e("SQL FAILED [%dms] %s | stderr: %s",
+                    System.currentTimeMillis() - time, query.sanitize(), result.err)
+            } else {
+                Timber.d("SQL [%dms] %s", System.currentTimeMillis() - time, query.sanitize())
+            }
         }
     }
 
@@ -65,4 +76,21 @@ open class MagiskDB {
         const val SETTINGS = "settings"
         const val STRINGS = "strings"
     }
+
+    @PublishedApi
+    internal fun logQuery(query: String, success: Boolean, rowCount: Int, start: Long) {
+        val ms = System.currentTimeMillis() - start
+        if (!success) {
+            Timber.e("SQL FAILED [%dms] %s", ms, query.sanitize())
+        } else {
+            Timber.d("SQL [%dms] %d rows: %s", ms, rowCount, query.sanitize())
+        }
+    }
+
+    /** Strip the value halves to keep secrets/sensitive data out of logs. */
+    @PublishedApi
+    internal fun String.sanitize(): String =
+        substring(0, minOf(length, 200))
+            .replace(Regex("=\\s*'[^']*'"), "='...'")
+            .replace(Regex("=\\s*\"[^\"]*\""), "=\"...\"")
 }

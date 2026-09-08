@@ -59,6 +59,7 @@ class RootUtils(stub: Any?) : RootService() {
     }
 
     override fun onCreate() {
+        Timber.d("RootUtils.onCreate")
         am = getSystemService()!!
     }
 
@@ -67,6 +68,7 @@ class RootUtils(stub: Any?) : RootService() {
     }
 
     override fun onBind(intent: Intent): IBinder {
+        Timber.d("RootUtils.onBind: intent=%s", intent.action)
         return object : IRootUtils.Stub() {
             override fun getAppProcess(pid: Int) = safe(null) { getAppProcessImpl(pid) }
             override fun getFileSystem(): IBinder = FileSystemManager.getService()
@@ -77,12 +79,18 @@ class RootUtils(stub: Any?) : RootService() {
     private fun getAppProcessImpl(_pid: Int): ActivityManager.RunningAppProcessInfo? {
         val procList = am.runningAppProcesses
         var pid = _pid
+        var depth = 0
+        Timber.d("getAppProcess(%d): walking /proc parent chain", _pid)
         while (pid > 1) {
             val proc = procList.find { it.pid == pid }
-            if (proc != null)
+            if (proc != null) {
+                Timber.d("getAppProcess(%d): found pid=%d processName=%s depth=%d",
+                    _pid, pid, proc.processName, depth)
                 return proc
+            }
 
             if (Os.stat("/proc/$pid").st_uid == 0) {
+                Timber.d("getAppProcess(%d): hit uid-0 proc at pid=%d, giving up", _pid, pid)
                 return null
             }
 
@@ -90,13 +98,18 @@ class RootUtils(stub: Any?) : RootService() {
                 val line = it.find { l -> l.startsWith("PPid:") } ?: return null
                 pid = line.substring(5).trim().toInt()
             }
+            depth++
         }
         return null
     }
 
     private fun addSystemlessHostsImpl(): Boolean {
         val module = File(Const.MODULE_PATH, "hosts")
-        if (module.exists()) return true
+        if (module.exists()) {
+            Timber.d("addSystemlessHosts: module already exists")
+            return true
+        }
+        Timber.d("addSystemlessHosts: creating systemless hosts module")
         val hosts = File(module, "system/etc/hosts")
         if (hosts.parentFile?.mkdirs() != true) return false
         File(module, "module.prop").outputStream().writer().use {

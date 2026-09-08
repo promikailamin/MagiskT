@@ -41,6 +41,7 @@ import pro.magisk.ui.theme.Theme
 import pro.magisk.view.MagiskDialog
 import pro.magisk.view.Shortcuts
 import java.io.File
+import timber.log.Timber
 import pro.magisk.core.R as CoreR
 
 class MainViewModel : BaseViewModel()
@@ -98,6 +99,8 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
                 R.id.logFragment -> true
                 else -> false
             }
+
+            Timber.d("destination changed -> %s (root=%s)", destination.route, isRootFragment)
 
             requestNavigationHidden(!isRootFragment)
 

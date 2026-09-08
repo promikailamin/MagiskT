@@ -10,6 +10,7 @@ package pro.magisk.core.data.magiskdb
 import pro.magisk.core.AppContext
 import pro.magisk.core.Const
 import pro.magisk.core.model.su.SuPolicy
+import timber.log.Timber
 
 private const val SELECT_QUERY = "SELECT (until - strftime(\"%s\", \"now\")) AS remain, *"
 
@@ -25,6 +26,7 @@ class PolicyDao : MagiskDB() {
 
     /** Delete the policy for a given [uid] (locked policies are kept). */
     suspend fun delete(uid: Int) {
+        Timber.d("PolicyDao.delete: uid=%d", uid)
         val query = "DELETE FROM ${Table.POLICY} WHERE uid=$uid AND (locked IS NULL OR locked = 0)"
         exec(query)
     }
@@ -37,6 +39,8 @@ class PolicyDao : MagiskDB() {
 
     /** Insert or replace the given [policy]. */
     suspend fun update(policy: SuPolicy) {
+        Timber.i("PolicyDao.update: uid=%d policy=%d remain=%s locked=%b pkg=%s",
+            policy.uid, policy.policy, policy.remain, policy.locked, policy.packageName)
         val map = policy.toMap()
         val pkg = policy.packageName ?: runCatching {
             AppContext.packageManager.getNameForUid(policy.uid)
@@ -50,6 +54,7 @@ class PolicyDao : MagiskDB() {
 
     /** Remap the UID of any policy matching [pkg] to [newUid] (app reinstalled). */
     suspend fun remapUid(pkg: String, newUid: Int) {
+        Timber.d("PolicyDao.remapUid: pkg=%s -> uid=%d", pkg, newUid)
         exec("DELETE FROM policies WHERE uid=$newUid AND package_name='$pkg'")
         exec("UPDATE policies SET uid=$newUid " +
             "WHERE package_name='$pkg' AND uid<>$newUid")
@@ -64,11 +69,13 @@ class PolicyDao : MagiskDB() {
 
     /** Delete the policy row for [uid] regardless of its locked state. */
     suspend fun forceDelete(uid: Int) {
+        Timber.d("PolicyDao.forceDelete: uid=%d", uid)
         exec("DELETE FROM policies WHERE uid=$uid")
     }
 
     /** Fetch all policies for the current user. */
     suspend fun fetchAll(): List<SuPolicy> {
+        Timber.d("PolicyDao.fetchAll: user=${Const.USER_ID}")
         val query = "$SELECT_QUERY FROM ${Table.POLICY} WHERE uid/100000=${Const.USER_ID}"
         return exec(query, ::toPolicy).filterNotNull()
     }

@@ -77,15 +77,19 @@ open class FlashZip(
 
     /** Execute the flash operation on [Dispatchers.IO]. */
     open suspend fun exec() = withContext(Dispatchers.IO) {
+        val time = System.currentTimeMillis()
+        Timber.i("FlashZip.exec: uri=%s", mUri)
         try {
             if (!flash()) {
                 console.add("! Installation failed")
+                Timber.e("FlashZip: installation failed after ${System.currentTimeMillis() - time} ms")
                 false
             } else {
+                Timber.i("FlashZip: installed in ${System.currentTimeMillis() - time} ms")
                 true
             }
         } catch (e: IOException) {
-            Timber.e(e)
+            Timber.e(e, "FlashZip: error after ${System.currentTimeMillis() - time} ms")
             false
         } finally {
             Shell.cmd("cd /", "rm -rf $installDir ${Const.TMPDIR}").submit()
