@@ -124,6 +124,7 @@ class RootUtils(stub: Any?) : RootService() {
         }
         File("/system/etc/hosts").copyTo(hosts)
         File(module, "update").createNewFile()
+        Timber.d("addSystemlessHosts: systemless hosts module created at %s", module)
         return true
     }
 

@@ -48,7 +48,7 @@ class SuRequestHandler(
      * @return `true` if the policy is undetermined (user interaction needed).
      */
     suspend fun start(intent: Intent): Boolean {
-        Timber.i("SuRequestHandler.start: intent=${intent.action} pid=$pid")
+        Timber.i("SuRequestHandler.start: intent=${intent.action}")
         if (!init(intent))
             return false
 
@@ -137,8 +137,9 @@ class SuRequestHandler(
      * @param time   Timeout in minutes, or -1 for forever, 0 for single use.
      */
     suspend fun respond(action: Int, time: Long) {
+        val pkg = if (::pkgInfo.isInitialized) pkgInfo.packageName else "<unknown>"
         Timber.i("SuRequestHandler.respond: action=%d time=%d min (uid=%d pkg=%s)",
-            action, time, policy.uid, pkgInfo.packageName)
+            action, time, policy.uid, pkg)
         if (action == SuPolicy.ALLOW && Config.suRestrict) {
             policy.policy = SuPolicy.RESTRICT
         } else {
