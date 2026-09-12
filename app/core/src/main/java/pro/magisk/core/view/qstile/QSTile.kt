@@ -4,12 +4,10 @@
  * Every tile disables itself ([Tile.STATE_UNAVAILABLE]) when the device
  * has no root access. Privileged settings toggles dispatch their
  * `settings put` commands through the libsu root shell; volume tiles
- * adjust the media stream through [AudioManager].
+ * simulate the hardware volume keys via `input keyevent`.
  */
 package pro.magisk.core.view.qstile
 
-import android.content.Context
-import android.media.AudioManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -117,21 +115,15 @@ abstract class SettingToggleTile : QSTile() {
 }
 
 /**
- * One-shot tile that adjusts the media volume like the hardware volume
- * rocker. Root is still required so the tile obeys the global root-only
- * contract of every Magisk tile.
+ * One-shot tile that simulates a hardware volume key press through the
+ * root shell (`input keyevent`), like the physical volume rocker.
  */
 abstract class VolumeTile : QSTile() {
 
-    /** [AudioManager.ADJUST_RAISE] or [AudioManager.ADJUST_LOWER]. */
-    protected abstract val direction: Int
+    /** [android.view.KeyEvent.KEYCODE_VOLUME_UP] or `KEYCODE_VOLUME_DOWN`. */
+    protected abstract val keyCode: Int
 
     override fun handleClick() {
-        val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        audio.adjustStreamVolume(
-            AudioManager.STREAM_MUSIC,
-            direction,
-            AudioManager.FLAG_SHOW_UI or AudioManager.FLAG_PLAY_SOUND
-        )
+        Shell.cmd("input keyevent $keyCode").submit()
     }
 }

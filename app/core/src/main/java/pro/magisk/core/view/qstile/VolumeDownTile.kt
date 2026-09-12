@@ -1,11 +1,11 @@
 /**
- * Quick Settings tile that lowers the media volume like the physical
- * volume-down button.
+ * Quick Settings tile that simulates pressing the physical volume-down
+ * button via `input keyevent KEYCODE_VOLUME_DOWN` in the root shell.
  */
 package pro.magisk.core.view.qstile
 
-import android.media.AudioManager
+import android.view.KeyEvent
 
 class VolumeDownTile : VolumeTile() {
-    override val direction = AudioManager.ADJUST_LOWER
+    override val keyCode = KeyEvent.KEYCODE_VOLUME_DOWN
 }

@@ -11,8 +11,6 @@
         android:name="${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
         tools:node="remove" />
 
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-
     <application
         android:name=".App"
         android:icon="@drawable/ic_launcher"

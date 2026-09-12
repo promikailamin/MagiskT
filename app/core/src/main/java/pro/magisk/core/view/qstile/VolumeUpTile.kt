@@ -1,11 +1,11 @@
 /**
- * Quick Settings tile that raises the media volume like the physical
- * volume-up button.
+ * Quick Settings tile that simulates pressing the physical volume-up
+ * button via `input keyevent KEYCODE_VOLUME_UP` in the root shell.
  */
 package pro.magisk.core.view.qstile
 
-import android.media.AudioManager
+import android.view.KeyEvent
 
 class VolumeUpTile : VolumeTile() {
-    override val direction = AudioManager.ADJUST_RAISE
+    override val keyCode = KeyEvent.KEYCODE_VOLUME_UP
 }
