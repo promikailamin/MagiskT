@@ -10,12 +10,14 @@ package pro.magisk.core.view.qstile
 
 import android.content.Context
 import android.media.AudioManager
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
+import androidx.annotation.RequiresApi
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.ShellUtils
-import pro.magisk.core.view.qstile.QSTile.Companion.background
-import pro.magisk.core.view.qstile.QSTile.Companion.main
 
 /**
  * Base Quick Settings tile.
@@ -24,6 +26,7 @@ import pro.magisk.core.view.qstile.QSTile.Companion.main
  * rooted ([Shell.isAppGrantedRoot]). Subclasses implement [handleClick]
  * to perform the tile action; the action only runs when root is present.
  */
+@RequiresApi(Build.VERSION_CODES.N)
 abstract class QSTile : TileService() {
 
     /** State rendered while root is available. */
@@ -41,6 +44,9 @@ abstract class QSTile : TileService() {
         handleClick()
     }
 
+    /** Whether the device currently grants root to the app. */
+    protected fun isRooted() = Shell.isAppGrantedRoot() == true
+
     /** Perform the tile action (only invoked when root is available). */
     protected abstract fun handleClick()
 
@@ -50,22 +56,20 @@ abstract class QSTile : TileService() {
         tile.state = if (isRooted()) activeState else Tile.STATE_UNAVAILABLE
         tile.updateTile()
     }
+}
 
-    companion object {
-        /** Run [block] on a background thread. */
-        fun background(block: () -> Unit) {
-            Thread(block).start()
-        }
+/** Run [block] on a background thread. */
+private fun background(block: () -> Unit) {
+    Thread(block).start()
+}
 
-        /** Run [block] on the calling [TileService]'s main thread. */
-        fun main(service: TileService, block: () -> Unit) {
-            service.runOnUiThread {
-                try {
-                    block()
-                } catch (e: Throwable) {
-                    // Service may have been destroyed before the callback ran.
-                }
-            }
+/** Run [block] on the main thread, ignoring stale callbacks. */
+private fun main(block: () -> Unit) {
+    Handler(Looper.getMainLooper()).post {
+        try {
+            block()
+        } catch (e: Throwable) {
+            // Service may have been destroyed before the callback ran.
         }
     }
 }
@@ -90,7 +94,7 @@ abstract class SettingToggleTile : QSTile() {
         }
         background {
             val active = readState()
-            main(this@SettingToggleTile) { setState(active) }
+            main { setState(active) }
         }
     }
 
@@ -98,7 +102,7 @@ abstract class SettingToggleTile : QSTile() {
         background {
             val active = !readState()
             Shell.cmd(writeCmd(active)).submit()
-            main(this@SettingToggleTile) { setState(active) }
+            main { setState(active) }
         }
     }
 
