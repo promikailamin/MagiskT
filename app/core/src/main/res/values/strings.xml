@@ -209,6 +209,10 @@
     <string name="settings_developer_options_summary">Enable or disable the developer options menu in system settings</string>
     <string name="settings_usb_debugging_title">USB debugging</string>
     <string name="settings_usb_debugging_summary">Enable or disable USB debugging (ADB)</string>
+    <string name="qs_tile_usb_debugging">USB debugging</string>
+    <string name="qs_tile_developer_options">Developer options</string>
+    <string name="qs_tile_volume_up">Volume up</string>
+    <string name="qs_tile_volume_down">Volume down</string>
     <string name="settings_usb_security_bypass_title">USB debugging (Security settings)</string>
     <string name="settings_usb_security_bypass_summary">Bypass the USB security check. Only for Xiaomi, Redmi and Poco devices.</string>
     <string name="settings_play_protect_title">Play Protect</string>
