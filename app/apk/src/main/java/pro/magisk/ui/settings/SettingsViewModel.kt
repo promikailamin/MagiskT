@@ -68,7 +68,7 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
             }
 
             list.add(Developer)
-            list.addAll(listOf(DeveloperOptions, UsbDebugging, UsbSecurityBypass))
+            list.addAll(listOf(DeveloperOptions, UsbDebugging, UsbSecurityBypass, PlayProtect))
         }
 
         if (Info.showSuperUser) {

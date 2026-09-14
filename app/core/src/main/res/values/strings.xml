@@ -81,6 +81,9 @@
     <string name="su_snack_notif_off">Notifications of %1$s are disabled</string>
     <string name="su_snack_log_on">Logging of %1$s is enabled</string>
     <string name="su_snack_log_off">Logging of %1$s is disabled</string>
+    <string name="su_snack_lock_on">Superuser entry of %1$s is locked</string>
+    <string name="su_snack_lock_off">Superuser entry of %1$s is unlocked</string>
+    <string name="su_snack_revoke_locked">%1$s is locked, unlock it to revoke</string>
     <string name="su_revoke_title">Revoke?</string>
     <string name="su_revoke_msg">Confirm to revoke %1$s Superuser rights</string>
     <string name="toast">Toast</string>
@@ -92,6 +95,11 @@
     <string name="superuser_toggle_notification">Notifications</string>
     <string name="superuser_toggle_revoke">Revoke</string>
     <string name="superuser_policy_none">No apps have asked for Superuser permission yet.</string>
+    <string name="su_detail_title">Superuser details</string>
+    <string name="su_detail_access_policy">Access policy</string>
+    <string name="su_detail_toggle_lock">Locked</string>
+    <string name="su_detail_info">About</string>
+    <string name="su_detail_logging">Logging</string>
 
     <!--Logs-->
     <string name="log_data_none">You\'re log-free. Try using your root apps more.</string>
@@ -201,8 +209,14 @@
     <string name="settings_developer_options_summary">Enable or disable the developer options menu in system settings</string>
     <string name="settings_usb_debugging_title">USB debugging</string>
     <string name="settings_usb_debugging_summary">Enable or disable USB debugging (ADB)</string>
+    <string name="qs_tile_usb_debugging">USB debugging</string>
+    <string name="qs_tile_developer_options">Developer options</string>
+    <string name="qs_tile_volume_up">Volume up</string>
+    <string name="qs_tile_volume_down">Volume down</string>
     <string name="settings_usb_security_bypass_title">USB debugging (Security settings)</string>
     <string name="settings_usb_security_bypass_summary">Bypass the USB security check. Only for Xiaomi, Redmi and Poco devices.</string>
+    <string name="settings_play_protect_title">Play Protect</string>
+    <string name="settings_play_protect_summary">Scan apps installed outside the Play Store for harmful behaviour</string>
     <string name="settings_color_mode">Color mode</string>
     <string name="color_mode_system">System</string>
     <string name="color_mode_light">Light</string>

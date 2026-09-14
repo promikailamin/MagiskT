@@ -28,9 +28,12 @@ import pro.magisk.events.DialogEvent
 import pro.magisk.events.NavigationEvent
 import pro.magisk.events.PermissionEvent
 import pro.magisk.events.SnackbarEvent
+import timber.log.Timber
 
 /** Shared base for all app ViewModels. */
 abstract class BaseViewModel : ViewModel(), ObservableHost {
+
+    private val logTag get() = javaClass.simpleName
 
     override var callbacks: PropertyChangeRegistry? = null
 
@@ -79,15 +82,23 @@ abstract class BaseViewModel : ViewModel(), ObservableHost {
     fun back() = BackPressEvent().publish()
 
     fun ViewEvent.publish() {
+        Timber.tag(logTag).d("publish event: %s", this::class.java.simpleName)
         _viewEvents.postValue(this)
     }
 
     fun DialogBuilder.show() {
+        Timber.tag(logTag).d("show dialog: ${javaClass.simpleName}")
         DialogEvent(this).publish()
     }
 
     fun NavDirections.navigate(pop: Boolean = false) {
+        Timber.tag(logTag).d("navigate actionId=%s pop=$pop", this.actionId)
         _viewEvents.postValue(NavigationEvent(this, pop))
+    }
+
+    override fun onCleared() {
+        Timber.tag(logTag).d("onCleared")
+        super.onCleared()
     }
 
 }

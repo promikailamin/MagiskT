@@ -33,7 +33,7 @@ class SuperuserFragment : BaseFragment<FragmentSuperuserMd2Binding>() {
 
         binding.superuserList.apply {
             addEdgeSpacing(top = R.dimen.l_50, bottom = R.dimen.l1)
-            addItemSpacing(R.dimen.l1, R.dimen.l_50, R.dimen.l1)
+            addItemSpacing(R.dimen.l1, R.dimen.l_25, R.dimen.l1)
             fixEdgeEffect()
         }
     }

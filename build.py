@@ -686,10 +686,16 @@ def set_build_abis(abis: set[str]):
 
 def load_config():
     """Load version, versionCode, ABI list, and outdir from config.prop and app/gradle.properties."""
-    commit_hash = cmd_out(["git", "rev-parse", "--short=8", "HEAD"])
-    if isinstance(commit_hash, bytes):
-        commit_hash = commit_hash.decode()
-    config["buildCommit"] = commit_hash if commit_hash else "local"
+    # Local builds always report "local"; GitHub Actions reports the built commit.
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        commit_hash = os.environ.get("GITHUB_SHA", "")[:8]
+        if not commit_hash:
+            commit_hash = cmd_out(["git", "rev-parse", "--short=8", "HEAD"])
+            if isinstance(commit_hash, bytes):
+                commit_hash = commit_hash.decode()
+    else:
+        commit_hash = "local"
+    config["buildCommit"] = commit_hash
 
     # Default values
     config["version"] = commit_hash

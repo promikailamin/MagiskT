@@ -64,21 +64,28 @@ object AppContext : ContextWrapper(null),
         LocaleSetting.instance.updateResource(resources)
     }
 
-    override fun onActivityStarted(activity: Activity) {}
+    override fun onActivityStarted(activity: Activity) {
+        Timber.d("activity started: %s", activity.javaClass.simpleName)
+    }
 
     override fun onActivityResumed(activity: Activity) {
         if (activity is UntrackedActivity) return
+        Timber.d("activity resumed: %s", activity.javaClass.simpleName)
         ref = WeakReference(activity)
     }
 
     override fun onActivityPaused(activity: Activity) {
         if (activity is UntrackedActivity) return
+        Timber.d("activity paused: %s", activity.javaClass.simpleName)
         ref.clear()
     }
 
     override fun getApplicationContext() = application
 
     fun attachApplication(app: Application) {
+        val time = System.currentTimeMillis()
+        Timber.d("attachApplication: stub=%s apkPath=%s", isRunningAsStub,
+            if (isRunningAsStub) StubApk.current(app.baseContext).path else app.baseContext.packageResourcePath)
         application = app
         val base = app.baseContext
         attachBaseContext(base)
@@ -104,6 +111,7 @@ object AppContext : ContextWrapper(null),
             UiThreadHandler.executor,
             RootUtils.Connection
         )
+        Timber.d("pre-heating shell")
         Shell.getShell(null) {}
 
         if (SDK_INT >= 34 && isRunningAsStub) {
@@ -116,6 +124,7 @@ object AppContext : ContextWrapper(null),
                 ProfileInstaller.writeProfile(this@AppContext)
             }
         }
+        Timber.d("attachApplication done in ${System.currentTimeMillis() - time} ms")
     }
 
     override fun createDeviceProtectedStorageContext(): Context {

@@ -44,12 +44,16 @@ class CmdlineListItem(line: String) {
 /** Magic package name used for isolated processes in the denylist. */
 const val ISOLATED_MAGIC = "isolated"
 
+/** Pseudo-package name used to mark locked packages in `magisk --denylist ls` output. */
+const val LOCKED_MAGIC = "*locked"
+
 /** Resolves an installed app's processes and their denylist status. */
 @SuppressLint("InlinedApi")
 class AppProcessInfo(
     private val info: ApplicationInfo,
     pm: PackageManager,
-    denyList: List<CmdlineListItem>
+    denyList: List<CmdlineListItem>,
+    lockedPkgs: Set<String>
 ) : Comparable<AppProcessInfo> {
 
     private val denyList = denyList.filter {
@@ -60,6 +64,9 @@ class AppProcessInfo(
     val iconImage: Drawable = runCatching { info.loadIcon(pm) }.getOrDefault(pm.defaultActivityIcon)
     val packageName: String get() = info.packageName
     val processes = fetchProcesses(pm)
+
+    var isLocked = info.packageName in lockedPkgs
+        internal set
 
     override fun compareTo(other: AppProcessInfo) = comparator.compare(this, other)
 

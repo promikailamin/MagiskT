@@ -38,7 +38,8 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:nextFocusRight="@id/hide_expand_icon"
-                android:onClick="@{item::toggleExpand}">
+                android:onClick="@{item::toggleExpand}"
+                android:onLongClick="@{() -> item.toggleLocked()}">
 
                 <ImageView
                     android:id="@+id/hide_icon"
@@ -58,7 +59,7 @@
                     android:layout_marginStart="@dimen/l1"
                     android:ellipsize="middle"
                     android:singleLine="true"
-                    android:text="@{item.info.label}"
+                    android:text="@{item.title}"
                     android:textAppearance="@style/AppearanceFoundation.Body"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toTopOf="@+id/hide_package"

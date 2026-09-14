@@ -2,9 +2,10 @@
  * ViewModel for the Superuser management screen.
  *
  * Loads all SU policies from [PolicyDao], resolves package names and icons, groups
- * entries by UID, and supports per-app actions: delete/revoke, toggle notification,
- * toggle logging, and change policy level (Allow/Restrict/Deny). Deletion of outdated
- * or uninstalled entries is handled automatically.
+ * entries by UID, and supports per-app quick actions: change policy level
+ * (Allow/Restrict/Deny) via the inline control, toggle the locked state, and open
+ * the SU app detail screen. Deletion of outdated or uninstalled entries is handled
+ * automatically.
  */
 package pro.magisk.ui.superuser
 
@@ -30,7 +31,6 @@ import pro.magisk.databinding.RvItem
 import pro.magisk.databinding.bindExtra
 import pro.magisk.databinding.diffList
 import pro.magisk.databinding.set
-import pro.magisk.dialog.SuperuserRevokeDialog
 import pro.magisk.events.AuthEvent
 import pro.magisk.events.SnackbarEvent
 import pro.magisk.view.TextItem
@@ -73,11 +73,31 @@ class SuperuserViewModel(
             val policies = ArrayList<PolicyRvItem>()
             val pm = AppContext.packageManager
             for (policy in db.fetchAll()) {
-                val pkgs =
-                    if (policy.uid == Process.SYSTEM_UID) arrayOf("android")
-                    else pm.getPackagesForUid(policy.uid)
+                var uid = policy.uid
+                var pkgs = if (uid == Process.SYSTEM_UID) arrayOf("android")
+                    else pm.getPackagesForUid(uid)
                 if (pkgs == null) {
-                    db.delete(policy.uid)
+                    // UID no longer resolves to an installed app. If the package is
+                    // known, it may have been reinstalled under a new UID: remap.
+                    val oldUid = uid
+                    val remapped = policy.packageName?.let { pkg ->
+                        runCatching {
+                            pm.getApplicationInfo(pkg, MATCH_UNINSTALLED_PACKAGES).uid
+                        }.getOrNull()?.takeIf { it != oldUid }?.also { newUid ->
+                            policy.uid = newUid
+                            db.update(policy)
+                        }
+                    }
+                    if (remapped != null) {
+                        // Drop the stale row for the old UID to avoid duplicates
+                        db.forceDelete(oldUid)
+                        uid = remapped
+                        pkgs = pm.getPackagesForUid(uid)
+                    }
+                }
+                if (pkgs == null) {
+                    // Not currently installed; locked policies survive, others are dropped
+                    if (!policy.locked) db.delete(uid)
                     continue
                 }
                 val map = pkgs.mapNotNull { pkg ->
@@ -95,8 +115,13 @@ class SuperuserViewModel(
                     }
                 }
                 if (map.isEmpty()) {
-                    db.delete(policy.uid)
+                    if (!policy.locked) db.delete(policy.uid)
                     continue
+                }
+                // Backfill the package name if the row predates the locked/remap feature
+                if (policy.packageName == null) {
+                    policy.packageName = pkgs.firstOrNull() ?: map.first().packageName
+                    db.update(policy)
                 }
                 policies.addAll(map)
             }
@@ -113,54 +138,13 @@ class SuperuserViewModel(
         loading = false
     }
 
-    fun deletePressed(item: PolicyRvItem) {
-        fun updateState() = viewModelScope.launch {
-            db.delete(item.item.uid)
-            val list = ArrayList(itemsPolicies)
-            list.removeAll { it.item.uid == item.item.uid }
-            itemsPolicies.update(list)
-            if (list.isEmpty() && itemsHelpers.isEmpty()) {
-                itemsHelpers.add(itemNoData)
-            }
-        }
-
-        if (Config.suAuth) {
-            AuthEvent { updateState() }.publish()
-        } else {
-            SuperuserRevokeDialog(item.title) { updateState() }.show()
-        }
-    }
-
-    fun updateNotify(item: PolicyRvItem) {
-        viewModelScope.launch {
-            db.update(item.item)
-            val res = when {
-                item.item.notification -> R.string.su_snack_notif_on
-                else -> R.string.su_snack_notif_off
-            }
-            itemsPolicies.forEach {
-                if (it.item.uid == item.item.uid) {
-                    it.notifyPropertyChanged(BR.shouldNotify)
-                }
-            }
-            SnackbarEvent(res.asText(item.appName)).publish()
-        }
-    }
-
-    fun updateLogging(item: PolicyRvItem) {
-        viewModelScope.launch {
-            db.update(item.item)
-            val res = when {
-                item.item.logging -> R.string.su_snack_log_on
-                else -> R.string.su_snack_log_off
-            }
-            itemsPolicies.forEach {
-                if (it.item.uid == item.item.uid) {
-                    it.notifyPropertyChanged(BR.shouldLog)
-                }
-            }
-            SnackbarEvent(res.asText(item.appName)).publish()
-        }
+    /** Opens the SU app detail screen for a policy entry. */
+    fun openDetail(item: PolicyRvItem) {
+        SuperuserFragmentDirections.actionSuperuserFragmentToSuAppDetailFragment(
+            item.item.uid,
+            item.packageName,
+            item.appName
+        ).navigate()
     }
 
     fun updatePolicy(item: PolicyRvItem, policy: Int) {
@@ -182,6 +166,23 @@ class SuperuserViewModel(
             AuthEvent { updateState() }.publish()
         } else {
             updateState()
+        }
+    }
+
+    fun updateLocked(item: PolicyRvItem) {
+        viewModelScope.launch {
+            db.update(item.item)
+            val res = when {
+                item.item.locked -> R.string.su_snack_lock_on
+                else -> R.string.su_snack_lock_off
+            }
+            itemsPolicies.forEach {
+                if (it.item.uid == item.item.uid) {
+                    it.notifyPropertyChanged(BR.shouldLock)
+                    it.notifyPropertyChanged(BR.title)
+                }
+            }
+            SnackbarEvent(res.asText(item.appName)).publish()
         }
     }
 }

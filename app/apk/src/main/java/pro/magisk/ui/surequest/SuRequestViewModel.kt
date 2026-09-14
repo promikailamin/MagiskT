@@ -44,6 +44,7 @@ import pro.magisk.events.ShowUIEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit.SECONDS
+import timber.log.Timber
 
 /** ViewModel for the floating Superuser grant/deny dialog. */
 class SuRequestViewModel(
@@ -85,6 +86,7 @@ class SuRequestViewModel(
     private var initialized = false
 
     fun grantPressed() {
+        Timber.i("SuRequestViewModel: grantPressed (auth=%s)", Config.suAuth)
         cancelTimer()
         if (Config.suAuth) {
             AuthEvent { respond(ALLOW) }.publish()
@@ -94,6 +96,7 @@ class SuRequestViewModel(
     }
 
     fun denyPressed() {
+        Timber.i("SuRequestViewModel: denyPressed")
         respond(DENY)
     }
 
@@ -103,11 +106,17 @@ class SuRequestViewModel(
     }
 
     fun handleRequest(intent: Intent) {
+        Timber.i("SuRequestViewModel: handleRequest action=%s", intent.action)
         viewModelScope.launch(Dispatchers.Default) {
-            if (handler.start(intent))
+            val start = System.currentTimeMillis()
+            if (handler.start(intent)) {
+                Timber.i("SuRequestViewModel: showing dialog after %d ms",
+                    System.currentTimeMillis() - start)
                 showDialog()
-            else
+            } else {
+                Timber.i("SuRequestViewModel: handled immediately, closing")
                 DieEvent().publish()
+            }
         }
     }
 
@@ -138,6 +147,7 @@ class SuRequestViewModel(
     private fun respond(action: Int) {
         if (!initialized) return
 
+        Timber.i("SuRequestViewModel: respond action=%d pkg=%s", action, packageName)
         timer.cancel()
 
         val pos = selectedItemPosition

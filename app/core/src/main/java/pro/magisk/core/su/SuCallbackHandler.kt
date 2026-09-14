@@ -43,6 +43,7 @@ object SuCallbackHandler {
     fun run(context: Context, action: String?, data: Bundle?) {
         data ?: return
 
+        Timber.d("SuCallbackHandler.run: action=%s", action)
         if (BuildConfig.DEBUG) {
             @Suppress("DEPRECATION")
             Timber.d(action)
@@ -57,6 +58,7 @@ object SuCallbackHandler {
         when (action) {
             LOG -> handleLogging(context, data)
             NOTIFY -> handleNotify(context, data)
+            else -> Timber.w("SuCallbackHandler.run: unknown action $action")
         }
     }
 
@@ -87,6 +89,8 @@ object SuCallbackHandler {
         val seContext = data.getString("context", "")
         val gids = data.getString("gids", "")
 
+        Timber.i("SuCallbackHandler: LOG uid=%d pid=%d policy=%d cmd='%s'", fromUid, pid, policy, command)
+
         val pm = context.packageManager
 
         val log = runCatching {
@@ -108,6 +112,8 @@ object SuCallbackHandler {
         val uid = data.getIntComp("from.uid", -1)
         val pid = data.getIntComp("pid", -1)
         val policy = data.getIntComp("policy", SuPolicy.ALLOW)
+
+        Timber.i("SuCallbackHandler: NOTIFY uid=%d pid=%d policy=%d", uid, pid, policy)
 
         val pm = context.packageManager
 

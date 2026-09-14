@@ -16,6 +16,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.navOptions
 import pro.magisk.utils.AccessibilityUtils
 import androidx.activity.addCallback
+import timber.log.Timber
 
 /** Base Activity for screens that use a NavHostFragment for navigation. */
 abstract class NavigationActivity<Binding : ViewDataBinding> : UIActivity<Binding>() {
@@ -39,6 +40,7 @@ abstract class NavigationActivity<Binding : ViewDataBinding> : UIActivity<Bindin
     init {
         onBackPressedDispatcher.addCallback(this) {
             if (binded) {
+                Timber.d("onBackPressed: fragment=${currentFragment?.javaClass?.simpleName}")
                 if (currentFragment?.onBackPressed() == false) {
                     isEnabled = false
                     onBackPressedDispatcher.onBackPressed()
@@ -50,8 +52,10 @@ abstract class NavigationActivity<Binding : ViewDataBinding> : UIActivity<Bindin
 
     companion object {
         fun navigate(directions: NavDirections, navigation: NavController, cr: ContentResolver) {
+            val anim = AccessibilityUtils.isAnimationEnabled(cr)
+            Timber.d("navigate: actionId=${directions.actionId} anim=$anim")
             // Skip custom navOptions (which force-no-anim) when animations are disabled
-            if (AccessibilityUtils.isAnimationEnabled(cr)) {
+            if (anim) {
                 navigation.navigate(directions)
             } else {
                 navigation.navigate(directions, navOptions {})

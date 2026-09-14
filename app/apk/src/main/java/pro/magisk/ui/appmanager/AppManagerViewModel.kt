@@ -42,6 +42,7 @@ import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import timber.log.Timber
 
 /** ViewModel for the App manager screen. */
 class AppManagerViewModel : AsyncLoadViewModel() {
@@ -59,6 +60,12 @@ class AppManagerViewModel : AsyncLoadViewModel() {
             field = value
             doQuery()
         }
+
+    /** Last scroll position, saved before a reload and restored afterwards (search off only). */
+    var savedPos = 0
+
+    /** Pixel offset of the saved scroll position. */
+    var savedOffset = 0
 
     @get:Bindable
     var loading = true
@@ -109,7 +116,10 @@ class AppManagerViewModel : AsyncLoadViewModel() {
     /** Lazily gathers app detail into the item once it is expanded. */
     private fun loadDetail(item: AppManagerRvItem) {
         viewModelScope.launch {
+            val time = System.currentTimeMillis()
             item.detail = withContext(Dispatchers.IO) { gatherDetail(item) }
+            Timber.d("AppManagerViewModel: detail for %s gathered in %d ms",
+                item.packageName, System.currentTimeMillis() - time)
         }
     }
 
@@ -187,7 +197,7 @@ class AppManagerViewModel : AsyncLoadViewModel() {
             .filter { it.isNotBlank() }
             .joinToString(" ") { "'$it'" }
         if (dirs.isEmpty()) return "?"
-        val out = runCatching { fastCmd(shell, "du -sk $dirs 2>/dev/null") }.getOrNull().orEmpty()
+        val out = runCatching { fastCmd(shell, "timeout 3 du -sk $dirs 2>/dev/null") }.getOrNull().orEmpty()
         val kb = out.lines().mapNotNull { line ->
             line.trim().substringBefore('\t').toLongOrNull()
         }.sum()

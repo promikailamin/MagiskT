@@ -24,6 +24,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavDirections
 import pro.magisk.BR
+import timber.log.Timber
 
 /** Shared base Fragment for all DataBinding-backed screens. */
 abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), ViewModelHolder {
@@ -32,11 +33,14 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), ViewModelHo
     protected lateinit var binding: Binding
     protected abstract val layoutRes: Int
 
+    private val logTag get() = javaClass.simpleName
+
     private val navigation get() = activity?.navigation
     open val snackbarView: View? get() = null
     open val snackbarAnchorView: View? get() = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Timber.tag(logTag).d("onCreate: savedState=${savedInstanceState != null}")
         super.onCreate(savedInstanceState)
         startObserveLiveData()
     }
@@ -46,6 +50,8 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), ViewModelHo
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val time = System.currentTimeMillis()
+        Timber.tag(logTag).d("onCreateView: inflating layoutRes=$layoutRes")
         binding = DataBindingUtil.inflate<Binding>(inflater, layoutRes, container, false).also {
             it.setVariable(BR.viewModel, viewModel)
             it.lifecycleOwner = viewLifecycleOwner
@@ -54,17 +60,49 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), ViewModelHo
             activity?.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.STARTED)
         }
         savedInstanceState?.let { viewModel.onRestoreState(it) }
+        Timber.tag(logTag).d("onCreateView: done in ${System.currentTimeMillis() - time} ms")
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.addOnRebindCallback(object : OnRebindCallback<Binding>() {
+            override fun onPreBind(binding: Binding): Boolean {
+                this@BaseFragment.onPreBind(binding)
+                return true
+            }
+        })
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
+        Timber.tag(logTag).d("onSaveInstanceState")
         viewModel.onSaveState(outState)
     }
 
     override fun onStart() {
+        Timber.tag(logTag).d("onStart")
         super.onStart()
         // Clear any subtitle left by a previous destination
         activity?.supportActionBar?.subtitle = null
+    }
+
+    override fun onResume() {
+        Timber.tag(logTag).d("onResume")
+        super.onResume()
+        viewModel.let {
+            if (it is AsyncLoadViewModel)
+                it.startLoading()
+        }
+    }
+
+    override fun onDestroyView() {
+        Timber.tag(logTag).d("onDestroyView")
+        super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        Timber.tag(logTag).d("onDestroy")
+        super.onDestroy()
     }
 
     override fun onEventDispatched(event: ViewEvent) = when(event) {
@@ -79,24 +117,6 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), ViewModelHo
     }
 
     open fun onBackPressed(): Boolean = false
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        binding.addOnRebindCallback(object : OnRebindCallback<Binding>() {
-            override fun onPreBind(binding: Binding): Boolean {
-                this@BaseFragment.onPreBind(binding)
-                return true
-            }
-        })
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.let {
-            if (it is AsyncLoadViewModel)
-                it.startLoading()
-        }
-    }
 
     protected open fun onPreBind(binding: Binding) {
         (binding.root as? ViewGroup)?.startAnimations()
