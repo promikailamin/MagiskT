@@ -328,7 +328,15 @@ impl FsNode {
                     // worker dir to dest after all children are committed.
                     bind_mount("move", path.worker(), path.real(), true);
                 } else {
+                    let priority = "framework";
+                    if let Some(node) = children.get_mut(priority) {
+                        let path = path.append(priority);
+                        node.commit(path, false)?;
+                    }
                     for (name, node) in children {
+                        if name == priority {
+                            continue;
+                        }
                         let path = path.append(name);
                         node.commit(path, false)?;
                     }
@@ -408,7 +416,15 @@ impl FsNode {
                 }
 
                 // Finally, commit children
+                let priority = "framework";
+                if let Some(node) = children.get_mut(priority) {
+                    let path = path.append(priority);
+                    node.commit_tmpfs(path)?;
+                }
                 for (name, node) in children {
+                    if name == priority {
+                        continue;
+                    }
                     let path = path.append(name);
                     node.commit_tmpfs(path)?;
                 }
