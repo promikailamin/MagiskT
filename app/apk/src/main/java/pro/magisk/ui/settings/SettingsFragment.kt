@@ -1,8 +1,9 @@
 /**
  * Settings screen — a scrollable list of configurable options.
  *
- * Settings are modelled as [BaseSettingsItem] objects. Each item is refreshed on
- * `onResume` to reflect latest state (e.g. device-lock status for the auth toggle).
+ * Settings are modelled as [BaseSettingsItem] objects, which load their own values
+ * in the background. Each item is refreshed on `onResume` to reflect the latest
+ * system and daemon state.
  */
 package pro.magisk.ui.settings
 
@@ -41,7 +42,7 @@ class SettingsFragment : BaseFragment<FragmentSettingsMd2Binding>() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.items.forEach { it.refresh() }
+        viewModel.refreshItems()
     }
 
 }

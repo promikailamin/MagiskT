@@ -46,6 +46,17 @@ sealed class BaseSettingsItem : ObservableRvItem() {
     var isEnabled = true
         set(value) = set(value, field, { field = it }, BR.enabled, BR.description)
 
+    /**
+     * Whether the values this item binds have been resolved yet.
+     *
+     * Items that have to wait on a slow source (the shell-backed settings DB, the
+     * locale config, a system setting query) start out unloaded so the list can be
+     * shown right away, and flip this once their values arrive.
+     */
+    @get:Bindable
+    var loaded = true
+        protected set(value) = set(value, field, { field = it }, BR.loaded)
+
     /** Corner treatment applied by the host list when grouping items into cards. */
     var groupStyle = CardGroupStyle.SINGLE
 
@@ -54,7 +65,28 @@ sealed class BaseSettingsItem : ObservableRvItem() {
             handler.onItemAction(view, this)
         }
     }
+
+    /**
+     * Resolve the values this item binds. Always called on a background thread, so
+     * implementations are free to block; called once per item.
+     */
+    open fun loadValue() {}
+
+    /**
+     * Re-read the values this item binds. Called on a background thread whenever the
+     * screen is resumed, since the backing state may have changed meanwhile.
+     */
     open fun refresh() {}
+
+    /**
+     * Called on the main thread once [loadValue] or [refresh] is done, so the bound
+     * views can pick up the values that were read in the background.
+     */
+    open fun onValueLoaded() {
+        loaded = true
+        notifyPropertyChanged(BR.checked)
+        notifyPropertyChanged(BR.description)
+    }
 
     open val showSwitch get() = false
     @get:Bindable
@@ -63,9 +95,52 @@ sealed class BaseSettingsItem : ObservableRvItem() {
         set(checked, isChecked, { onPressed(view, handler) })
 
     /** Base for items that hold a typed [value]. */
+    @Suppress("UNCHECKED_CAST")
     abstract class Value<T> : BaseSettingsItem() {
-        abstract var value: T
-            protected set
+
+        private object Unresolved
+
+        private var resolved: Any? = Unresolved
+
+        init {
+            // The value is unknown until it is loaded, keep the item inert until then
+            loaded = false
+            isEnabled = false
+        }
+
+        /**
+         * Reads the value from its backing store. Called on a background thread by
+         * [loadValue], or synchronously in the rare case that the value is read
+         * before the background load got to it.
+         */
+        protected abstract fun readValue(): T
+
+        /** Writes [value] to the backing store. */
+        protected abstract fun writeValue(value: T)
+
+        /** Shown until [readValue] returns, so that binding the item never blocks. */
+        protected open val placeholder: T? = null
+
+        var value: T
+            get() = if (resolved === Unresolved) placeholder ?: readValue() else resolved as T
+            set(value) {
+                resolved = value
+                writeValue(value)
+            }
+
+        override fun loadValue() {
+            resolved = readValue()
+        }
+
+        override fun onValueLoaded() {
+            isEnabled = true
+            super.onValueLoaded()
+        }
+
+        /** Update the cached value without writing it back to the backing store. */
+        protected fun setResolved(value: T) {
+            resolved = value
+        }
     }
 
     /** Boolean toggle with a switch widget. */
@@ -127,6 +202,8 @@ sealed class BaseSettingsItem : ObservableRvItem() {
 
         override val description = object : TextHolder() {
             override fun getText(resources: Resources): String {
+                // The entries may be slow to resolve, so hold off until they are in
+                if (!loaded) return ""
                 return descriptions(resources).getOrElse(value) { "" }
             }
         }

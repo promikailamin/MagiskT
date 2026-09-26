@@ -75,9 +75,21 @@
 
             </LinearLayout>
 
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/loading_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                gone="@{item.loaded}"
+                app:indicatorColor="?colorPrimary"
+                app:indicatorInset="0dp"
+                app:indicatorSize="@dimen/settings_loading_indicator_size"
+                app:trackThickness="@dimen/settings_loading_indicator_thickness"
+                tools:visibility="visible" />
+
             <pro.magisk.widget.MaterialSwitch
                 android:id="@+id/selector_indicator"
-                goneUnless="@{item.showSwitch}"
+                goneUnless="@{item.showSwitch &amp;&amp; item.loaded}"
                 isEnabled="@{item.enabled}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

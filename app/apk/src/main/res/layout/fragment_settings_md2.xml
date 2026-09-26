@@ -24,6 +24,7 @@
             android:focusableInTouchMode="false"
             android:clipToPadding="false"
             android:orientation="vertical"
+            android:paddingBottom="@dimen/internal_action_bar_size"
             app:fitsSystemWindowsInsets="top|bottom"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_settings" />

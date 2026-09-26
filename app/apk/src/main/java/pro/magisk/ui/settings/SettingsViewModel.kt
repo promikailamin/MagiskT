@@ -21,13 +21,21 @@ import pro.magisk.core.ktx.toast
 import pro.magisk.core.utils.LocaleSetting
 import pro.magisk.core.utils.RootUtils
 import pro.magisk.databinding.bindExtra
-import pro.magisk.events.SnackbarEvent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.ShellUtils.fastCmd
 
 /** ViewModel that builds and manages the settings item list. */
 class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
+
+    init {
+        // The first access to the locale manager parses the app's locale config,
+        // which the item list below asks for, so start it off the main thread
+        viewModelScope.launch(Dispatchers.IO) { LocaleSetting.instance.appLocale }
+    }
 
     val items = createItems()
     val extraBindings = bindExtra {
@@ -35,6 +43,38 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
     }
     
     private val shell = Shell.getShell()
+
+    init {
+        loadItemValues()
+    }
+
+    /**
+     * Loads the value of every item on its own worker thread.
+     *
+     * Values backed by the shell-backed settings DB or a system setting query take
+     * a while to read, so the list is shown right away with placeholders and the
+     * real values are filled in as each one arrives.
+     */
+    private fun loadItemValues() {
+        items.forEach { item ->
+            viewModelScope.launch(Dispatchers.IO) {
+                runCatching { item.loadValue() }
+                    .onFailure { Timber.w(it, "failed to load %s", item::class.simpleName) }
+                withContext(Dispatchers.Main) { item.onValueLoaded() }
+            }
+        }
+    }
+
+    /** Re-reads the values that may have changed while the screen was not shown. */
+    fun refreshItems() {
+        items.forEach { item ->
+            viewModelScope.launch(Dispatchers.IO) {
+                runCatching { item.refresh() }
+                    .onFailure { Timber.w(it, "failed to refresh %s", item::class.simpleName) }
+                withContext(Dispatchers.Main) { item.onValueLoaded() }
+            }
+        }
+    }
 
     /** Assembles the settings list based on current device and app state. */
     private fun createItems(): List<BaseSettingsItem> {
