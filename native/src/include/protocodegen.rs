@@ -56,8 +56,8 @@ pub fn gen_proto_sources(proto_dir: &str, proto_file: &str) {
     .unwrap();
 
     for file in generated_files(proto_file) {
-        let src = gen_dir.join(file);
-        let dst = Path::new(proto_dir).join(file);
+        let src = gen_dir.join(&file);
+        let dst = Path::new(proto_dir).join(&file);
         let bytes = fs::read(&src).unwrap();
         // Only touch the source tree when the contents actually changed, so
         // cargo does not see a needless mtime bump and rebuild the crate.
