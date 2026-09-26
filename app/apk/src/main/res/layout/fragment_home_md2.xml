@@ -108,19 +108,6 @@
                 app:cornerRadius="28dp"
                 app:icon="@drawable/ic_delete_md2" />
 
-            <Button
-                style="@style/WidgetFoundation.Button.Outlined.Success"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/l1"
-                android:layout_marginEnd="@dimen/l1"
-                android:onClick="@{() -> viewModel.onSettingsPressed()}"
-                android:text="@string/settings"
-                android:textAllCaps="false"
-                android:textSize="12sp"
-                app:cornerRadius="28dp"
-                app:icon="@drawable/ic_settings_md2" />
-
             <com.google.android.material.card.MaterialCardView
                 style="@style/WidgetFoundation.Card"
                 android:layout_width="match_parent"

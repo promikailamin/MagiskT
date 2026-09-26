@@ -27,7 +27,6 @@ import pro.magisk.core.base.SplashController
 import pro.magisk.core.base.SplashScreenHost
 import pro.magisk.core.model.module.LocalModule
 import pro.magisk.databinding.ActivityMainMd2Binding
-import pro.magisk.ui.home.HomeFragmentDirections
 import pro.magisk.ui.theme.Theme
 import pro.magisk.view.MagiskDialog
 import java.io.File
@@ -83,7 +82,8 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
             isRootFragment = when (destination.id) {
                 R.id.homeFragment,
                 R.id.modulesFragment,
-                R.id.logFragment -> true
+                R.id.logFragment,
+                R.id.settingsFragment -> true
                 else -> false
             }
 
@@ -137,7 +137,7 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
     private fun getScreen(name: String?): NavDirections? {
         return when (name) {
             Const.Nav.MODULES -> MainDirections.actionModuleFragment()
-            Const.Nav.SETTINGS -> HomeFragmentDirections.actionHomeFragmentToSettingsFragment()
+            Const.Nav.SETTINGS -> MainDirections.actionSettingsFragment()
             else -> null
         }
     }
@@ -147,6 +147,7 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
             R.id.homeFragment -> MainDirections.actionHomeFragment()
             R.id.modulesFragment -> MainDirections.actionModuleFragment()
             R.id.logFragment -> MainDirections.actionLogFragment()
+            R.id.settingsFragment -> MainDirections.actionSettingsFragment()
             else -> null
         }
     }
