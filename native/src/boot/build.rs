@@ -3,32 +3,23 @@
 //! Generates CXX bindings and compiles the protobuf definition
 //! (`update_metadata.proto`) for payload extraction.
 
-use pb_rs::ConfigBuilder;
-use pb_rs::types::FileDescriptor;
-
 use crate::codegen::gen_cxx_binding;
+use crate::protocodegen::gen_proto_sources;
 
 #[path = "../include/codegen.rs"]
 mod codegen;
 
-#[allow(clippy::unwrap_used)]
+#[path = "../include/protocodegen.rs"]
+mod protocodegen;
+
+/// Directory the generated protobuf sources are published to.
+const PROTO_DIR: &str = "proto";
+/// The protobuf definition to compile.
+const PROTO_FILE: &str = "update_metadata.proto";
+
 fn main() {
-    println!("cargo:rerun-if-changed=proto/update_metadata.proto");
+    println!("cargo:rerun-if-changed={PROTO_DIR}/{PROTO_FILE}");
 
     gen_cxx_binding("boot-rs");
-
-    let cb = ConfigBuilder::new(
-        &["proto/update_metadata.proto"],
-        None,
-        Some(&"proto"),
-        &["."],
-    )
-    .unwrap();
-    FileDescriptor::run(
-        &cb.single_module(true)
-            .dont_use_cow(true)
-            .generate_getters(true)
-            .build(),
-    )
-    .unwrap();
+    gen_proto_sources(PROTO_DIR, PROTO_FILE);
 }
