@@ -2,7 +2,8 @@
  * ViewModel for the install method selection screen.
  *
  * Determines available installation methods based on device state (rooted, emulator,
- * SAR, A/B slots) and handles method selection (Direct, Patch, Inactive Slot).
+ * SAR, A/B slots) and handles method selection (Direct, Patch, Patch and Install,
+ * Inactive Slot).
  * The installation flow is multi-step; state is saved/restored across config changes.
  */
 package pro.magisk.ui.install
@@ -55,7 +56,7 @@ class InstallViewModel : BaseViewModel() {
         get() = methodId
         set(value) = set(value, methodId, { methodId = it }, BR.method) {
             when (it) {
-                R.id.method_patch -> {
+                R.id.method_patch, R.id.method_patch_install -> {
                     GetContentEvent("*/*", UriCallback()).publish()
                 }
                 R.id.method_inactive_slot -> {
@@ -73,6 +74,7 @@ class InstallViewModel : BaseViewModel() {
     fun install() {
         when (method) {
             R.id.method_patch -> FlashFragment.patch(data.value!!).navigate(true)
+            R.id.method_patch_install -> FlashFragment.patchAndInstall(data.value!!).navigate(true)
             R.id.method_direct -> FlashFragment.flash(false).navigate(true)
             R.id.method_inactive_slot -> FlashFragment.flash(true).navigate(true)
             else -> error("Unknown value")

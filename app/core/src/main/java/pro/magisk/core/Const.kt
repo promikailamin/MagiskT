@@ -67,6 +67,7 @@ object Const {
     object Value {
         const val FLASH_ZIP = "flash"
         const val PATCH_FILE = "patch"
+        const val PATCH_INSTALL_FILE = "patch_install"
         const val FLASH_MAGISK = "magisk"
         const val FLASH_INACTIVE_SLOT = "slot"
         const val UNINSTALL = "uninstall"

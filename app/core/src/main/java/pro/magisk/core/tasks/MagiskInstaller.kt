@@ -319,77 +319,116 @@ abstract class MagiskInstallImpl protected constructor(
         }
     }
 
-    private suspend fun processFile(uri: Uri): Boolean {
-        val outStream: OutputStream
-        val outFile: MediaStoreUtils.UriFile
-        var bootItem: BootItem? = null
+    private class InvalidImageException : IOException()
 
-        // Process input file
-        try {
-            PushbackInputStream(uri.inputStream().buffered(1024 * 1024), 512).use { src ->
-                val head = ByteArray(512)
-                if (src.read(head) != head.size) {
-                    console.add("! Invalid input file")
-                    return false
-                }
-                src.unread(head)
+    /** Output stream that discards everything written to it. */
+    private class NullOutputStream : OutputStream() {
+        override fun write(b: Int) = Unit
+        override fun write(b: ByteArray, off: Int, len: Int) = Unit
+    }
 
-                val magic = head.copyOf(4)
-                val tarMagic = head.copyOfRange(257, 262)
+    /**
+     * A user-selected image staged in the install directory.
+     *
+     * @property bootItem tar entry to repack, or null if the input is a raw image
+     * @property out stream receiving the patched image, or null if it is not saved
+     * @property outFile file backing [out], or null if it is not saved
+     */
+    private class StagedImage(
+        val bootItem: BootItem?,
+        val out: OutputStream?,
+        val outFile: MediaStoreUtils.UriFile?,
+    ) : AutoCloseable {
+        override fun close() {
+            runCatching { out?.close() }
+        }
+    }
 
-                srcBoot = if (tarMagic.contentEquals("ustar".toByteArray())) {
-                    // tar file
-                    outFile = MediaStoreUtils.getFile("$destName.tar")
-                    val os = outFile.uri.outputStream().buffered(1024 * 1024)
-                    outStream = TarArchiveOutputStream(os).also {
-                        it.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR)
-                        it.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
-                    }
-
-                    try {
-                        bootItem = processTar(TarArchiveInputStream(src), outStream)
-                        bootItem.file
-                    } catch (e: IOException) {
-                        outStream.close()
-                        outFile.delete()
-                        throw e
-                    }
-                } else {
-                    // raw image
-                    outFile = MediaStoreUtils.getFile("$destName.img")
-                    outStream = outFile.uri.outputStream()
-                    val channel = FileInputStream(uri.openFd().fileDescriptor).channel
-                    val boot = installDir.getChildFile("boot.img")
-
-                    try {
-                        if (magic.contentEquals("CrAU".toByteArray())) {
-                            DataSourceChannel(channel).use { source ->
-                                Payload(source).extract(boot, { console.add(it) }, { logs.add(it) })
-                            }
-                        } else if (magic.contentEquals("PK\u0003\u0004".toByteArray())) {
-                            ExtractImage(boot, console, logs).consume(DataSourceChannel(channel))
-                        } else {
-                            console.add("- Copying image to cache")
-                            src.copyAndCloseOut(boot.newOutputStream())
-                        }
-                        boot
-                    } catch (e: IOException) {
-                        outStream.close()
-                        outFile.delete()
-                        throw e
-                    }
-                }
+    /**
+     * Extract the boot image of [uri] into the install directory and make it the
+     * patch source. The input can be a raw image, a payload.bin, a zip or an
+     * ODIN tarfile.
+     *
+     * @param save keep the patched image in a new file in the download directory;
+     * otherwise the repacked content is discarded and only used for flashing
+     */
+    @Throws(IOException::class)
+    private suspend fun stageImage(uri: Uri, save: Boolean): StagedImage {
+        PushbackInputStream(uri.inputStream().buffered(1024 * 1024), 512).use { src ->
+            val head = ByteArray(512)
+            if (src.read(head) != head.size) {
+                throw InvalidImageException()
             }
+            src.unread(head)
+
+            val magic = head.copyOf(4)
+            val tarMagic = head.copyOfRange(257, 262)
+
+            if (tarMagic.contentEquals("ustar".toByteArray())) {
+                // tar file
+                val outFile = if (save) MediaStoreUtils.getFile("$destName.tar") else null
+                val os = outFile?.uri?.outputStream()?.buffered(1024 * 1024) ?: NullOutputStream()
+                val out = TarArchiveOutputStream(os).also {
+                    it.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR)
+                    it.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
+                }
+                val bootItem = try {
+                    processTar(TarArchiveInputStream(src), out)
+                } catch (e: IOException) {
+                    out.close()
+                    outFile?.delete()
+                    throw e
+                }
+                srcBoot = bootItem.file
+                return StagedImage(bootItem, out, outFile)
+            }
+
+            // raw image
+            val outFile = if (save) MediaStoreUtils.getFile("$destName.img") else null
+            val out = outFile?.uri?.outputStream()
+            val channel = FileInputStream(uri.openFd().fileDescriptor).channel
+            val boot = installDir.getChildFile("boot.img")
+
+            try {
+                if (magic.contentEquals("CrAU".toByteArray())) {
+                    DataSourceChannel(channel).use { source ->
+                        Payload(source).extract(boot, { console.add(it) }, { logs.add(it) })
+                    }
+                } else if (magic.contentEquals("PK\u0003\u0004".toByteArray())) {
+                    ExtractImage(boot, console, logs).consume(DataSourceChannel(channel))
+                } else {
+                    console.add("- Copying image to cache")
+                    src.copyAndCloseOut(boot.newOutputStream())
+                }
+            } catch (e: IOException) {
+                out?.close()
+                outFile?.delete()
+                throw e
+            }
+            srcBoot = boot
+            return StagedImage(null, out, outFile)
+        }
+    }
+
+    private suspend fun processFile(uri: Uri): Boolean {
+        // Process input file
+        val staged = try {
+            stageImage(uri, save = true)
         } catch (e: IOException) {
             if (e is NoBootException)
                 console.add("! No boot image found")
+            else if (e is InvalidImageException)
+                console.add("! Invalid input file")
             console.add("! Process error")
             Timber.e(e)
             return false
         }
+        val outFile = checkNotNull(staged.outFile)
+        val outStream = checkNotNull(staged.out)
 
         // Patch file
         if (!patchBoot()) {
+            staged.close()
             outFile.delete()
             return false
         }
@@ -397,6 +436,7 @@ abstract class MagiskInstallImpl protected constructor(
         // Output file
         try {
             val newBoot = installDir.getChildFile("new-boot.img")
+            val bootItem = staged.bootItem
             if (bootItem != null) {
                 bootItem.file = newBoot
                 bootItem.copyTo(outStream as TarArchiveOutputStream)
@@ -416,7 +456,7 @@ abstract class MagiskInstallImpl protected constructor(
             Timber.e(e)
             return false
         } finally {
-            outStream.close()
+            staged.close()
         }
 
         // Fix up binaries
@@ -424,6 +464,32 @@ abstract class MagiskInstallImpl protected constructor(
         "cp_readlink $installDir".sh()
 
         return true
+    }
+
+    /** Patch a user-selected image, then flash the result to the boot partition. */
+    protected suspend fun patchAndInstall(file: Uri): Boolean {
+        if (!findImage() || !extractFiles())
+            return false
+        // The selected image only replaces what gets patched, the flash target
+        // stays the boot partition located above
+        val target = srcBoot
+        return try {
+            // Only the boot image is needed, the rest of the input is discarded
+            stageImage(file, save = false).close()
+            if (!patchBoot())
+                return false
+            // Keep the selected image out of the Magisk env copied by fix_env
+            srcBoot.delete()
+            flashBoot(target)
+        } catch (e: IOException) {
+            if (e is NoBootException)
+                console.add("! No boot image found")
+            else if (e is InvalidImageException)
+                console.add("! Invalid input file")
+            console.add("! Process error")
+            Timber.e(e)
+            false
+        }
     }
 
     private fun patchBoot(): Boolean {
@@ -449,7 +515,8 @@ abstract class MagiskInstallImpl protected constructor(
         return isSuccess
     }
 
-    private fun flashBoot() = "direct_install $installDir $srcBoot".sh().isSuccess
+    private fun flashBoot(target: ExtendedFile = srcBoot) =
+        "direct_install $installDir $target".sh().isSuccess
 
     private suspend fun postOTA(): Boolean {
         try {
@@ -550,6 +617,7 @@ abstract class CallBackInstaller : MagiskInstallImpl(DummyList, DummyList) {
  * Each inner class maps to a user-visible action in the app UI:
  * - [Direct] — flash directly to the current boot partition.
  * - [Patch] — patch a boot image file and save the result.
+ * - [PatchAndInstall] — patch a boot image file and flash the result.
  * - [SecondSlot] — flash to the inactive slot (for OTA).
  * - [Emulator] — fix the environment (used by emulators).
  * - [Uninstall] — remove Magisk and optionally the app.
@@ -564,6 +632,14 @@ class MagiskInstaller {
         logs: MutableList<String>
     ) : ConsoleInstaller(console, logs) {
         override suspend fun operations() = patchFile(uri)
+    }
+
+    class PatchAndInstall(
+        private val uri: Uri,
+        console: MutableList<String>,
+        logs: MutableList<String>
+    ) : ConsoleInstaller(console, logs) {
+        override suspend fun operations() = patchAndInstall(uri)
     }
 
     class SecondSlot(

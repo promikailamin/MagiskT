@@ -2,7 +2,8 @@
  * ViewModel for the flash/console screen.
  *
  * Dispatches the flash action (install ZIP, uninstall, direct install, second-slot,
- * or patch file) to the appropriate [MagiskInstaller] or [FlashZip] task. Live console
+ * patch file, or patch and install a file) to the appropriate [MagiskInstaller] or
+ * [FlashZip] task. Live console
  * output is collected via [CallbackList] and exposed as [ObservableArrayList] for the
  * RecyclerView. The log can be saved to a file, and the device can be rebooted on success.
  */
@@ -89,6 +90,10 @@ class FlashViewModel : BaseViewModel() {
                     uri ?: return@launch
                     showReboot = false
                     MagiskInstaller.Patch(uri, outItems, logItems).exec()
+                }
+                Const.Value.PATCH_INSTALL_FILE -> {
+                    uri ?: return@launch
+                    MagiskInstaller.PatchAndInstall(uri, outItems, logItems).exec()
                 }
                 else -> {
                     back()
