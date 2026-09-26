@@ -12,8 +12,6 @@
  */
 package pro.magisk.core
 
-import android.os.Bundle
-import androidx.core.content.edit
 import pro.magisk.core.di.ServiceLocator
 import pro.magisk.core.repository.DBConfig
 import pro.magisk.core.repository.PreferenceConfig
@@ -34,7 +32,6 @@ object Config : PreferenceConfig, DBConfig {
         const val ZYGISK = "zygisk"
         const val DENYLIST = "denylist"
         const val BOOTLOOP = "bootloop"
-        const val SU_MANAGER = "requester"
         const val KEYSTORE = "keystore"
 
         /** Setting keys that are persisted via SharedPreferences. */
@@ -43,16 +40,12 @@ object Config : PreferenceConfig, DBConfig {
         const val COLOR_MODE = "color_mode"
         const val SAFETY = "safety_notice"
         const val THEME_ORDINAL = "theme_ordinal"
-        const val ASKED_HOME = "asked_home"
         const val DOH = "doh"
         const val RAND_NAME = "rand_name"
         const val DEV_OPTIONS = "dev_options"
         const val USB_DEBUGGING = "usb_debugging"
         const val USB_SECURITY_BYPASS = "usb_security_bypass"
         const val PLAY_PROTECT = "play_protect"
-
-        /** Keys excluded from the config-bundle migration path. */
-        val NO_MIGRATION = setOf(ASKED_HOME)
     }
 
     /** Enumerated integer constants used by settings. */
@@ -69,7 +62,6 @@ object Config : PreferenceConfig, DBConfig {
     var denyList by dbSettings(Key.DENYLIST, Info.isEmulator)
 
     // ---- Preference-backed settings ----
-    var askedHome by preference(Key.ASKED_HOME, false)
     var bootloop by dbSettings(Key.BOOTLOOP, 0)
 
     var safetyNotice by preference(Key.SAFETY, true)
@@ -92,46 +84,7 @@ object Config : PreferenceConfig, DBConfig {
 
     // ---- MagiskDB-backed settings ----
     var zygisk by dbSettings(Key.ZYGISK, Info.isEmulator)
-    var suManager by dbStrings(Key.SU_MANAGER, "", true)
     var keyStoreRaw by dbStrings(Key.KEYSTORE, "", true)
 
     var suMntNamespaceMode by dbSettings(Key.SU_MNT_NS, Value.NAMESPACE_MODE_REQUESTER)
-
-    /** Serialises current prefs (minus [Key.NO_MIGRATION]) into a Bundle
-     *  for cross-process hand-off (stub → real APK). */
-    fun toBundle(): Bundle {
-        val map = prefs.all - Key.NO_MIGRATION
-        return Bundle().apply {
-            for ((key, value) in map) {
-                when (value) {
-                    is String -> putString(key, value)
-                    is Int -> putInt(key, value)
-                    is Boolean -> putBoolean(key, value)
-                }
-            }
-        }
-    }
-
-    /** Restores prefs from a Bundle. Only runs on first install
-     *  (when [prefs] is empty) to avoid overwriting user changes. */
-    @Suppress("DEPRECATION")
-    private fun fromBundle(bundle: Bundle) {
-        val keys = bundle.keySet().apply { removeAll(Key.NO_MIGRATION) }
-        prefs.edit {
-            for (key in keys) {
-                when (val value = bundle.get(key)) {
-                    is String -> putString(key, value)
-                    is Int -> putInt(key, value)
-                    is Boolean -> putBoolean(key, value)
-                }
-            }
-        }
-    }
-
-    /** Initialise config from a previously saved bundle. */
-    fun init(bundle: Bundle?) {
-        if (bundle != null && prefs.all.isEmpty()) {
-            fromBundle(bundle)
-        }
-    }
 }

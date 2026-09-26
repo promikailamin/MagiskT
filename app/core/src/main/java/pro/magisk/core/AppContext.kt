@@ -3,7 +3,7 @@
  *
  * [AppContext] is a [ContextWrapper] that replaces the normal
  * Application instance so that all code paths (including third-party
- * libraries) see the same resource-patched, locale-aware context.
+ * libraries) see the same locale-aware context.
  *
  * Responsibilities:
  * - Registers the uncaught exception handler ([CrashHandler]).
@@ -16,7 +16,6 @@ package pro.magisk.core
 
 import android.app.Activity
 import android.app.Application
-import android.app.LocaleManager
 import android.content.ComponentCallbacks2
 import android.content.Context
 import android.content.ContextWrapper
@@ -26,7 +25,6 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.system.Os
 import androidx.profileinstaller.ProfileInstaller
-import pro.magisk.StubApk
 import pro.magisk.core.base.UntrackedActivity
 import pro.magisk.core.utils.CrashHandler
 import pro.magisk.core.utils.LocaleSetting
@@ -84,19 +82,14 @@ object AppContext : ContextWrapper(null),
 
     fun attachApplication(app: Application) {
         val time = System.currentTimeMillis()
-        Timber.d("attachApplication: stub=%s apkPath=%s", isRunningAsStub,
-            if (isRunningAsStub) StubApk.current(app.baseContext).path else app.baseContext.packageResourcePath)
-        application = app
         val base = app.baseContext
+        Timber.d("attachApplication: apkPath=%s", base.packageResourcePath)
+        application = app
         attachBaseContext(base)
         app.registerActivityLifecycleCallbacks(this)
         app.registerComponentCallbacks(this)
 
-        AppApkPath = if (isRunningAsStub) {
-            StubApk.current(base).path
-        } else {
-            base.packageResourcePath
-        }
+        AppApkPath = base.packageResourcePath
         resources.patch()
 
         val shellBuilder = Shell.Builder.create()
@@ -114,11 +107,7 @@ object AppContext : ContextWrapper(null),
         Timber.d("pre-heating shell")
         Shell.getShell(null) {}
 
-        if (SDK_INT >= 34 && isRunningAsStub) {
-            val lm = getSystemService(LocaleManager::class.java)
-            lm.overrideLocaleConfig = LocaleSetting.localeConfig
-        }
-        if (!BuildConfig.DEBUG && !isRunningAsStub) {
+        if (!BuildConfig.DEBUG) {
             @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
             GlobalScope.launch(Dispatchers.IO) {
                 ProfileInstaller.writeProfile(this@AppContext)

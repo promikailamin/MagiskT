@@ -3,21 +3,15 @@
  *
  * Orchestrates the bottom-navigation layout with Jetpack Navigation, manages the
  * toolbar (up-indicator / back-arrow), handles splash screen transitions, and
- * shows one-shot dialogs for unsupported configurations, environment issues, and
- * stub-APK home-screen shortcut requests.
+ * shows one-shot dialogs for unsupported configurations and environment issues.
  */
 package pro.magisk.ui
 
-import android.Manifest
-import android.Manifest.permission.REQUEST_INSTALL_PACKAGES
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
-import android.widget.Toast
-import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.view.forEach
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -27,19 +21,15 @@ import pro.magisk.R
 import pro.magisk.arch.BaseViewModel
 import pro.magisk.arch.NavigationActivity
 import pro.magisk.arch.viewModel
-import pro.magisk.core.Config
 import pro.magisk.core.Const
 import pro.magisk.core.Info
 import pro.magisk.core.base.SplashController
 import pro.magisk.core.base.SplashScreenHost
-import pro.magisk.core.isRunningAsStub
-import pro.magisk.core.ktx.toast
 import pro.magisk.core.model.module.LocalModule
 import pro.magisk.databinding.ActivityMainMd2Binding
 import pro.magisk.ui.home.HomeFragmentDirections
 import pro.magisk.ui.theme.Theme
 import pro.magisk.view.MagiskDialog
-import pro.magisk.view.Shortcuts
 import java.io.File
 import timber.log.Timber
 import pro.magisk.core.R as CoreR
@@ -71,7 +61,6 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(Theme.selected.themeRes)
-        splashController.preOnCreate()
         super.onCreate(savedInstanceState)
         splashController.onCreate(savedInstanceState)
     }
@@ -85,7 +74,6 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
     override fun onCreateUi(savedInstanceState: Bundle?) {
         setContentView()
         showUnsupportedMessage()
-        askForHomeShortcut()
 
         @Suppress("DEPRECATION")
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
@@ -163,27 +151,6 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
         }
     }
 
-    @SuppressLint("InlinedApi")
-    override fun showInvalidStateMessage(): Unit = runOnUiThread {
-        MagiskDialog(this).apply {
-            setTitle(CoreR.string.unsupport_nonroot_stub_title)
-            setMessage(CoreR.string.unsupport_nonroot_stub_msg)
-            setButton(MagiskDialog.ButtonType.POSITIVE) {
-                text = CoreR.string.install
-                onClick {
-                    withPermission(REQUEST_INSTALL_PACKAGES) {
-                        if (!it) {
-                            toast(CoreR.string.install_unknown_denied, Toast.LENGTH_SHORT)
-                            showInvalidStateMessage()
-                        }
-                    }
-                }
-            }
-            setCancelable(false)
-            show()
-        }
-    }
-
     /** Shows dialogs for known unsupported configurations. */
     private fun showUnsupportedMessage() {
         // Magisk version too old or unsupported
@@ -226,28 +193,6 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
                 setMessage(CoreR.string.unsupport_external_storage_msg)
                 setButton(MagiskDialog.ButtonType.POSITIVE) { text = android.R.string.ok }
                 setCancelable(false)
-            }.show()
-        }
-    }
-
-    /** Prompts the user to pin a home-screen shortcut when running as stub. */
-    private fun askForHomeShortcut() {
-        if (isRunningAsStub && !Config.askedHome &&
-            ShortcutManagerCompat.isRequestPinShortcutSupported(this)) {
-            Config.askedHome = true
-            MagiskDialog(this).apply {
-                setTitle(CoreR.string.add_shortcut_title)
-                setMessage(CoreR.string.add_shortcut_msg)
-                setButton(MagiskDialog.ButtonType.NEGATIVE) {
-                    text = android.R.string.cancel
-                }
-                setButton(MagiskDialog.ButtonType.POSITIVE) {
-                    text = android.R.string.ok
-                    onClick {
-                        Shortcuts.addHomeIcon(this@MainActivity)
-                    }
-                }
-                setCancelable(true)
             }.show()
         }
     }

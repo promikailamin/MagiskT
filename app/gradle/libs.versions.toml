@@ -82,7 +82,6 @@ android-library = { id = "com.android.library", version.ref = "android" }
 legacy-kapt = { id = "com.android.legacy-kapt", version.ref = "android" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-lsparanoid = { id = "org.lsposed.lsparanoid", version = "0.6.0" }
 moshix = { id = "dev.zacsweers.moshix", version = "0.35.0" }
 navigation-safeargs = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navigation" }
 wire = { id = "com.squareup.wire", version.ref = "wire" }

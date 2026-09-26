@@ -2,14 +2,13 @@
  * ViewModel for the settings screen.
  *
  * Builds the dynamic list of [BaseSettingsItem] objects based on device state
- * (rooted? Zygisk enabled? stub vs installed?).
+ * (rooted? Zygisk enabled? theme?).
  * Also implements [BaseSettingsItem.Handler] to delegate press/action events.
  */
 package pro.magisk.ui.settings
 
 import android.view.View
 import android.widget.Toast
-import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.lifecycle.viewModelScope
 import pro.magisk.BR
 import pro.magisk.arch.BaseViewModel
@@ -17,13 +16,11 @@ import pro.magisk.core.AppContext
 import pro.magisk.core.Const
 import pro.magisk.core.Info
 import pro.magisk.core.R
-import pro.magisk.core.isRunningAsStub
 import pro.magisk.core.ktx.activity
 import pro.magisk.core.ktx.toast
 import pro.magisk.core.utils.LocaleSetting
 import pro.magisk.core.utils.RootUtils
 import pro.magisk.databinding.bindExtra
-import pro.magisk.events.AddHomeIconEvent
 import pro.magisk.events.SnackbarEvent
 import kotlinx.coroutines.launch
 import com.topjohnwu.superuser.Shell
@@ -48,8 +45,6 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
             Theme, if (LocaleSetting.useLocaleManager) LanguageSystem else Language,
             App
         )
-        if (isRunningAsStub && ShortcutManagerCompat.isRequestPinShortcutSupported(context))
-            list.add(AddShortcut)
         list.add(RandNameToggle)
 
         if (Info.env.isActive) {
@@ -93,7 +88,6 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
         when (item) {
             Theme -> SettingsFragmentDirections.actionSettingsFragmentToThemeFragment().navigate()
             LanguageSystem -> view.activity.startActivity(LocaleSetting.localeSettingsIntent)
-            AddShortcut -> AddHomeIconEvent().publish()
             CleanRam -> clean_ram()
             SystemlessHosts -> createHosts()
             AppManager -> SettingsFragmentDirections.actionSettingsFragmentToAppManagerFragment().navigate()

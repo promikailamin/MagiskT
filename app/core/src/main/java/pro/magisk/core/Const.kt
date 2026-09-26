@@ -61,7 +61,6 @@ object Const {
     /** Intent extra / bundle key names. */
     object Key {
         const val OPEN_SECTION = "section"
-        const val PREV_CONFIG = "prev_config"
     }
 
     /** Values used to signal flash-action type in install intents. */
@@ -75,7 +74,6 @@ object Const {
 
     /** Bottom-navigation / Compose-destination identifiers. */
     object Nav {
-        const val HOME = "home"
         const val SETTINGS = "settings"
         const val MODULES = "modules"
     }

@@ -7,7 +7,6 @@
  * - Window insets handling (RikkaX insets) and edge-to-edge configuration
  * - Snackbar display helper ([showSnackbar])
  * - Dark-theme initialisation from [Config]
- * - Workarounds for stub-APK edge cases (reflection-hack for config flags)
  * - Navigation bar transparency on gesture-nav devices
  * - [ViewGroup.startAnimations] extension for layout transition animations
  */
@@ -34,8 +33,6 @@ import pro.magisk.BR
 import pro.magisk.core.Config
 import pro.magisk.core.base.ActivityExtension
 import pro.magisk.core.base.IActivityExtension
-import pro.magisk.core.isRunningAsStub
-import pro.magisk.core.ktx.reflectField
 import pro.magisk.core.wrap
 import rikka.insets.WindowInsetsHelper
 import rikka.layoutinflater.view.LayoutInflaterFactory
@@ -72,14 +69,6 @@ abstract class UIActivity<Binding : ViewDataBinding>
             .addOnViewCreatedListener(WindowInsetsHelper.LISTENER)
 
         extension.onCreate(savedInstanceState)
-        if (isRunningAsStub) {
-            // Suppress spurious "false" stack traces logged by AppCompatDelegateImpl
-            // when the stub APK's delegate doesn't have the expected config-flags fields.
-            val delegate = delegate
-            val clz = delegate.javaClass
-            clz.reflectField("mActivityHandlesConfigFlagsChecked").set(delegate, true)
-            clz.reflectField("mActivityHandlesConfigFlags").set(delegate, 0)
-        }
 
         super.onCreate(savedInstanceState)
 

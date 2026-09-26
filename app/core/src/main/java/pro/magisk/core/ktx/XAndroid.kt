@@ -1,28 +1,20 @@
 /**
  * Android framework extension functions.
  *
- * Covers bitmap rendering, context unwrapping, device-protected
- * storage, keyboard hiding, package info lookup (with UID/PID
- * resolution via [RootUtils]), broadcast receiver registration, and
- * toast / intent helpers.
+ * Covers context unwrapping, device-protected storage, keyboard
+ * hiding, package info lookup (with UID/PID resolution via
+ * [RootUtils]), and toast / intent helpers.
  */
 package pro.magisk.core.ktx
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.AdaptiveIconDrawable
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.LayerDrawable
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Process
@@ -32,27 +24,8 @@ import android.widget.Toast
 import androidx.core.content.getSystemService
 import pro.magisk.core.utils.LocaleSetting
 import pro.magisk.core.utils.RootUtils
-import pro.magisk.utils.APKInstall
 import com.topjohnwu.superuser.internal.UiThreadHandler
 import java.io.File
-
-/** Rasterize a drawable resource into a [Bitmap]. */
-fun Context.getBitmap(id: Int): Bitmap {
-    var drawable = getDrawable(id)!!
-    if (drawable is BitmapDrawable)
-        return drawable.bitmap
-    if (SDK_INT >= Build.VERSION_CODES.O && drawable is AdaptiveIconDrawable) {
-        drawable = LayerDrawable(arrayOf(drawable.background, drawable.foreground))
-    }
-    val bitmap = Bitmap.createBitmap(
-        drawable.intrinsicWidth, drawable.intrinsicHeight,
-        Bitmap.Config.ARGB_8888
-    )
-    val canvas = Canvas(bitmap)
-    drawable.setBounds(0, 0, canvas.width, canvas.height)
-    drawable.draw(canvas)
-    return bitmap
-}
 
 /** Device-protected storage context (or self on pre-N). */
 val Context.deviceProtectedContext: Context get() =
@@ -146,11 +119,6 @@ fun PackageManager.getPackageInfo(uid: Int, pid: Int): PackageInfo? {
         return getPackageInfo(pkgs[0], flag)
     }
     throw PackageManager.NameNotFoundException()
-}
-
-/** Register a [BroadcastReceiver] at runtime (works around API limits on stub APKs). */
-fun Context.registerRuntimeReceiver(receiver: BroadcastReceiver, filter: IntentFilter) {
-    APKInstall.registerReceiver(this, receiver, filter)
 }
 
 /** Build an intent that launches the app's own launcher activity. */

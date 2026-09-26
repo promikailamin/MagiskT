@@ -93,10 +93,6 @@
     <string name="settings_dark_mode_dark">深色模式</string>
     <string name="settings_download_path_title">下載路徑</string>
     <string name="settings_download_path_message">檔案將被儲存在：%1$s</string>
-    <string name="settings_hide_app_title">隱藏 Magisk</string>
-    <string name="settings_hide_app_summary">安裝一個隨機套件名稱和客製化應用程式名稱的代理應用程式</string>
-    <string name="settings_restore_app_title">還原 Magisk</string>
-    <string name="settings_restore_app_summary">取消隱藏並還原為原始套件</string>
     <string name="language">語言</string>
     <string name="system_default">（系統預設值）</string>
     <string name="settings_zygisk_summary">在 Zygote 中執行 Magisk</string>
@@ -111,7 +107,6 @@
     <string name="settings_app_name_helper">應用程式將以此名稱重新封裝</string>
     <string name="settings_app_name_error">無效的格式</string>
     <string name="settings_customization">客製化</string>
-    <string name="setting_add_shortcut_summary">在主螢幕中新增一個精緻的捷徑。防止隱藏 Magisk 以後，其名稱與圖示將難以辨識</string>
     <string name="settings_doh_title">安全化的網域解析(DoH)</string>
     <string name="settings_doh_description">解決某些地區的 DNS 中毒問題</string>
 
@@ -157,14 +152,8 @@
     <string name="unsupport_system_app_msg">本應用程式不支援以系統應用程式的方式執行。請恢復為使用者應用程式。</string>
     <string name="unsupport_other_su_msg">偵測到一個不是來自 Magisk 的「su」二進位檔案。請移除其他 Root 方案。</string>
     <string name="unsupport_external_storage_msg">應用程式已被安裝到外部儲存空間。請移動應用程式至內部儲存空間。</string>
-    <string name="unsupport_nonroot_stub_msg">應用程式無法在 Root 權限遺失的情況下以隱藏模式執行。請還原為原始套件。</string>
-    <string name="unsupport_nonroot_stub_title">@string/settings_restore_app_title</string>
     <string name="external_rw_permission_denied">授予儲存空間存取權以啟用此功能</string>
     <string name="install_unknown_denied">允許「安裝未知應用程式」以啟用此功能</string>
-    <string name="add_shortcut_title">在主螢幕中新增捷徑</string>
-    <string name="add_shortcut_msg">在隱藏應用程式以後，其名稱與圖示將難以辨識。請問您想要在主螢幕中新增一個精緻的捷徑嗎？</string>
     <string name="app_not_found">沒有可以處理這個動作的應用程式</string>
     <string name="reboot_apply_change">重新啟動裝置以套用設定變更</string>
-    <string name="restore_app_confirmation">這將會還原隱藏的應用程式至原始。請問您確定要執行？</string>
-
 </resources>

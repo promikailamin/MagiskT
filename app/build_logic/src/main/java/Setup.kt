@@ -139,8 +139,7 @@ private abstract class SyncWithDir : Sync() {
  *       from {@code native/out/$abi} for each ABI</li>
  *   <li>Downloads and extracts BusyBox</li>
  *   <li>Copies flash scripts as META-INF resources</li>
- *   <li>Stubs version constants into {@code util_functions.sh}</li>
- *   <li>Includes the built stub APK as an asset</li>
+ *   <li>Injects version constants into {@code util_functions.sh}</li>
  * </ul>
  */
 fun Project.setupCoreLib() {
@@ -192,7 +191,6 @@ fun Project.setupCoreLib() {
             variant.sources.resources
                 ?.addGeneratedSourceDirectory(syncResources, SyncWithDir::outputFolder)
 
-            val stubTask = tasks.getByPath(":stub:transform${variantCapped}Apk")
             val syncAssets = tasks.register("sync${variantCapped}Assets", SyncWithDir::class) {
                 outputFolder.set(layout.buildDirectory.dir("$variantName/assets"))
                 into(outputFolder)
@@ -209,10 +207,6 @@ fun Project.setupCoreLib() {
                     from(rootFile("tools/keys")) {
                         include("kernel_data_key.vbprivk", "kernel.keyblock")
                     }
-                }
-                from(stubTask) {
-                    include { it.name.endsWith(".apk") }
-                    rename { "stub.apk" }
                 }
                 filesMatching("**/util_functions.sh") {
                     filter {
@@ -231,7 +225,7 @@ fun Project.setupCoreLib() {
 }
 
 /**
- * Configures settings common to all APK-producing modules ({@code :apk}, {@code :stub}).
+ * Configures settings common to all APK-producing modules ({@code :apk}).
  * Includes signing config, targetSdk, ProGuard, lint, dependency info suppression,
  * legacy JNI lib packaging, and a post-processing APK transformation that embeds the
  * version metadata in the ZIP End of Central Directory comment.
@@ -303,8 +297,7 @@ fun Project.setupAppCommon() {
                 // Always add a transformation to set comments on the APK
                 this.transformations.add {
                     it.eocdComment = ("version=${Config.version}\n" +
-                            "versionCode=${Config.versionCode}\n" +
-                            "stubVersion=${Config.stubVersion}\n").toByteArray()
+                            "versionCode=${Config.versionCode}\n").toByteArray()
                 }
             }
 

@@ -1,6 +1,6 @@
 /**
- * Base [BroadcastReceiver] that patches the context (locale + stub
- * assets) before dispatch.
+ * Base [BroadcastReceiver] that patches the context (locale) before
+ * dispatch.
  *
  * Subclasses override [onReceive] and must call `super.onReceive`
  * to apply the patches.

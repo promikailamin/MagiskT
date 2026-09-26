@@ -62,10 +62,6 @@ object App : BaseSettingsItem.Section() {
     override val title = CoreR.string.settings_section_app.asText()
 }
 
-object AddShortcut : BaseSettingsItem.Blank() {
-    override val title = CoreR.string.add_shortcut_title.asText()
-    override val description = CoreR.string.setting_add_shortcut_summary.asText()
-}
 
 object SystemlessHosts : BaseSettingsItem.Blank() {
     override val title = CoreR.string.settings_hosts_title.asText()

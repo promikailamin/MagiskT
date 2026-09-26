@@ -1,7 +1,7 @@
 /**
  * Script execution engine for Magisk's boot-stage scripts.
  * Handles post-fs-data, late_start (service) module scripts and
- * common scripts with timeout guards. Provides install/uninstall helpers.
+ * common scripts with timeout guards. Provides a package data clear helper.
  */
 #include <string>
 #include <vector>
@@ -158,35 +158,6 @@ void exec_module_scripts(Utf8CStr stage, const rust::Vec<ModuleInfo> &module_lis
     }
 
     PFS_DONE()
-}
-
-constexpr char install_script[] = R"EOF(
-APK=%s
-log -t Magisk "pm_install: $APK"
-log -t Magisk "pm_install: $(pm install -g -r $APK 2>&1)"
-appops set %s REQUEST_INSTALL_PACKAGES allow
-rm -f $APK
-)EOF";
-
-/** Install an APK via pm install and grant REQUEST_INSTALL_PACKAGES app op. */
-void install_apk(Utf8CStr apk) {
-    setfilecon(apk.c_str(), MAGISK_FILE_CON);
-    char cmds[sizeof(install_script) + 4096];
-    ssprintf(cmds, sizeof(cmds), install_script, apk.c_str(), JAVA_PACKAGE_NAME);
-    exec_command_async("/system/bin/sh", "-c", cmds);
-}
-
-constexpr char uninstall_script[] = R"EOF(
-PKG=%s
-log -t Magisk "pm_uninstall: $PKG"
-log -t Magisk "pm_uninstall: $(pm uninstall $PKG 2>&1)"
-)EOF";
-
-/** Uninstall a package via pm uninstall. */
-void uninstall_pkg(Utf8CStr pkg) {
-    char cmds[sizeof(uninstall_script) + 256];
-    ssprintf(cmds, sizeof(cmds), uninstall_script, pkg.c_str());
-    exec_command_async("/system/bin/sh", "-c", cmds);
 }
 
 constexpr char clear_script[] = R"EOF(

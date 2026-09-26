@@ -15,7 +15,6 @@ use crate::ffi::{
 };
 use crate::logging::{android_logging, magisk_logging, setup_logfile, start_log_daemon};
 use crate::module::remove_modules;
-use crate::package::ManagerInfo;
 use crate::resetprop::{get_prop, set_prop};
 use crate::selinux::restore_tmpcon;
 use crate::socket::{IpcRead, IpcWrite};
@@ -73,14 +72,12 @@ pub const fn to_user_id(uid: i32) -> i32 {
 /// Global daemon state singleton.
 ///
 /// Holds all runtime state that needs to be accessible across the process:
-/// the SQLite connection, Magisk Manager info, boot stage, module list,
-/// Zygisk state, and device properties.
+/// the SQLite connection, boot stage, module list, Zygisk state, and
+/// device properties.
 #[derive(Default)]
 pub struct MagiskD {
     /// Shared SQLite3 database connection.
     pub sql_connection: Mutex<Option<Sqlite3>>,
-    /// Information about the installed Magisk Manager package.
-    pub manager_info: Mutex<ManagerInfo>,
     /// Current boot stage (PostFsData / LateStart / BootComplete).
     pub boot_stage_lock: Mutex<BootState>,
     /// List of loaded Magisk modules and their info.

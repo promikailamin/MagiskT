@@ -29,7 +29,6 @@ import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import pro.magisk.core.R
-import pro.magisk.core.ktx.reflectField
 import pro.magisk.core.ktx.toast
 import pro.magisk.core.utils.RequestAuthentication
 import pro.magisk.core.utils.RequestInstall
@@ -141,15 +140,6 @@ class ActivityExtension(private val activity: ComponentActivity) {
 
     companion object {
         private const val CONTENT_CALLBACK_KEY = "content_callback"
-    }
-}
-
-/** The package that launched this activity (reflection fallback pre-API 34). */
-val Activity.launchPackage: String? get() {
-    return if (Build.VERSION.SDK_INT >= 34) {
-        launchedFromPackage
-    } else {
-        Activity::class.java.reflectField("mReferrer").get(this) as String?
     }
 }
 

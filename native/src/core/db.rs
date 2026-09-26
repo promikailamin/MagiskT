@@ -76,7 +76,6 @@ impl DbEntryKey {
             DbEntryKey::DenylistConfig => "denylist",
             DbEntryKey::ZygiskConfig => "zygisk",
             DbEntryKey::BootloopCount => "bootloop",
-            DbEntryKey::SuManager => "requester",
             _ => "",
         }
     }

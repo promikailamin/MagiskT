@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Magisk build system.
 
-Supports building native binaries (Rust/C++), Android APKs (app/stub),
+Supports building native binaries (Rust/C++), Android APKs (app),
 and running AVD tests. Invoke via `python build.py <action>`.
 """
 import argparse
@@ -364,20 +364,6 @@ def build_app():
     target = apk.parent / apk.name.replace("apk-", "app-")
     mv(apk, target)
     header(f"Output: {target}")
-
-    # Stub building is directly integrated into the main app
-    # build process. Copy the stub APK into output directory.
-    build_type = "release" if args.release else "debug"
-    source = Path("app", "core", "src", build_type, "assets", "stub.apk")
-    target = config["outdir"] / f"stub-{build_type}.apk"
-    cp(source, target)
-
-
-def build_stub():
-    """Build the stub APK (thin proxy that downloads and classloads the real app)."""
-    header("* Building the stub app")
-    apk = build_apk(":stub")
-    header(f"Output: {apk}")
 
 
 ################
@@ -756,8 +742,6 @@ def parse_args():
 
     app_parser = subparsers.add_parser("app", help="build the Magisk app")
 
-    stub_parser = subparsers.add_parser("stub", help="build the stub app")
-
     clean_parser = subparsers.add_parser("clean", help="cleanup")
     clean_parser.add_argument(
         "targets", nargs="*", help="native, cpp, rust, java, or empty to clean all"
@@ -813,7 +797,6 @@ def parse_args():
     rustup_parser.set_defaults(func=setup_rustup)
     gen_parser.set_defaults(func=gen_ide)
     app_parser.set_defaults(func=build_app)
-    stub_parser.set_defaults(func=build_stub)
     emu_parser.set_defaults(func=setup_avd)
     avd_patch_parser.set_defaults(func=patch_avd_file)
     clean_parser.set_defaults(func=cleanup)
