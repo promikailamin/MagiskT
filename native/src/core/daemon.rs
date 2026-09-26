@@ -59,11 +59,6 @@ pub const AID_SHELL: i32 = 2000;
 /// Per-user UID offset in Android's multi-user model.
 pub const AID_USER_OFFSET: i32 = 100000;
 
-/// Extract the app ID from a full UID (strip the user ID).
-pub const fn to_app_id(uid: i32) -> i32 {
-    uid % AID_USER_OFFSET
-}
-
 /// Extract the user ID from a full UID.
 pub const fn to_user_id(uid: i32) -> i32 {
     uid / AID_USER_OFFSET

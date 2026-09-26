@@ -219,27 +219,6 @@ impl MagiskD {
         val
     }
 
-    pub fn get_db_string(&self, key: DbEntryKey) -> String {
-        let mut val = "".to_string();
-        let mut func = |_: &[String], values: &DbValues| {
-            val.push_str(values.get_text(0));
-        };
-        self.db_exec_with_rows(
-            "SELECT value FROM strings WHERE key=?",
-            &[Text(key.to_str())],
-            &mut func,
-        )
-        .sql_result()
-        .log()
-        .ok();
-        val
-    }
-
-    pub fn rm_db_string(&self, key: DbEntryKey) -> SqliteResult<()> {
-        self.db_exec("DELETE FROM strings WHERE key=?", &[Text(key.to_str())])
-            .sql_result()
-    }
-
     pub fn db_exec_for_cli(&self, mut file: UnixStream) -> LoggedResult<()> {
         let mut reader = BufReader::new(&mut file);
         let sql: String = reader.read_decodable()?;

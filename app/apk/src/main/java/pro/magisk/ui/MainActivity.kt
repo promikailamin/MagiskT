@@ -7,6 +7,7 @@
  */
 package pro.magisk.ui
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
