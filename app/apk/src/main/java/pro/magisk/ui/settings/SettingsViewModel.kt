@@ -21,6 +21,7 @@ import pro.magisk.core.ktx.toast
 import pro.magisk.core.utils.LocaleSetting
 import pro.magisk.core.utils.RootUtils
 import pro.magisk.databinding.bindExtra
+import pro.magisk.events.SnackbarEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
