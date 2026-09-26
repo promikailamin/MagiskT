@@ -5,14 +5,13 @@
 //! and tracks installed/stub/dyn APKs per user profile.
 
 use crate::consts::{APP_PACKAGE_NAME, MAGISK_VER_CODE};
-use crate::daemon::{AID_APP_END, AID_APP_START, AID_USER_OFFSET, MagiskD, to_app_id};
+use crate::daemon::{AID_USER_OFFSET, MagiskD, to_app_id};
 use crate::ffi::{DbEntryKey, get_magisk_tmp, install_apk};
 use base::WalkResult::{Abort, Continue, Skip};
 use base::{
     BufReadExt, Directory, FsPathBuilder, LoggedResult, ReadExt, ResultExt, Utf8CStrBuf,
     Utf8CString, cstr, fd_get_attr, warn,
 };
-use bit_set::BitSet;
 use nix::fcntl::OFlag;
 use std::collections::BTreeMap;
 use std::fs::File;
@@ -472,52 +471,8 @@ impl MagiskD {
         uid
     }
 
-    pub fn get_manager(&self, user: i32, install: bool) -> (i32, String) {
-        let mut info = self.manager_info.lock();
-        let (uid, pkg) = info.get_manager(self, user, install);
-        (uid, pkg.to_string())
-    }
-
     pub fn ensure_manager(&self) {
         let mut info = self.manager_info.lock();
         let _ = info.get_manager(self, 0, true);
-    }
-
-    // app_id = app_no + AID_APP_START
-    // app_no range: [0, 9999]
-    pub fn get_app_no_list(&self) -> BitSet {
-        let mut list = BitSet::new();
-        let _ = || -> LoggedResult<()> {
-            let mut app_data_dir = Directory::open(self.app_data_dir())?;
-            // For each user
-            loop {
-                let entry = match app_data_dir.read()? {
-                    None => break,
-                    Some(e) => e,
-                };
-                let mut user_dir = match entry.open_as_dir() {
-                    Err(_) => continue,
-                    Ok(dir) => dir,
-                };
-                // For each package
-                loop {
-                    match user_dir.read()? {
-                        None => break,
-                        Some(e) => {
-                            let mut entry_path = cstr::buf::default();
-                            e.resolve_path(&mut entry_path)?;
-                            let attr = entry_path.get_attr()?;
-                            let app_id = to_app_id(attr.st.st_uid as i32);
-                            if (AID_APP_START..=AID_APP_END).contains(&app_id) {
-                                let app_no = app_id - AID_APP_START;
-                                list.insert(app_no as usize);
-                            }
-                        }
-                    }
-                }
-            }
-            Ok(())
-        }();
-        list
     }
 }

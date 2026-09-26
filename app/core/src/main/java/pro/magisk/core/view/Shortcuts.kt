@@ -1,9 +1,8 @@
 /**
  * Manages app shortcuts (dynamic and pinned).
  *
- * Dynamic shortcuts give quick access to Superuser and Modules
- * screens. The home-screen icon can also be pinned via
- * [addHomeIcon].
+ * Dynamic shortcuts give quick access to the Modules screen. The
+ * home-screen icon can also be pinned via [addHomeIcon].
  */
 package pro.magisk.view
 
@@ -78,18 +77,6 @@ object Shortcuts {
 
         val shortCuts = mutableListOf<ShortcutInfo>()
 
-        if (Info.showSuperUser) {
-            shortCuts.add(
-                ShortcutInfo.Builder(context, Const.Nav.SUPERUSER)
-                    .setShortLabel(context.getString(R.string.superuser))
-                    .setIntent(
-                        Intent(intent).putExtra(Const.Key.OPEN_SECTION, Const.Nav.SUPERUSER)
-                    )
-                    .setIcon(context.getIcon(R.drawable.sc_superuser))
-                    .setRank(0)
-                    .build()
-            )
-        }
         if (Info.env.isActive) {
             shortCuts.add(
                 ShortcutInfo.Builder(context, Const.Nav.MODULES)
@@ -98,7 +85,7 @@ object Shortcuts {
                         Intent(intent).putExtra(Const.Key.OPEN_SECTION, Const.Nav.MODULES)
                     )
                     .setIcon(context.getIcon(R.drawable.sc_extension))
-                    .setRank(1)
+                    .setRank(0)
                     .build()
             )
         }

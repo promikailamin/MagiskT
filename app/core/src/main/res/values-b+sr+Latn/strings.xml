@@ -3,7 +3,6 @@
 
     <!--Sections-->
     <string name="modules">Moduli</string>
-    <string name="superuser">Super-korisnik</string>
     <string name="logs">Logovi</string>
     <string name="settings">Podešavanja</string>
     <string name="install">Instalacija</string>
@@ -61,38 +60,8 @@
     <string name="flash_screen_title">Instalacija</string>
 
     <!--Superuser-->
-    <string name="su_request_title">Ova aplikacija zahteva korensku permisiju. Pruža potpun pristup Vašem uređaju. Zabranite ako niste sigurni!</string>
-    <string name="touch_filtered_warning">Magisk ne može da verifikuje Vaš odgovor, jer aplikacija prikriva super-korisnički zahtev.</string>
-    <string name="deny">Zabrani</string>
-    <string name="prompt">Zahtev</string>
-    <string name="restrict">Ograniči</string>
-    <string name="grant">Dozvoli</string>
-    <string name="su_warning">Pruža potpun pristup Vašem uređaju.\nZabranite ako niste sigurni!</string>
-    <string name="forever">Zauvek</string>
-    <string name="once">Jednom</string>
-    <string name="tenmin">10 min</string>
-    <string name="twentymin">20 min</string>
-    <string name="thirtymin">30 min</string>
-    <string name="sixtymin">60 min</string>
-    <string name="su_allow_toast">%1$s je dobio prava na super-korisnika</string>
-    <string name="su_deny_toast">%1$s nije dobio prava na super-korisnika</string>
-    <string name="su_snack_grant">Super-korisnička prava od %1$s su pružena</string>
-    <string name="su_snack_deny">Super-korisnička prava od %1$s su odbijena</string>
-    <string name="su_snack_notif_on">Notifikacije od %1$s su omogućene</string>
-    <string name="su_snack_notif_off">Notifikacije od %1$s su onemogućene</string>
-    <string name="su_snack_log_on">Logovanje za %1$s je omogućeno</string>
-    <string name="su_snack_log_off">Logovanje za %1$s je onemogućeno</string>
-    <string name="su_revoke_title">Opozovi?</string>
-    <string name="su_revoke_msg">Potvrdi da opozoveš prava na super-korisnika od %1$s?</string>
     <string name="toast">Toast</string>
-    <string name="notification">Notifikacija</string>
     <string name="none">Ništa</string>
-    <string name="su_notification_channel">Super-korisničke notifikacije</string>
-    <string name="su_notification_granted_title">Super-korisnik odobren</string>
-    <string name="su_notification_denied_title">Super-korisnik odbijen</string>
-    <string name="superuser_toggle_notification">Notifikacije</string>
-    <string name="superuser_toggle_revoke">Opozovi</string>
-    <string name="superuser_policy_none">Nijedna aplikacija nije tražila permisije za super-korisnika još uvek.</string>
 
     <!--Logs-->
     <string name="log_data_none">Nemate logova. Pokušajte koristiti korenske aplikacije više.</string>
@@ -103,7 +72,6 @@
     <string name="save_log">Sačuvaj log</string>
     <string name="clear_log">Ukloni log</string>
     <string name="back">Nazad</string>
-    <string name="superuser_setting">Super-korisničko podešavanje</string>
     <string name="enabled">Omogućeno</string>
     <string name="disabled">Onemogućeno</string>
     <string name="pid">PID: %1$d</string>
@@ -171,29 +139,6 @@
     <string name="settings_app_name_hint">Novo ime</string>
     <string name="settings_app_name_helper">Apl. će biti spakovana pod ovim imenom</string>
     <string name="settings_app_name_error">Nevalidan format</string>
-    <string name="settings_su_app_adb">Aplikacije i ADB</string>
-    <string name="settings_su_app">Samo aplikacije</string>
-    <string name="settings_su_adb">Samo ADB</string>
-    <string name="settings_su_disable">Onemogućeno</string>
-    <string name="settings_su_request_10">10 sekundi</string>
-    <string name="settings_su_request_15">15 sekundi</string>
-    <string name="settings_su_request_20">20 sekundi</string>
-    <string name="settings_su_request_30">30 sekundi</string>
-    <string name="settings_su_request_45">45 sekundi</string>
-    <string name="settings_su_request_60">60 sekundi</string>
-    <string name="superuser_access">Pristup super-korisnika</string>
-    <string name="auto_response">Automatski odgovor</string>
-    <string name="request_timeout">Istek zahteva</string>
-    <string name="superuser_notification">Notifikacije super-korisnika</string>
-    <string name="settings_su_reauth_title">Ponovo odobri nakon ažuriranja</string>
-    <string name="settings_su_reauth_summary">Ponovo traži permisije super-korisnika nakon ažuriranja aplikacija</string>
-    <string name="settings_su_tapjack_title">Zaštita od tapjacking-a</string>
-    <string name="settings_su_tapjack_summary">Prompt dijalog super-korisnika neće reagovati dok je prikriven drugim prozorom ili overlay-em</string>
-    <string name="settings_su_auth_title">Autentifikacija korisnika</string>
-    <string name="settings_su_auth_summary">Traži autentifikaciju korisnika tokom zahteva super-korisnika</string>
-    <string name="settings_su_auth_insecure">Nijedan metod autentifikacije nije podešen na uređaju</string>
-    <string name="settings_su_restrict_title">Ograniči korenske sposobnosti</string>
-    <string name="settings_su_restrict_summary">Podrazumevano ograničava apl. super-korisnika. Upozorenje: ovo će većinu aplikacija skršiti. Ne omogućavaj, osim ako znaš šta radiš.</string>
     <string name="settings_customization">Prilagođavanje</string>
     <string name="settings_color_mode">Režim boje</string>
     <string name="color_mode_system">Sistemsko</string>
@@ -207,13 +152,6 @@
     <string name="settings_doh_description">Zaobilazno rešenje DNS trovanja u nekim nacijama</string>
     <string name="settings_random_name_title">Nasumično ime na izlazu</string>
     <string name="settings_random_name_description">Nasumično ime izlaznog fajla slika i tar fajlova radi sprečavanja detekcije</string>
-    <string name="multiuser_mode">Višekorisnički režim</string>
-    <string name="settings_owner_only">Samo vlasnik uređaja</string>
-    <string name="settings_owner_manage">Određeno od strane vlasnika</string>
-    <string name="settings_user_independent">Nezavisno od korisnika</string>
-    <string name="owner_only_summary">Samo vlasnik ima pristup korenu</string>
-    <string name="owner_manage_summary">Samo vlasnik može da pristupa korenu i da prima zahteve za njega</string>
-    <string name="user_independent_summary">Svaki korisnik ima svoja pravila korena</string>
     <string name="mount_namespace_mode">Mount režim namespace-a</string>
     <string name="settings_ns_global">Globalni namespace</string>
     <string name="settings_ns_requester">Nasleđeni namespace</string>

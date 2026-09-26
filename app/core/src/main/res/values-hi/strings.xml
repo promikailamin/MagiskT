@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">मॉड्यूल</string>
-    <string name="superuser">सुपर यूज़र</string>
     <string name="logs">लॉग्स</string>
     <string name="settings">सेटिंग्स</string>
     <string name="install">इंस्टॉल</string>
@@ -47,34 +46,9 @@
     <string name="flash_screen_title">इंस्टॉलेशन</string>
 
     <!--Superuser-->
-    <string name="su_request_title">सुपरयूज़र अनुरोध</string>
-    <string name="touch_filtered_warning">चूंकि एक ऐप सुपरयूज़र अनुरोध को अस्पष्ट कर रहा है, इसलिए मैजिस्क आपकी प्रतिक्रिया को सत्यापित नहीं कर सकता</string>
-    <string name="deny">इंकार करें</string>
-    <string name="prompt">संकेत दिखाएँ</string>
-    <string name="grant">अनुमति दें</string>
-    <string name="su_warning">यह आपके डिवाइस की पूरी पहुँच की अनुमति देगा,\n यदि आप सुनिश्चित नहीं हैं तो इंकार करें!</string>
-    <string name="forever">सदैव</string>
-    <string name="once">एक बार</string>
-    <string name="tenmin">10 मिनिट</string>
-    <string name="twentymin">20 मिनट</string>
-    <string name="thirtymin">30 मिनट</string>
-    <string name="sixtymin">60 मिनट</string>
-    <string name="su_allow_toast"> %1$s को सुपरयूज़र अधिकार प्रदान किया गया</string>
-    <string name="su_deny_toast"> %1$s को सुपरयूज़र अधिकार से इंकार किया गया</string>
-    <string name="su_snack_grant"> %1$s को सुपरयूज़र अधिकार प्रदान किए गए </string>
-    <string name="su_snack_deny"> %1$s के सुपरयूज़र अधिकारों को अस्वीकार कर दिया गया है</string>
-    <string name="su_snack_notif_on"> %1$s की सूचनाएं सक्षम हैं</string>
-    <string name="su_snack_notif_off"> %1$s की सूचनाएं अक्षम हैं</string>
-    <string name="su_snack_log_on"> %1$s की लॉगिंग सक्षम है</string>
-    <string name="su_snack_log_off"> %1$s की लॉगिंग अक्षम है</string>
-    <string name="su_revoke_title">अधिकार वापस लें?</string>
-    <string name="su_revoke_msg"> %1$s के अधिकारों को रद्द करने की पुष्टि करें?</string>
     <string name="toast">पॉप-अप सूचना</string>
     <string name="none">कोई नहीं</string>
 
-    <string name="superuser_toggle_notification">सूचनाएं</string>
-    <string name="superuser_toggle_revoke">अधिकार वापस लें</string>
-    <string name="superuser_policy_none">किसी भी ऐप ने अभी तक सुपरयूज़र की अनुमति नहीं मांगी है।</string>
 
     <!--Logs-->
     <string name="log_data_none">कोई लॉग नहीं, अपने सुपरयूज़र सक्षम एप्लिकेशन का अधिक उपयोग करने का प्रयास करें।</string>
@@ -134,36 +108,11 @@
     <string name="settings_app_name_hint">नया नाम</string>
     <string name="settings_app_name_helper">इस नाम से ऐप को फिर से इंस्टॉल किया जाएगा</string>
     <string name="settings_app_name_error">अवैध प्रारूप</string>
-    <string name="settings_su_app_adb">ऐप्स और एडीबी</string>
-    <string name="settings_su_app">केवल ऐप्स</string>
-    <string name="settings_su_adb">केवल एडीबी</string>
-    <string name="settings_su_disable">बंद है</string>
-    <string name="settings_su_request_10">10 सेकंड</string>
-    <string name="settings_su_request_15">15 सेकंड</string>
-    <string name="settings_su_request_20">20 सेकंड</string>
-    <string name="settings_su_request_30">30 सेकंड</string>
-    <string name="settings_su_request_45">45 सेकंड</string>
-    <string name="settings_su_request_60">60 सेकंड</string>
-    <string name="superuser_access">सुपरयूज़र एक्सेस</string>
-    <string name="auto_response">स्वचालित प्रतिक्रिया</string>
-    <string name="request_timeout">अनुरोध की समय समाप्ति सीमा</string>
-    <string name="superuser_notification">सुपरयूज़र सूचना</string>
-    <string name="settings_su_reauth_title">अपग्रेड के बाद प्रमाणीकरण</string>
-    <string name="settings_su_reauth_summary">एक ऐप अपडेट होने के बाद सुपरयूज़र अनुमति प्रमाणित करें</string>
-    <string name="settings_su_tapjack_title">टैपजैकिंग सुरक्षा</string>
-    <string name="settings_su_tapjack_summary">सुपरयुसर प्रॉम्प्ट डायलॉग किसी अन्य विंडो या ओवरले द्वारा अस्पष्ट होने पर इनपुट का जवाब नहीं देगा</string>
     <string name="settings_customization">कस्टमाईजेशन</string>
     <string name="setting_add_shortcut_summary">ऐप को छिपाने के बाद नाम और आइकन को पहचानना मुश्किल है, तो होम स्क्रीन में एक सुंदर शॉर्टकट जोड़ें</string>
     <string name="settings_doh_title">HTTPS पर DNS</string>
     <string name="settings_doh_description">कुछ राष्ट्रों में चल रही DNS विषाक्तता का समाधान</string>
 
-    <string name="multiuser_mode">बहु उपयोगकर्ता मोड</string>
-    <string name="settings_owner_only">केवल डिवाइस का मालिक</string>
-    <string name="settings_owner_manage">डिवाइस मालिक द्वारा प्रबंधित</string>
-    <string name="settings_user_independent"> स्वत्रंत उपयोगकर्ता</string>
-    <string name="owner_only_summary">केवल मालिक के पास ही रूट की पहुँच है</string>
-    <string name="owner_manage_summary">केवल मालिक रूट एक्सेस का प्रबंधन कर सकते हैं और अनुरोध संकेत प्राप्त कर सकते हैं</string>
-    <string name="user_independent_summary">प्रत्येक उपयोगकर्ता का अपना अलग रूट नियम होता है</string>
 
     <string name="mount_namespace_mode">माउंट नेमस्पेस मोड</string>
     <string name="settings_ns_global">ग्लोबल नेमस्पेस</string>

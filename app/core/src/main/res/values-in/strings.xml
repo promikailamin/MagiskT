@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">Modul</string>
-    <string name="superuser">Superuser</string>
     <string name="logs">Log</string>
     <string name="settings">Setelan</string>
     <string name="install">Pasang</string>
@@ -54,35 +53,8 @@
     <string name="flash_screen_title">Pemasangan</string>
 
     <!--Superuser-->
-    <string name="su_request_title">Aplikasi ini meminta izin root. Ini memberikan akses penuh ke perangkat Anda. Tolak jika Anda tidak yakin!</string>
-    <string name="touch_filtered_warning">Magisk tidak dapat memverifikasi respons Anda, karena ada aplikasi yang menutupi permintaan superuser.</string>
-    <string name="deny">Tolak</string>
-    <string name="prompt">Ajukan</string>
-    <string name="restrict">Batasi</string>
-    <string name="grant">Izinkan</string>
-    <string name="su_warning">Berikan akses penuh ke perangkat Anda.\nTolak jika Anda tidak yakin!</string>
-    <string name="forever">Selamanya</string>
-    <string name="once">Sekali</string>
-    <string name="tenmin">10 menit</string>
-    <string name="twentymin">20 menit</string>
-    <string name="thirtymin">30 menit</string>
-    <string name="sixtymin">60 menit</string>
-    <string name="su_allow_toast">%1$s diberikan izin superuser</string>
-    <string name="su_deny_toast">%1$s ditolak izin superuser</string>
-    <string name="su_snack_grant">Izin superuser %1$s diberikan</string>
-    <string name="su_snack_deny">Izin superuser %1$s ditolak</string>
-    <string name="su_snack_notif_on">Notifikasi %1$s aktif</string>
-    <string name="su_snack_notif_off">Notifikasi %1$s nonaktif</string>
-    <string name="su_snack_log_on">Pencatatan log %1$s aktif</string>
-    <string name="su_snack_log_off">Pencatatan log %1$s nonaktif</string>
-    <string name="su_revoke_title">Cabut?</string>
-    <string name="su_revoke_msg">Konfirmasi untuk mencabut izin %1$s</string>
     <string name="toast">Pesan singkat</string>
-    <string name="notification">Notifikasi</string>
     <string name="none">Tidak ada</string>
-    <string name="superuser_toggle_notification">Notifikasi</string>
-    <string name="superuser_toggle_revoke">Cabut</string>
-    <string name="superuser_policy_none">Belum ada aplikasi yang meminta izin superuser.</string>
 
     <!--Logs-->
     <string name="log_data_none">Belum ada log. Coba gunakan aplikasi root Anda lebih sering.</string>
@@ -93,7 +65,6 @@
     <string name="save_log">Simpan log</string>
     <string name="clear_log">Bersihkan log</string>
     <string name="back">Kembali</string>
-    <string name="superuser_setting">Setelan Superuser</string>
     <string name="enabled">Aktif</string>
     <string name="disabled">Nonaktif</string>
     <string name="pid">PID: %1$d</string>
@@ -159,29 +130,6 @@
     <string name="settings_app_name_hint">Nama baru</string>
     <string name="settings_app_name_helper">Aplikasi akan dikemas ulang dengan nama tersebut</string>
     <string name="settings_app_name_error">Format tidak valid</string>
-    <string name="settings_su_app_adb">Aplikasi dan ADB</string>
-    <string name="settings_su_app">Hanya Aplikasi</string>
-    <string name="settings_su_adb">Hanya ADB</string>
-    <string name="settings_su_disable">Dinonaktifkan</string>
-    <string name="settings_su_request_10">10 detik</string>
-    <string name="settings_su_request_15">15 detik</string>
-    <string name="settings_su_request_20">20 detik</string>
-    <string name="settings_su_request_30">30 detik</string>
-    <string name="settings_su_request_45">45 detik</string>
-    <string name="settings_su_request_60">60 detik</string>
-    <string name="superuser_access">Akses superuser</string>
-    <string name="auto_response">Respons otomatis</string>
-    <string name="request_timeout">Batas waktu permintaan</string>
-    <string name="superuser_notification">Notifikasi superuser</string>
-    <string name="settings_su_reauth_title">Otentikasikan ulang setelah pembaruan</string>
-    <string name="settings_su_reauth_summary">Minta izin akses superuser lagi setelah memperbarui aplikasi</string>
-    <string name="settings_su_tapjack_title">Perlindungan tapjacking</string>
-    <string name="settings_su_tapjack_summary">Dialog permintaan superuser tidak akan merespons input saat tertutup oleh jendela atau overlay lain</string>
-    <string name="settings_su_auth_title">Otentikasi pengguna</string>
-    <string name="settings_su_auth_summary">Minta otentikasi pengguna selama permintaan superuser</string>
-    <string name="settings_su_auth_insecure">Tidak ada metode otentikasi yang dikonfigurasi pada perangkat</string>
-    <string name="settings_su_restrict_title">Batasi kemampuan root</string>
-    <string name="settings_su_restrict_summary">Secara bawaan akan membatasi aplikasi superuser baru. Peringatan: dapat menyebabkan sebagian besar aplikasi tidak berfungsi. Jangan aktifkan kecuali Anda memahami risikonya.</string>
     <string name="settings_customization">Personalisasi</string>
     <string name="settings_color_mode">Mode warna</string>
     <string name="color_mode_system">Sistem</string>
@@ -195,13 +143,6 @@
     <string name="settings_doh_description">Solusi mengatasi masalah DNS di beberapa negara</string>
     <string name="settings_random_name_title">Acak nama output</string>
     <string name="settings_random_name_description">Acak nama berkas output dari image yang ditambal dan berkas tar untuk mencegah deteksi</string>
-    <string name="multiuser_mode">Mode multi pengguna</string>
-    <string name="settings_owner_only">Hanya pemilik perangkat</string>
-    <string name="settings_owner_manage">Dikelola pemilik perangkat</string>
-    <string name="settings_user_independent">Independen per pengguna</string>
-    <string name="owner_only_summary">Hanya pemilik yang memiliki akses root</string>
-    <string name="owner_manage_summary">Hanya pemilik yang dapat mengelola akses root dan menerima permintaan</string>
-    <string name="user_independent_summary">Setiap pengguna memiliki aturan root terpisah</string>
     <string name="mount_namespace_mode">Ruang nama mount</string>
     <string name="settings_ns_global">Global</string>
     <string name="settings_ns_requester">Diwariskan</string>

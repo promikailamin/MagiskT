@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">Модули</string>
-    <string name="superuser">Superuser</string>
     <string name="logs">Дневник</string>
     <string name="settings">Настройки</string>
     <string name="install">Инсталиране</string>
@@ -47,34 +46,9 @@
     <string name="flash_screen_title">Инсталиране</string>
 
     <!--Superuser-->
-    <string name="su_request_title">Запитване за достъп</string>
-    <string name="touch_filtered_warning">Тъй като друго приложение закрива заявката за достъп до правата на суперпотребителя, Magisk не може да потвърди вашия отговор</string>
-    <string name="deny">Отказ</string>
-    <string name="prompt">Запитване</string>
-    <string name="grant">Разрешаване</string>
-    <string name="su_warning">Дава пълен достъп до устройството.\nОткажете, ако не сте сигурни.</string>
-    <string name="forever">Винаги</string>
-    <string name="once">Веднъж</string>
-    <string name="tenmin">10 мин.</string>
-    <string name="twentymin">20 мин.</string>
-    <string name="thirtymin">30 мин.</string>
-    <string name="sixtymin">60 мин.</string>
-    <string name="su_allow_toast">%1$s получи достъп до суперпотребителя</string>
-    <string name="su_deny_toast">%1$s не получи достъп до суперпотребителя</string>
-    <string name="su_snack_grant">Достъп до суперпотребителя е разрешен на %1$s</string>
-    <string name="su_snack_deny">Достъп до суперпотребителя е отказан на %1$s</string>
-    <string name="su_snack_notif_on">Известията за %1$s са включени</string>
-    <string name="su_snack_notif_off">Известията за %1$s са изключени</string>
-    <string name="su_snack_log_on">Записването в дневника за %1$s е включено</string>
-    <string name="su_snack_log_off">Записването в дневника за %1$s е изключено</string>
-    <string name="su_revoke_title">Оттегляне?</string>
-    <string name="su_revoke_msg">Потвърждавате ли оттегляне на достъпа на %1$s?</string>
     <string name="toast">Тост</string>
     <string name="none">Без</string>
 
-    <string name="superuser_toggle_notification">Известия</string>
-    <string name="superuser_toggle_revoke">Оттегляне</string>
-    <string name="superuser_policy_none">За момента няма приложения, които да са поискали достъп до правата на суперпотребителя.</string>
 
     <!--Logs-->
     <string name="log_data_none">Дневникът е празен</string>
@@ -136,36 +110,11 @@
     <string name="settings_app_name_hint">Ново име</string>
     <string name="settings_app_name_helper">Приложението ще бъде пакетирано с това име</string>
     <string name="settings_app_name_error">Форматът е недействителен</string>
-    <string name="settings_su_app_adb">Приложения и ADB</string>
-    <string name="settings_su_app">Само приложения</string>
-    <string name="settings_su_adb">Само ADB</string>
-    <string name="settings_su_disable">Изключен</string>
-    <string name="settings_su_request_10">10 секунди</string>
-    <string name="settings_su_request_15">15 секунди</string>
-    <string name="settings_su_request_20">20 секунди</string>
-    <string name="settings_su_request_30">30 секунди</string>
-    <string name="settings_su_request_45">45 секунди</string>
-    <string name="settings_su_request_60">60 секунди</string>
-    <string name="superuser_access">Достъп до суперпотребителя</string>
-    <string name="auto_response">Автоматичен отговор</string>
-    <string name="request_timeout">Време за запитване</string>
-    <string name="superuser_notification">Известие за суперпотребителя</string>
-    <string name="settings_su_reauth_title">Повторно запитване след обновяване</string>
-    <string name="settings_su_reauth_summary">Повторно запитване за достъп до правата на суперпотребителя след обновяване на приложения</string>
-    <string name="settings_su_tapjack_title">Предпазване от измамно докосване</string>
-    <string name="settings_su_tapjack_summary">Прозорецът за достъп до суперпотребителя няма да реагира, докато е покрит от друг прозорец или слой</string>
     <string name="settings_customization">Приспособяване</string>
     <string name="setting_add_shortcut_summary">Добавя красив пряк път на началния екран ако името или текущата икона на скритото приложение са трудни за разпознаване</string>
     <string name="settings_doh_title">DNS през HTTPS</string>
     <string name="settings_doh_description">Заобикаля „отравянето“ на DNS в някои държави</string>
 
-    <string name="multiuser_mode">Многопотребителски режим</string>
-    <string name="settings_owner_only">Само собственика</string>
-    <string name="settings_owner_manage">Управление от страна на собственика</string>
-    <string name="settings_user_independent">Независимо от потребителя</string>
-    <string name="owner_only_summary">Само собственикът има достъп до суперпотребителя</string>
-    <string name="owner_manage_summary">Само собственикът може да управлява достъпа до суперпотребителя и да получава запитвания за достъп</string>
-    <string name="user_independent_summary">Всеки потребител има собствени правила за достъп до суперпотребителя</string>
 
     <string name="mount_namespace_mode">Монтиране по пространства от имена</string>
     <string name="settings_ns_global">Общо</string>

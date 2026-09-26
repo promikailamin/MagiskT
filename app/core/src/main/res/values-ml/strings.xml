@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">മൊഡ്യുൾസ്</string>
-    <string name="superuser">സൂപ്പർയുസർ</string>
     <string name="logs">ലോഗ്സ്</string>
     <string name="settings">സെറ്റിംഗ്സ്</string>
     <string name="install">ഇൻസ്റ്റോൾ</string>
@@ -47,34 +46,9 @@
     <string name="flash_screen_title">ഇൻസ്റ്റലേഷൻ</string>
 
     <!--Superuser-->
-    <string name="su_request_title">സൂപ്പർയൂസർ അഭ്യർത്ഥന</string>
-    <string name="touch_filtered_warning">ഒരു ആപ്പ് ഒരു സൂപ്പർയൂസർ അഭ്യർത്ഥന മറയ്ക്കുന്നതിനാൽ, മജിസ്‌ക്-ന് നിങ്ങളുടെ പ്രതികരണം പരിശോധിക്കാൻ കഴിയില്ല</string>
-    <string name="deny">നിഷേധിക്കുക</string>
-    <string name="prompt">പ്രോംപ്റ്റ്</string>
-    <string name="grant">അനുവദിക്കുക</string>
-    <string name="su_warning">നിങ്ങളുടെ ഉപകരണത്തിലേക്ക് പൂർണ്ണ ആക്‌സസ് നൽകും.\nനിങ്ങൾക്ക് ഉറപ്പില്ലെങ്കിൽ നിരസിക്കുക!</string>
-    <string name="forever">എന്നേക്കും</string>
-    <string name="once">ഒരിക്കൽ</string>
-    <string name="tenmin">10 മിനിറ്റ്</string>
-    <string name="twentymin">20 മിനിറ്റ്</string>
-    <string name="thirtymin">30 മിനിറ്റ്</string>
-    <string name="sixtymin">60 മിനിറ്റ്</string>
-    <string name="su_allow_toast">%1$s-ന് സൂപ്പർയൂസർ അവകാശം ലഭിച്ചു</string>
-    <string name="su_deny_toast">%1$s-ന് സൂപ്പർയൂസർ അവകാശം നിഷേധിച്ചു </string>
-    <string name="su_snack_grant">%1$s-ന്റെ സൂപ്പർയൂസർ അവകാശം അനുവദിച്ചിരിക്കുന്നു </string>
-    <string name="su_snack_deny">1$s-ന്റെ സൂപ്പർയൂസർ അവകാശം നിഷേധിക്കപ്പെട്ടിരിക്കുന്നു</string>
-    <string name="su_snack_notif_on">%1$s-ന്റെ അറിയിപ്പുകൾ പ്രവർത്തനക്ഷമമാക്കി</string>
-    <string name="su_snack_notif_off">%1$s-ന്റെ അറിയിപ്പുകൾ പ്രവർത്തനരഹിതമാക്കി</string>
-    <string name="su_snack_log_on">%1$s-ന്റെ ലോഗിംഗ് പ്രവർത്തനക്ഷമമാക്കി</string>
-    <string name="su_snack_log_off">%1$s-ന്റെ ലോഗിംഗ് പ്രവർത്തനരഹിതമാക്കി</string>
-    <string name="su_revoke_title">പിൻവലിക്കണോ?</string>
-    <string name="su_revoke_msg">%1$s-ന്റെ സൂപ്പർയൂസർ അവകാശം അസാധുവാക്കാൻ സ്ഥിരീകരിക്കുക</string>
     <string name="toast">ടോസ്റ്റ്</string>
     <string name="none">ഒന്നുമില്</string>
 
-    <string name="superuser_toggle_notification">അറിയിപ്പുകൾ</string>
-    <string name="superuser_toggle_revoke">പിന്‍വലിക്കുക</string>
-    <string name="superuser_policy_none">ആപ്പുകളൊന്നും ഇതുവരെ സൂപ്പർയൂസർ അനുമതി ചോദിച്ചിട്ടില്ല.</string>
 
     <!--Logs-->
     <string name="log_data_none">നിങ്ങൾക്ക് ലോഗുകൾ ഒന്നുമില്ലലോ, റൂട്ട് ആപ്പുകൾ കൂടുതൽ ഉപയോഗിക്കൂ</string>
@@ -134,36 +108,11 @@
     <string name="settings_app_name_hint">പുതിയ പേര്</string>
     <string name="settings_app_name_helper">ആപ്പ് ഈ പേരിൽ വീണ്ടും പാക്ക് ചെയ്യും</string>
     <string name="settings_app_name_error">അസാധുവായ ഫോർമാറ്റ്</string>
-    <string name="settings_su_app_adb">ആപ്പുകളും ADB</string>
-    <string name="settings_su_app">ആപ്പുകൾ മാത്രം</string>
-    <string name="settings_su_adb">ADB മാത്രം</string>
-    <string name="settings_su_disable">അപ്രാപ്തമാക്കി</string>
-    <string name="settings_su_request_10">10 സെക്കന്റുകൾ</string>
-    <string name="settings_su_request_15">15 സെക്കന്റുകൾ</string>
-    <string name="settings_su_request_20">20 സെക്കന്റുകൾ</string>
-    <string name="settings_su_request_30">30 സെക്കന്റുകൾ</string>
-    <string name="settings_su_request_45">45 സെക്കന്റുകൾ</string>
-    <string name="settings_su_request_60">60 സെക്കന്റുകൾ</string>
-    <string name="superuser_access">സൂപ്പർയൂസർ ആക്സസ്</string>
-    <string name="auto_response">സ്വയമേവ പ്രതികരണം</string>
-    <string name="request_timeout">അഭ്യർത്ഥന സമയപരിധി</string>
-    <string name="superuser_notification">സൂപ്പർയൂസർ അറിയിപ്പ്</string>
-    <string name="settings_su_reauth_title">അപ്‌ഗ്രേഡിന് ശേഷം വീണ്ടും പ്രാമാണീകരിക്കുക</string>
-    <string name="settings_su_reauth_summary">ആപ്പുകൾ അപ്‌ഗ്രേഡ് ചെയ്‌തതിന് ശേഷം സൂപ്പർയൂസർ അനുമതികൾക്കായി വീണ്ടും ആവശ്യപ്പെടുക</string>
-    <string name="settings_su_tapjack_title">ടാപ്പ്ജാക്കിംഗ് സംരക്ഷണം</string>
-    <string name="settings_su_tapjack_summary">സൂപ്പർയൂസർ പ്രോംപ്റ്റ് ഡയലോഗ് മറ്റേതെങ്കിലും വിൻഡോയോ ഓവർലേയോ മറയ്ക്കുമ്പോൾ ഇൻപുട്ടിനോട് പ്രതികരിക്കില്</string>
     <string name="settings_customization">കസ്റ്റമയിസേഷൻ</string>
     <string name="setting_add_shortcut_summary">ആപ്പ് മറച്ചതിന് ശേഷം പേരും ഐക്കണും തിരിച്ചറിയാൻ പ്രയാസമാണെങ്കിൽ ഹോം സ്‌ക്രീനിലേക്ക് മനോഹരമായ ഒരു ഷോർട്ട്ക്കട് ചേർക്കുക</string>
     <string name="settings_doh_title">DNS ഓവർ HTTPS</string>
     <string name="settings_doh_description">ചില രാജ്യങ്ങളിലെ DNS പോയ്സണിങിന് പരിഹാരം</string>
 
-    <string name="multiuser_mode">മൾട്ടിയൂസർ മോഡ്</string>
-    <string name="settings_owner_only">ഉപകരണ ഉടമ മാത്രം</string>
-    <string name="settings_owner_manage">ഉപകരണ ഉടമ നിയന്ത്രിക്കുന്നു</string>
-    <string name="settings_user_independent">ഉപയോക്താവിനെ ആശ്രയിക്കുന്നില്</string>
-    <string name="owner_only_summary">ഉടമയ്ക്ക് മാത്രമേ റൂട്ട് ആക്സസ് ഉള്ളൂ</string>
-    <string name="owner_manage_summary">റൂട്ട് ആക്‌സസ് നിയന്ത്രിക്കാനും അഭ്യർത്ഥന നിർദ്ദേശങ്ങൾ സ്വീകരിക്കാനും ഉടമയ്ക്ക് മാത്രമേ കഴിയൂ</string>
-    <string name="user_independent_summary">ഓരോ ഉപയോക്താവിനും അവരുടേതായ പ്രത്യേക റൂട്ട് നിയമങ്ങൾ ഉണ്ടാവാം</string>
 
     <string name="mount_namespace_mode">മൗണ്ട് നെയിംസ്പേസ് മോഡ്</string>
     <string name="settings_ns_global">ഗ്ലോബൽ നെയിംസ്പേസ്</string>

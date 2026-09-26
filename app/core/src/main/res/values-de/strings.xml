@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">Module</string>
-    <string name="superuser">Superuser</string>
     <string name="logs">Protokolle</string>
     <string name="settings">Einstellungen</string>
     <string name="install">Installieren</string>
@@ -47,34 +46,9 @@
     <string name="flash_screen_title">Installieren</string>
 
     <!--Superuser-->
-    <string name="su_request_title">Superuser-Anfrage</string>
-    <string name="touch_filtered_warning">Weil eine App eine Superuser-Anfrage verdeckt, kann Magisk deine Antwort nicht verifizieren</string>
-    <string name="deny">Verweigern</string>
-    <string name="prompt">Fragen</string>
-    <string name="grant">Gewähren</string>
-    <string name="su_warning">Zugriff auf dein Gerät gewähren. Verweigere den Zugriff, wenn du nicht sicher bist!</string>
-    <string name="forever">Für immer</string>
-    <string name="once">Einmalig</string>
-    <string name="tenmin">10 Minuten</string>
-    <string name="twentymin">20 Minuten</string>
-    <string name="thirtymin">30 Minuten</string>
-    <string name="sixtymin">60 Minuten</string>
-    <string name="su_allow_toast">%1$s wurden Superuser-Rechte gewährt</string>
-    <string name="su_deny_toast">%1$s wurden Superuser-Rechte verweigert</string>
-    <string name="su_snack_grant">Superuser-Rechte für %1$s gewährt</string>
-    <string name="su_snack_deny">Superuser-Rechte für %1$s verweigert</string>
-    <string name="su_snack_notif_on">Benachrichtigungen für %1$s sind an</string>
-    <string name="su_snack_notif_off">Benachrichtigungen für %1$s sind aus</string>
-    <string name="su_snack_log_on">Protokollierung für %1$s ist an</string>
-    <string name="su_snack_log_off">Protokollierung für %1$s ist aus</string>
-    <string name="su_revoke_title">Widerrufen?</string>
-    <string name="su_revoke_msg">Bestätigen, dass %1$s-Rechte widerufen werden?</string>
     <string name="toast">Toast</string>
     <string name="none">Keine</string>
 
-    <string name="superuser_toggle_notification">Benachrichtigungen</string>
-    <string name="superuser_toggle_revoke">Widerruf</string>
-    <string name="superuser_policy_none">Bisher hat noch keine App um die Erlaubnis des Superusers gebeten.</string>
 
     <!--Logs-->
     <string name="log_data_none">Du bist protokollfrei, versuche deine SU-fähigen Apps mehr zu nutzen.</string>
@@ -139,39 +113,10 @@
     <string name="settings_app_name_hint">Neuer Name</string>
     <string name="settings_app_name_helper">App wird unter diesem Namen neu gepackt</string>
     <string name="settings_app_name_error">Ungültiges Format</string>
-    <string name="settings_su_app_adb">Apps und ADB</string>
-    <string name="settings_su_app">Nur Apps</string>
-    <string name="settings_su_adb">Nur ADB</string>
-    <string name="settings_su_disable">Deaktiviert</string>
-    <string name="settings_su_request_10">10 Sekunden</string>
-    <string name="settings_su_request_15">15 Sekunden</string>
-    <string name="settings_su_request_20">20 Sekunden</string>
-    <string name="settings_su_request_30">30 Sekunden</string>
-    <string name="settings_su_request_45">45 Sekunden</string>
-    <string name="settings_su_request_60">60 Sekunden</string>
-    <string name="superuser_access">Superuser-Zugriff</string>
-    <string name="auto_response">Automatisch beantworten</string>
-    <string name="request_timeout">Zeitlimit für Anfrage</string>
-    <string name="superuser_notification">Superuser-Benachrichtigung</string>
-    <string name="settings_su_reauth_title">Nach Aktualisierung erneut zertifizieren</string>
-    <string name="settings_su_reauth_summary">Superuser-Berechtigungen nach App-Aktualisierung erneut authentifizieren</string>
-    <string name="settings_su_tapjack_title">Tapjacking-Schutz aktivieren</string>
-    <string name="settings_su_tapjack_summary">Das Dialogfeld der Superuser-Eingabeaufforderung reagiert nicht auf Eingaben, wenn es durch ein anderes Fenster oder Überlagerung verdeckt wird</string>
-    <string name="settings_su_auth_title">Benutzerauthentifizierung</string>
-    <string name="settings_su_auth_summary">Nachfrage nach Benutzerauthentifizierung bei Superuser-Anfragen</string>
-    <string name="settings_su_auth_insecure">Auf dem Gerät ist keine Authentifizierungsmethode konfiguriert</string>>
-    <string name="settings_customization">Personalisierung</string>
     <string name="setting_add_shortcut_summary">Hinzufügen einer hübschen Startbildschirm-Verknüpfung, falls der Name und das Symbol nach dem Ausblenden der App schwer zu erkennen sind</string>
     <string name="settings_doh_title">DNS über HTTPS</string>
     <string name="settings_doh_description">Umgehung des DNS-Poisoning in einigen Ländern</string>
 
-    <string name="multiuser_mode">Mehrbenutzermodus</string>
-    <string name="settings_owner_only">Nur der Gerätebesitzer</string>
-    <string name="settings_owner_manage">Durch Gerätebesitzer verwaltet</string>
-    <string name="settings_user_independent">Benutzerunabhängig</string>
-    <string name="owner_only_summary">Nur der Besitzer hat Root-Zugriff</string>
-    <string name="owner_manage_summary">Nur der Besitzer verwaltet den Root-Zugriff und erhält Zugriffsanfragen</string>
-    <string name="user_independent_summary">Jeder Nutzer hat seine eigenen Root-Regeln</string>
 
     <string name="mount_namespace_mode">Mount Namespace Modus</string>
     <string name="settings_ns_global">Globaler Namespace</string>

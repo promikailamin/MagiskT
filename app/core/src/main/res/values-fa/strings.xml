@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">ماژول ها</string>
-    <string name="superuser">کاربر روت</string>
     <string name="logs">لاگ ها</string>
     <string name="settings">تنظیمات</string>
     <string name="install">نصب</string>
@@ -46,34 +45,8 @@
     <string name="flash_screen_title">نصب و راه اندازی</string>
 
     <!--Superuser-->
-    <string name="su_request_title">درخواست کاربر روت</string>
-    <string name="touch_filtered_warning">به دلیل اینکه یک برنامه در حال پوشاندن درخواست Superuser است، Magisk نمی‌تواند پاسخ شما را تأیید کند.</string>
-    <string name="deny">رد کردن</string>
-    <string name="prompt">درخواست کردن</string>
-    <string name="restrict">محدود کردن</string>
-    <string name="grant">اجازه دادن</string>
-    <string name="su_warning">دسترسی کامل به دستگاه شما را اعطا می کند. \nاگر مطمئن نیستید رد کنید!</string>
-    <string name="forever">همیشه</string>
-    <string name="once">یکبار</string>
-    <string name="tenmin">10 دقیقه</string>
-    <string name="twentymin">20 دقیقه</string>
-    <string name="thirtymin">30 دقیقه</string>
-    <string name="sixtymin">60 دقیقه</string>
-    <string name="su_allow_toast">%1$s اجازه دسترسی به روت داده شد</string>
-    <string name="su_deny_toast">%1$s اجازه دسترسی به روت رد شد</string>
-    <string name="su_snack_grant">دسترسی روت به %1$s داده شده است</string>
-    <string name="su_snack_deny">دسترسی روت به %1$s داده نشده است</string>
-    <string name="su_snack_notif_on">اعلان های %1$s فعال است</string>
-    <string name="su_snack_notif_off">اعلان های %1$s غییر فعال است</string>
-    <string name="su_snack_log_on">ورود به سیستم از %1$s فعال است</string>
-    <string name="su_snack_log_off">ورود به سیستم از %1$s غییر فعال است</string>
-    <string name="su_revoke_title">باطل بشه؟</string>
-    <string name="su_revoke_msg">تایید کنید که %1$s باطل بشه؟</string>
     <string name="toast">پیام کوتاه</string>
     <string name="none">هیچ کدام</string>
-    <string name="superuser_toggle_notification">اعلان ها</string>
-    <string name="superuser_toggle_revoke">ابطال</string>
-    <string name="superuser_policy_none">هنوز هیچ برنامه ای مجوز روت درخواست نکرده است.</string>
 
     <!--Logs-->
     <string name="log_data_none">شما هیچ لاگی ندارید, سعی کنید برنامه های که به روت دسترسی میگیرند را استفاده کنید.</string>
@@ -138,42 +111,12 @@
     <string name="settings_app_name_hint">اسم جدید</string>
     <string name="settings_app_name_helper">برنامه به این نام تغییر خواهد کرد</string>
     <string name="settings_app_name_error">فرمت نامعتبر</string>
-    <string name="settings_su_app_adb">برنامه ها و ADB</string>
-    <string name="settings_su_app">فقط برنامه ها</string>
-    <string name="settings_su_adb">ADB فقط</string>
-    <string name="settings_su_disable">غییرفعال شده</string>
-    <string name="settings_su_request_10">10 ثانیه</string>
-    <string name="settings_su_request_15">15 ثانیه</string>
-    <string name="settings_su_request_20">20 ثانیه</string>
-    <string name="settings_su_request_30">30 ثانیه</string>
-    <string name="settings_su_request_45">45 ثانیه</string>
-    <string name="settings_su_request_60">60 ثانیه</string>
-    <string name="superuser_access">دسترسی روت</string>
-    <string name="auto_response">پاسخ خودکار</string>
-    <string name="request_timeout">مهلت زمانی درخواست</string>
-    <string name="superuser_notification">اعلان روت</string>
-    <string name="settings_su_reauth_title">احراز هویت دوباره پس از بروز رسانی</string>
-    <string name="settings_su_reauth_summary">تأیید کردندوباره مجوزهای روت پس از ارتقاء برنامه</string>
-    <string name="settings_su_tapjack_title">محافظت در برابر Tapjacking</string>
-    <string name="settings_su_tapjack_summary">پنجره درخواست Superuser زمانی که توسط پنجره یا لایه دیگری پوشانده شود، به ورودی پاسخ نخواهد داد</string>
-    <string name="settings_su_auth_title">احراز هویت کاربر</string>
-    <string name="settings_su_auth_summary">درخواست احراز هویت کاربر هنگام درخواست Superuser</string>
-    <string name="settings_su_auth_insecure">هیچ روش احراز هویتی روی دستگاه پیکربندی نشده است</string>
-    <string name="settings_su_restrict_title">محدود کردن دسترسی روت</string>
-    <string name="settings_su_restrict_summary">به طور پیش‌فرض برنامه‌های Superuser جدید را محدود می‌کند. هشدار: این کار بیشتر برنامه‌ها را از کار می‌اندازد. فقط اگر دقیقاً می‌دانید چه می‌کنید آن را فعال کنید.</string>
     <string name="settings_customization">سفارشی سازی</string>
     <string name="setting_add_shortcut_summary">اضافه کردن یک میانبر زیبا را در صفحه اصلی در صورت شناسایی نام و نماد پس از پنهان کردن برنامه</string>
     <string name="settings_doh_title">DNS روی HTTPS</string>
     <string name="settings_doh_description">دور زدن مسمومیت DNS در برخی کشورها</string>
     <string name="settings_random_name_title">تغییر تصادفی نام خروجی</string>
     <string name="settings_random_name_description">تغییر تصادفی نام فایل خروجی تصاویر و فایل‌های tar پچ‌شده برای جلوگیری از شناسایی</string>
-    <string name="multiuser_mode">حالت چند کاربره</string>
-    <string name="settings_owner_only">فقط صاحب دستگاه</string>
-    <string name="settings_owner_manage">صاحب دستگاه مدیریت شود</string>
-    <string name="settings_user_independent">مستقل از کاربر</string>
-    <string name="owner_only_summary">فقط مالک دسترسی روت دارد</string>
-    <string name="owner_manage_summary">فقط مالک می تواند دسترسی روت را مدیریت کرده و درخواست های پرامپت را دریافت کند</string>
-    <string name="user_independent_summary">هر کاربر قوانین روت جداگانه خود را دارد</string>
     <string name="mount_namespace_mode">نصب کردن Namespace Mode</string>
     <string name="settings_ns_global">سراسری Namespace</string>
     <string name="settings_ns_requester">وراثتی Namespace</string>

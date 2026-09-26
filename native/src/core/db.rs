@@ -16,8 +16,6 @@ use crate::ffi::{
 use crate::socket::{IpcRead, IpcWrite};
 use DbArg::{Integer, Text};
 use base::{LoggedResult, ResultExt, Utf8CStr};
-use num_derive::FromPrimitive;
-use num_traits::FromPrimitive;
 use std::ffi::c_void;
 use std::io::{BufReader, BufWriter};
 use std::os::unix::net::UnixStream;
@@ -65,35 +63,6 @@ where
     }
 }
 
-#[derive(Default)]
-pub struct DbSettings {
-    pub root_access: RootAccess,
-    pub multiuser_mode: MultiuserMode,
-    pub mnt_ns: MntNsMode,
-    pub boot_count: i32,
-    pub denylist: bool,
-    pub zygisk: bool,
-}
-
-#[repr(i32)]
-#[derive(Default, FromPrimitive)]
-pub enum RootAccess {
-    Disabled,
-    AppsOnly,
-    AdbOnly,
-    #[default]
-    AppsAndAdb,
-}
-
-#[repr(i32)]
-#[derive(Default, FromPrimitive)]
-pub enum MultiuserMode {
-    #[default]
-    OwnerOnly,
-    OwnerManaged,
-    User,
-}
-
 impl Default for MntNsMode {
     fn default() -> Self {
         MntNsMode::Requester
@@ -103,39 +72,12 @@ impl Default for MntNsMode {
 impl DbEntryKey {
     fn to_str(self) -> &'static str {
         match self {
-            DbEntryKey::RootAccess => "root_access",
-            DbEntryKey::SuMultiuserMode => "multiuser_mode",
             DbEntryKey::SuMntNs => "mnt_ns",
             DbEntryKey::DenylistConfig => "denylist",
             DbEntryKey::ZygiskConfig => "zygisk",
             DbEntryKey::BootloopCount => "bootloop",
             DbEntryKey::SuManager => "requester",
             _ => "",
-        }
-    }
-}
-
-impl SqlTable for DbSettings {
-    fn on_row(&mut self, columns: &[String], values: &DbValues) {
-        let mut key = "";
-        let mut value = 0;
-        for (i, column) in columns.iter().enumerate() {
-            if column == "key" {
-                key = values.get_text(i as i32);
-            } else if column == "value" {
-                value = values.get_int(i as i32);
-            }
-        }
-        match key {
-            "root_access" => self.root_access = RootAccess::from_i32(value).unwrap_or_default(),
-            "multiuser_mode" => {
-                self.multiuser_mode = MultiuserMode::from_i32(value).unwrap_or_default()
-            }
-            "mnt_ns" => self.mnt_ns = MntNsMode { repr: value },
-            "denylist" => self.denylist = value != 0,
-            "zygisk" => self.zygisk = value != 0,
-            "bootloop" => self.boot_count = value,
-            _ => {}
         }
     }
 }
@@ -258,8 +200,6 @@ impl MagiskD {
     pub fn get_db_setting(&self, key: DbEntryKey) -> i32 {
         // Get default values
         let mut val = match key {
-            DbEntryKey::RootAccess => RootAccess::default() as i32,
-            DbEntryKey::SuMultiuserMode => MultiuserMode::default() as i32,
             DbEntryKey::SuMntNs => MntNsMode::default().repr,
             DbEntryKey::DenylistConfig => 0,
             DbEntryKey::ZygiskConfig => self.is_emulator as i32,
@@ -278,16 +218,6 @@ impl MagiskD {
         .log()
         .ok();
         val
-    }
-
-    pub fn get_db_settings(&self) -> SqliteResult<DbSettings> {
-        let mut cfg = DbSettings {
-            zygisk: self.is_emulator,
-            ..Default::default()
-        };
-        self.db_exec_with_rows("SELECT * FROM settings", &[], &mut cfg)
-            .sql_result()?;
-        Ok(cfg)
     }
 
     pub fn get_db_string(&self, key: DbEntryKey) -> String {

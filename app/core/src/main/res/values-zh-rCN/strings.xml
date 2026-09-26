@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">模块</string>
-    <string name="superuser">超级用户</string>
     <string name="logs">日志</string>
     <string name="settings">设置</string>
     <string name="install">安装</string>
@@ -49,34 +48,8 @@
     <string name="flash_screen_title">安装</string>
 
     <!--Superuser-->
-    <string name="su_request_title">超级用户请求</string>
-    <string name="touch_filtered_warning">由于某个应用遮挡了超级用户请求界面，因此 Magisk 无法验证您的回应</string>
-    <string name="deny">拒绝</string>
-    <string name="prompt">提示</string>
-    <string name="restrict">受限</string>
-    <string name="grant">允许</string>
-    <string name="su_warning">将授予对该设备的最高权限。\n如果不确定，请拒绝！</string>
-    <string name="forever">永久</string>
-    <string name="once">仅此一次</string>
-    <string name="tenmin">10 分钟</string>
-    <string name="twentymin">20 分钟</string>
-    <string name="thirtymin">30 分钟</string>
-    <string name="sixtymin">60 分钟</string>
-    <string name="su_allow_toast">%1$s 已被授予超级用户权限</string>
-    <string name="su_deny_toast">%1$s 已被拒绝超级用户权限</string>
-    <string name="su_snack_grant">已授予 %1$s 超级用户权限</string>
-    <string name="su_snack_deny">已拒绝 %1$s 超级用户权限</string>
-    <string name="su_snack_notif_on">已启用 %1$s 的通知</string>
-    <string name="su_snack_notif_off">已禁用 %1$s 的通知</string>
-    <string name="su_snack_log_on">已启用对 %1$s 的日志记录</string>
-    <string name="su_snack_log_off">已禁用对 %1$s 的日志记录</string>
-    <string name="su_revoke_title">撤销</string>
-    <string name="su_revoke_msg">确认撤销授予 %1$s 的权限？</string>
     <string name="toast">消息提示</string>
     <string name="none">无</string>
-    <string name="superuser_toggle_notification">通知</string>
-    <string name="superuser_toggle_revoke">撤销</string>
-    <string name="superuser_policy_none">尚无应用请求超级用户权限</string>
 
     <!--Logs-->
     <string name="log_data_none">没有超级用户权限使用日志</string>
@@ -141,42 +114,12 @@
     <string name="settings_app_name_hint">新的应用名称</string>
     <string name="settings_app_name_helper">将使用新名称重新安装本应用</string>
     <string name="settings_app_name_error">无效输入</string>
-    <string name="settings_su_app_adb">应用和 ADB</string>
-    <string name="settings_su_app">仅应用</string>
-    <string name="settings_su_adb">仅 ADB</string>
-    <string name="settings_su_disable">已禁用</string>
-    <string name="settings_su_request_10">10 秒</string>
-    <string name="settings_su_request_15">15 秒</string>
-    <string name="settings_su_request_20">20 秒</string>
-    <string name="settings_su_request_30">30 秒</string>
-    <string name="settings_su_request_45">45 秒</string>
-    <string name="settings_su_request_60">60 秒</string>
-    <string name="superuser_access">超级用户访问权限</string>
-    <string name="auto_response">自动响应</string>
-    <string name="request_timeout">请求超时</string>
-    <string name="superuser_notification">超级用户通知</string>
-    <string name="settings_su_reauth_title">更新后重新认证</string>
-    <string name="settings_su_reauth_summary">应用更新后重新认证超级用户权限</string>
-    <string name="settings_su_tapjack_title">点按劫持保护</string>
-    <string name="settings_su_tapjack_summary">存在屏幕叠加层时，超级用户请求弹窗不响应允许操作</string>
-    <string name="settings_su_auth_title">身份验证</string>
-    <string name="settings_su_auth_summary">对超级用户请求验证身份</string>
-    <string name="settings_su_auth_insecure">设备未配置验证方式</string>
-    <string name="settings_su_restrict_title">限制超级用户权能</string>
-    <string name="settings_su_restrict_summary">默认限制新的超级用户应用。警告，这会破坏大多数应用，不建议启用。</string>
     <string name="settings_customization">个性化</string>
     <string name="setting_add_shortcut_summary">在隐藏后难以识别名称和图标的情况下，添加快捷方式到桌面</string>
     <string name="settings_doh_title">安全 DNS（DoH）</string>
     <string name="settings_doh_description">解决某些地区的 DNS 污染问题</string>
     <string name="settings_random_name_title">随机文件名</string>
     <string name="settings_random_name_description">随机修补映像和 tar 文件的文件名以防止检测</string>
-    <string name="multiuser_mode">多用户模式</string>
-    <string name="settings_owner_only">仅设备所有者</string>
-    <string name="settings_owner_manage">由设备所有者管理</string>
-    <string name="settings_user_independent">各用户独立</string>
-    <string name="owner_only_summary">仅设备所有者有超级用户权限</string>
-    <string name="owner_manage_summary">仅设备所有者能管理超级用户并接收权限请求提示</string>
-    <string name="user_independent_summary">每个用户有独立的超级用户规则</string>
     <string name="mount_namespace_mode">挂载命名空间模式</string>
     <string name="settings_ns_global">全局命名空间</string>
     <string name="settings_ns_requester">继承命名空间</string>

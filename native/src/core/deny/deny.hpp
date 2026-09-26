@@ -57,6 +57,8 @@ void ls_list(int client);
 
 /** Check if a process has the given SELinux context prefix. */
 bool proc_context_match(int pid, std::string_view context);
+/** Check if the UID is covered by any denylist entry. */
+bool is_deny_target_uid(int uid);
 /** Thread entry for the logcat monitoring thread. */
 void *logcat(void *arg);
 /** Flag to signal logcat thread to exit. */

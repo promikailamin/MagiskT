@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">Modules</string>
-    <string name="superuser">Superuser</string>
     <string name="logs">Logs</string>
     <string name="settings">Settings</string>
     <string name="install">Install</string>
@@ -46,34 +45,8 @@
     <string name="flash_screen_title">Installation ho rahi hai</string>
 
     <!--Superuser-->
-    <string name="su_request_title">ROOT access maang rha hai</string>
-    <string name="touch_filtered_warning">Ek app Superuser request ko cover kar raha hai, isliye Magisk aapka response verify nahi kar sakta.</string>
-    <string name="deny">Nahi</string>
-    <string name="prompt">Poocho</string>
-    <string name="restrict">Restrict</string>
-    <string name="grant">Haan Theek hai</string>
-    <string name="su_warning">Yeh full access dega device ko.\nAgar sure nahi ho toh deny kar do!</string>
-    <string name="forever">Hamesha ke liye</string>
-    <string name="once">Ek baar ke liye</string>
-    <string name="tenmin">10 mins</string>
-    <string name="twentymin">20 mins</string>
-    <string name="thirtymin">30 mins</string>
-    <string name="sixtymin">60 mins</string>
-    <string name="su_allow_toast">%1$s ko ROOT access de diya gaya</string>
-    <string name="su_deny_toast">%1$s ko ROOT access nahi diya gaya</string>
-    <string name="su_snack_grant">%1$s ko ROOT access mila</string>
-    <string name="su_snack_deny">%1$s ka ROOT access deny hua</string>
-    <string name="su_snack_notif_on">%1$s ke notifications ON hain</string>
-    <string name="su_snack_notif_off">%1$s ke notifications OFF hain</string>
-    <string name="su_snack_log_on">%1$s ka logging ON hai</string>
-    <string name="su_snack_log_off">%1$s ka logging OFF hai</string>
-    <string name="su_revoke_title">Access wapas lena hai?</string>
-    <string name="su_revoke_msg">Kya aap confirm karte ho ki %1$s ka ROOT access hata diya jaye?</string>
     <string name="toast">Toast</string>
     <string name="none">Kuch nahi</string>
-    <string name="superuser_toggle_notification">Notifications</string>
-    <string name="superuser_toggle_revoke">Wapas lelo</string>
-    <string name="superuser_policy_none">Ab tak kisi bhi app ne ROOT access nahi manga hai</string>
 
     <!--Logs-->
     <string name="log_data_none">Koi logs nahi mile. Shayad tumhe root apps ka zyada use krna chahiye.</string>
@@ -138,42 +111,12 @@
     <string name="settings_app_name_hint">Naya naam</string>
     <string name="settings_app_name_helper">App is naam ke saath repack hoga</string>
     <string name="settings_app_name_error">Naam ka format galat hai</string>
-    <string name="settings_su_app_adb">Apps aur ADB</string>
-    <string name="settings_su_app">Sirf apps</string>
-    <string name="settings_su_adb">Sirf ADB</string>
-    <string name="settings_su_disable">Disable kiya gaya</string>
-    <string name="settings_su_request_10">10 seconds</string>
-    <string name="settings_su_request_15">15 seconds</string>
-    <string name="settings_su_request_20">20 seconds</string>
-    <string name="settings_su_request_30">30 seconds</string>
-    <string name="settings_su_request_45">45 seconds</string>
-    <string name="settings_su_request_60">60 seconds</string>
-    <string name="superuser_access">ROOT access</string>
-    <string name="auto_response">Automatic response</string>
-    <string name="request_timeout">Request timeout</string>
-    <string name="superuser_notification">ROOT notification</string>
-    <string name="settings_su_reauth_title">Upgrade ke baad dobara permission puchho</string>
-    <string name="settings_su_reauth_summary">App upgrade hone ke baad Superuser permission firse maangna</string>
-    <string name="settings_su_tapjack_title">Tapjacking se protection</string>
-    <string name="settings_su_tapjack_summary">Agar Superuser prompt kisi aur window ya overlay ke neeche chhup gaya ho, toh uspar tap kaam nahi karega</string>
-    <string name="settings_su_auth_title">User authentication</string>
-    <string name="settings_su_auth_summary">Superuser request ke time user se authentication maango</string>
-    <string name="settings_su_auth_insecure">Device mein koi bhi authentication method set nahi hai</string>
-    <string name="settings_su_restrict_title">Root access ko limit karo</string>
-    <string name="settings_su_restrict_summary">Nayeapps ko ROOT access maangne se block karega. Warning: Isse zyada tarr apps kaam karna band kar denge. Sirf tab enable karo jab aapko pata ho aap kya kar rahe ho.</string>
     <string name="settings_customization">Customization</string>
     <string name="setting_add_shortcut_summary">Agar app hide karne ke baad uska naam ya icon samajhne mein dikkat ho rahi ho, toh home screen pe ek shortcut add kar lo</string>
     <string name="settings_doh_title">DNS over HTTPS</string>
     <string name="settings_doh_description">DNS poisoning se bachne ke liye (kuch countries mein zaroori padti hai)</string>
     <string name="settings_random_name_title">Output file ka naam random karo</string>
     <string name="settings_random_name_description">Patched images aur tar files ka naam random bana ke detection se bachao</string>
-    <string name="multiuser_mode">Multiuser mode</string>
-    <string name="settings_owner_only">Sirf device owner</string>
-    <string name="settings_owner_manage">Device owner manage karega</string>
-    <string name="settings_user_independent">Har user ke liye alag</string>
-    <string name="owner_only_summary">Sirf device owner ko root access milega</string>
-    <string name="owner_manage_summary">Sirf owner root access manage kar sakta hai aur requests receive karega</string>
-    <string name="user_independent_summary">Har user ke liye alag root rules honge</string>
     <string name="mount_namespace_mode">Mount namespace mode</string>
     <string name="settings_ns_global">Global namespace</string>
     <string name="settings_ns_requester">Inherit namespace</string>

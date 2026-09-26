@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">Modules</string>
-    <string name="superuser">Superuser</string>
     <string name="logs">Logboek</string>
     <string name="settings">Instellingen</string>
     <string name="install">Installeren</string>
@@ -44,33 +43,9 @@
     <string name="flash_screen_title">Installatie</string>
 
     <!--Superuser-->
-    <string name="su_request_title">Superuserverzoek</string>
-    <string name="deny">Weigeren</string>
-    <string name="prompt">Vraag</string>
-    <string name="grant">Toestaan</string>
-    <string name="su_warning">Verleent volledige toegang tot je apparaat.\nBij twijfel, altijd weigeren!</string>
-    <string name="forever">Permanent</string>
-    <string name="once">Eenmalig</string>
-    <string name="tenmin">10 min</string>
-    <string name="twentymin">20 min</string>
-    <string name="thirtymin">30 min</string>
-    <string name="sixtymin">60 min</string>
-    <string name="su_allow_toast">%1$s beschikt nu over superuserrechten</string>
-    <string name="su_deny_toast">Superuserrecht van %1$s geweigerd</string>
-    <string name="su_snack_grant">%1$s beschikt nu over superuserrechten</string>
-    <string name="su_snack_deny">Superuserrecht van %1$s geweigerd</string>
-    <string name="su_snack_notif_on">%1$s-meldingen ingeschakeld</string>
-    <string name="su_snack_notif_off">%1$s-meldingen uitgeschakeld</string>
-    <string name="su_snack_log_on">%1$s wordt nu gelogd</string>
-    <string name="su_snack_log_off">%1$s wordt niet gelogd</string>
-    <string name="su_revoke_title">Intrekken?</string>
-    <string name="su_revoke_msg">Wil je de rechten van %1$s intrekken?</string>
     <string name="toast">Ballon</string>
     <string name="none">Geen</string>
 
-    <string name="superuser_toggle_notification">Meldingen</string>
-    <string name="superuser_toggle_revoke">Intrekken</string>
-    <string name="superuser_policy_none">Er zijn nog geen superuserverzoeken geweest.</string>
 
     <!--Logs-->
     <string name="log_data_none">Er is nog niks gelogd. Gebruik meer apps met superuserrechten!</string>
@@ -115,31 +90,8 @@
     <string name="settings_app_name_hint">Nieuwe naam</string>
     <string name="settings_app_name_helper">De app wordt opnieuw ingepakt onder deze naam</string>
     <string name="settings_app_name_error">Onjuiste opmaak</string>
-    <string name="settings_su_app_adb">Apps en ADB</string>
-    <string name="settings_su_app">Alleen apps</string>
-    <string name="settings_su_adb">Alleen ADB</string>
-    <string name="settings_su_disable">Uitgeschakeld</string>
-    <string name="settings_su_request_10">10 seconden</string>
-    <string name="settings_su_request_15">15 seconden</string>
-    <string name="settings_su_request_20">20 seconden</string>
-    <string name="settings_su_request_30">30 seconden</string>
-    <string name="settings_su_request_45">45 seconden</string>
-    <string name="settings_su_request_60">60 seconden</string>
-    <string name="superuser_access">Superusertoegang</string>
-    <string name="auto_response">Automatisch antwoord</string>
-    <string name="request_timeout">Verzoektime-out</string>
-    <string name="superuser_notification">Superusermelding</string>
-    <string name="settings_su_reauth_title">Opnieuw goedkeuren na update</string>
-    <string name="settings_su_reauth_summary">Superuserrechten opnieuw goedkeuren na app-updates.</string>
     <string name="settings_customization">Aanpassingen</string>
 
-    <string name="multiuser_mode">Meerdere gebruikers</string>
-    <string name="settings_owner_only">Alleen apparaateigenaar</string>
-    <string name="settings_owner_manage">Beheerd door apparaateigenaar</string>
-    <string name="settings_user_independent">Gebruikeronafhankelijk</string>
-    <string name="owner_only_summary">Alleen de apparaateigenaar heeft roottoegang</string>
-    <string name="owner_manage_summary">Alleen de eigenaar kan roottoegang goedkeuren en verzoeken ontvangen</string>
-    <string name="user_independent_summary">Elke gebruiker heeft zijn/haar eigen rootregels</string>
 
     <string name="mount_namespace_mode">Naamruimtemodus aankoppelen</string>
     <string name="settings_ns_global">Globale naamruimte</string>

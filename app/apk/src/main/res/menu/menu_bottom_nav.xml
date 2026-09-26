@@ -9,12 +9,6 @@
         tools:showAsAction="always" />
 
     <item
-        android:id="@+id/superuserFragment"
-        android:icon="@drawable/ic_superuser_md2"
-        android:title="@string/superuser"
-        tools:showAsAction="always" />
-
-    <item
         android:id="@+id/logFragment"
         android:icon="@drawable/ic_bug_md2"
         android:title="@string/logs"

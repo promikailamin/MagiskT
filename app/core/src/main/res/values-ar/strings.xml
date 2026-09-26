@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">الإضافات</string>
-    <string name="superuser">صلاحية الروت</string>
     <string name="logs">السجلات</string>
     <string name="settings">الإعدادات</string>
     <string name="install">تثبيت</string>
@@ -43,33 +42,9 @@
     <string name="flash_screen_title">التثبيت</string>
 
     <!--Superuser-->
-    <string name="su_request_title">طلبات صلاحية الروت</string>
-    <string name="deny">رفض</string>
-    <string name="prompt">طلب</string>
-    <string name="grant">سماح</string>
-    <string name="su_warning">يمنح حق الوصول الكامل إلى جهازك. ارفض إذا كنت غير متأكد!</string>
-    <string name="forever">للأبد</string>
-    <string name="once">مرة واحدة</string>
-    <string name="tenmin">10 دقائق</string>
-    <string name="twentymin">20 دقيقة</string>
-    <string name="thirtymin">30 دقيقة</string>
-    <string name="sixtymin">60 دقيقة</string>
-    <string name="su_allow_toast">تم منح صلاحيات الروت لـ%1$s</string>
-    <string name="su_deny_toast">تم رفض صلاحيات الروت لـ%1$s </string>
-    <string name="su_snack_grant">تم منح صلاحيات الروت لـ%1$s</string>
-    <string name="su_snack_deny">تم رفض صلاحيات الروت لـ%1$s</string>
-    <string name="su_snack_notif_on">تم تفعيل الإشعارات لـ%1$s</string>
-    <string name="su_snack_notif_off">تم تعطيل الإشعارات لـ%1$s</string>
-    <string name="su_snack_log_on">تم تفعيل السجلات لـ%1$s</string>
-    <string name="su_snack_log_off">تم تعطيل السجلات لـ%1$s</string>
-    <string name="su_revoke_title">منع؟</string>
-    <string name="su_revoke_msg">هل تريد منع صلاحية %1$s?</string>
     <string name="toast">اشعار</string>
     <string name="none">بدون</string>
 
-    <string name="superuser_toggle_notification">الإشعارات</string>
-    <string name="superuser_toggle_revoke">منع</string>
-    <string name="superuser_policy_none">لم يسأل آية تطبيق لصلاحيات الروت</string>
 
     <!--Logs-->
     <string name="log_data_none">لا يوجد أية سجلات هنا :-:، حاول استعمال تطبيقات روت اكثر</string>
@@ -115,31 +90,8 @@
     <string name="settings_app_name_hint">الاسم الجديد</string>
     <string name="settings_app_name_helper">التطبيق الجديد سوف يملك هذا الاسم</string>
     <string name="settings_app_name_error">الصيغة غير مقبولة</string>
-    <string name="settings_su_app_adb">التطبيقات و ADB</string>
-    <string name="settings_su_app">التطبيقات فقط</string>
-    <string name="settings_su_adb">ADB فقط</string>
-    <string name="settings_su_disable">معطل</string>
-    <string name="settings_su_request_10">10 ثواني</string>
-    <string name="settings_su_request_15">15 ثانية</string>
-    <string name="settings_su_request_20">20 ثانية</string>
-    <string name="settings_su_request_30">30 ثانية</string>
-    <string name="settings_su_request_45">45 ثانية</string>
-    <string name="settings_su_request_60">60 ثانية</string>
-    <string name="superuser_access">صلاحيات الروت</string>
-    <string name="auto_response">الفعل التلقائي</string>
-    <string name="request_timeout">المهلة قبل الفعل التلقائي</string>
-    <string name="superuser_notification">إشعارات طلبات الروت</string>
-    <string name="settings_su_reauth_title">إعادة المصادقة بعد التحديث</string>
-    <string name="settings_su_reauth_summary">أعد مصادقة صلاحيات الروت بعد تحديث التطبيق</string>
     <string name="settings_customization">تخصيص</string>
 
-    <string name="multiuser_mode">نمط المستخدم المزدوج</string>
-    <string name="settings_owner_only">مالك الجهاز فقط</string>
-    <string name="settings_owner_manage">المالك هو من يحدد</string>
-    <string name="settings_user_independent">مستقل</string>
-    <string name="owner_only_summary">للمالك فقط له صلاحيات الروت</string>
-    <string name="owner_manage_summary">فقط المالك من يرفض و يمنح صلاحيات الروت</string>
-    <string name="user_independent_summary">كل مستخدم له قواعد روت خاصة به</string>
 
     <string name="mount_namespace_mode">نمط Mount Namespace</string>
     <string name="settings_ns_global">نمط Namespace عام</string>

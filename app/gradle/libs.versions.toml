@@ -8,7 +8,6 @@ navigation = "2.9.7"
 libsu = "6.0.0"
 okhttp = "5.3.2"
 retrofit = "3.0.0"
-room = "2.8.4"
 lifecycle = "2.10.0"
 compose-ui = "1.10.6"
 compose-m3 = "1.4.0"
@@ -40,9 +39,6 @@ navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-kt
 navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigation" }
 profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version = "1.4.1" }
 recyclerview = { module = "androidx.recyclerview:recyclerview", version = "1.4.0" }
-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version = "1.2.0" }
 transition = { module = "androidx.transition:transition", version = "1.7.0" }
 collection-ktx = { module = "androidx.collection:collection-ktx", version = "1.6.0" }

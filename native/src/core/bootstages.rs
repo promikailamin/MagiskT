@@ -146,8 +146,6 @@ impl MagiskD {
             }
         }
 
-        self.prune_su_access();
-
         if !self.setup_magisk_env() {
             error!("* Magisk environment incomplete, abort");
             return true;

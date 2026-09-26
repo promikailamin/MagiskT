@@ -2,8 +2,6 @@
 
     <!--Sections-->
     <string name="modules">Модули</string>
-    <string name="superuser">Superuser</string> <!--Do not translate! #6016-->
-    <string name="logs">Логи</string>
     <string name="settings">Настройки</string>
     <string name="install">Установка</string>
     <string name="section_home">Главная</string>
@@ -47,34 +45,9 @@
     <string name="flash_screen_title">Установка</string>
 
     <!--Superuser-->
-    <string name="su_request_title">Запрос прав суперпользователя</string>
-    <string name="touch_filtered_warning">Одно из приложений отображается поверх окна Magisk, выдача Root-прав недоступна</string>
-    <string name="deny">Запретить</string>
-    <string name="prompt">Запросить</string>
-    <string name="grant">Разрешить</string>
-    <string name="su_warning">Разрешить полный доступ к устройству?\nЕсли не уверены - отклоните данный запрос!</string>
-    <string name="forever">Навсегда</string>
-    <string name="once">Единожды</string>
-    <string name="tenmin">10 мин.</string>
-    <string name="twentymin">20 мин.</string>
-    <string name="thirtymin">30 мин.</string>
-    <string name="sixtymin">60 мин.</string>
-    <string name="su_allow_toast">%1$s предоставлены права суперпользователя</string>
-    <string name="su_deny_toast">%1$s отказано в правах суперпользователя</string>
-    <string name="su_snack_grant">%1$s предоставлены права суперпользователя</string>
-    <string name="su_snack_deny">%1$s отказано в правах суперпользователя</string>
-    <string name="su_snack_notif_on">Уведомления для %1$s включены</string>
-    <string name="su_snack_notif_off">Уведомления для %1$s отключены</string>
-    <string name="su_snack_log_on">Логирование для %1$s включено</string>
-    <string name="su_snack_log_off">Логирование для %1$s отключено</string>
-    <string name="su_revoke_title">Сброс настроек прав</string>
-    <string name="su_revoke_msg">Сбросить настройки для %1$s?</string>
     <string name="toast">Всплывающие уведомления</string>
     <string name="none">Отключены</string>
 
-    <string name="superuser_toggle_notification">Уведомления</string>
-    <string name="superuser_toggle_revoke">Отозвать</string>
-    <string name="superuser_policy_none">Приложения ещё не запрашивали права суперпользователя</string>
 
     <!--Logs-->
     <string name="log_data_none">Логи отсутствуют</string>
@@ -139,27 +112,6 @@
     <string name="settings_app_name_hint">Введите имя</string>
     <string name="settings_app_name_helper">Приложение будет пересобрано с этим именем</string>
     <string name="settings_app_name_error">Некорректный формат</string>
-    <string name="settings_su_app_adb">Приложения и ADB</string>
-    <string name="settings_su_app">Только приложения</string>
-    <string name="settings_su_adb">Только ADB</string>
-    <string name="settings_su_disable">Отключён</string>
-    <string name="settings_su_request_10">10 секунд</string>
-    <string name="settings_su_request_15">15 секунд</string>
-    <string name="settings_su_request_20">20 секунд</string>
-    <string name="settings_su_request_30">30 секунд</string>
-    <string name="settings_su_request_45">45 секунд</string>
-    <string name="settings_su_request_60">60 секунд</string>
-    <string name="superuser_access">Уровень доступа</string>
-    <string name="auto_response">Автоматический ответ</string>
-    <string name="request_timeout">Ожидание ответа</string>
-    <string name="superuser_notification">Уведомления суперпользователя</string>
-    <string name="settings_su_reauth_title">Повторная аутентификация</string>
-    <string name="settings_su_reauth_summary">Повторный запрос прав суперпользователя после обновления приложений</string>
-    <string name="settings_su_tapjack_title">Защита от перехвата нажатий</string>
-    <string name="settings_su_auth_title">Аутентификация пользователя</string>
-    <string name="settings_su_auth_summary">Требовать аутентификацию пользователя при запросах Superuser</string>
-    <string name="settings_su_auth_insecure">На устройстве не настроен метод аутентификации</string>
-    <string name="settings_su_tapjack_summary">Окно запроса прав суперпользователя будет неактивно пока активированы наложения экрана</string>
     <string name="settings_customization">Персонализация</string>
     <string name="setting_add_shortcut_summary">Добавить ярлык на рабочий стол для удобного восприятия приложения после его скрытия</string>
     <string name="settings_doh_title">DNS поверх HTTPS</string>
@@ -167,13 +119,6 @@
     <string name="settings_random_name_title">Случайное имя образа</string>
     <string name="settings_random_name_description">Генерировать случайные имена для патченных образов и tar-файлов для предотвращения обнаружения</string>
 
-    <string name="multiuser_mode">Многопользовательский режим</string>
-    <string name="settings_owner_only">Только администратор</string>
-    <string name="settings_owner_manage">Управление администратором</string>
-    <string name="settings_user_independent">Правила пользователей</string>
-    <string name="owner_only_summary">Только администратору доступен Root-доступ</string>
-    <string name="owner_manage_summary">Администратор управляет Root-доступом пользователей и обрабатывает запросы</string>
-    <string name="user_independent_summary">Каждый пользователь управляет собственными правилами Root-доступа</string>
 
     <string name="mount_namespace_mode">Настройка пространств имён</string>
     <string name="settings_ns_global">Общее пространство имён</string>

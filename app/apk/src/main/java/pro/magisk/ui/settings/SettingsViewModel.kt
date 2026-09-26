@@ -2,17 +2,11 @@
  * ViewModel for the settings screen.
  *
  * Builds the dynamic list of [BaseSettingsItem] objects based on device state
- * (rooted? Zygisk enabled? Superuser visible? stub vs installed?).
- * Also implements [BaseSettingsItem.Handler] to delegate press/action events,
- * optionally requesting authentication before sensitive operations.
+ * (rooted? Zygisk enabled? stub vs installed?).
+ * Also implements [BaseSettingsItem.Handler] to delegate press/action events.
  */
 package pro.magisk.ui.settings
 
-import android.app.Activity
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
-import android.provider.Settings
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.pm.ShortcutManagerCompat
@@ -20,7 +14,6 @@ import androidx.lifecycle.viewModelScope
 import pro.magisk.BR
 import pro.magisk.arch.BaseViewModel
 import pro.magisk.core.AppContext
-import pro.magisk.core.Config
 import pro.magisk.core.Const
 import pro.magisk.core.Info
 import pro.magisk.core.R
@@ -31,7 +24,6 @@ import pro.magisk.core.utils.LocaleSetting
 import pro.magisk.core.utils.RootUtils
 import pro.magisk.databinding.bindExtra
 import pro.magisk.events.AddHomeIconEvent
-import pro.magisk.events.AuthEvent
 import pro.magisk.events.SnackbarEvent
 import kotlinx.coroutines.launch
 import com.topjohnwu.superuser.Shell
@@ -69,23 +61,7 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
 
             list.add(Developer)
             list.addAll(listOf(DeveloperOptions, UsbDebugging, UsbSecurityBypass, PlayProtect))
-        }
-
-        if (Info.showSuperUser) {
-            list.add(Superuser)
-            list.addAll(listOf(
-                Tapjack, Authentication, AccessMode, MultiuserMode,
-                MountNamespaceMode, AutomaticResponse, RequestTimeout, SUNotification
-            ))
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                list.add(Reauthenticate)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                list.remove(Tapjack)
-            }
-            if (Const.Version.atLeast_30_1()) {
-                list.add(Restrict)
-            }
+            list.add(MountNamespaceMode)
         }
 
         applyGroupStyles(list)
@@ -110,11 +86,7 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
     }
 
     override fun onItemPressed(view: View, item: BaseSettingsItem, doAction: () -> Unit) {
-        when (item) {
-            Authentication -> AuthEvent(doAction).publish()
-            AutomaticResponse -> if (Config.suAuth) AuthEvent(doAction).publish() else doAction()
-            else -> doAction()
-        }
+        doAction()
     }
 
     override fun onItemAction(view: View, item: BaseSettingsItem) {

@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">Módulos</string>
-    <string name="superuser">SuperUsuário</string>
     <string name="logs">Registos</string>
     <string name="settings">Configurações</string>
     <string name="install">Instalar</string>
@@ -46,34 +45,8 @@
     <string name="flash_screen_title">Instalação</string>
 
     <!--Superuser-->
-    <string name="su_request_title">Solicitação de SuperUsuário</string>
-    <string name="touch_filtered_warning">Como um app está a ocultar um pedido de SuperUsuário, o Magisk não consegue verificar a sua resposta.</string>
-    <string name="deny">Negar</string>
-    <string name="prompt">Perguntar</string>
-    <string name="restrict">Restringir</string>
-    <string name="grant">Permitir</string>
-    <string name="su_warning">Permite o acesso total ao seu dispositivo.\nNão o permita se não tiver a certeza do que está a fazer!</string>
-    <string name="forever">Sempre</string>
-    <string name="once">Uma vez</string>
-    <string name="tenmin">10 mins</string>
-    <string name="twentymin">20 mins</string>
-    <string name="thirtymin">30 mins</string>
-    <string name="sixtymin">60 mins</string>
-    <string name="su_allow_toast">%1$s foi permitido o acesso de SuperUsuário</string>
-    <string name="su_deny_toast">%1$s foi negado o acesso de SuperUsuário</string>
-    <string name="su_snack_grant">Os acessos de SuperUsuário de %1$s foram permitidos</string>
-    <string name="su_snack_deny">Os acessos de SuperUsuário de %1$s foram negados</string>
-    <string name="su_snack_notif_on">As notificações de %1$s foram ativadas</string>
-    <string name="su_snack_notif_off">As notificações de %1$s foram desativadas</string>
-    <string name="su_snack_log_on">Os registos de %1$s foram ativados</string>
-    <string name="su_snack_log_off">Os registos de %1$s foram desativados</string>
-    <string name="su_revoke_title">Revogar?</string>
-    <string name="su_revoke_msg">Confirme para revogar os acessos de SuperUsuário de %1$s</string>
     <string name="toast">Notificação (Pop-up)</string>
     <string name="none">Nenhum</string>
-    <string name="superuser_toggle_notification">Notificações</string>
-    <string name="superuser_toggle_revoke">Revogar</string>
-    <string name="superuser_policy_none">Nenhum app solicitou permissão de SuperUsuário ainda.</string>
 
     <!--Logs-->
     <string name="log_data_none">Não há registos. Tente utilizar mais seus apps root.</string>
@@ -138,42 +111,12 @@
     <string name="settings_app_name_hint">Novo nome</string>
     <string name="settings_app_name_helper">O app do Magisk será reinstalado com este nome</string>
     <string name="settings_app_name_error">Formato inválido</string>
-    <string name="settings_su_app_adb">Apps e ADB</string>
-    <string name="settings_su_app">Apenas apps</string>
-    <string name="settings_su_adb">Apenas ADB</string>
-    <string name="settings_su_disable">Desativado</string>
-    <string name="settings_su_request_10">10 segundos</string>
-    <string name="settings_su_request_15">15 segundos</string>
-    <string name="settings_su_request_20">20 segundos</string>
-    <string name="settings_su_request_30">30 segundos</string>
-    <string name="settings_su_request_45">45 segundos</string>
-    <string name="settings_su_request_60">60 segundos</string>
-    <string name="superuser_access">Acesso de SuperUsuário</string>
-    <string name="auto_response">Resposta automática</string>
-    <string name="request_timeout">Tempo limite da solicitação</string>
-    <string name="superuser_notification">Notificação de SuperUsuário</string>
-    <string name="settings_su_reauth_title">Reautenticar após atualização</string>
-    <string name="settings_su_reauth_summary">Solicite permissões de SuperUsuário novamente após atualizar os apps</string>
-    <string name="settings_su_tapjack_title">Proteção contra atividades sobrepostas</string>
-    <string name="settings_su_tapjack_summary">A caixa de diálogo do SuperUsuário não responderá à entrada enquanto estiver oculta por qualquer outra janela ou sobreposição</string>
-    <string name="settings_su_auth_title">Autenticação de usuário</string>
-    <string name="settings_su_auth_summary">Solicite autenticação de usuário durante pedidos de SuperUsuário</string>
-    <string name="settings_su_auth_insecure">Nenhum método de autenticação está configurado no dispositivo</string>
-    <string name="settings_su_restrict_title">Restringir recursos root</string>
-    <string name="settings_su_restrict_summary">Restringirá novos apps de SuperUsuário por predefinição. Aviso: isto quebrará a maioria dos apps. Não ative se você não souber o que está a fazer.</string>
     <string name="settings_customization">Personalizações</string>
     <string name="setting_add_shortcut_summary">Adicione um atalho no ecrã inicial, caso o nome e o ícone sejam difíceis de reconhecer logo após ocultar o app.</string>
     <string name="settings_doh_title">DNS sobre HTTPS</string>
     <string name="settings_doh_description">Solução alternativa para envenenamento de DNS em alguns países</string>
     <string name="settings_random_name_title">Randomizar nome de saída</string>
     <string name="settings_random_name_description">Randomize o nome do ficheiro de saída de imagens corrigidas e ficheiros tar (*.tar) para evitar a deteção</string>
-    <string name="multiuser_mode">Modo multiusuário</string>
-    <string name="settings_owner_only">Somente proprietário do dispositivo</string>
-    <string name="settings_owner_manage">Gerido pelo proprietário do dispositivo</string>
-    <string name="settings_user_independent">Independente do usuário</string>
-    <string name="owner_only_summary">Somente o proprietário tem acesso root</string>
-    <string name="owner_manage_summary">Somente o proprietário pode gerir o acesso root e receber pedidos de solicitação</string>
-    <string name="user_independent_summary">Cada usuário tem suas próprias regras de root separadas</string>
     <string name="mount_namespace_mode">Montar namespace</string>
     <string name="settings_ns_global">Global</string>
     <string name="settings_ns_requester">Herdado</string>

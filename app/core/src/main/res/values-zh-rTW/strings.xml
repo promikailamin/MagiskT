@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">模組</string>
-    <string name="superuser">超級使用者</string>
     <string name="logs">紀錄</string>
     <string name="settings">設定</string>
     <string name="install">安裝</string>
@@ -47,34 +46,9 @@
     <string name="flash_screen_title">安裝</string>
 
     <!--Superuser-->
-    <string name="su_request_title">超級使用者要求</string>
-    <string name="touch_filtered_warning">由於某個應用程式遮蔽了超級使用者要求的視窗，因此 Magisk 無法驗證您的回應</string>
-    <string name="deny">拒絕</string>
-    <string name="prompt">提示</string>
-    <string name="grant">授予</string>
-    <string name="su_warning">將授予本裝置使用 Root 權限。\n如果不確定，請拒絕！</string>
-    <string name="forever">永久</string>
-    <string name="once">僅此一次</string>
-    <string name="tenmin">10 分鐘</string>
-    <string name="twentymin">20 分鐘</string>
-    <string name="thirtymin">30 分鐘</string>
-    <string name="sixtymin">60 分鐘</string>
-    <string name="su_allow_toast">已授予 %1$s 使用超級使用者的權限</string>
-    <string name="su_deny_toast">已拒絕 %1$s 使用超級使用者的權限</string>
-    <string name="su_snack_grant">已授予 %1$s 使用超級使用者的權限</string>
-    <string name="su_snack_deny">已拒絕 %1$s 使用超級使用者的權限</string>
-    <string name="su_snack_notif_on">已啟用 %1$s 通知</string>
-    <string name="su_snack_notif_off">已停用 %1$s 通知</string>
-    <string name="su_snack_log_on">已啟用 %1$s 寫入紀錄</string>
-    <string name="su_snack_log_off">已停用 %1$s 寫入紀錄</string>
-    <string name="su_revoke_title">撤銷權限？</string>
-    <string name="su_revoke_msg">確定撤銷 %1$s 的權限？</string>
     <string name="toast">快顯通知</string>
     <string name="none">無</string>
 
-    <string name="superuser_toggle_notification">通知</string>
-    <string name="superuser_toggle_revoke">撤銷</string>
-    <string name="superuser_policy_none">目前沒有任何應用程式要求超級使用者的權限。</string>
 
     <!--Logs-->
     <string name="log_data_none">您的紀錄是空的，請嘗試使用具備需要超級使用者權限的應用程式。</string>
@@ -136,36 +110,11 @@
     <string name="settings_app_name_hint">新的名稱</string>
     <string name="settings_app_name_helper">應用程式將以此名稱重新封裝</string>
     <string name="settings_app_name_error">無效的格式</string>
-    <string name="settings_su_app_adb">應用程式及 ADB</string>
-    <string name="settings_su_app">僅限應用程式</string>
-    <string name="settings_su_adb">僅限 ADB</string>
-    <string name="settings_su_disable">停用</string>
-    <string name="settings_su_request_10">10 秒</string>
-    <string name="settings_su_request_15">15 秒</string>
-    <string name="settings_su_request_20">20 秒</string>
-    <string name="settings_su_request_30">30 秒</string>
-    <string name="settings_su_request_45">45 秒</string>
-    <string name="settings_su_request_60">60 秒</string>
-    <string name="superuser_access">超級使用者存取權限</string>
-    <string name="auto_response">自動回應</string>
-    <string name="request_timeout">要求逾時</string>
-    <string name="superuser_notification">超級使用者通知</string>
-    <string name="settings_su_reauth_title">更新後重新驗證</string>
-    <string name="settings_su_reauth_summary">應用程式更新後，重新驗證超級使用者的要求</string>
-    <string name="settings_su_tapjack_title">啟用點選攔截保護</string>
-    <string name="settings_su_tapjack_summary">發現有其他應用程式重疊在超級使用者視窗上面時，不回應允許操作</string>
     <string name="settings_customization">客製化</string>
     <string name="setting_add_shortcut_summary">在主螢幕中新增一個精緻的捷徑。防止隱藏 Magisk 以後，其名稱與圖示將難以辨識</string>
     <string name="settings_doh_title">安全化的網域解析(DoH)</string>
     <string name="settings_doh_description">解決某些地區的 DNS 中毒問題</string>
 
-    <string name="multiuser_mode">多重使用者模式</string>
-    <string name="settings_owner_only">僅限裝置擁有者</string>
-    <string name="settings_owner_manage">由裝置擁有者管理</string>
-    <string name="settings_user_independent">使用者獨立管理</string>
-    <string name="owner_only_summary">僅限裝置擁有者可使用 Root 權限</string>
-    <string name="owner_manage_summary">僅限裝置擁有者可管理及接收 Root 權限的要求提示</string>
-    <string name="user_independent_summary">每個使用者皆擁有獨立的 Root 權限規則</string>
 
     <string name="mount_namespace_mode">掛接命名空間模式</string>
     <string name="settings_ns_global">全域命名空間</string>

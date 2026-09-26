@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">Mòduls</string>
-    <string name="superuser">Superusuari</string>
     <string name="logs">Registre</string>
     <string name="settings">Configuració</string>
     <string name="install">Instal·lar</string>
@@ -45,34 +44,9 @@
     <string name="flash_screen_title">Instal·lació</string>
 
     <!--Superuser-->
-    <string name="su_request_title">Petició de superusuari</string>
-    <string name="touch_filtered_warning">Com que una aplicació està ofuscant la petició de superusuari, Magisk no pot verificar la seva resposta</string>
-    <string name="deny">Denegar</string>
-    <string name="prompt">Preguntar</string>
-    <string name="grant">Permetre</string>
-    <string name="su_warning">Permet accés total al seu dispositiu.\nDenegui si no n\'està segur!</string>
-    <string name="forever">Sempre</string>
-    <string name="once">Un cop </string>
-    <string name="tenmin">10 mins</string>
-    <string name="twentymin">20 mins</string>
-    <string name="thirtymin">30 mins</string>
-    <string name="sixtymin">60 mins</string>
-    <string name="su_allow_toast">Permesos els drets de superusuari de %1$s</string>
-    <string name="su_deny_toast">Denegats els drets de superusuari de %1$s</string>
-    <string name="su_snack_grant">Drets de superusuari de %1$s permesos</string>
-    <string name="su_snack_deny">Drets de superusuari de %1$s denegats</string>
-    <string name="su_snack_notif_on">Notificacions de %1$s habilitades</string>
-    <string name="su_snack_notif_off">Notificacions de %1$s deshabilitades</string>
-    <string name="su_snack_log_on">Registres de %1$s habilitats</string>
-    <string name="su_snack_log_off">Registres de %1$s deshabilitats</string>
-    <string name="su_revoke_title">Revocar?</string>
-    <string name="su_revoke_msg">Confirmi per revocar drets de %1$s</string>
     <string name="toast">Avís</string>
     <string name="none">Cap</string>
 
-    <string name="superuser_toggle_notification">Notificacions</string>
-    <string name="superuser_toggle_revoke">Revocar</string>
-    <string name="superuser_policy_none">Cap aplicació ha demanat permisos de superusuari.</string>
 
     <!--Logs-->
     <string name="log_data_none">No hi ha cap registre. Provi d\'utilitzar aplicacions que requereixen permisos de superusuari.</string>
@@ -123,36 +97,11 @@
     <string name="settings_app_name_hint">Nou nom</string>
     <string name="settings_app_name_helper">Es refarà l\'aplicació amb aquest nom</string>
     <string name="settings_app_name_error">Format invàlid</string>
-    <string name="settings_su_app_adb">Aplicacions i ADB</string>
-    <string name="settings_su_app">Només aplicacions</string>
-    <string name="settings_su_adb">Només ADB</string>
-    <string name="settings_su_disable">Deshabilitat</string>
-    <string name="settings_su_request_10">10 segons</string>
-    <string name="settings_su_request_15">15 segons</string>
-    <string name="settings_su_request_20">20 segons</string>
-    <string name="settings_su_request_30">30 segons</string>
-    <string name="settings_su_request_45">45 segons</string>
-    <string name="settings_su_request_60">60 segons</string>
-    <string name="superuser_access">Accés de superusuari</string>
-    <string name="auto_response">Resposta automàtica</string>
-    <string name="request_timeout">Temps de petició</string>
-    <string name="superuser_notification">Notificació de superusuari</string>
-    <string name="settings_su_reauth_title">Demanar després d\'una actualització</string>
-    <string name="settings_su_reauth_summary">Demanar permisos de superusuari novament si una aplicació és actualitzada o reinstal·lada</string>
-    <string name="settings_su_tapjack_title">Activa la protecció contra \'TapJacking\'</string>
-    <string name="settings_su_tapjack_summary">El diàleg per donar permisos de superusuari no respondrà mentre estigui ofuscat per alguna altra finestra o superposició</string>
     <string name="settings_customization">Personalització</string>
     <string name="setting_add_shortcut_summary">Afegeix una bonica drecera a la pantalla d\'inici en cas que el nom i la icona siguin difícils de reconèixer després d\'amagar l\'aplicació.</string>
     <string name="settings_doh_title">DNS sobre HTTPS</string>
     <string name="settings_doh_description">Solució per enverinament de DNS en algunes nacions</string>
 
-    <string name="multiuser_mode">Mode Multiusuari</string>
-    <string name="settings_owner_only">Només Administrador del Dispositiu</string>
-    <string name="settings_owner_manage">Administrador del Dispositiu</string>
-    <string name="settings_user_independent">Usuari Independent</string>
-    <string name="owner_only_summary">Només l\'administrador té accés d\'arrel</string>
-    <string name="owner_manage_summary">Només l\'administrador pot supervisar l\'accés d\'arrel i rebre sol·licituds d\'altres usuaris</string>
-    <string name="user_independent_summary">Tots els usuaris tenen separades les seves pròpies regles d\'arrel</string>
 
     <string name="mount_namespace_mode">Muntar Namespace </string>
     <string name="settings_ns_global">Namespace Global</string>

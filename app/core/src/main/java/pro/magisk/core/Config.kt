@@ -30,10 +30,7 @@ object Config : PreferenceConfig, DBConfig {
 
     /** Setting keys that are persisted through MagiskDB (shell-backed). */
     object Key {
-        const val ROOT_ACCESS = "root_access"
-        const val SU_MULTIUSER_MODE = "multiuser_mode"
         const val SU_MNT_NS = "mnt_ns"
-        const val SU_BIOMETRIC = "su_biometric"
         const val ZYGISK = "zygisk"
         const val DENYLIST = "denylist"
         const val BOOTLOOP = "bootloop"
@@ -41,12 +38,6 @@ object Config : PreferenceConfig, DBConfig {
         const val KEYSTORE = "keystore"
 
         /** Setting keys that are persisted via SharedPreferences. */
-        const val SU_REQUEST_TIMEOUT = "su_request_timeout"
-        const val SU_AUTO_RESPONSE = "su_auto_response"
-        const val SU_NOTIFICATION = "su_notification"
-        const val SU_REAUTH = "su_reauth"
-        const val SU_TAPJACK = "su_tapjack"
-        const val SU_RESTRICT = "su_restrict"
         const val LOCALE = "locale"
         const val DARK_THEME = "dark_theme_extended"
         const val COLOR_MODE = "color_mode"
@@ -61,34 +52,14 @@ object Config : PreferenceConfig, DBConfig {
         const val PLAY_PROTECT = "play_protect"
 
         /** Keys excluded from the config-bundle migration path. */
-        val NO_MIGRATION = setOf(ASKED_HOME, SU_REQUEST_TIMEOUT,
-            SU_AUTO_RESPONSE, SU_REAUTH, SU_TAPJACK)
+        val NO_MIGRATION = setOf(ASKED_HOME)
     }
 
     /** Enumerated integer constants used by settings. */
     object Value {
-        const val ROOT_ACCESS_DISABLED = 0
-        const val ROOT_ACCESS_APPS_ONLY = 1
-        const val ROOT_ACCESS_ADB_ONLY = 2
-        const val ROOT_ACCESS_APPS_AND_ADB = 3
-
-        const val MULTIUSER_MODE_OWNER_ONLY = 0
-        const val MULTIUSER_MODE_OWNER_MANAGED = 1
-        const val MULTIUSER_MODE_USER = 2
-
         const val NAMESPACE_MODE_GLOBAL = 0
         const val NAMESPACE_MODE_REQUESTER = 1
         const val NAMESPACE_MODE_ISOLATE = 2
-
-        const val NO_NOTIFICATION = 0
-        const val NOTIFICATION_TOAST = 1
-        const val NOTIFICATION_STATUS_BAR = 2
-
-        const val SU_PROMPT = 0
-        const val SU_AUTO_DENY = 1
-        const val SU_AUTO_ALLOW = 2
-
-        val TIMEOUT_LIST = longArrayOf(0, -1, 10, 20, 30, 60)
     }
 
     /** Boot-image flags set during init, read-only after boot. */
@@ -124,21 +95,7 @@ object Config : PreferenceConfig, DBConfig {
     var suManager by dbStrings(Key.SU_MANAGER, "", true)
     var keyStoreRaw by dbStrings(Key.KEYSTORE, "", true)
 
-    var suDefaultTimeout by preferenceStrInt(Key.SU_REQUEST_TIMEOUT, 10)
-    var suAutoResponse by preferenceStrInt(Key.SU_AUTO_RESPONSE, Value.SU_PROMPT)
-    var suNotification by preferenceStrInt(Key.SU_NOTIFICATION, Value.NOTIFICATION_TOAST)
-    var rootMode by dbSettings(Key.ROOT_ACCESS, Value.ROOT_ACCESS_APPS_AND_ADB)
     var suMntNamespaceMode by dbSettings(Key.SU_MNT_NS, Value.NAMESPACE_MODE_REQUESTER)
-    var suMultiuserMode by dbSettings(Key.SU_MULTIUSER_MODE, Value.MULTIUSER_MODE_OWNER_ONLY)
-    private var suBiometric by dbSettings(Key.SU_BIOMETRIC, false)
-    var suAuth
-        get() = Info.isDeviceSecure && suBiometric
-        set(value) {
-            suBiometric = value
-        }
-    var suReAuth by preference(Key.SU_REAUTH, false)
-    var suTapjack by preference(Key.SU_TAPJACK, true)
-    var suRestrict by preference(Key.SU_RESTRICT, false)
 
     /** Serialises current prefs (minus [Key.NO_MIGRATION]) into a Bundle
      *  for cross-process hand-off (stub → real APK). */

@@ -8,12 +8,11 @@ crate-type = ["staticlib"]
 path = "lib.rs"
 
 [features]
-default = ["check-signature", "check-client", "su-check-db"]
+default = ["check-signature", "check-client"]
 
 # Disable these features for easier debugging during development
 check-signature = []
 check-client = []
-su-check-db = []
 
 [lints]
 workspace = true
@@ -30,6 +29,6 @@ num-derive = { workspace = true }
 quick-protobuf = { workspace = true }
 bytemuck = { workspace = true, features = ["derive"] }
 thiserror = { workspace = true }
-bit-set = { workspace = true }
+
 nix = { workspace = true, features = ["fs", "mount", "poll", "signal", "term", "user", "zerocopy"] }
 bitflags = { workspace = true }

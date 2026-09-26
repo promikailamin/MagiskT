@@ -3,7 +3,7 @@
  * `magisk --sqlite` CLI command.
  *
  * Provides helpers to execute queries and parse pipe-delimited
- * `key=value` result lines. Three tables are defined in [Table].
+ * `key=value` result lines. Two tables are defined in [Table].
  */
 package pro.magisk.core.data.magiskdb
 
@@ -72,7 +72,6 @@ open class MagiskDB {
     }
 
     object Table {
-        const val POLICY = "policies"
         const val SETTINGS = "settings"
         const val STRINGS = "strings"
     }

@@ -3,8 +3,8 @@
  *
  * [SplashController] manages the one-shot initialisation that runs
  * before the main UI is created: it waits for a shell, initialises
- * [Config] and [Notifications], validates the stub APK, and migrates
- / package state if needed. Once done it hands off to the host
+ * [Config], validates the stub APK, and migrates the
+ * package state if needed. Once done it hands off to the host
  * activity via [SplashScreenHost.onCreateUi].
  */
 package pro.magisk.core.base
@@ -23,7 +23,6 @@ import pro.magisk.core.Info
 import pro.magisk.core.R
 import pro.magisk.core.di.ServiceLocator
 import pro.magisk.core.isRunningAsStub
-import pro.magisk.view.Notifications
 import pro.magisk.core.utils.RootUtils
 import pro.magisk.view.Shortcuts
 import com.topjohnwu.superuser.Shell
@@ -129,7 +128,6 @@ class SplashController<T>(private val activity: T)
             return
         }
 
-        Notifications.setup()
         Shortcuts.setupDynamic(this)
 
         RootUtils.Connection.await()

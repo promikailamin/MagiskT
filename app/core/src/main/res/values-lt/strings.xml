@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">Moduliai</string>
-    <string name="superuser">Supernaudotojas</string>
     <string name="logs">Žurnalas</string>
     <string name="settings">Nustatymai</string>
     <string name="install">Įdiegti</string>
@@ -47,34 +46,9 @@
     <string name="flash_screen_title">Įdiegimas</string>
 
     <!--Superuser-->
-    <string name="su_request_title">Supernaudotojo užklausa</string>
-    <string name="touch_filtered_warning">Programėlė užstoja supernaudotojo užklausą, todėl Magisk negali patvirtinti jūsų atsakymo</string>
-    <string name="deny">Atmesti</string>
-    <string name="prompt">Klausti</string>
-    <string name="grant">Leisti</string>
-    <string name="su_warning">Suteikia prieigą prie jūsų įrenginio.\nAtmeskite, jei nesate tikri!</string>
-    <string name="forever">Amžinai</string>
-    <string name="once">Kartą</string>
-    <string name="tenmin">10 minučių</string>
-    <string name="twentymin">20 minučių</string>
-    <string name="thirtymin">30 minučių</string>
-    <string name="sixtymin">60 minučių</string>
-    <string name="su_allow_toast">%1$s suteiktos supernaudotojo teisės</string>
-    <string name="su_deny_toast">%1$s atmestos supernaudotojo teisės</string>
-    <string name="su_snack_grant">%1$s supernaudotojo teisės yra suteiktos</string>
-    <string name="su_snack_deny">%1$s supernaudotojo teisės yra atmestos</string>
-    <string name="su_snack_notif_on">%1$s pranešimai yra įjungti</string>
-    <string name="su_snack_notif_off">%1$s pranešimai yra išjungti</string>
-    <string name="su_snack_log_on">%1$s registravimas yra įjungtas</string>
-    <string name="su_snack_log_off">%1$s registravimas yra išjungtas</string>
-    <string name="su_revoke_title">Atšaukti?</string>
-    <string name="su_revoke_msg">Patvirtinkite %1$s supernaudotojo teisių atšaukimą</string>
     <string name="toast">Iššokantys pranešimai</string>
     <string name="none">Nėra</string>
 
-    <string name="superuser_toggle_notification">Pranešimai</string>
-    <string name="superuser_toggle_revoke">Atšaukti</string>
-    <string name="superuser_policy_none">Kol kas jokia programėlė neprašė supernaudotojo teisių.</string>
 
     <!--Logs-->
     <string name="log_data_none">Žurnalas tuščias</string>
@@ -136,36 +110,11 @@
     <string name="settings_app_name_hint">Naujas pavadinimas</string>
     <string name="settings_app_name_helper">Programėlė bus perpakuota su šiuo pavadinimu</string>
     <string name="settings_app_name_error">Netinkamas formatas</string>
-    <string name="settings_su_app_adb">Programėlės ir ADB</string>
-    <string name="settings_su_app">Tik programėlės</string>
-    <string name="settings_su_adb">Tik ADB</string>
-    <string name="settings_su_disable">Išjungta</string>
-    <string name="settings_su_request_10">10 sekundžių</string>
-    <string name="settings_su_request_15">15 sekundžių</string>
-    <string name="settings_su_request_20">20 sekundžių</string>
-    <string name="settings_su_request_30">30 sekundžių</string>
-    <string name="settings_su_request_45">45 sekundės</string>
-    <string name="settings_su_request_60">60 sekundžių</string>
-    <string name="superuser_access">Prieigos lygis</string>
-    <string name="auto_response">Automatinis atsakymas</string>
-    <string name="request_timeout">Atsakymo laukimas</string>
-    <string name="superuser_notification">Supernaudotojo pranešimas</string>
-    <string name="settings_su_reauth_title">Pakartotinis autentifikavimas</string>
-    <string name="settings_su_reauth_summary">Iš naujo prašyti supernaudotojo teisių po programėlių naujinimo</string>
-    <string name="settings_su_tapjack_title">Bakstelėjimų perėmimo apsauga</string>
-    <string name="settings_su_tapjack_summary">Supernaudotojo užklausos langas bus neaktyvus, kol jis yra užstotas kito lango</string>
     <string name="settings_customization">Tinkinimas</string>
     <string name="setting_add_shortcut_summary">Pridėti nuorodą į pagrindinį ekraną, jei po programėlės paslėpimo yra sunku atpažinti jos pavadinimą ir piktogramą</string>
     <string name="settings_doh_title">DNS virš HTTPS</string>
     <string name="settings_doh_description">Aktyvinti DoH (naudokite, jei kyla problemų jungiantis prie tinklo</string>
 
-    <string name="multiuser_mode">Daugelio naudotojų režimas</string>
-    <string name="settings_owner_only">Tik įrenginio savininkas</string>
-    <string name="settings_owner_manage">Valdoma įrenginio savininko</string>
-    <string name="settings_user_independent">Naudotojų taisyklės</string>
-    <string name="owner_only_summary">Tik savininkas turi root prieigą</string>
-    <string name="owner_manage_summary">Tik savininkas gali tvarkyti root prieigą ir gauti užklausas</string>
-    <string name="user_independent_summary">Kiekvienas naudotojas turi savo atskiras root taisykles</string>
 
     <string name="mount_namespace_mode">Pavadinimų erdvės režimas</string>
     <string name="settings_ns_global">Bendra pavadinimų erdvė</string>

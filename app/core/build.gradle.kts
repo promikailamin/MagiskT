@@ -1,5 +1,5 @@
 // :core module - Shared logic library for the Magisk apps.
-// Provides DI (ServiceLocator), Room database, networking (OkHttp/Retrofit),
+// Provides DI (ServiceLocator), networking (OkHttp/Retrofit),
 // flash/install logic, SU handling, and the download engine.
 plugins {
     alias(libs.plugins.android.library)
@@ -10,10 +10,6 @@ plugins {
 }
 
 setupCoreLib()
-
-ksp {
-    arg("room.generateKotlin", "true")
-}
 
 wire {
     kotlin {}
@@ -63,10 +59,6 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
     implementation(libs.okhttp.dnsoverhttps)
-
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    ksp(libs.room.compiler)
 
     implementation(libs.core.splashscreen)
     implementation(libs.core.ktx)

@@ -2,25 +2,16 @@
  * ContentProvider that acts as a callback bridge from the Magisk
  * daemon (running as root) to the Java process.
  *
- * The daemon invokes [call] with methods `"log"` or `"notify"` to
- * report SU request results. Arguments are passed as a [Bundle]
- * and dispatched to [SuCallbackHandler].
+ * SU requests are answered entirely inside the daemon, so the app no
+ * longer exposes any privileged callback surface: every call is
+ * acknowledged with an empty bundle.
  */
 package pro.magisk.core
 
 import android.os.Bundle
 import pro.magisk.core.base.BaseProvider
-import pro.magisk.core.su.SuCallbackHandler
 
 class Provider : BaseProvider() {
 
-    override fun call(method: String, arg: String?, extras: Bundle?): Bundle? {
-        return when (method) {
-            SuCallbackHandler.LOG, SuCallbackHandler.NOTIFY -> {
-                SuCallbackHandler.run(context!!, method, extras)
-                Bundle.EMPTY
-            }
-            else -> Bundle.EMPTY
-        }
-    }
+    override fun call(method: String, arg: String?, extras: Bundle?): Bundle = Bundle.EMPTY
 }

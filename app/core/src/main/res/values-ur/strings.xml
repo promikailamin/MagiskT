@@ -1,7 +1,6 @@
 <resources>
 
     <string name="modules">ماڈیولز</string>
-    <string name="superuser">سپر یوزر</string>
     <string name="logs">لاگز</string>
     <string name="settings">سیٹنگز</string>
     <string name="install">انسٹال کریں</string>
@@ -43,34 +42,9 @@
     <string name="reboot_delay_toast">5 سیکنڈ میں ریبوٹ ہو رہا ہے…</string>
     <string name="flash_screen_title">انسٹالیشن</string>
 
-    <string name="su_request_title">سپر یوزر کی درخواست</string>
-    <string name="touch_filtered_warning">چونکہ ایک ایپ سپر یوزر کی درخواست کو دھندلا کر رہی ہے، اس لیے Magisk آپ کے جواب کی تصدیق نہیں کر سکتا</string>
-    <string name="deny">منع کریں</string>
-    <string name="prompt">پوچھیں</string>
-    <string name="grant">اجازت دیں</string>
-    <string name="su_warning">اپنے آلے تک مکمل رسائی کی اجازت دیں۔\nاگر آپ کو یقین نہیں ہے تو منع کریں!</string>
-    <string name="forever">ہمیشہ کے لیے</string>
-    <string name="once">ایک بار</string>
-    <string name="tenmin">10 منٹ</string>
-    <string name="twentymin">20 منٹ</string>
-    <string name="thirtymin">30 منٹ</string>
-    <string name="sixtymin">60 منٹ</string>
-    <string name="su_allow_toast">%1$s کو سپر یوزر کے حقوق دیئے گئے</string>
-    <string name="su_deny_toast">%1$s کو سپر یوزر کے حقوق سے انکار کر دیا گیا</string>
-    <string name="su_snack_grant">%1$s کے سپر یوزر حقوق دیئے گئے</string>
-    <string name="su_snack_deny">%1$s کے سپر یوزر حقوق سے انکار کر دیا گیا</string>
-    <string name="su_snack_notif_on">%1$s کی اطلاعات فعال ہیں</string>
-    <string name="su_snack_notif_off">%1$s کی اطلاعات غیر فعال ہیں</string>
-    <string name="su_snack_log_on">%1$s کی لاگنگ فعال ہے</string>
-    <string name="su_snack_log_off">%1$s کی لاگنگ غیر فعال ہے</string>
-    <string name="su_revoke_title">منسوخ کریں؟</string>
-    <string name="su_revoke_msg">%1$s کے سپر یوزر حقوق منسوخ کرنے کی تصدیق کریں</string>
     <string name="toast">ٹوسٹ</string>
     <string name="none">کوئی نہیں</string>
 
-    <string name="superuser_toggle_notification">اطلاعات</string>
-    <string name="superuser_toggle_revoke">منسوخ کریں</string>
-    <string name="superuser_policy_none">ابھی تک کسی ایپ نے سپر یوزر کی اجازت نہیں مانگی ہے۔</string>
 
     <string name="log_data_none">آپ لاگ فری ہیں، اپنی روٹ ایپس کو مزید استعمال کرنے کی کوشش کریں</string>
     <string name="log_data_magisk_none">Magisk لاگز خالی ہیں، یہ عجیب بات ہے</string>
@@ -130,27 +104,6 @@
     <string name="settings_app_name_hint">نیا نام</string>
     <string name="settings_app_name_helper">ایپ کو اس نام سے دوبارہ پیک کیا جائے گا</string>
     <string name="settings_app_name_error">غلط فارمیٹ</string>
-    <string name="settings_su_app_adb">ایپس اور ADB</string>
-    <string name="settings_su_app">صرف ایپس</string>
-    <string name="settings_su_adb">صرف ADB</string>
-    <string name="settings_su_disable">غیر فعال</string>
-    <string name="settings_su_request_10">10 سیکنڈ</string>
-    <string name="settings_su_request_15">15 سیکنڈ</string>
-    <string name="settings_su_request_20">20 سیکنڈ</string>
-    <string name="settings_su_request_30">30 سیکنڈ</string>
-    <string name="settings_su_request_45">45 سیکنڈ</string>
-    <string name="settings_su_request_60">60 سیکنڈ</string>
-    <string name="superuser_access">سپر یوزر تک رسائی</string>
-    <string name="auto_response">خودکار جواب</string>
-    <string name="request_timeout">درخواست کا وقت ختم</string>
-    <string name="superuser_notification">سپر یوزر اطلاع</string>
-    <string name="settings_su_reauth_title">اپ گریڈ کے بعد دوبارہ تصدیق کریں</string>
-    <string name="settings_su_reauth_summary">ایپس کو اپ گریڈ کرنے کے بعد دوبارہ سپر یوزر کی اجازتیں مانگیں</string>
-    <string name="settings_su_tapjack_title">ٹیپ جیکنگ سے تحفظ</string>
-    <string name="settings_su_tapjack_summary">سپر یوزر پرامپٹ ڈائیلاگ کسی دوسری ونڈو یا اوورلے سے دھندلا ہونے کے دوران ان پٹ کا جواب نہیں دے گا</string>
-    <string name="settings_su_auth_title">صارف کی تصدیق</string>
-    <string name="settings_su_auth_summary">سپر یوزر کی درخواستوں کے دوران صارف کی تصدیق طلب کریں</string>
-    <string name="settings_su_auth_insecure">آلے پر کوئی تصدیقی طریقہ کار تشکیل نہیں دیا گیا ہے</string>
     <string name="settings_customization">حسب ضرورت سازی</string>
     <string name="setting_add_shortcut_summary">اگر ایپ کو چھپانے کے بعد اس کا نام اور آئیکن پہچاننا مشکل ہو جائے تو ہوم اسکرین پر ایک خوبصورت شارٹ کٹ شامل کریں</string>
     <string name="settings_doh_title">HTTPS پر DNS</string>
@@ -158,13 +111,6 @@
     <string name="settings_random_name_title">بے ترتیب آؤٹ پٹ نام</string>
     <string name="settings_random_name_description">پتہ لگانے سے بچنے کے لیے پیچ شدہ امیجز اور ٹار فائلوں کے آؤٹ پٹ فائل کے نام کو بے ترتیب بنائیں</string>
 
-    <string name="multiuser_mode">ملٹی یوزر موڈ</string>
-    <string name="settings_owner_only">صرف آلہ کا مالک</string>
-    <string name="settings_owner_manage">آلہ کے مالک کے زیر انتظام</string>
-    <string name="settings_user_independent">صارف سے آزاد</string>
-    <string name="owner_only_summary">صرف مالک کو روٹ تک رسائی حاصل ہے</string>
-    <string name="owner_manage_summary">صرف مالک روٹ تک رسائی کا انتظام کر سکتا ہے اور درخواست کے اشارے وصول کر سکتا ہے</string>
-    <string name="user_independent_summary">ہر صارف کے اپنے علیحدہ روٹ کے قواعد ہیں</string>
 
     <string name="mount_namespace_mode">ماؤنٹ نیم اسپیس موڈ</string>
     <string name="settings_ns_global">عالمی نیم اسپیس</string>

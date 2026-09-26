@@ -59,12 +59,6 @@ object Info {
             || getProperty("ro.kernel.qemu", "0") == "1"
             || getProperty("ro.boot.qemu", "0") == "1"
 
-    /** Whether the SuperUser tab should be visible. */
-    val showSuperUser: Boolean get() {
-        return env.isActive && (Const.USER_ID == 0
-                || Config.suMultiuserMode == Config.Value.MULTIUSER_MODE_USER)
-    }
-
     val isDeviceSecure get() =
         AppContext.getSystemService(KeyguardManager::class.java).isDeviceSecure
 

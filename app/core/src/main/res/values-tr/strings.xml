@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">Modüller</string>
-    <string name="superuser">Süper Kullanıcı</string>
     <string name="logs">Günlükler</string>
     <string name="settings">Ayarlar</string>
     <string name="install">Yükle</string>
@@ -57,38 +56,8 @@
     <string name="flash_screen_title">Kurulum</string>
 
     <!--Superuser-->
-    <string name="su_request_title">Bu uygulama root izni istiyor. Cihazınıza tam erişim sağlar. Emin değilseniz reddedin!</string>
-    <string name="touch_filtered_warning">Bir uygulama Süper Kullanıcı isteğini perdelendiği için Magisk yanıtınızı doğrulayamıyor.</string>
-    <string name="deny">Reddet</string>
-    <string name="prompt">Sor</string>
-    <string name="restrict">Kısıtla</string>
-    <string name="grant">İzin Ver</string>
-    <string name="su_warning">Cihazınıza tam erişim sağlar.\nEmin değilseniz reddedin!</string>
-    <string name="forever">Süresiz</string>
-    <string name="once">Bir Kez</string>
-    <string name="tenmin">10 dk</string>
-    <string name="twentymin">20 dk</string>
-    <string name="thirtymin">30 dk</string>
-    <string name="sixtymin">60 dk</string>
-    <string name="su_allow_toast">%1$s uygulamasına Süper Kullanıcı hakları verildi</string>
-    <string name="su_deny_toast">%1$s uygulamasının Süper Kullanıcı hakları reddedildi</string>
-    <string name="su_snack_grant">%1$s uygulamasının Süper Kullanıcı hakları onaylandı</string>
-    <string name="su_snack_deny">%1$s uygulamasının Süper Kullanıcı hakları reddedildi</string>
-    <string name="su_snack_notif_on">%1$s uygulamasının bildirimleri etkinleştirildi</string>
-    <string name="su_snack_notif_off">%1$s uygulamasının bildirimleri devre dışı bırakıldı</string>
-    <string name="su_snack_log_on">%1$s uygulamasının günlük kaydı etkinleştirildi</string>
-    <string name="su_snack_log_off">%1$s uygulamasının günlük kaydı devre dışı bırakıldı</string>
-    <string name="su_revoke_title">Geri alınsın mı?</string>
-    <string name="su_revoke_msg">%1$s uygulamasının Süper Kullanıcı haklarını geri almayı onaylayın</string>
     <string name="toast">Açılır Mesaj (Toast)</string>
-    <string name="notification">Bildirim</string>
     <string name="none">Hiçbiri</string>
-    <string name="su_notification_channel">Süper Kullanıcı Bildirimleri</string>
-    <string name="su_notification_granted_title">Süper Kullanıcı İzni Verildi</string>
-    <string name="su_notification_denied_title">Süper Kullanıcı İzni Reddedildi</string>
-    <string name="superuser_toggle_notification">Bildirimler</string>
-    <string name="superuser_toggle_revoke">Geri Al</string>
-    <string name="superuser_policy_none">Henüz hiçbir uygulama Süper Kullanıcı izni istemedi.</string>
 
     <!--Logs-->
     <string name="log_data_none">Günlüğünüz boş. Root uygulamalarınızı daha fazla kullanmayı deneyin.</string>
@@ -99,7 +68,6 @@
     <string name="save_log">Günlüğü kaydet</string>
     <string name="clear_log">Günlüğü temizle</string>
     <string name="back">Geri</string>
-    <string name="superuser_setting">Süper Kullanıcı Ayarı</string>
     <string name="enabled">Etkin</string>
     <string name="disabled">Devre Dışı</string>
     <string name="pid">PID: %1$d</string>
@@ -165,29 +133,6 @@
     <string name="settings_app_name_hint">Yeni isim</string>
     <string name="settings_app_name_helper">Uygulama bu isimle yeniden paketlenecek</string>
     <string name="settings_app_name_error">Geçersiz biçim</string>
-    <string name="settings_su_app_adb">Uygulamalar ve ADB</string>
-    <string name="settings_su_app">Sadece uygulamalar</string>
-    <string name="settings_su_adb">Sadece ADB</string>
-    <string name="settings_su_disable">Devre Dışı</string>
-    <string name="settings_su_request_10">10 saniye</string>
-    <string name="settings_su_request_15">15 saniye</string>
-    <string name="settings_su_request_20">20 saniye</string>
-    <string name="settings_su_request_30">30 saniye</string>
-    <string name="settings_su_request_45">45 saniye</string>
-    <string name="settings_su_request_60">60 saniye</string>
-    <string name="superuser_access">Süper Kullanıcı erişimi</string>
-    <string name="auto_response">Otomatik yanıt</string>
-    <string name="request_timeout">İstek zaman aşımı</string>
-    <string name="superuser_notification">Süper Kullanıcı bildirimi</string>
-    <string name="settings_su_reauth_title">Yükseltmeden sonra yeniden kimlik doğrula</string>
-    <string name="settings_su_reauth_summary">Uygulamaları yükselttikten sonra Süper Kullanıcı izinlerini tekrar sor</string>
-    <string name="settings_su_tapjack_title">Dokunma hırsızlığı (Tapjacking) koruması</string>
-    <string name="settings_su_tapjack_summary">Süper Kullanıcı onay penceresi, başka bir pencere veya katman tarafından perdelendiğinde dokunuşlara tepki vermez</string>
-    <string name="settings_su_auth_title">Kullanıcı kimlik doğrulaması</string>
-    <string name="settings_su_auth_summary">Süper Kullanıcı istekleri sırasında kullanıcı kimlik doğrulaması iste</string>
-    <string name="settings_su_auth_insecure">Cihazda yapılandırılmış bir kimlik doğrulama yöntemi yok</string>
-    <string name="settings_su_restrict_title">Root yeteneklerini kısıtla</string>
-    <string name="settings_su_restrict_summary">Varsayılan olarak yeni Süper Kullanıcı uygulamalarını kısıtlar. Uyarı: Bu, çoğu uygulamayı bozacaktır. Ne yaptığınızı bilmiyorsanız etkinleştirmeyin.</string>
     <string name="settings_customization">Özelleştirme</string>
     <string name="settings_color_mode">Renk modu</string>
     <string name="color_mode_system">Sistem</string>
@@ -201,13 +146,6 @@
     <string name="settings_doh_description">Bazı ülkelerdeki DNS zehirlenmesine karşı geçici çözüm</string>
     <string name="settings_random_name_title">Çıktı adını rastgele yap</string>
     <string name="settings_random_name_description">Algılanmayı önlemek için yamalanmış imajların ve tar dosyalarının çıktı adını rastgele oluşturun</string>
-    <string name="multiuser_mode">Çoklu kullanıcı modu</string>
-    <string name="settings_owner_only">Yalnızca cihaz sahibi</string>
-    <string name="settings_owner_manage">Cihaz sahibi tarafından yönetilen</string>
-    <string name="settings_user_independent">Kullanıcıdan bağımsız</string>
-    <string name="owner_only_summary">Sadece sahibin root erişimi var</string>
-    <string name="owner_manage_summary">Root erişimini sadece sahibi yönetebilir ve istek bildirimlerini alabilir</string>
-    <string name="user_independent_summary">Her kullanıcının kendi ayrı root kuralları vardır</string>
     <string name="mount_namespace_mode">Bağlama (Mount) ad alanı modu</string>
     <string name="settings_ns_global">Küresel ad alanı</string>
     <string name="settings_ns_requester">Ad alanını devral</string>

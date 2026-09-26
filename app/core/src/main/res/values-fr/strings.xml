@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">Modules</string>
-    <string name="superuser">Super‑utilisateur</string>
     <string name="logs">Journaux</string>
     <string name="settings">Paramètres</string>
     <string name="install">Installer</string>
@@ -47,34 +46,9 @@
     <string name="flash_screen_title">Installation</string>
 
     <!--Superuser-->
-    <string name="su_request_title">Demande d’accès super‑utilisateur</string>
-    <string name="touch_filtered_warning">Magisk ne peut vérifier votre réponse parce qu’une application masque une requête de super‑utilisateur</string>
-    <string name="deny">Refuser</string>
-    <string name="prompt">Demander</string>
-    <string name="grant">Accorder</string>
-    <string name="su_warning">Autoriser l’accès complet à votre appareil.\nRefusez en cas de doute !</string>
-    <string name="forever">Toujours</string>
-    <string name="once">Une fois</string>
-    <string name="tenmin">10 min</string>
-    <string name="twentymin">20 min</string>
-    <string name="thirtymin">30 min</string>
-    <string name="sixtymin">60 min</string>
-    <string name="su_allow_toast">%1$s a obtenu les droits de super‑utilisateur</string>
-    <string name="su_deny_toast">%1$s s’est vu refuser les droits de super‑utilisateur</string>
-    <string name="su_snack_grant">Les droits de super‑utilisateur sont accordés à %1$s</string>
-    <string name="su_snack_deny">Les droits de super‑utilisateur sont refusés à %1$s</string>
-    <string name="su_snack_notif_on">Les notifications sont activées pour %1$s</string>
-    <string name="su_snack_notif_off">Les notifications sont désactivées pour %1$s</string>
-    <string name="su_snack_log_on">La journalisation est activée pour %1$s</string>
-    <string name="su_snack_log_off">La journalisation est désactivée pour %1$s</string>
-    <string name="su_revoke_title">Révoquer ?</string>
-    <string name="su_revoke_msg">Confirmez‑vous la révocation des droits accordés à %1$s ?</string>
     <string name="toast">Bulle de notification</string>
     <string name="none">Aucune</string>
 
-    <string name="superuser_toggle_notification">Notifications</string>
-    <string name="superuser_toggle_revoke">Révoquer</string>
-    <string name="superuser_policy_none">Aucune application n’a encore demandé de droits super‑utilisateur.</string>
 
     <!--Logs-->
     <string name="log_data_none">Aucune information n’est journalisée, essayez d’utiliser davantage vos applications sollicitant des droits de super‑utilisateur.</string>
@@ -140,27 +114,6 @@
     <string name="settings_app_name_hint">Nouveau nom</string>
     <string name="settings_app_name_helper">L’application sera réempaquetée sous ce nom</string>
     <string name="settings_app_name_error">Format incorrect</string>
-    <string name="settings_su_app_adb">Applications et ADB</string>
-    <string name="settings_su_app">Applications uniquement</string>
-    <string name="settings_su_adb">ADB uniquement</string>
-    <string name="settings_su_disable">Désactivé</string>
-    <string name="settings_su_request_10">10 secondes</string>
-    <string name="settings_su_request_15">15 secondes</string>
-    <string name="settings_su_request_20">20 secondes</string>
-    <string name="settings_su_request_30">30 secondes</string>
-    <string name="settings_su_request_45">45 secondes</string>
-    <string name="settings_su_request_60">60 secondes</string>
-    <string name="superuser_access">Accès super‑utilisateur</string>
-    <string name="auto_response">Réponse automatique</string>
-    <string name="request_timeout">Délai d’expiration de la demande</string>
-    <string name="superuser_notification">Notification super‑utilisateur</string>
-    <string name="settings_su_reauth_title">S’authentifier à nouveau après la mise à niveau</string>
-    <string name="settings_su_reauth_summary">Redemander une authentification pour autoriser l’accès en super‑utilisateur après une mise à jour de l’application</string>
-    <string name="settings_su_tapjack_title">Activer la protection contre le détournement du tapotement</string>
-    <string name="settings_su_tapjack_summary">Le dialogue d’invite du super‑utilisateur ne répondra pas à la saisie lorsqu’il est masqué par une autre fenêtre ou une surcouche</string>
-    <string name="settings_su_auth_title">Authentification utilisateur</string>
-    <string name="settings_su_auth_summary">Demander l’authentification utilisateur lors de la requête super-utilisateur</string>
-    <string name="settings_su_auth_insecure">Aucun méthode d’authentification utilisateur n’est configurée sur le périphérique</string>
     <string name="settings_customization">Personnalisation</string>
     <string name="setting_add_shortcut_summary">Ajouter un joli raccourci dans l’écran d’accueil au cas où le nom et l’icône seraient difficiles à reconnaître après avoir masqué l’application</string>
     <string name="settings_doh_title">DNS sur HTTPS</string>
@@ -168,13 +121,6 @@
     <string name="settings_random_name_title">Nom de sortie aléatoire</string>
     <string name="settings_random_name_description">Randomiser le nom du fichier de sortie des images modifiées et des fichiers tar afin d’éviter la détection.</string>
 
-    <string name="multiuser_mode">Mode multi‑utilisateur</string>
-    <string name="settings_owner_only">Propriétaire de l’appareil uniquement</string>
-    <string name="settings_owner_manage">Géré par le propriétaire de l’appareil</string>
-    <string name="settings_user_independent">Indépendant de l’utilisateur</string>
-    <string name="owner_only_summary">Seul le propriétaire possède un accès super‑utilisateur.</string>
-    <string name="owner_manage_summary">Seul le propriétaire peut gérer l’accès super‑utilisateur et recevoir les demandes d’accès.</string>
-    <string name="user_independent_summary">Chaque utilisateur a ses propres règles d’accès super‑utilisateur distinctes.</string>
 
     <string name="mount_namespace_mode">Mode d’espace de noms du montage</string>
     <string name="settings_ns_global">Espace de noms global</string>

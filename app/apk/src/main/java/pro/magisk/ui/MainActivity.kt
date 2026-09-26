@@ -95,7 +95,6 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
             isRootFragment = when (destination.id) {
                 R.id.homeFragment,
                 R.id.modulesFragment,
-                R.id.superuserFragment,
                 R.id.logFragment -> true
                 else -> false
             }
@@ -121,7 +120,6 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
             // https://issuetracker.google.com/issues/124538620
         }
         binding.mainNavigation.menu.apply {
-            findItem(R.id.superuserFragment)?.isEnabled = Info.showSuperUser
             findItem(R.id.modulesFragment)?.isEnabled = Info.env.isActive && LocalModule.loaded()
         }
 
@@ -150,7 +148,6 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
 
     private fun getScreen(name: String?): NavDirections? {
         return when (name) {
-            Const.Nav.SUPERUSER -> MainDirections.actionSuperuserFragment()
             Const.Nav.MODULES -> MainDirections.actionModuleFragment()
             Const.Nav.SETTINGS -> HomeFragmentDirections.actionHomeFragmentToSettingsFragment()
             else -> null
@@ -161,7 +158,6 @@ class MainActivity : NavigationActivity<ActivityMainMd2Binding>(), SplashScreenH
         return when (id) {
             R.id.homeFragment -> MainDirections.actionHomeFragment()
             R.id.modulesFragment -> MainDirections.actionModuleFragment()
-            R.id.superuserFragment -> MainDirections.actionSuperuserFragment()
             R.id.logFragment -> MainDirections.actionLogFragment()
             else -> null
         }

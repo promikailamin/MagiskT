@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">Επεκτάσεις</string>
-    <string name="superuser">Υπερχρήστης</string>
     <string name="logs">Αρχείο Καταγραφής</string>
     <string name="settings">Ρυθμίσεις</string>
     <string name="install">Εγκατάσταση</string>
@@ -47,34 +46,9 @@
     <string name="flash_screen_title">Εγκατάσταση</string>
 
     <!--Superuser-->
-    <string name="su_request_title">Αίτημα υπερχρήστη</string>
-    <string name="touch_filtered_warning">Επειδή μια εφαρμογή αποκρύπτει ένα αίτημα υπερχρήστη, το Magisk δεν μπορεί να επαληθεύσει την απάντησή σας</string>
-    <string name="deny">Άρνηση</string>
-    <string name="prompt">Προτροπή</string>
-    <string name="grant">Αποδοχή</string>
-    <string name="su_warning">Δίνει πλήρη πρόσβαση στη συσκευή σας.\nΑρνηθείτε αν δεν είστε σίγουρος/η!</string>
-    <string name="forever">Μόνιμα</string>
-    <string name="once">Μία φορά</string>
-    <string name="tenmin">10 λεπτά</string>
-    <string name="twentymin">20 λεπτά</string>
-    <string name="thirtymin">30 λεπτά</string>
-    <string name="sixtymin">60 λεπτά</string>
-    <string name="su_allow_toast">Παραχωρήθηκαν δικαιώματα υπερχρήστη στο %1$s</string>
-    <string name="su_deny_toast">Απορρίφθηκαν τα δικαιώματα υπερχρήστη του %1$s</string>
-    <string name="su_snack_grant">Παραχορούνται δικαιώματα υπερχρήστη στο %1$s</string>
-    <string name="su_snack_deny">Δεν παραχορούνται δικαιώματα υπερχρήστη στο %1$s</string>
-    <string name="su_snack_notif_on">Οι ειδοποιήσεις του %1$s είναι ενεργοποιημένες</string>
-    <string name="su_snack_notif_off">Οι ειδοποιήσεις του %1$s είναι απενεργοποιημένες</string>
-    <string name="su_snack_log_on">Η καταγραφή του %1$s είναι ενεργοποιημένη</string>
-    <string name="su_snack_log_off">Η καταγραφή του %1$s είναι απενεργοποιημένη</string>
-    <string name="su_revoke_title">Ανάκληση;</string>
-    <string name="su_revoke_msg">Επιβεβαίωση για ανάκληση δικαιωμάτων %1$s;</string>
     <string name="toast">Αναδυόμενο παράθυρο</string>
     <string name="none">Κανένα</string>
 
-    <string name="superuser_toggle_notification">Ειδοποιήσεις</string>
-    <string name="superuser_toggle_revoke">Ανακάλεσε</string>
-    <string name="superuser_policy_none">Καμία εφαρμογή δεν έχει ζητήσει άδεια υπερχρήστη.</string>
 	
     <!--Logs-->
     <string name="log_data_none">Δεν υπάρχουν αρχεία καταγραφής, δοκιμάστε να χρησιμοποιήσετε περισσότερο τις εφαρμογές με δυνατότητα SU</string>
@@ -134,36 +108,11 @@
     <string name="settings_app_name_hint">Νέο όνομα</string>
     <string name="settings_app_name_helper">Η εφαρμογή θα επανασυσκευαστεί με αυτό το όνομα</string>
     <string name="settings_app_name_error">Μη έγκυρη μορφή</string>
-    <string name="settings_su_app_adb">Εφαρμογές και ADB</string>
-    <string name="settings_su_app">Εφαρμογές μόνο</string>
-    <string name="settings_su_adb">ADB μόνο</string>
-    <string name="settings_su_disable">Απενεργοποιημένο</string>
-    <string name="settings_su_request_10">10 δευτερόλεπτα</string>
-    <string name="settings_su_request_15">15 δευτερόλεπτα</string>
-    <string name="settings_su_request_20">20 δευτερόλεπτα</string>
-    <string name="settings_su_request_30">30 δευτερόλεπτα</string>
-    <string name="settings_su_request_45">45 δευτερόλεπτα</string>
-    <string name="settings_su_request_60">60 δευτερόλεπτα</string>
-    <string name="superuser_access">Πρόσβαση Υπερχρήστη</string>
-    <string name="auto_response">Αυτόματη Απόκριση</string>
-    <string name="request_timeout">Χρονικό όριο Αιτήματος</string>
-    <string name="superuser_notification">Ειδοποίηση Υπερχρήστη</string>
-    <string name="settings_su_reauth_title">Επαναπιστοποίηση μετά από αναβάθμιση</string>
-    <string name="settings_su_reauth_summary">Επαναπιστοποίηση αδειών υπερχρήστη μετά την αναβάθμιση μίας εφαρμογής</string>
-    <string name="settings_su_tapjack_title">Ενεργοποίηση προστασίας Tapjacking</string>
-    <string name="settings_su_tapjack_summary">Το παράθυρο διαλόγου προτροπής του υπερχρήστη δεν αποκρίνεται στην είσοδο ενώ κρύβεται από οποιοδήποτε άλλο παράθυρο</string>
     <string name="settings_customization">Προσαρμογή</string>
     <string name="setting_add_shortcut_summary">Προσθέστε μια όμορφη συντόμευση στην αρχική οθόνη σε περίπτωση που το όνομα και το εικονίδιο είναι δύσκολο να αναγνωριστούν αφού κρύψετε την εφαρμογή</string>
     <string name="settings_doh_title">DNS μέσω HTTPS</string>
     <string name="settings_doh_description">Λύση DNS poisoning για μερικά έθνη</string>
 
-    <string name="multiuser_mode">Λειτουργία Πολλών Χρηστών</string>
-    <string name="settings_owner_only">Μόνο Ιδιοκτήτης Συσκευής</string>
-    <string name="settings_owner_manage">Διαχειριζόμενη από τον Ιδιοκτήτη</string>
-    <string name="settings_user_independent">Ανεξάρτητη από τον χρήστη</string>
-    <string name="owner_only_summary">Μόνο ο ιδιοκτήτης έχει πρόσβαση root</string>
-    <string name="owner_manage_summary">Μόνο ο ιδιοκτήτης μπορεί να διαχειριστεί την πρόσβαση root και να δεχτεί προτροπές αίτημάτων</string>
-    <string name="user_independent_summary">Κάθε χρήστης έχει τους δικούς του ξεχωριστούς κανόνες root</string>
 
     <string name="mount_namespace_mode">Λειτουργία προσάρτησης χώρου ονομάτων</string>
     <string name="settings_ns_global">Καθολικός Χώρος Ονομάτων</string>

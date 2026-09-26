@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">Moduly</string>
-    <string name="superuser">SuperUser</string>
     <string name="logs">Protokol</string>
     <string name="settings">Nastavení</string>
     <string name="install">Instalovat</string>
@@ -47,34 +46,9 @@
     <string name="flash_screen_title">Instalace</string>
 
     <!--Superuser-->
-    <string name="su_request_title">Požadavek SuperUser</string>
-    <string name="touch_filtered_warning">Magisk nemůže ověřit Vaši odpověď, protože aplikace zavírá požadavek SuperUser</string>
-    <string name="deny">Zakázat</string>
-    <string name="prompt">Zeptat se</string>
-    <string name="grant">Povolit</string>
-    <string name="su_warning">Povolí plný přístup k Vašemu zařízení.\nZakažte, pokud si nejste jisti!</string>
-    <string name="forever">Trvale</string>
-    <string name="once">Jednou</string>
-    <string name="tenmin">10 minut</string>
-    <string name="twentymin">20 minut</string>
-    <string name="thirtymin">30 minut</string>
-    <string name="sixtymin">60 minut</string>
-    <string name="su_allow_toast">Pro %1$s bylo oprávnění SuperUser povoleno</string>
-    <string name="su_deny_toast">Pro %1$s bylo oprávnění SuperUser zakázáno</string>
-    <string name="su_snack_grant">SuperUser oprávnění pro %1$s je povoleno</string>
-    <string name="su_snack_deny">SuperUser oprávnění pro %1$s je zakázáno</string>
-    <string name="su_snack_notif_on">Oznámení pro %1$s jsou povolena</string>
-    <string name="su_snack_notif_off">Oznámení pro %1$s jsou zakázána</string>
-    <string name="su_snack_log_on">Protokolování %1$s je povoleno</string>
-    <string name="su_snack_log_off">Protokolování %1$s je zakázáno</string>
-    <string name="su_revoke_title">Smazat?</string>
-    <string name="su_revoke_msg">Potvrzením odeberete %1$s oprávnění SuperUser</string>
     <string name="toast">Text</string>
     <string name="none">Žádné</string>
 
-    <string name="superuser_toggle_notification">Oznámení</string>
-    <string name="superuser_toggle_revoke">Smazat</string>
-    <string name="superuser_policy_none">Žádná aplikace nepožádala o oprávnění SuperUser.</string>
 
     <!--Logs-->
     <string name="log_data_none">Nemáte žádné protokoly. Vyzkoušejte nějakou aplikaci vyžadující oprávnění SuperUser</string>
@@ -139,36 +113,11 @@
     <string name="settings_app_name_hint">Nový název</string>
     <string name="settings_app_name_helper">Název aplikace bude nahrazen tímto názvem</string>
     <string name="settings_app_name_error">Neplatný formát</string>
-    <string name="settings_su_app_adb">Aplikace a ADB</string>
-    <string name="settings_su_app">Pouze aplikace</string>
-    <string name="settings_su_adb">Pouze ADB</string>
-    <string name="settings_su_disable">Zakázat</string>
-    <string name="settings_su_request_10">10 sekund</string>
-    <string name="settings_su_request_15">15 sekund</string>
-    <string name="settings_su_request_20">20 sekund</string>
-    <string name="settings_su_request_30">30 sekund</string>
-    <string name="settings_su_request_45">45 sekund</string>
-    <string name="settings_su_request_60">60 sekund</string>
-    <string name="superuser_access">Přístup SuperUser</string>
-    <string name="auto_response">Automatická odezva</string>
-    <string name="request_timeout">Časový limit požadavku</string>
-    <string name="superuser_notification">Oznámení SuperUser</string>
-    <string name="settings_su_reauth_title">Opětovné ověření po aktualizaci</string>
-    <string name="settings_su_reauth_summary">Opětovné ověření oprávnění SuperUser po aktualizaci aplikace.</string>
-    <string name="settings_su_tapjack_title">Povolit ochranu před TapJack</string>
-    <string name="settings_su_tapjack_summary">Okno dialogu SuperUser nebude reagovat na kliknutí v případě, že je zavřené nebo překryté jiným oknem</string>
     <string name="settings_customization">Přizpůsobit</string>
     <string name="setting_add_shortcut_summary">Přidá odkaz na domovskou obrazovku v případě, že se po skrytí aplikace její název a ikona těžko rozpoznávají.</string>
     <string name="settings_doh_title">DNS přes HTTPS</string>
     <string name="settings_doh_description">Obejde DNS v některých zemích</string>
 
-    <string name="multiuser_mode">Režim více uživatelů</string>
-    <string name="settings_owner_only">Vlastník zařízení</string>
-    <string name="settings_owner_manage">Správce zařízení</string>
-    <string name="settings_user_independent">Všichni uživatelé</string>
-    <string name="owner_only_summary">Pouze vlastník má přístup ROOT</string>
-    <string name="owner_manage_summary">Přístup ROOT má správce zařízení, který přijímá požadavky k přístupu</string>
-    <string name="user_independent_summary">Každý uživatel má svá vlastní pravidla přístupu ROOT</string>
 
     <string name="mount_namespace_mode">Režim připojení jmenného prostoru</string>
     <string name="settings_ns_global">Globální jmenný prostor</string>

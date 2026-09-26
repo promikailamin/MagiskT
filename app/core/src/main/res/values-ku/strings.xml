@@ -2,7 +2,6 @@
 
     <!--Sections-->
     <string name="modules">زیادکراوەکان</string>
-    <string name="superuser">سوپەر یوسەر</string>
     <string name="logs">تۆمارەکان</string>
     <string name="settings">ڕێکخستنەکان</string>
     <string name="install">دامەزراندن</string>
@@ -47,34 +46,9 @@
     <string name="flash_screen_title">ڕێکخستن</string>
 
     <!--Superuser-->
-    <string name="su_request_title">داواکاری سوپەریوسەر</string>
-    <string name="touch_filtered_warning">ئەپێک لە سەر شاشەکەیە، ناتوانین دڵنیا بینەوە</string>
-    <string name="deny">ڕەتکردنەوە</string>
-    <string name="prompt">داواکاری</string>
-    <string name="grant">ڕێگەپێدان</string>
-    <string name="su_warning">ڕێگەپێدان بۆ تەواوی ئامێرەکەت، گەر دڵنیا نیت ڕەتی بکەوە</string>
-    <string name="forever">بۆ هەمیشە</string>
-    <string name="once">بۆ یەکجار</string>
-    <string name="tenmin">بۆ ١٠ خولەک</string>
-    <string name="twentymin">بۆ ٢٠ خولەک</string>
-    <string name="thirtymin">بۆ ٣٠ خولەک</string>
-    <string name="sixtymin">بۆ ٦٠ خولەک</string>
-    <string name="su_allow_toast">%1$s ڕێگەپێدانی سوپەریوسەری بۆ زیادکرا</string>
-    <string name="su_deny_toast">%1$s ڕێگەپێدانی سوپەریوسەر ڕەتکرایەوە</string>
-    <string name="su_snack_grant">ڕێگەپێدانی سوپەریوسەری %1$s بۆ درا</string>
-    <string name="su_snack_deny">ڕێگەپێدانی سوپەریوسەر %1$s ڕەتکرایەوە</string>
-    <string name="su_snack_notif_on">ئاگەدارکردنەوەکانی %1$s کارا کراوە</string>
-    <string name="su_snack_notif_off">ئاگەدارکردنەوەکانی %1$s کوژاوەتەوە</string>
-    <string name="su_snack_log_on">تۆمارەکانی %1$s کراوەتەوە</string>
-    <string name="su_snack_log_off">تۆمارەکانی %1$s کوژاوەتەوە</string>
-    <string name="su_revoke_title">لابردن؟</string>
-    <string name="su_revoke_msg">دڵنیابەوە بۆ لابردنی سوپەریوسەر بۆ %1$s </string>
     <string name="toast">هێنانەسەر</string>
     <string name="none">هیچ</string>
 
-    <string name="superuser_toggle_notification">ئاگادارییەکان</string>
-    <string name="superuser_toggle_revoke">لابردن</string>
-    <string name="superuser_policy_none">هیچ ئەپێک تا ئێستا داوای سوپەریوسەری نەکردووە</string>
 
     <!--Logs-->
     <string name="log_data_none">هیچ تۆمارێک نییە، ئەو ئەپانەی ڕۆتیان پێویستە زوزو بەکاریبێنە</string>
@@ -141,27 +115,6 @@
     <string name="settings_app_name_hint">ناوی نوێ</string>
     <string name="settings_app_name_helper">ئەپەکە بەم ناوەوە دروست دەکرێتەوە</string>
     <string name="settings_app_name_error">هەڵەیە</string>
-    <string name="settings_su_app_adb">ئەپەکان و ADB</string>
-    <string name="settings_su_app">تەنها ئەپەکان</string>
-    <string name="settings_su_adb">ADB تەنها</string>
-    <string name="settings_su_disable">ناچالاک کراوە</string>
-    <string name="settings_su_request_10">10 چرکە</string>
-    <string name="settings_su_request_15">15 چرکە</string>
-    <string name="settings_su_request_20">20 چرکە</string>
-    <string name="settings_su_request_30">30 چرکە</string>
-    <string name="settings_su_request_45">45 چرکە</string>
-    <string name="settings_su_request_60">60 چرکە</string>
-    <string name="superuser_access">دەسەڵاتی سوپەریوسەر</string>
-    <string name="auto_response">وەڵامدانەوەی خۆکارانە</string>
-    <string name="request_timeout">ماوەی وەڵامدانەوە</string>
-    <string name="superuser_notification">ئاگەدارییەکانی سوپەریوسەر</string>
-    <string name="settings_su_reauth_title">پرسیاربکەوە دوای هەر نوێکردنەوەیەک</string>
-    <string name="settings_su_reauth_summary">دوای نوێکردنەوەی ئەپەکان دووبارە پرسیار بکەوە بۆ دەسەڵاتی سوپەریوسەر</string>
-    <string name="settings_su_tapjack_title">پارێزگاری کردن لە ئەگەری دەستلێدانی تر</string>
-    <string name="settings_su_tapjack_summary"> کاتێک ئەپێکی تر بەسەر شاشەکەوەیە، سوپەر یوسەر وەڵام ناداتەوە لە کردنی هەر بژاردەیەک لەبەر پارێزراوی</string>
-    <string name="settings_su_auth_title">دڵنیاکردنەوەی کەسی</string>
-    <string name="settings_su_auth_summary">داواکاری بکە بۆ دڵنیاکردنەوەی کەسی لەکاتی داواکاری سوپەریوسەر</string>
-    <string name="settings_su_auth_insecure">هیچ دڵنیاکردنەوەیەک نییە</string>
     <string name="settings_customization">دەستکاریکردن</string>
     <string name="setting_add_shortcut_summary">یەک ئایکۆنی جوان زیادبکە بۆ سەر شاشەکە ئەگەر قورس بوو ئەوەی خۆی بدۆزیتەوە</string>
     <string name="settings_doh_title">DNS بەسەر HTTPS</string>
@@ -169,13 +122,6 @@
     <string name="settings_random_name_title">ناوێک لەخۆیەوە</string>
     <string name="settings_random_name_description">دانانی ناوێک لەخۆوە تاوەکوو ئاشکرا نەبێت</string>
 
-    <string name="multiuser_mode">دۆخی فرەبەکارهێنەر</string>
-    <string name="settings_owner_only">تەنها خاوەنی ئامێر</string>
-    <string name="settings_owner_manage">خاوەنی ئامێر</string>
-    <string name="settings_user_independent">بەکارهێنەری سەربەخۆ</string>
-    <string name="owner_only_summary">تەنها خاوەنەکە دۆخی ڕۆتی هەیە</string>
-    <string name="owner_manage_summary">تەنها خاوەنەکە دەسەڵاتی بەکارهێنانی ڕۆتی هەیە</string>
-    <string name="user_independent_summary">هەر بەکارهێنەرێک یاسای جیاوازی هەیە</string>
 
     <string name="mount_namespace_mode">چونە دۆخی بۆشایی ناو</string>
     <string name="settings_ns_global">بۆشاییناوی گشتی</string>
