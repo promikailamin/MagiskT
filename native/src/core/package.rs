@@ -5,7 +5,7 @@
 
 use crate::consts::APP_PACKAGE_NAME;
 use crate::daemon::MagiskD;
-use base::cstr;
+use base::{FsPathBuilder, cstr};
 
 impl MagiskD {
     fn get_package_uid(&self, user: i32, pkg: &str) -> i32 {
