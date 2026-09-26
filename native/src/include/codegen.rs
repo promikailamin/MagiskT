@@ -4,9 +4,7 @@
 //! Calls `cxx-gen` to produce `<name>.cpp` and `<name>.hpp` from `lib.rs`.
 
 use std::fmt::Display;
-use std::fs::File;
-use std::io::Write;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::{fs, io, process};
 
 use cxx_gen::{Include, IncludeKind, Opt};
@@ -35,8 +33,19 @@ fn write_if_diff<P: AsRef<Path>>(path: P, bytes: &[u8]) -> io::Result<()> {
             return Ok(());
         }
     }
-    let mut f = File::create(path)?;
-    f.write_all(bytes)
+    // A build script runs once per target triple and cargo may run those
+    // concurrently, so the file must never be observable in a partial state.
+    // Write to a sibling temp file and rename it into place: readers either
+    // see the old file or the complete new one.
+    let tmp = PathBuf::from(format!("{}.tmp", path.display()));
+    fs::write(&tmp, bytes)?;
+    match fs::rename(&tmp, path) {
+        Ok(()) => Ok(()),
+        Err(e) => {
+            fs::remove_file(&tmp).ok();
+            Err(e)
+        }
+    }
 }
 
 pub fn gen_cxx_binding(name: &str) {
