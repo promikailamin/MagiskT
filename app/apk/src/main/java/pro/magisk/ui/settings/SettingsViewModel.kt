@@ -9,6 +9,8 @@ package pro.magisk.ui.settings
 
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import pro.magisk.BR
 import pro.magisk.arch.BaseViewModel
@@ -38,15 +40,25 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
         viewModelScope.launch(Dispatchers.IO) { LocaleSetting.instance.appLocale }
     }
 
-    val items = createItems()
+    /**
+     * The settings list, assembled and value-loaded on a background dispatcher so
+     * opening the screen never blocks the main thread. The layout observes it, so
+     * the list appears as soon as it is ready and each row fills in as its value
+     * arrives.
+     */
+    private val _items = MutableLiveData<List<BaseSettingsItem>>()
+    val items: LiveData<List<BaseSettingsItem>> get() = _items
+
     val extraBindings = bindExtra {
         it.put(BR.handler, this)
     }
-    
-    private val shell = Shell.getShell()
 
     init {
-        loadItemValues()
+        viewModelScope.launch(Dispatchers.IO) {
+            val list = createItems()
+            withContext(Dispatchers.Main) { _items.value = list }
+            loadItemValues(list)
+        }
     }
 
     /**
@@ -56,25 +68,32 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
      * a while to read, so the list is shown right away with placeholders and the
      * real values are filled in as each one arrives.
      */
-    private fun loadItemValues() {
+    private fun loadItemValues(items: List<BaseSettingsItem>) {
         items.forEach { item ->
             viewModelScope.launch(Dispatchers.IO) {
                 runCatching { item.loadValue() }
                     .onFailure { Timber.w(it, "failed to load %s", item::class.simpleName) }
-                withContext(Dispatchers.Main) { item.onValueLoaded() }
+                publishValue(item)
             }
         }
     }
 
     /** Re-reads the values that may have changed while the screen was not shown. */
     fun refreshItems() {
+        val items = _items.value ?: return
         items.forEach { item ->
             viewModelScope.launch(Dispatchers.IO) {
                 runCatching { item.refresh() }
                     .onFailure { Timber.w(it, "failed to refresh %s", item::class.simpleName) }
-                withContext(Dispatchers.Main) { item.onValueLoaded() }
+                publishValue(item)
             }
         }
+    }
+
+    /** Hops to the main thread only when the item actually resolved a new value. */
+    private suspend fun publishValue(item: BaseSettingsItem) {
+        if (!item.pendingNotify) return
+        withContext(Dispatchers.Main) { item.onValueLoaded() }
     }
 
     /** Assembles the settings list based on current device and app state. */
@@ -147,9 +166,11 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
     }
     
     private fun clean_ram() {
-        viewModelScope.launch {
-            val v = fastCmd(shell, "sync && echo 3 > /proc/sys/vm/drop_caches")
-            AppContext.toast("Device ram has been cleaned now!", Toast.LENGTH_SHORT)
+        viewModelScope.launch(Dispatchers.IO) {
+            fastCmd(Shell.getShell(), "sync && echo 3 > /proc/sys/vm/drop_caches")
+            withContext(Dispatchers.Main) {
+                AppContext.toast("Device ram has been cleaned now!", Toast.LENGTH_SHORT)
+            }
         }
     }
 }

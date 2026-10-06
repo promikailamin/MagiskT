@@ -159,7 +159,7 @@ abstract class SystemSettingToggle(
     private val setting: KMutableProperty0<Boolean>
 ) : BaseSettingsItem.Toggle() {
 
-    private val shell = Shell.getShell()
+    private val shell by lazy { Shell.getShell() }
 
     override val placeholder = false
 

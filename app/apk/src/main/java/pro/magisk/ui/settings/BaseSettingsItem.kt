@@ -57,6 +57,17 @@ sealed class BaseSettingsItem : ObservableRvItem() {
     var loaded = true
         protected set(value) = set(value, field, { field = it }, BR.loaded)
 
+    /**
+     * Whether a freshly resolved value is waiting to be published to the bound views.
+     *
+     * Set on a background thread when a value actually changes, cleared by
+     * [onValueLoaded] on the main thread. Lets the host skip the main-thread hop
+     * entirely for items whose refresh found nothing new.
+     */
+    @Volatile
+    var pendingNotify = true
+        protected set
+
     /** Corner treatment applied by the host list when grouping items into cards. */
     var groupStyle = CardGroupStyle.SINGLE
 
@@ -80,12 +91,17 @@ sealed class BaseSettingsItem : ObservableRvItem() {
 
     /**
      * Called on the main thread once [loadValue] or [refresh] is done, so the bound
-     * views can pick up the values that were read in the background.
+     * views can pick up the values that were read in the background. Does nothing
+     * when [pendingNotify] is clear, so no-op refreshes never rebind the list.
      */
     open fun onValueLoaded() {
+        val notify = pendingNotify
+        pendingNotify = false
         loaded = true
-        notifyPropertyChanged(BR.checked)
-        notifyPropertyChanged(BR.description)
+        if (notify) {
+            notifyPropertyChanged(BR.checked)
+            notifyPropertyChanged(BR.description)
+        }
     }
 
     open val showSwitch get() = false
@@ -129,7 +145,9 @@ sealed class BaseSettingsItem : ObservableRvItem() {
             }
 
         override fun loadValue() {
-            resolved = readValue()
+            val new = readValue()
+            if (resolved != new) pendingNotify = true
+            resolved = new
         }
 
         override fun onValueLoaded() {
@@ -139,6 +157,7 @@ sealed class BaseSettingsItem : ObservableRvItem() {
 
         /** Update the cached value without writing it back to the backing store. */
         protected fun setResolved(value: T) {
+            if (resolved != value) pendingNotify = true
             resolved = value
         }
     }
