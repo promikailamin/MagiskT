@@ -146,6 +146,7 @@
     <string name="qs_tile_usb_debugging">USB debugging</string>
     <string name="qs_tile_developer_options">Developer options</string>
     <string name="qs_tile_superuser">Superuser</string>
+    <string name="qs_tile_update_required">Update Magisk to enable this tile</string>
     <string name="settings_usb_security_bypass_title">USB debugging (Security settings)</string>
     <string name="settings_usb_security_bypass_summary">Bypass the USB security check. Only for Xiaomi, Redmi and Poco devices.</string>
     <string name="settings_play_protect_title">Play Protect</string>

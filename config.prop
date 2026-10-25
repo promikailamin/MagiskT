@@ -10,6 +10,6 @@ keyPass=superman
 # Human-readable version string (shown in the app)
 version=experimental
 # Integer version code (must be monotonically increasing)
-versionCode=67678
+versionCode=67679
 # Comma-separated list of target ABIs to build native binaries for
 abiList=armeabi-v7a, arm64-v8a
