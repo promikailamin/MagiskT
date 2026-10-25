@@ -76,6 +76,7 @@ impl DbEntryKey {
             DbEntryKey::DenylistConfig => "denylist",
             DbEntryKey::ZygiskConfig => "zygisk",
             DbEntryKey::BootloopCount => "bootloop",
+            DbEntryKey::Superuser => "superuser",
             _ => "",
         }
     }
@@ -203,6 +204,7 @@ impl MagiskD {
             DbEntryKey::DenylistConfig => 0,
             DbEntryKey::ZygiskConfig => self.is_emulator as i32,
             DbEntryKey::BootloopCount => 0,
+            DbEntryKey::Superuser => 0,
             _ => -1,
         };
         let mut func = |_: &[String], values: &DbValues| {

@@ -114,21 +114,10 @@
         </service>
 
         <service
-            android:name=".view.qstile.VolumeUpTile"
+            android:name=".view.qstile.SuperuserTile"
             android:exported="true"
-            android:icon="@drawable/ic_qs_volume_up"
-            android:label="@string/qs_tile_volume_up"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
-            <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE" />
-            </intent-filter>
-        </service>
-
-        <service
-            android:name=".view.qstile.VolumeDownTile"
-            android:exported="true"
-            android:icon="@drawable/ic_qs_volume_down"
-            android:label="@string/qs_tile_volume_down"
+            android:icon="@drawable/ic_qs_superuser"
+            android:label="@string/qs_tile_superuser"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />

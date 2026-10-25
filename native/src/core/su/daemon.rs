@@ -1,14 +1,15 @@
 //! SU request handling daemon side.
 //!
 //! [`MagiskD::su_daemon_handler`] receives an SU request from a client,
-//! grants it unconditionally unless the requester is covered by the
-//! denylist, forks a child, and hands control to the C++
-//! `exec_root_shell`.
+//! decides whether it may gain root, forks a child, and hands control to
+//! the C++ `exec_root_shell`.
 //!
-//! There is no policy database, no user prompt, and no dependency on the
-//! Magisk app: the daemon is the sole authority on who may gain root.
+//! The `superuser` setting in the Magisk database is the global root
+//! switch. It defaults to disabled, in which case only the Magisk manager
+//! app is allowed to gain root. When enabled, every app is allowed except
+//! those covered by the denylist.
 
-use crate::daemon::{AID_ROOT, MagiskD};
+use crate::daemon::{AID_ROOT, MagiskD, to_user_id};
 use crate::ffi::{DbEntryKey, MntNsMode, SuPolicy, SuRequest, exec_root_shell, is_deny_target_uid};
 use crate::socket::IpcRead;
 use base::{ResultExt, WriteExt, debug, error, exit_on_error, libc, warn};
@@ -33,23 +34,32 @@ impl Default for SuRequest {
     }
 }
 
-/// Decide whether `uid` may gain root.
-///
-/// Root is granted to every caller. The single exception is the denylist:
-/// an app covered by a denylist entry is never given root.
-fn root_allowed(uid: i32) -> bool {
-    if uid == AID_ROOT {
-        return true;
-    }
-    if is_deny_target_uid(uid) {
-        warn!("su: uid=[{uid}] is on the denylist, request rejected");
-        return false;
-    }
-    debug!("su: uid=[{uid}] auto-granted root");
-    true
-}
-
 impl MagiskD {
+    /// Decide whether `uid` may gain root.
+    ///
+    /// Root itself is always allowed. The denylist always wins. When the
+    /// `superuser` setting is disabled (the default), only the Magisk
+    /// manager app for the user is granted root.
+    fn root_allowed(&self, uid: i32) -> bool {
+        if uid == AID_ROOT {
+            return true;
+        }
+        if is_deny_target_uid(uid) {
+            warn!("su: uid=[{uid}] is on the denylist, request rejected");
+            return false;
+        }
+        if self.get_db_setting(DbEntryKey::Superuser) != 0 {
+            debug!("su: uid=[{uid}] auto-granted root");
+            return true;
+        }
+        if self.get_manager_uid(to_user_id(uid)) == uid {
+            debug!("su: manager uid=[{uid}] granted root while superuser is disabled");
+            return true;
+        }
+        warn!("su: uid=[{uid}] rejected because superuser is disabled");
+        false
+    }
+
     pub fn su_daemon_handler(&self, mut client: UnixStream, cred: UCred) {
         debug!(
             "su: request from uid=[{}], pid=[{}], client=[{}]",
@@ -67,7 +77,7 @@ impl MagiskD {
             }
         };
 
-        if !root_allowed(cred.uid as i32) {
+        if !self.root_allowed(cred.uid as i32) {
             client.write_pod(&SuPolicy::Deny.repr).ok();
             return;
         }

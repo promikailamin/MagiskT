@@ -2,9 +2,8 @@
  * Base classes for Magisk Quick Settings tiles.
  *
  * Every tile disables itself ([Tile.STATE_UNAVAILABLE]) when the device
- * has no root access. Privileged settings toggles dispatch their
- * `settings put` commands through the libsu root shell; volume tiles
- * simulate the hardware volume keys via `input keyevent`.
+ * has no root access. Privileged settings toggles dispatch their read and
+ * write commands through the libsu root shell.
  */
 package pro.magisk.core.view.qstile
 
@@ -85,6 +84,9 @@ abstract class SettingToggleTile : QSTile() {
     /** Shell command that sets the setting to the given state. */
     protected abstract val writeCmd: (Boolean) -> String
 
+    /** Parse the output of [readCmd] into a boolean. */
+    protected open fun parseState(output: String) = output == "1"
+
     override fun refreshState() {
         if (!isRooted()) {
             super.refreshState()
@@ -104,26 +106,13 @@ abstract class SettingToggleTile : QSTile() {
         }
     }
 
-    private fun readState(): Boolean =
-        runCatching { ShellUtils.fastCmd(Shell.getShell(), readCmd) == "1" }.getOrDefault(false)
+    private fun readState(): Boolean = runCatching {
+        parseState(ShellUtils.fastCmd(Shell.getShell(), readCmd).trim())
+    }.getOrDefault(false)
 
     private fun setState(active: Boolean) {
         val tile = qsTile ?: return
         tile.state = if (active) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
         tile.updateTile()
-    }
-}
-
-/**
- * One-shot tile that simulates a hardware volume key press through the
- * root shell (`input keyevent`), like the physical volume rocker.
- */
-abstract class VolumeTile : QSTile() {
-
-    /** [android.view.KeyEvent.KEYCODE_VOLUME_UP] or `KEYCODE_VOLUME_DOWN`. */
-    protected abstract val keyCode: Int
-
-    override fun handleClick() {
-        Shell.cmd("input keyevent $keyCode").submit()
     }
 }
