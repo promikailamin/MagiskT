@@ -548,6 +548,34 @@ bool is_deny_target(int uid, string_view process) {
     return false;
 }
 
+/**
+ * Check whether any package that maps to the given UID is on the denylist.
+ *
+ * Unlike [is_deny_target] this does not need a process name: it answers
+ * "is this UID denied root altogether?", which is the only question the
+ * SU request path asks now that root is granted unconditionally.
+ */
+bool is_deny_target_uid(int uid) {
+    mutex_guard lock(data_lock);
+    if (!ensure_data())
+        return false;
+
+    int app_id = to_app_id(uid);
+    if (app_id >= 90000) {
+        // Isolated processes are only covered by the wildcard entry
+        auto it = pkg_to_procs.find(ISOLATED_MAGIC);
+        return it != pkg_to_procs.end() && !it->second.empty();
+    }
+    auto it = app_id_to_pkgs.find(app_id);
+    if (it == app_id_to_pkgs.end())
+        return false;
+    for (const auto &pkg : it->second) {
+        if (auto pit = pkg_to_procs.find(pkg); pit != pkg_to_procs.end() && !pit->second.empty())
+            return true;
+    }
+    return false;
+}
+
 /** Set ZygiskState flags for a process: ProcessOnDenyList and/or DenyListEnforced. */
 void update_deny_flags(int uid, rust::Str process, uint32_t &flags) {
     if (is_deny_target(uid, { process.begin(), process.end() })) {

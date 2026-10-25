@@ -1,7 +1,6 @@
 <resources>
 	<!--Sections-->
     <string name="modules">Moduler</string>
-    <string name="superuser">Superuser</string>
     <string name="logs">Logg</string>
     <string name="settings">Inställningar</string>
     <string name="install">Installera</string>
@@ -44,34 +43,9 @@
     <string name="flash_screen_title">Installation</string>
 
     <!--Superuser-->
-    <string name="su_request_title">Superuser-förfrågan</string>
-    <string name="touch_filtered_warning">Eftersom en app döljer, eller ritar över en begäran om superuser, så kan inte Magisk verifera ditt svar</string>
-    <string name="deny">Neka</string>
-    <string name="prompt">Fråga</string>
-    <string name="grant">Bevilja</string>
-    <string name="su_warning">Beviljar full tillgång till din enhet.\nNeka om du är osäker!</string>
-    <string name="forever">För alltid</string>
-    <string name="once">En gång</string>
-    <string name="tenmin">10 minuter</string>
-    <string name="twentymin">20 minuter</string>
-    <string name="thirtymin">30 minuter</string>
-    <string name="sixtymin">60 minuter</string>
-    <string name="su_allow_toast">%1$s beviljades Superuser-rättigheter</string>
-    <string name="su_deny_toast">%1$s nekades Superuser-rättigheter</string>
-    <string name="su_snack_grant">Superuser-rättigheter till %1$s är beviljade</string>
-    <string name="su_snack_deny">Superuser-rättigheter of %1$s är nekade</string>
-    <string name="su_snack_notif_on">Aviseringar för %1$s är aktiverade</string>
-    <string name="su_snack_notif_off">Aviseringar för %1$s är inaktiverade</string>
-    <string name="su_snack_log_on">Loggning av %1$s är aktiverad</string>
-    <string name="su_snack_log_off">Logging av %1$s är inaktiverade</string>
-    <string name="su_revoke_title">Återkalla?</string>
-    <string name="su_revoke_msg">Bekräfta återkallning utav %1$s rättigheter?</string>
     <string name="toast">Toast-meddelande</string>
     <string name="none">Inga</string>
 
-    <string name="superuser_toggle_notification">Aviseringar</string>
-    <string name="superuser_toggle_revoke">Återkalla</string>
-    <string name="superuser_policy_none">Inga appar har bett om superuser-rättigheter ännu.</string>
 
     <!--Logs-->
     <string name="log_data_none">Du är logg-lös, försök att använda dina SU-aktiverade appar mer</string>
@@ -110,10 +84,6 @@
     <string name="settings_dark_mode_dark">Alltid mörk</string>
     <string name="settings_download_path_title">Nedladdningsmapp</string>
     <string name="settings_download_path_message">Filer kommer att spara till %1$s</string>
-    <string name="settings_hide_app_title">Göm Magisk-appen</string>
-    <string name="settings_hide_app_summary">Installera en proxy-app med ett slumpmässigt paket-ID och appnamn</string>
-    <string name="settings_restore_app_title">Återställ Magisk-appen</string>
-    <string name="settings_restore_app_summary">Ta bort proxy-appen och återställ den ursprungliga APK filen</string>
     <string name="language">Språk</string>
     <string name="system_default">(Följ systeminställningar)</string>
     <string name="settings_hosts_title">Systemfri hosts</string>
@@ -122,36 +92,10 @@
     <string name="settings_app_name_hint">Nytt namn</string>
     <string name="settings_app_name_helper">Appen kommer att pacakas om till detta namn</string>
     <string name="settings_app_name_error">Ogiltigt format</string>
-    <string name="settings_su_app_adb">Appar och ADB</string>
-    <string name="settings_su_app">Bara Appar</string>
-    <string name="settings_su_adb">Bara ADB</string>
-    <string name="settings_su_disable">Inaktiverad</string>
-    <string name="settings_su_request_10">10 sekunder</string>
-    <string name="settings_su_request_15">15 sekunder</string>
-    <string name="settings_su_request_20">20 sekunder</string>
-    <string name="settings_su_request_30">30 sekunder</string>
-    <string name="settings_su_request_45">45 sekunder</string>
-    <string name="settings_su_request_60">60 sekunder</string>
-    <string name="superuser_access">Superuser-tillgång</string>
-    <string name="auto_response">Automatiskt svar</string>
-    <string name="request_timeout">Förfrågnings-timeout</string>
-    <string name="superuser_notification">Superuser-avisering</string>
-    <string name="settings_su_reauth_title">Återautentisera efter uppdatering</string>
-    <string name="settings_su_reauth_summary">Återautentisera superuser-rättigheter efter en applikationsuppdatering</string>
-    <string name="settings_su_tapjack_title">Aktivera Tapjacking-skydd</string>
-    <string name="settings_su_tapjack_summary">Superuser-dialogrutan kommer inte att lyssna på någon input om den är dold eller övertäckt utav något annat fönster.</string>
     <string name="settings_customization">Anpassning</string>
-    <string name="setting_add_shortcut_summary">Lägg till en snygg genväg på startskärmen om namnet och ikonen är svåra att känna igen efter att appen har döljts</string>
     <string name="settings_doh_title">DNS över HTTPS</string>
     <string name="settings_doh_description">Lösning för DNS-förgiftning i vissa länder</string>
 
-    <string name="multiuser_mode">Multiuser-läge</string>
-    <string name="settings_owner_only">Endast enhetsägare</string>
-    <string name="settings_owner_manage">Enhetsägare hanterar</string>
-    <string name="settings_user_independent">Användaroberoende</string>
-    <string name="owner_only_summary">Endast ägare har root-åtkomst</string>
-    <string name="owner_manage_summary">Endast ägare kan hantera root-åtkomst och ta emot bägärda förfrågningar</string>
-    <string name="user_independent_summary">Varje användare har sina egna separata root-regler</string>
 
     <string name="mount_namespace_mode">Montera namnrymdsläge</string>
     <string name="settings_ns_global">Global namnrymd</string>
@@ -191,7 +135,5 @@
     <string name="unsupport_magisk_title">Magisk-versionen stöds ej</string>
     <string name="unsupport_magisk_msg">Denna version utav appen stödjer inte Magisk-versioner lägre än 1$s.\n\nAppen kommer att bete sig som att Magisk inte är installerat. Vänligen uppgradera din Magisk-version så snart som möjligt.</string>
     <string name="external_rw_permission_denied">Tillåt tillgång till externt lagrinsmedia för att aktievera denna funktion</string>
-    <string name="add_shortcut_title">Lägg till genväg på hemskärmen</string>
-    <string name="add_shortcut_msg">Efter att appen dolts så kan ikonen och namnet vara svårt att känna igen. Vill du lägga till en snygg genväg till din hemskärm?</string>
     <string name="app_not_found">Ingen applikation hittades för att hantera den här åtgärden</string>
 </resources>

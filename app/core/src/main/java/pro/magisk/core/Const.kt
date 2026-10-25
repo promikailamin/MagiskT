@@ -61,13 +61,13 @@ object Const {
     /** Intent extra / bundle key names. */
     object Key {
         const val OPEN_SECTION = "section"
-        const val PREV_CONFIG = "prev_config"
     }
 
     /** Values used to signal flash-action type in install intents. */
     object Value {
         const val FLASH_ZIP = "flash"
         const val PATCH_FILE = "patch"
+        const val PATCH_INSTALL_FILE = "patch_install"
         const val FLASH_MAGISK = "magisk"
         const val FLASH_INACTIVE_SLOT = "slot"
         const val UNINSTALL = "uninstall"
@@ -75,9 +75,7 @@ object Const {
 
     /** Bottom-navigation / Compose-destination identifiers. */
     object Nav {
-        const val HOME = "home"
         const val SETTINGS = "settings"
         const val MODULES = "modules"
-        const val SUPERUSER = "superuser"
     }
 }

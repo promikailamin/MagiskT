@@ -139,6 +139,14 @@ class FlashFragment : BaseFragment<FragmentFlashMd2Binding>(), MenuProvider {
             additionalData = uri
         )
 
+        /* Patching and installing is patching an image the user selected,
+           and then flashing the result like direct install */
+
+        fun patchAndInstall(uri: Uri) = MainDirections.actionFlashFragment(
+            action = Const.Value.PATCH_INSTALL_FILE,
+            additionalData = uri
+        )
+
         /* Uninstalling is understood as removing magisk entirely */
 
         fun uninstall() = MainDirections.actionFlashFragment(

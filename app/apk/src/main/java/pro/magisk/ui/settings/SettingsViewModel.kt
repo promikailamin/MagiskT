@@ -2,50 +2,99 @@
  * ViewModel for the settings screen.
  *
  * Builds the dynamic list of [BaseSettingsItem] objects based on device state
- * (rooted? Zygisk enabled? Superuser visible? stub vs installed?).
- * Also implements [BaseSettingsItem.Handler] to delegate press/action events,
- * optionally requesting authentication before sensitive operations.
+ * (rooted? Zygisk enabled? theme?).
+ * Also implements [BaseSettingsItem.Handler] to delegate press/action events.
  */
 package pro.magisk.ui.settings
 
-import android.app.Activity
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
-import android.provider.Settings
 import android.view.View
 import android.widget.Toast
-import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import pro.magisk.BR
 import pro.magisk.arch.BaseViewModel
 import pro.magisk.core.AppContext
-import pro.magisk.core.Config
 import pro.magisk.core.Const
 import pro.magisk.core.Info
 import pro.magisk.core.R
-import pro.magisk.core.isRunningAsStub
 import pro.magisk.core.ktx.activity
 import pro.magisk.core.ktx.toast
 import pro.magisk.core.utils.LocaleSetting
 import pro.magisk.core.utils.RootUtils
 import pro.magisk.databinding.bindExtra
-import pro.magisk.events.AddHomeIconEvent
-import pro.magisk.events.AuthEvent
 import pro.magisk.events.SnackbarEvent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.ShellUtils.fastCmd
 
 /** ViewModel that builds and manages the settings item list. */
 class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
 
-    val items = createItems()
+    init {
+        // The first access to the locale manager parses the app's locale config,
+        // which the item list below asks for, so start it off the main thread
+        viewModelScope.launch(Dispatchers.IO) { LocaleSetting.instance.appLocale }
+    }
+
+    /**
+     * The settings list, assembled and value-loaded on a background dispatcher so
+     * opening the screen never blocks the main thread. The layout observes it, so
+     * the list appears as soon as it is ready and each row fills in as its value
+     * arrives.
+     */
+    private val _items = MutableLiveData<List<BaseSettingsItem>>()
+    val items: LiveData<List<BaseSettingsItem>> get() = _items
+
     val extraBindings = bindExtra {
         it.put(BR.handler, this)
     }
-    
-    private val shell = Shell.getShell()
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            val list = createItems()
+            withContext(Dispatchers.Main) { _items.value = list }
+            loadItemValues(list)
+        }
+    }
+
+    /**
+     * Loads the value of every item on its own worker thread.
+     *
+     * Values backed by the shell-backed settings DB or a system setting query take
+     * a while to read, so the list is shown right away with placeholders and the
+     * real values are filled in as each one arrives.
+     */
+    private fun loadItemValues(items: List<BaseSettingsItem>) {
+        items.forEach { item ->
+            viewModelScope.launch(Dispatchers.IO) {
+                runCatching { item.loadValue() }
+                    .onFailure { Timber.w(it, "failed to load %s", item::class.simpleName) }
+                publishValue(item)
+            }
+        }
+    }
+
+    /** Re-reads the values that may have changed while the screen was not shown. */
+    fun refreshItems() {
+        val items = _items.value ?: return
+        items.forEach { item ->
+            viewModelScope.launch(Dispatchers.IO) {
+                runCatching { item.refresh() }
+                    .onFailure { Timber.w(it, "failed to refresh %s", item::class.simpleName) }
+                publishValue(item)
+            }
+        }
+    }
+
+    /** Hops to the main thread only when the item actually resolved a new value. */
+    private suspend fun publishValue(item: BaseSettingsItem) {
+        if (!item.pendingNotify) return
+        withContext(Dispatchers.Main) { item.onValueLoaded() }
+    }
 
     /** Assembles the settings list based on current device and app state. */
     private fun createItems(): List<BaseSettingsItem> {
@@ -56,8 +105,6 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
             Theme, if (LocaleSetting.useLocaleManager) LanguageSystem else Language,
             App
         )
-        if (isRunningAsStub && ShortcutManagerCompat.isRequestPinShortcutSupported(context))
-            list.add(AddShortcut)
         list.add(RandNameToggle)
 
         if (Info.env.isActive) {
@@ -69,23 +116,7 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
 
             list.add(Developer)
             list.addAll(listOf(DeveloperOptions, UsbDebugging, UsbSecurityBypass, PlayProtect))
-        }
-
-        if (Info.showSuperUser) {
-            list.add(Superuser)
-            list.addAll(listOf(
-                Tapjack, Authentication, AccessMode, MultiuserMode,
-                MountNamespaceMode, AutomaticResponse, RequestTimeout, SUNotification
-            ))
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                list.add(Reauthenticate)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                list.remove(Tapjack)
-            }
-            if (Const.Version.atLeast_30_1()) {
-                list.add(Restrict)
-            }
+            list.add(MountNamespaceMode)
         }
 
         applyGroupStyles(list)
@@ -110,18 +141,13 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
     }
 
     override fun onItemPressed(view: View, item: BaseSettingsItem, doAction: () -> Unit) {
-        when (item) {
-            Authentication -> AuthEvent(doAction).publish()
-            AutomaticResponse -> if (Config.suAuth) AuthEvent(doAction).publish() else doAction()
-            else -> doAction()
-        }
+        doAction()
     }
 
     override fun onItemAction(view: View, item: BaseSettingsItem) {
         when (item) {
             Theme -> SettingsFragmentDirections.actionSettingsFragmentToThemeFragment().navigate()
             LanguageSystem -> view.activity.startActivity(LocaleSetting.localeSettingsIntent)
-            AddShortcut -> AddHomeIconEvent().publish()
             CleanRam -> clean_ram()
             SystemlessHosts -> createHosts()
             AppManager -> SettingsFragmentDirections.actionSettingsFragmentToAppManagerFragment().navigate()
@@ -140,9 +166,11 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
     }
     
     private fun clean_ram() {
-        viewModelScope.launch {
-            val v = fastCmd(shell, "sync && echo 3 > /proc/sys/vm/drop_caches")
-            AppContext.toast("Device ram has been cleaned now!", Toast.LENGTH_SHORT)
+        viewModelScope.launch(Dispatchers.IO) {
+            fastCmd(Shell.getShell(), "sync && echo 3 > /proc/sys/vm/drop_caches")
+            withContext(Dispatchers.Main) {
+                AppContext.toast("Device ram has been cleaned now!", Toast.LENGTH_SHORT)
+            }
         }
     }
 }

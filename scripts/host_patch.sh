@@ -54,7 +54,7 @@ else
 fi
 
 # Extract required files from the Magisk APK
-unzip -oj magisk.apk 'assets/util_functions.sh' 'assets/stub.apk'
+unzip -oj magisk.apk 'assets/util_functions.sh'
 . ./util_functions.sh
 
 api_level_arch_detect
@@ -86,7 +86,6 @@ cat config
 
 # Compress Magisk binaries for embedding into ramdisk
 ./magiskboot compress=xz magisk magisk.xz
-./magiskboot compress=xz stub.apk stub.xz
 ./magiskboot compress=xz init-ld init-ld.xz
 
 # Patch the ramdisk: replace init with magiskinit, add overlay files
@@ -95,7 +94,6 @@ cat config
 "mkdir 0750 overlay.d" \
 "mkdir 0750 overlay.d/sbin" \
 "add 0644 overlay.d/sbin/magisk.xz magisk.xz" \
-"add 0644 overlay.d/sbin/stub.xz stub.xz" \
 "add 0644 overlay.d/sbin/init-ld.xz init-ld.xz" \
 "patch" \
 "backup ramdisk.cpio.orig" \

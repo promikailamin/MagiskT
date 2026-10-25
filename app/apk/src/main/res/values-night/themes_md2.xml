@@ -43,6 +43,16 @@
         <item name="colorOnPrimaryVariant">#D9222222</item>
     </style>
 
+    <style name="ThemeFoundationMD2.Monochrome" parent="ThemeFoundationMD2.Piplup">
+        <item name="colorPrimary">#E0E0E0</item>
+        <item name="colorPrimaryVariant">#80E0E0E0</item>
+        <item name="colorOnPrimary">#0D0D0D</item>
+        <item name="colorOnPrimaryVariant">#D9222222</item>
+        <item name="colorSecondary">#9E9E9E</item>
+        <item name="colorSecondaryVariant">#809E9E9E</item>
+        <item name="colorOnSecondary">#0D0D0D</item>
+    </style>
+
     <!--3rd party themes-->
 
 </resources>

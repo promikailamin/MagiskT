@@ -38,17 +38,10 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer
 /**
  * Root-only [RootService] that exposes app-process lookup, remote
  * file-system access, and systemless-hosts setup over Binder.
- *
- * @param stub Optional stub-class reference used to derive the
- *   component name when the real class is loaded via dynamic
- *   class-loading.
  */
-class RootUtils(stub: Any?) : RootService() {
+class RootUtils : RootService() {
 
-    private val className: String = stub?.javaClass?.name ?: javaClass.name
     private lateinit var am: ActivityManager
-
-    constructor() : this(null)
 
     init {
         Timber.plant(object : Timber.DebugTree() {
@@ -61,10 +54,6 @@ class RootUtils(stub: Any?) : RootService() {
     override fun onCreate() {
         Timber.d("RootUtils.onCreate")
         am = getSystemService()!!
-    }
-
-    override fun getComponentName(): ComponentName {
-        return ComponentName(packageName, className)
     }
 
     override fun onBind(intent: Intent): IBinder {

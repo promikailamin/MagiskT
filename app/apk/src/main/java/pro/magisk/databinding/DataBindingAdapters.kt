@@ -8,7 +8,6 @@
  * - RecyclerView scrolling (auto-scroll-to-last with AdapterDataObserver)
  * - MD2-specific: margin, stroke, tint, textColour attr resolution
  * - Slider / Spinner / IndeterminateCheckBox two-way binding
- * - Policy slider <-> [SuPolicy] conversion via [InverseMethod]
  */
 package pro.magisk.databinding
 
@@ -36,7 +35,6 @@ import androidx.core.widget.ImageViewCompat
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
-import androidx.databinding.InverseMethod
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
@@ -51,7 +49,6 @@ import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputLayout
 import pro.magisk.R
 import pro.magisk.core.di.ServiceLocator
-import pro.magisk.core.model.su.SuPolicy
 import pro.magisk.core.utils.TextHolder
 import pro.magisk.ui.settings.CardGroupStyle
 import com.topjohnwu.superuser.internal.UiThreadHandler
@@ -360,23 +357,4 @@ fun Slider.setListener(attrChange: InverseBindingListener) {
         override fun onStartTrackingTouch(slider: Slider) = Unit
         override fun onStopTrackingTouch(slider: Slider) = attrChange.onChange()
     })
-}
-
-@InverseMethod("sliderValueToPolicy")
-fun policyToSliderValue(policy: Int): Float {
-    return when (policy) {
-        SuPolicy.DENY -> 1f
-        SuPolicy.RESTRICT -> 2f
-        SuPolicy.ALLOW -> 3f
-        else -> 1f
-    }
-}
-
-fun sliderValueToPolicy(value: Float): Int {
-    return when (value) {
-        1f -> SuPolicy.DENY
-        2f -> SuPolicy.RESTRICT
-        3f -> SuPolicy.ALLOW
-        else -> SuPolicy.DENY
-    }
 }

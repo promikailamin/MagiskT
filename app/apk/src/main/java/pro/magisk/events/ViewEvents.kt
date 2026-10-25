@@ -1,18 +1,16 @@
 /**
  * Concrete [ViewEvent] subclasses used throughout the app.
  *
- * Each event implements an executor interface ([ActivityExecutor], [ContextExecutor]) so the
+ * Each event implements an executor interface (e.g. [ActivityExecutor]) so the
  * receiving Activity/Fragment can dispatch it to the right scope without boilerplate.
  */
 package pro.magisk.events
 
-import android.content.Context
 import android.view.View
 import androidx.annotation.StringRes
 import androidx.navigation.NavDirections
 import com.google.android.material.snackbar.Snackbar
 import pro.magisk.arch.ActivityExecutor
-import pro.magisk.arch.ContextExecutor
 import pro.magisk.arch.NavigationActivity
 import pro.magisk.arch.UIActivity
 import pro.magisk.arch.ViewEvent
@@ -21,7 +19,6 @@ import pro.magisk.core.base.relaunch
 import pro.magisk.core.utils.TextHolder
 import pro.magisk.core.utils.asText
 import pro.magisk.view.MagiskDialog
-import pro.magisk.view.Shortcuts
 
 /** Requests a runtime permission from the user. */
 class PermissionEvent(
@@ -97,11 +94,6 @@ class NavigationEvent(
 }
 
 /** Requests a home-screen shortcut to be added. */
-class AddHomeIconEvent : ViewEvent(), ContextExecutor {
-    override fun invoke(context: Context) {
-        Shortcuts.addHomeIcon(context)
-    }
-}
 
 /** Displays a Snackbar with the given message, length, and optional customisation. */
 class SnackbarEvent(

@@ -2,7 +2,7 @@
  * SQLite database wrapper for Magisk's internal database.
  * Dynamically loads libsqlite.so (including APEX on Android 10+),
  * provides db_exec API with bind/exec callbacks, and manages
- * schema migrations (versions 7-14) for policies/settings/strings/denylist.
+ * schema migrations (versions 7-15) for settings/strings/denylist.
  */
 #include <dlfcn.h>
 
@@ -12,8 +12,8 @@
 
 using namespace std;
 
-#define DB_VERSION     14
-#define DB_VERSION_STR "14"
+#define DB_VERSION     15
+#define DB_VERSION_STR "15"
 
 // SQLite APIs
 
@@ -222,12 +222,6 @@ sqlite3 *open_and_init_db() {
         return open_and_init_db();
     }
 
-    auto create_policy = [&] {
-        return sql_exec_impl(db.get(),
-                "CREATE TABLE IF NOT EXISTS policies "
-                "(uid INT, policy INT, until INT, logging INT, "
-                "notification INT, package_name TEXT, locked INT DEFAULT 0, PRIMARY KEY(uid))");
-    };
     auto create_settings = [&] {
         return sql_exec_impl(db.get(),
                 "CREATE TABLE IF NOT EXISTS settings "
@@ -257,9 +251,9 @@ sqlite3 *open_and_init_db() {
     // 12: rebuild table `policies` to drop column `package_name`
     // 13: add new column (locked INT DEFAULT 0) to tables `policies` and `denylist`
     // 14: add new column (package_name TEXT) to table `policies`
+    // 15: drop table `policies` (root is granted to all apps; only the denylist gates it)
 
     if (/* 0, 1, 2, 3, 4, 5, 6 */ ver <= 6) {
-        sql_chk_log(create_policy);
         sql_chk_log(create_settings);
         sql_chk_log(create_strings);
         sql_chk_log(create_denylist);
@@ -335,6 +329,13 @@ sqlite3 *open_and_init_db() {
                 "ALTER TABLE policies ADD COLUMN package_name TEXT;"
                 "COMMIT;");
         ver = 14;
+        upgrade = true;
+    }
+    if (ver == 14) {
+        sql_chk_log(sql_exec_impl, db.get(),
+                "DROP TABLE IF EXISTS policies;"
+                "DELETE FROM settings WHERE key IN ('root_access', 'multiuser_mode', 'su_biometric');");
+        ver = 15;
         upgrade = true;
     }
 

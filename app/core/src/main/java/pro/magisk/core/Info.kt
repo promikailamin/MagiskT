@@ -11,7 +11,6 @@ package pro.magisk.core
 import android.app.KeyguardManager
 import android.os.Build
 import androidx.lifecycle.MutableLiveData
-import pro.magisk.StubApk
 import pro.magisk.core.ktx.getProperty
 import com.topjohnwu.superuser.CallbackList
 import com.topjohnwu.superuser.Shell
@@ -19,13 +18,7 @@ import com.topjohnwu.superuser.ShellUtils.fastCmd
 import com.topjohnwu.superuser.ShellUtils.fastCmdResult
 import kotlinx.coroutines.Runnable
 
-/** `true` while the real APK is hosted inside the stub wrapper. */
-val isRunningAsStub get() = Info.stub != null
-
 object Info {
-
-    /** Reference to stub-wrapper metadata (non-null only in stub mode). */
-    var stub: StubApk.Data? = null
 
     /** Whether a rooted shell was obtained. */
     var isRooted = false
@@ -58,12 +51,6 @@ object Info {
         Build.DEVICE.contains("vsoc")
             || getProperty("ro.kernel.qemu", "0") == "1"
             || getProperty("ro.boot.qemu", "0") == "1"
-
-    /** Whether the SuperUser tab should be visible. */
-    val showSuperUser: Boolean get() {
-        return env.isActive && (Const.USER_ID == 0
-                || Config.suMultiuserMode == Config.Value.MULTIUSER_MODE_USER)
-    }
 
     val isDeviceSecure get() =
         AppContext.getSystemService(KeyguardManager::class.java).isDeviceSecure

@@ -3,7 +3,7 @@
  *
  * This is the core of magiskinit's init.rc manipulation and root filesystem
  * setup. It handles:
- * - XZ decompression of embedded magisk/stub/init binaries
+ * - XZ decompression of embedded magisk/init binaries
  * - Patching init.rc (removing vaultkeeper, flash_recovery, zygote injection)
  * - Patching init.zygote*.rc for magisk --zygote-restart hooks
  * - Fissiond binary patching and CPU isolated hijacking
@@ -322,7 +322,7 @@ static void recreate_sbin(const char *mirror, bool use_bind_mount) {
 }
 
 /**
- * Decompress and extract embedded XZ archives (magisk, stub APK, init-ld).
+ * Decompress and extract embedded XZ archives (magisk, init-ld).
  *
  * These files are stored compressed in the boot image cpio and are extracted
  * at runtime to save space. The `sbin` flag adjusts the lookup path
@@ -332,7 +332,6 @@ static void recreate_sbin(const char *mirror, bool use_bind_mount) {
  */
 static void extract_files(bool sbin) {
     const char *magisk_xz = sbin ? "/sbin/magisk.xz" : "magisk.xz";
-    const char *stub_xz = sbin ? "/sbin/stub.xz" : "stub.xz";
     const char *init_ld_xz = sbin ? "/sbin/init-ld.xz" : "init-ld.xz";
 
     if (access(magisk_xz, F_OK) == 0) {
@@ -340,13 +339,6 @@ static void extract_files(bool sbin) {
         unlink(magisk_xz);
         int fd = xopen("magisk", O_WRONLY | O_CREAT, 0755);
         unxz(fd, magisk);
-        close(fd);
-    }
-    if (access(stub_xz, F_OK) == 0) {
-        mmap_data stub(stub_xz);
-        unlink(stub_xz);
-        int fd = xopen("stub.apk", O_WRONLY | O_CREAT, 0);
-        unxz(fd, stub);
         close(fd);
     }
     if (access(init_ld_xz, F_OK) == 0) {
@@ -372,7 +364,7 @@ static void extract_files(bool sbin) {
  *  5. AVD hack: patch "android,fstab" to "xxx" in /init to disable early mount
  *  6. Load overlay.d rc scripts
  *  7. Patch init.rc (and init.zygote*.rc), optionally patch fissiond
- *  8. Extract embedded XZ archives (magisk binary, stub APK, init-ld)
+ *  8. Extract embedded XZ archives (magisk binary, init-ld)
  *  9. Handle SELinux policy patching
  * 10. Mount the ROOTOVL overlay over /
  */
@@ -443,7 +435,7 @@ void MagiskInit::patch_ro_root() noexcept {
     // If fissiond is present (OnePlus), patch it and hijack cpu/isolated
     if (p) patch_fissiond(tmp_dir.data());
 
-    // Decompress embedded magisk binary, stub APK, and linker
+    // Decompress embedded magisk binary and linker
     extract_files(false);
 
     // Patch SELinux policy to allow Magisk operations
@@ -469,7 +461,7 @@ void MagiskInit::patch_ro_root() noexcept {
  *  2. Load overlay.d rc scripts and move overlay.d to /
  *  3. Patch init.rc directly (writable=true) and optionally patch fissiond
  *  4. Create a tmpfs at /magisk, set up the magisk tmp directory inside it
- *  5. Extract embedded XZ archives (magisk, stub, init-ld)
+ *  5. Extract embedded XZ archives (magisk, init-ld)
  *  6. Patch SELinux policy
  *  7. Dump magiskinit binary as /sbin/magisk so the proxy main can exec it
  *

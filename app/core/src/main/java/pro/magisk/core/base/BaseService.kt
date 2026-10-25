@@ -1,6 +1,6 @@
 /**
- * Base [Service] that patches the context (locale + stub assets)
- * before any other lifecycle method runs.
+ * Base [Service] that patches the context (locale) before any other
+ * lifecycle method runs.
  */
 package pro.magisk.core.base
 

@@ -2,7 +2,8 @@
  * Install screen — allows the user to choose a Magisk installation method.
  *
  * Options vary depending on device state (rooted, A/B slots, emulator, SAR, etc.)
- * and include Direct Install, Patch Boot Image, and Install to Inactive Slot.
+ * and include Direct Install, Patch Boot Image, Patch and Install, and Install to
+ * Inactive Slot.
  */
 package pro.magisk.ui.install
 

@@ -1,18 +1,16 @@
 /**
  * Concrete [BaseSettingsItem] instances for all settings screen options.
  *
- * Organised in sections: Customization, App, Magisk, Developer options, Superuser.
+ * Organised in sections: Customization, App, Magisk, Developer options.
  * Each object encapsulates its own value binding (toggle, selector, blank action, etc.)
  * and the behaviour triggered on press/action.
  */
 package pro.magisk.ui.settings
 
 import android.content.res.Resources
-import android.os.Build
 import pro.magisk.BR
 import pro.magisk.R
 import pro.magisk.core.Config
-import pro.magisk.core.Const
 import pro.magisk.core.Info
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.ShellUtils.fastCmd
@@ -32,11 +30,13 @@ object Language : BaseSettingsItem.Selector() {
     private val names: Array<String> get() = LocaleSetting.available.names
     private val tags: Array<String> get() = LocaleSetting.available.tags
 
-    override var value
-        get() = tags.indexOf(Config.locale)
-        set(value) {
-            Config.locale = tags[value]
-        }
+    override val placeholder = 0
+
+    override fun readValue() = tags.indexOf(Config.locale).coerceAtLeast(0)
+
+    override fun writeValue(value: Int) {
+        Config.locale = tags[value]
+    }
 
     override val title = CoreR.string.language.asText()
 
@@ -45,12 +45,24 @@ object Language : BaseSettingsItem.Selector() {
 }
 
 object LanguageSystem : BaseSettingsItem.Blank() {
+    init {
+        loaded = false
+    }
+
     override val title = CoreR.string.language.asText()
     override val description: TextHolder
         get() {
+            // Resolving the locale manager is slow, wait for the background load
+            if (!loaded) return TextHolder.EMPTY
             val locale = LocaleSetting.instance.appLocale
             return locale?.getDisplayName(locale)?.asText() ?: CoreR.string.system_default.asText()
         }
+
+    override fun loadValue() {
+        // The first access parses the app's locale config, which is too slow to do
+        // while the item is being bound
+        LocaleSetting.instance.appLocale
+    }
 }
 
 object Theme : BaseSettingsItem.Blank() {
@@ -64,10 +76,6 @@ object App : BaseSettingsItem.Section() {
     override val title = CoreR.string.settings_section_app.asText()
 }
 
-object AddShortcut : BaseSettingsItem.Blank() {
-    override val title = CoreR.string.add_shortcut_title.asText()
-    override val description = CoreR.string.setting_add_shortcut_summary.asText()
-}
 
 object SystemlessHosts : BaseSettingsItem.Blank() {
     override val title = CoreR.string.settings_hosts_title.asText()
@@ -82,7 +90,12 @@ object AppManager : BaseSettingsItem.Blank() {
 object RandNameToggle : BaseSettingsItem.Toggle() {
     override val title = CoreR.string.settings_random_name_title.asText()
     override val description = CoreR.string.settings_random_name_description.asText()
-    override var value by Config::randName
+    override val placeholder = false
+
+    override fun readValue() = Config.randName
+    override fun writeValue(value: Boolean) {
+        Config.randName = value
+    }
 }
 
 object CleanRam : BaseSettingsItem.Blank() {
@@ -101,12 +114,13 @@ object Zygisk : BaseSettingsItem.Toggle() {
     override val description get() =
         if (mismatch) CoreR.string.reboot_apply_change.asText()
         else CoreR.string.settings_zygisk_summary.asText()
-    override var value
-        get() = Config.zygisk
-        set(value) {
-            Config.zygisk = value
-            notifyPropertyChanged(BR.description)
-        }
+    override val placeholder = false
+
+    override fun readValue() = Config.zygisk
+    override fun writeValue(value: Boolean) {
+        Config.zygisk = value
+        notifyPropertyChanged(BR.description)
+    }
     val mismatch get() = value != Info.isZygiskEnabled
 }
 
@@ -116,13 +130,14 @@ object DenyList : BaseSettingsItem.Toggle() {
         if (mismatch) CoreR.string.reboot_apply_change.asText()
         else CoreR.string.settings_denylist_summary.asText()
 
-    override var value
-        get() = Config.denyList
-        set(value) {
-            Config.denyList = value
-            Shell.cmd("magisk --denylist ${if (value) "enable" else "disable"}").submit()
-            notifyPropertyChanged(BR.description)
-        }
+    override val placeholder = false
+
+    override fun readValue() = Config.denyList
+    override fun writeValue(value: Boolean) {
+        Config.denyList = value
+        Shell.cmd("magisk --denylist ${if (value) "enable" else "disable"}").submit()
+        notifyPropertyChanged(BR.description)
+    }
     val mismatch get() = value != Info.isDenylistEnforced
 }
 
@@ -144,22 +159,24 @@ abstract class SystemSettingToggle(
     private val setting: KMutableProperty0<Boolean>
 ) : BaseSettingsItem.Toggle() {
 
-    private val shell = Shell.getShell()
+    private val shell by lazy { Shell.getShell() }
 
-    override var value
-        get() = setting.get()
-        set(value) {
-            setting.set(value)
-            Shell.cmd(setCmd(value)).submit()
-        }
+    override val placeholder = false
+
+    override fun readValue() = setting.get()
+    override fun writeValue(value: Boolean) {
+        setting.set(value)
+        Shell.cmd(setCmd(value)).submit()
+    }
 
     override fun refresh() {
         val current = runCatching { fastCmd(shell, getCmd) }.getOrNull()
         if (current != null) {
             val new = current == "1"
             if (value != new) {
+                // The system already holds this value, only the local copy is stale
                 setting.set(new)
-                notifyPropertyChanged(BR.checked)
+                setResolved(new)
             }
         }
     }
@@ -196,12 +213,13 @@ object PlayProtect : BaseSettingsItem.Toggle() {
     override val title = CoreR.string.settings_play_protect_title.asText()
     override val description = CoreR.string.settings_play_protect_summary.asText()
 
-    override var value
-        get() = Config.playProtect
-        set(value) {
-            Config.playProtect = value
-            Shell.cmd("settings put global package_verifier_user_consent ${if (value) "1" else "-1"}").submit()
-        }
+    override val placeholder = false
+
+    override fun readValue() = Config.playProtect
+    override fun writeValue(value: Boolean) {
+        Config.playProtect = value
+        Shell.cmd("settings put global package_verifier_user_consent ${if (value) "1" else "-1"}").submit()
+    }
 
     override fun refresh() {
         val current = runCatching { fastCmd(Shell.getShell(), "settings get global package_verifier_user_consent") }.getOrNull()
@@ -209,51 +227,9 @@ object PlayProtect : BaseSettingsItem.Toggle() {
             val new = current == "1"
             if (value != new) {
                 Config.playProtect = new
-                notifyPropertyChanged(BR.checked)
+                setResolved(new)
             }
         }
-    }
-}
-
-// --- Superuser
-
-object Superuser : BaseSettingsItem.Section() {
-    override val title = CoreR.string.superuser.asText()
-}
-
-object Tapjack : BaseSettingsItem.Toggle() {
-    override val title = CoreR.string.settings_su_tapjack_title.asText()
-    override val description = CoreR.string.settings_su_tapjack_summary.asText()
-    override var value by Config::suTapjack
-}
-
-object Authentication : BaseSettingsItem.Toggle() {
-    override val title = CoreR.string.settings_su_auth_title.asText()
-    override var description = CoreR.string.settings_su_auth_summary.asText()
-    override var value by Config::suAuth
-
-    override fun refresh() {
-        isEnabled = Info.isDeviceSecure
-        if (!isEnabled) {
-            description = CoreR.string.settings_su_auth_insecure.asText()
-        }
-    }
-}
-
-object AccessMode : BaseSettingsItem.Selector() {
-    override val title = CoreR.string.superuser_access.asText()
-    override val entryRes = CoreR.array.su_access
-    override var value by Config::rootMode
-}
-
-object MultiuserMode : BaseSettingsItem.Selector() {
-    override val title = CoreR.string.multiuser_mode.asText()
-    override val entryRes = CoreR.array.multiuser_mode
-    override val descriptionRes = CoreR.array.multiuser_summary
-    override var value by Config::suMultiuserMode
-
-    override fun refresh() {
-        isEnabled = Const.USER_ID == 0
     }
 }
 
@@ -261,45 +237,10 @@ object MountNamespaceMode : BaseSettingsItem.Selector() {
     override val title = CoreR.string.mount_namespace_mode.asText()
     override val entryRes = CoreR.array.namespace
     override val descriptionRes = CoreR.array.namespace_summary
-    override var value by Config::suMntNamespaceMode
-}
+    override val placeholder = 0
 
-object AutomaticResponse : BaseSettingsItem.Selector() {
-    override val title = CoreR.string.auto_response.asText()
-    override val entryRes = CoreR.array.auto_response
-    override var value by Config::suAutoResponse
-}
-
-object RequestTimeout : BaseSettingsItem.Selector() {
-    override val title = CoreR.string.request_timeout.asText()
-    override val entryRes = CoreR.array.request_timeout
-
-    private val entryValues = listOf(10, 15, 20, 30, 45, 60)
-    override var value = entryValues.indexOfFirst { it == Config.suDefaultTimeout }
-        set(value) {
-            field = value
-            Config.suDefaultTimeout = entryValues[value]
-        }
-}
-
-object SUNotification : BaseSettingsItem.Selector() {
-    override val title = CoreR.string.superuser_notification.asText()
-    override val entryRes = CoreR.array.su_notification
-    override var value by Config::suNotification
-}
-
-object Reauthenticate : BaseSettingsItem.Toggle() {
-    override val title = CoreR.string.settings_su_reauth_title.asText()
-    override val description = CoreR.string.settings_su_reauth_summary.asText()
-    override var value by Config::suReAuth
-
-    override fun refresh() {
-        isEnabled = Build.VERSION.SDK_INT < Build.VERSION_CODES.O
+    override fun readValue() = Config.suMntNamespaceMode
+    override fun writeValue(value: Int) {
+        Config.suMntNamespaceMode = value
     }
-}
-
-object Restrict : BaseSettingsItem.Toggle() {
-    override val title = CoreR.string.settings_su_restrict_title.asText()
-    override val description = CoreR.string.settings_su_restrict_summary.asText()
-    override var value by Config::suRestrict
 }

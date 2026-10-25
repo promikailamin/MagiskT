@@ -93,13 +93,10 @@ pub mod ffi {
     }
 
     enum DbEntryKey {
-        RootAccess,
-        SuMultiuserMode,
         SuMntNs,
         DenylistConfig,
         ZygiskConfig,
         BootloopCount,
-        SuManager,
     }
 
     #[repr(i32)]
@@ -109,12 +106,12 @@ pub mod ffi {
         Isolate,
     }
 
+    /// Result of an SU request. `Allow` is written back as 0 (granted),
+    /// anything else is treated as a rejection by the client.
     #[repr(i32)]
     enum SuPolicy {
-        Query,
-        Deny,
         Allow,
-        Restrict,
+        Deny,
     }
 
     struct ModuleInfo {
@@ -165,6 +162,7 @@ pub mod ffi {
         fn check_key_combo() -> bool;
         fn unlock_blocks();
         fn update_deny_flags(uid: i32, process: &str, flags: &mut u32);
+        fn is_deny_target_uid(uid: i32) -> bool;
         fn initialize_denylist();
         fn switch_mnt_ns(pid: i32) -> i32;
         fn exec_root_shell(client: i32, pid: i32, req: &mut SuRequest, mode: MntNsMode);
@@ -173,8 +171,6 @@ pub mod ffi {
         fn exec_script(script: Utf8CStrRef);
         fn exec_common_scripts(stage: Utf8CStrRef);
         fn exec_module_scripts(state: Utf8CStrRef, modules: &Vec<ModuleInfo>);
-        fn install_apk(apk: Utf8CStrRef);
-        fn uninstall_pkg(apk: Utf8CStrRef);
         fn install_module(zip: Utf8CStrRef);
 
         // Denylist

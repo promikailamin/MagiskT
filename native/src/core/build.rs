@@ -3,32 +3,23 @@
 //! Generates CXX bindings via [`gen_cxx_binding`] and compiles the
 //! protobuf definition for persistent properties.
 
-use pb_rs::ConfigBuilder;
-use pb_rs::types::FileDescriptor;
-
 use crate::codegen::gen_cxx_binding;
+use crate::protocodegen::gen_proto_sources;
 
 #[path = "../include/codegen.rs"]
 mod codegen;
 
-#[allow(clippy::unwrap_used)]
+#[path = "../include/protocodegen.rs"]
+mod protocodegen;
+
+/// Directory the generated protobuf sources are published to.
+const PROTO_DIR: &str = "resetprop/proto";
+/// The protobuf definition to compile.
+const PROTO_FILE: &str = "persistent_properties.proto";
+
 fn main() {
-    println!("cargo:rerun-if-changed=resetprop/proto/persistent_properties.proto");
+    println!("cargo:rerun-if-changed={PROTO_DIR}/{PROTO_FILE}");
 
     gen_cxx_binding("core-rs");
-
-    let cb = ConfigBuilder::new(
-        &["resetprop/proto/persistent_properties.proto"],
-        None,
-        Some(&"resetprop/proto"),
-        &["."],
-    )
-    .unwrap();
-    FileDescriptor::run(
-        &cb.single_module(true)
-            .dont_use_cow(true)
-            .generate_getters(true)
-            .build(),
-    )
-    .unwrap();
+    gen_proto_sources(PROTO_DIR, PROTO_FILE);
 }

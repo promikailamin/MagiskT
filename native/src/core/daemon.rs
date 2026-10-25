@@ -15,17 +15,15 @@ use crate::ffi::{
 };
 use crate::logging::{android_logging, magisk_logging, setup_logfile, start_log_daemon};
 use crate::module::remove_modules;
-use crate::package::ManagerInfo;
 use crate::resetprop::{get_prop, set_prop};
 use crate::selinux::restore_tmpcon;
 use crate::socket::{IpcRead, IpcWrite};
-use crate::su::SuInfo;
 use crate::thread::ThreadPool;
 use crate::zygisk::ZygiskState;
 use base::const_format::concatcp;
 use base::{
-    AtomicArc, BufReadExt, FileAttr, FsPathBuilder, LoggedResult, ReadExt, ResultExt, Utf8CStr,
-    Utf8CStrBuf, WriteExt, cstr, fork_dont_care, info, libc, log_err, set_nice_name,
+    BufReadExt, FileAttr, FsPathBuilder, LoggedResult, ReadExt, ResultExt, Utf8CStr, Utf8CStrBuf,
+    WriteExt, cstr, fork_dont_care, info, libc, log_err, set_nice_name,
 };
 use nix::fcntl::OFlag;
 use nix::mount::MsFlags;
@@ -58,17 +56,8 @@ pub static MAGISKD: OnceLock<MagiskD> = OnceLock::new();
 pub const AID_ROOT: i32 = 0;
 /// UID of the shell user.
 pub const AID_SHELL: i32 = 2000;
-/// First UID assigned to Android applications.
-pub const AID_APP_START: i32 = 10000;
-/// Last UID assigned to Android applications.
-pub const AID_APP_END: i32 = 19999;
 /// Per-user UID offset in Android's multi-user model.
 pub const AID_USER_OFFSET: i32 = 100000;
-
-/// Extract the app ID from a full UID (strip the user ID).
-pub const fn to_app_id(uid: i32) -> i32 {
-    uid % AID_USER_OFFSET
-}
 
 /// Extract the user ID from a full UID.
 pub const fn to_user_id(uid: i32) -> i32 {
@@ -78,14 +67,12 @@ pub const fn to_user_id(uid: i32) -> i32 {
 /// Global daemon state singleton.
 ///
 /// Holds all runtime state that needs to be accessible across the process:
-/// the SQLite connection, Magisk Manager info, boot stage, module list,
-/// Zygisk state, cached SU policy, and device properties.
+/// the SQLite connection, boot stage, module list, Zygisk state, and
+/// device properties.
 #[derive(Default)]
 pub struct MagiskD {
     /// Shared SQLite3 database connection.
     pub sql_connection: Mutex<Option<Sqlite3>>,
-    /// Information about the installed Magisk Manager package.
-    pub manager_info: Mutex<ManagerInfo>,
     /// Current boot stage (PostFsData / LateStart / BootComplete).
     pub boot_stage_lock: Mutex<BootState>,
     /// List of loaded Magisk modules and their info.
@@ -94,8 +81,6 @@ pub struct MagiskD {
     pub zygisk_enabled: AtomicBool,
     /// Zygisk state (injected, companion pid, etc.).
     pub zygisk: Mutex<ZygiskState>,
-    /// Cached SU policy info for fast access.
-    pub cached_su_info: AtomicArc<SuInfo>,
     /// Android SDK API level.
     pub sdk_int: i32,
     /// Whether the device is running inside an emulator.
@@ -180,7 +165,6 @@ impl MagiskD {
             }
             RequestCode::ZYGOTE_RESTART => {
                 info!("** zygote restarted");
-                self.prune_su_access();
                 scan_deny_apps();
                 if self.zygisk_enabled.load(Ordering::Relaxed) {
                     self.zygisk.lock().reset(false);

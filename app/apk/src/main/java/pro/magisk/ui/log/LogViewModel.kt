@@ -1,9 +1,9 @@
 /**
  * ViewModel for the log viewer screen.
  *
- * Fetches Superuser access logs and Magisk daemon logs via [LogRepository], then populates
- * two diff-aware lists. Supports saving a comprehensive debug log (device info, properties,
- * kernel, mountinfo, Magisk logs, logcat) to a file, as well as clearing logs.
+ * Fetches the Magisk daemon log via [LogRepository] into a diff-aware list. Supports saving a
+ * comprehensive debug log (device info, properties, kernel, mountinfo, Magisk logs, logcat)
+ * to a file, as well as clearing the log.
  */
 package pro.magisk.ui.log
 
@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.FileInputStream
 
-/** ViewModel that loads and manages Superuser + Magisk daemon logs. */
+/** ViewModel that loads and manages the Magisk daemon log. */
 class LogViewModel(
     private val repo: LogRepository
 ) : AsyncLoadViewModel() {
@@ -38,10 +38,8 @@ class LogViewModel(
     var loading = true
         private set(value) = set(value, field, { field = it }, BR.loading)
 
-    val itemEmpty = TextItem(R.string.log_data_none)
     val itemMagiskEmpty = TextItem(R.string.log_data_magisk_none)
 
-    val items = diffList<SuLogRvItem>()
     val extraBindings = bindExtra {
         it.put(BR.viewModel, this)
     }
@@ -51,20 +49,10 @@ class LogViewModel(
 
     override suspend fun doLoadWork() {
         loading = true
-
-        val (suLogs, suDiff) = withContext(Dispatchers.Default) {
+        withContext(Dispatchers.Default) {
             magiskLogRaw = repo.fetchMagiskLogs()
-            val newLogs = magiskLogRaw.split('\n').map { LogRvItem(it) }
-            logs.update(newLogs)
-            val suLogs = repo.fetchSuLogs().map { SuLogRvItem(it) }
-            suLogs to items.calculateDiff(suLogs)
+            logs.update(magiskLogRaw.split('\n').map { LogRvItem(it) })
         }
-
-        items.firstOrNull()?.isTop = false
-        items.lastOrNull()?.isBottom = false
-        items.update(suLogs, suDiff)
-        items.firstOrNull()?.isTop = true
-        items.lastOrNull()?.isBottom = true
         loading = false
     }
 
@@ -106,12 +94,6 @@ class LogViewModel(
     }
 
     fun clearMagiskLog() = repo.clearMagiskLogs {
-        SnackbarEvent(R.string.logs_cleared).publish()
-        startLoading()
-    }
-
-    fun clearLog() = viewModelScope.launch {
-        repo.clearLogs()
         SnackbarEvent(R.string.logs_cleared).publish()
         startLoading()
     }

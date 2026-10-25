@@ -1,25 +1,18 @@
 /**
- * Repository that aggregates SU access logs (via Room DAO) and
- * Magisk daemon logs (via shell commands).
+ * Repository that exposes the Magisk daemon logs (via shell commands).
  *
- * SU logs are persisted in a local Room database; Magisk logs are
- * read from `MAGISK_LOG` or pulled from `logcat` as a fallback.
+ * Magisk logs are read from `MAGISK_LOG` or pulled from `logcat` as a
+ * fallback.
  */
 package pro.magisk.core.repository
 
 import pro.magisk.core.Const
 import pro.magisk.core.Info
-import pro.magisk.core.data.SuLogDao
 import pro.magisk.core.ktx.await
-import pro.magisk.core.model.su.SuLog
 import com.topjohnwu.superuser.Shell
 
 
-class LogRepository(
-    private val logDao: SuLogDao
-) {
-
-    suspend fun fetchSuLogs() = logDao.fetchAll()
+class LogRepository {
 
     /** Fetch Magisk daemon logs (from file or logcat). */
     suspend fun fetchMagiskLogs(): String {
@@ -44,11 +37,7 @@ class LogRepository(
         return list.buf.toString()
     }
 
-    suspend fun clearLogs() = logDao.deleteAll()
-
     fun clearMagiskLogs(cb: (Shell.Result) -> Unit) =
         Shell.cmd("echo -n > ${Const.MAGISK_LOG}").submit(cb)
-
-    suspend fun insert(log: SuLog) = logDao.insert(log)
 
 }
