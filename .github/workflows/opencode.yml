@@ -81,7 +81,7 @@ jobs:
           SYSTEM INSTRUCTIONS:
 
           You are an autonomous coding agent running in GitHub Actions.
-
+          0. Important: If test branch has some uncommited changes then fetch workspace from the test branch not from main branch and then at last push it to test branch unless the user says anything else on the issue.
           1. Inspect the repository and understand the relevant code.
           2. Implement the requested fix or feature directly.
           3. Make reasonable decisions without asking questions.
