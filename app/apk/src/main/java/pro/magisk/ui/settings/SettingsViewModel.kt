@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import pro.magisk.BR
 import pro.magisk.arch.BaseViewModel
@@ -23,9 +24,15 @@ import pro.magisk.core.ktx.activity
 import pro.magisk.core.ktx.toast
 import pro.magisk.core.utils.LocaleSetting
 import pro.magisk.core.utils.RootUtils
+import pro.magisk.core.view.qstile.TileEvents
 import pro.magisk.databinding.bindExtra
 import pro.magisk.events.SnackbarEvent
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -54,11 +61,32 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
         it.put(BR.handler, this)
     }
 
+    /** Completes once the list and all of its initial values have been loaded. */
+    private val itemsReady = CompletableDeferred<List<BaseSettingsItem>>()
+
+    /** Set when another refresh is requested while one is already running. */
+    @Volatile
+    private var refreshQueued = false
+
+    private var refreshJob: Job? = null
+
+    private val settingChangedObserver = Observer<Unit> { refreshItems() }
+
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            val list = createItems()
-            withContext(Dispatchers.Main) { _items.value = list }
-            loadItemValues(list)
+        // Tiles keep running while another screen is shown, so listen for their
+        // changes for the whole lifetime of the ViewModel, not just while the
+        // settings view is attached. The event is retained, so a change made
+        // before this screen was opened also triggers a refresh below.
+        TileEvents.settingChanged.observeForever(settingChangedObserver)
+
+        viewModelScope.launch {
+            val list = withContext(Dispatchers.IO) { createItems() }
+            _items.value = list
+            try {
+                loadItemValues(list)
+            } finally {
+                itemsReady.complete(list)
+            }
         }
     }
 
@@ -69,24 +97,37 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
      * a while to read, so the list is shown right away with placeholders and the
      * real values are filled in as each one arrives.
      */
-    private fun loadItemValues(items: List<BaseSettingsItem>) {
-        items.forEach { item ->
-            viewModelScope.launch(Dispatchers.IO) {
+    private suspend fun loadItemValues(items: List<BaseSettingsItem>) = coroutineScope {
+        items.map { item ->
+            async(Dispatchers.IO) {
                 runCatching { item.loadValue() }
                     .onFailure { Timber.w(it, "failed to load %s", item::class.simpleName) }
                 publishValue(item)
             }
-        }
+        }.awaitAll()
     }
 
     /** Re-reads the values that may have changed while the screen was not shown. */
     fun refreshItems() {
-        val items = _items.value ?: return
-        items.forEach { item ->
-            viewModelScope.launch(Dispatchers.IO) {
-                runCatching { item.refresh() }
-                    .onFailure { Timber.w(it, "failed to refresh %s", item::class.simpleName) }
-                publishValue(item)
+        refreshQueued = true
+        if (refreshJob?.isActive == true) return
+        refreshJob = viewModelScope.launch {
+            while (refreshQueued) {
+                refreshQueued = false
+                // An event can arrive while the list is still being built. Waiting
+                // for the initial load makes sure it is not dropped.
+                val items = itemsReady.await()
+                coroutineScope {
+                    items.map { item ->
+                        async(Dispatchers.IO) {
+                            runCatching { item.refresh() }
+                                .onFailure {
+                                    Timber.w(it, "failed to refresh %s", item::class.simpleName)
+                                }
+                            publishValue(item)
+                        }
+                    }.awaitAll()
+                }
             }
         }
     }
@@ -160,6 +201,11 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
             DenyList -> if (DenyList.mismatch) SnackbarEvent(R.string.reboot_apply_change).publish()
             else -> Unit
         }
+    }
+
+    override fun onCleared() {
+        TileEvents.settingChanged.removeObserver(settingChangedObserver)
+        super.onCleared()
     }
 
     private fun createHosts() {

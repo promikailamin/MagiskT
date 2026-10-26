@@ -12,7 +12,6 @@ import android.view.View
 import pro.magisk.R
 import pro.magisk.arch.BaseFragment
 import pro.magisk.arch.viewModel
-import pro.magisk.core.view.qstile.TileEvents
 import pro.magisk.databinding.FragmentSettingsMd2Binding
 import rikka.recyclerview.addEdgeSpacing
 import rikka.recyclerview.addItemSpacing
@@ -38,12 +37,6 @@ class SettingsFragment : BaseFragment<FragmentSettingsMd2Binding>() {
             addEdgeSpacing(bottom = R.dimen.l1)
             addItemSpacing(R.dimen.l1, R.dimen.settings_group_gap, R.dimen.l1)
             fixEdgeEffect()
-        }
-
-        // Quick Settings tiles can change these values while this screen is
-        // visible. The activity may not pause, so refresh as soon as they do.
-        TileEvents.settingChanged.observe(viewLifecycleOwner) {
-            viewModel.refreshItems()
         }
     }
 
