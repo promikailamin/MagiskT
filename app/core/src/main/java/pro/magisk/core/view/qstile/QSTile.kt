@@ -161,6 +161,10 @@ abstract class SettingToggleTile : QSTile() {
                 return@post
             }
             val written = writeState(desired)
+            if (written) {
+                // Let an open settings screen pick up the new system value
+                TileEvents.notifySettingChanged()
+            }
             val actual = readState()
             val rooted = isRooted()
             main {
