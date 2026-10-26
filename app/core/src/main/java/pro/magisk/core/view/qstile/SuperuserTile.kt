@@ -7,20 +7,12 @@
 package pro.magisk.core.view.qstile
 
 import android.widget.Toast
+import com.topjohnwu.superuser.Shell
 import pro.magisk.core.BuildConfig
 import pro.magisk.core.Info
 import pro.magisk.core.R
 
 class SuperuserTile : SettingToggleTile() {
-    override fun isAvailable() =
-        super.isAvailable() && Info.env.versionCode >= BuildConfig.APP_VERSION_CODE
-
-    override fun onClick() {
-        if (isRooted() && !isAvailable()) {
-            Toast.makeText(this, R.string.qs_tile_update_required, Toast.LENGTH_SHORT).show()
-        }
-        super.onClick()
-    }
 
     override val readCmd =
         "magisk --sqlite \"SELECT value FROM settings WHERE key='superuser'\""
@@ -33,4 +25,17 @@ class SuperuserTile : SettingToggleTile() {
 
     override fun parseState(output: String): Boolean =
         output.substringAfterLast("value=", output).trim() == "1"
+
+    override fun isSupported(): Boolean {
+        // The daemon environment is populated by the first root shell. Create
+        // it here as well so a click right after a cold start is not rejected.
+        if (Info.env.versionCode <= 0) {
+            runCatching { Shell.getShell() }
+        }
+        return Info.env.versionCode >= BuildConfig.APP_VERSION_CODE
+    }
+
+    override fun onUnsupported() {
+        Toast.makeText(this, R.string.qs_tile_update_required, Toast.LENGTH_SHORT).show()
+    }
 }

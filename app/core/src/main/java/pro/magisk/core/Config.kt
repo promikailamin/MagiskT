@@ -29,6 +29,7 @@ object Config : PreferenceConfig, DBConfig {
     /** Setting keys that are persisted through MagiskDB (shell-backed). */
     object Key {
         const val SU_MNT_NS = "mnt_ns"
+        const val SUPERUSER = "superuser"
         const val ZYGISK = "zygisk"
         const val DENYLIST = "denylist"
         const val BOOTLOOP = "bootloop"
@@ -83,6 +84,7 @@ object Config : PreferenceConfig, DBConfig {
         }
 
     // ---- MagiskDB-backed settings ----
+    var superuser by dbSettings(Key.SUPERUSER, false)
     var zygisk by dbSettings(Key.ZYGISK, Info.isEmulator)
     var keyStoreRaw by dbStrings(Key.KEYSTORE, "", true)
 

@@ -146,6 +146,21 @@ object DenyListConfig : BaseSettingsItem.Blank() {
     override val description = CoreR.string.settings_denylist_config_summary.asText()
 }
 
+object SuperuserAccess : SystemSettingToggle(
+    getCmd = "magisk --sqlite \"SELECT value FROM settings WHERE key='superuser'\"",
+    setCmd = {
+        "magisk --sqlite \"INSERT OR REPLACE INTO settings (key,value) " +
+            "VALUES('superuser',${if (it) "1" else "0"})\""
+    },
+    setting = Config::superuser
+) {
+    override val title = CoreR.string.settings_superuser_title.asText()
+    override val description = CoreR.string.settings_superuser_summary.asText()
+
+    override fun parseState(output: String) =
+        output.substringAfterLast("value=", output).trim() == "1"
+}
+
 // --- Developer options
 
 object Developer : BaseSettingsItem.Section() {
@@ -169,10 +184,12 @@ abstract class SystemSettingToggle(
         Shell.cmd(setCmd(value)).submit()
     }
 
+    protected open fun parseState(output: String) = output == "1"
+
     override fun refresh() {
         val current = runCatching { fastCmd(shell, getCmd) }.getOrNull()
         if (current != null) {
-            val new = current == "1"
+            val new = parseState(current)
             if (value != new) {
                 // The system already holds this value, only the local copy is stale
                 setting.set(new)

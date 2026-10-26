@@ -15,6 +15,7 @@ import androidx.lifecycle.viewModelScope
 import pro.magisk.BR
 import pro.magisk.arch.BaseViewModel
 import pro.magisk.core.AppContext
+import pro.magisk.core.BuildConfig
 import pro.magisk.core.Const
 import pro.magisk.core.Info
 import pro.magisk.core.R
@@ -110,6 +111,9 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
         if (Info.env.isActive) {
             list.add(Magisk)
             list.addAll(listOf(CleanRam, SystemlessHosts, AppManager))
+            if (Info.env.versionCode >= BuildConfig.APP_VERSION_CODE) {
+                list.add(SuperuserAccess)
+            }
             if (Const.Version.atLeast_24_0()) {
                 list.addAll(listOf(Zygisk, DenyList, DenyListConfig))
             }

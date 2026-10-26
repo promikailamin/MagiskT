@@ -125,6 +125,8 @@
     <string name="language">Language</string>
     <string name="system_default">(System default)</string>
     <string name="settings_zygisk_summary">Run parts of Magisk in the Zygote daemon</string>
+    <string name="settings_superuser_title">Superuser access</string>
+    <string name="settings_superuser_summary">Allow all apps to request root access. When disabled, only the Magisk app can use root.</string>
     <string name="settings_denylist_title">Enforce DenyList</string>
     <string name="settings_denylist_summary">Processes on the denylist will have all Magisk modifications reverted</string>
     <string name="settings_denylist_config_title">Configure DenyList</string>

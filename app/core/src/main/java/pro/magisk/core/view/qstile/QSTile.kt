@@ -4,6 +4,10 @@
  * Every tile disables itself ([Tile.STATE_UNAVAILABLE]) when the device
  * has no root access. Privileged settings toggles dispatch their read and
  * write commands through the libsu root shell.
+ *
+ * The tiles never rely on the cached root state to decide whether they can
+ * run. The first shell command lazily creates the root shell, so tiles also
+ * work when the app process was not running and the QS panel starts it.
  */
 package pro.magisk.core.view.qstile
 
@@ -21,14 +25,14 @@ import java.util.concurrent.atomic.AtomicInteger
 /**
  * Base Quick Settings tile.
  *
- * Tiles are rendered as [Tile.STATE_UNAVAILABLE] unless the device is
- * rooted ([Shell.isAppGrantedRoot]). Subclasses implement [handleClick]
- * to perform the tile action; the action only runs when root is present.
+ * Subclasses implement [handleClick] to perform the tile action. The action
+ * is always attempted: the root shell is created on demand, and the tile is
+ * marked unavailable when the command cannot be executed.
  */
 @RequiresApi(Build.VERSION_CODES.N)
 abstract class QSTile : TileService() {
 
-    /** State rendered while root is available. */
+    /** State rendered while the tile is usable. */
     protected open val activeState: Int = Tile.STATE_ACTIVE
 
     override fun onStartListening() {
@@ -36,25 +40,26 @@ abstract class QSTile : TileService() {
     }
 
     override fun onClick() {
-        if (!isAvailable()) {
-            refreshState()
-            return
-        }
         handleClick()
     }
 
     /** Whether the device currently grants root to the app. */
     protected fun isRooted() = Shell.isAppGrantedRoot() == true
 
-    protected open fun isAvailable() = isRooted()
-
-    /** Perform the tile action (only invoked when [isAvailable]). */
+    /** Perform the tile action. */
     protected abstract fun handleClick()
 
     /** Re-evaluate the tile appearance. Must be called on the main thread. */
     protected open fun refreshState() {
         val tile = qsTile ?: return
-        tile.state = if (isAvailable()) activeState else Tile.STATE_UNAVAILABLE
+        tile.state = if (isRooted()) activeState else Tile.STATE_UNAVAILABLE
+        tile.updateTile()
+    }
+
+    /** Render the tile as unavailable. Must be called on the main thread. */
+    protected fun markUnavailable() {
+        val tile = qsTile ?: return
+        tile.state = Tile.STATE_UNAVAILABLE
         tile.updateTile()
     }
 }
@@ -86,6 +91,16 @@ abstract class SettingToggleTile : QSTile() {
     /** Parse the output of [readCmd] into a boolean. */
     protected open fun parseState(output: String) = output.trim() == "1"
 
+    /**
+     * Whether the running Magisk daemon supports this toggle. Called on the
+     * background thread after [readCmd] ran, so the daemon environment is
+     * already initialized.
+     */
+    protected open fun isSupported() = true
+
+    /** Called when the daemon does not support this toggle. */
+    protected open fun onUnsupported() {}
+
     private val io: ExecutorService = Executors.newSingleThreadExecutor()
     private val generation = AtomicInteger()
 
@@ -95,15 +110,15 @@ abstract class SettingToggleTile : QSTile() {
     }
 
     override fun refreshState() {
-        if (!isAvailable()) {
-            super.refreshState()
-            return
-        }
         val gen = generation.get()
         post {
-            val active = readState() ?: return@post
+            // Running a command also creates the shell on a cold start, so the
+            // root state and the daemon environment are resolved by now
+            val active = readState()
+            val supported = isSupported()
             main {
-                if (gen == generation.get()) setState(active)
+                if (gen != generation.get()) return@main
+                if (!supported || active == null) markUnavailable() else setState(active)
             }
         }
     }
@@ -117,6 +132,15 @@ abstract class SettingToggleTile : QSTile() {
         setState(desired)
 
         post {
+            val supported = isSupported()
+            if (!supported) {
+                main {
+                    if (gen != generation.get()) return@main
+                    markUnavailable()
+                    onUnsupported()
+                }
+                return@post
+            }
             val written = writeState(desired)
             val actual = readState()
             main {
@@ -124,7 +148,7 @@ abstract class SettingToggleTile : QSTile() {
                 when {
                     actual != null -> setState(actual)
                     written -> setState(desired)
-                    else -> setState(previous)
+                    else -> markUnavailable()
                 }
             }
         }
