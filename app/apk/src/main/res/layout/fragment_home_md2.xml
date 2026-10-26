@@ -84,6 +84,62 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <com.google.android.material.card.MaterialCardView
+                style="@style/WidgetFoundation.Card"
+                goneUnless="@{viewModel.updateAvailable}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/l1"
+                android:layout_marginEnd="@dimen/l1"
+                android:layout_marginBottom="@dimen/l1"
+                android:focusable="false">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/l1">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/update_available_title"
+                        android:textAppearance="@style/AppearanceFoundation.Title" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/l_50"
+                        android:text="@{viewModel.updateStatus}"
+                        android:textAppearance="@style/AppearanceFoundation.Caption.Variant"
+                        tools:text="A newer test build is available (commit a1b2c3d4). Installed build: e5f6a7b8." />
+
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        goneUnless="@{viewModel.updating}"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/l_50"
+                        android:max="100"
+                        app:progressAnimated="@{viewModel.updateProgress}"
+                        app:trackCornerRadius="2dp"
+                        app:trackThickness="4dp" />
+
+                    <Button
+                        style="@style/WidgetFoundation.Button"
+                        gone="@{viewModel.updating}"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:layout_marginTop="@dimen/l_50"
+                        android:onClick="@{() -> viewModel.onUpdatePressed()}"
+                        android:text="@string/update"
+                        android:textAllCaps="false"
+                        app:icon="@drawable/ic_update_md2" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
             <include
                 android:id="@+id/home_magisk_wrapper"
                 layout="@layout/include_home_magisk"

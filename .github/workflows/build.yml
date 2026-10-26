@@ -149,6 +149,7 @@ jobs:
   create-release:
     name: Create GitHub Release
     needs: [upload-release-artifacts, upload-debug-artifacts]
+    if: github.event_name != 'pull_request'
     runs-on: macos-26
     steps:
       - name: Check out
@@ -170,15 +171,22 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tag="build"
           apk="out/app-release.apk"
           apkD="out/app-debug.apk"
 
-          commit=$(git rev-parse --short HEAD)
-          branch=${GITHUB_REF#refs/heads/}
+          branch="${GITHUB_REF_NAME}"
+          if [ "$branch" = "test" ]; then
+              tag="test"
+              channel="test"
+          else
+              tag="build"
+              channel="main"
+          fi
+          commit=$(git rev-parse --short=8 HEAD)
           build_time=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
 
-          body=$(printf "# Branch: %s\n# Commit: %s\n# Build time: %s\n" \
+          body=$(printf "Channel: %s\nBranch: %s\nCommit: %s\nBuild time: %s\n" \
+          "$channel" \
           "$branch" \
           "$commit" \
           "$build_time")
@@ -187,13 +195,20 @@ jobs:
           gh api -X DELETE "repos/${GITHUB_REPOSITORY}/git/refs/tags/${tag}" || true
 
           assets=()
-
           if [ -f "$apk" ]; then
               echo "Release APK found."
               assets+=("$apk")
+          fi
+          if [ -f "$apkD" ]; then
+              echo "Debug APK found."
               assets+=("$apkD")
+          fi
+          if [ ${#assets[@]} -eq 0 ]; then
+              echo "No APK assets were produced." >&2
+              exit 1
           fi
 
           gh release create "$tag" "${assets[@]}" \
-              --title "MagiskT Complete Build" \
+              --target "$GITHUB_SHA" \
+              --title "MagiskT ${channel} build (${commit})" \
               --notes "$body"

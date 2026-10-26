@@ -33,6 +33,8 @@ object Config {
     val abiList: List<String> get() = get("abiList")!!.split(",")
     /** Git commit hash at build time, or "local" if git was unavailable. */
     val buildCommit: String? get() = get("buildCommit")
+    /** Update channel: "main" follows the build release, "test" follows the test release. */
+    val buildChannel: String? get() = get("buildChannel")
 }
 
 /**

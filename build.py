@@ -314,11 +314,12 @@ def build_native():
 
 
 def dump_flags_app():
-    """Generate a flags.prop file with ABI list, version, versionCode, and buildCommit for the Android app."""
+    """Generate a flags.prop file with ABI list, version, versionCode, commit, and channel for the Android app."""
     flag_txt = f"abiList={','.join(build_abis.keys())}\n"
     flag_txt += f"version={config['version']}\n"
     flag_txt += f"versionCode={config['versionCode']}\n"
     flag_txt += f"buildCommit={config.get('buildCommit', 'local')}\n"
+    flag_txt += f"buildChannel={config.get('buildChannel', 'main')}\n"
 
     app_build_dir = Path("app", "build")
     app_build_dir.mkdir(parents=True, exist_ok=True)
@@ -679,9 +680,18 @@ def load_config():
             commit_hash = cmd_out(["git", "rev-parse", "--short=8", "HEAD"])
             if isinstance(commit_hash, bytes):
                 commit_hash = commit_hash.decode()
+        # Pull requests build the head branch; pushes build the branch in GITHUB_REF.
+        branch = (os.environ.get("GITHUB_HEAD_REF")
+                  or os.environ.get("GITHUB_REF_NAME")
+                  or os.environ.get("GITHUB_REF", "").removeprefix("refs/heads/"))
     else:
         commit_hash = "local"
+        branch = cmd_out(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+        if isinstance(branch, bytes):
+            branch = branch.decode()
     config["buildCommit"] = commit_hash
+    # "main" installs follow the stable "build" release, everything else follows "test".
+    config["buildChannel"] = "main" if branch == "main" else "test"
 
     # Default values
     config["version"] = commit_hash
