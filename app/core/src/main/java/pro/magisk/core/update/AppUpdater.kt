@@ -5,7 +5,7 @@
  * main branch and `test` for the test branch. An installed APK knows which
  * channel it belongs to through [BuildConfig.BUILD_CHANNEL], so it always
  * follows the matching release and downloads the debug or release APK based
- * on [BuildConfig.DEBUG].
+ * on the APK's [BuildConfig.BUILD_TYPE].
  */
 package pro.magisk.core.update
 
@@ -72,6 +72,10 @@ object AppUpdater {
     val channel: String
         get() = BuildConfig.BUILD_CHANNEL.ifBlank { CHANNEL_MAIN }
 
+    /** Debug APKs must receive the debug asset, release APKs the release asset. */
+    val isDebugBuild: Boolean
+        get() = BuildConfig.BUILD_TYPE.equals("debug", ignoreCase = true)
+
     /** Rolling release tag that belongs to [channel]. */
     val releaseTag: String
         get() = if (channel == CHANNEL_TEST) "test" else "build"
@@ -115,7 +119,7 @@ object AppUpdater {
                     return@withContext null
                 }
 
-                val apkName = if (BuildConfig.DEBUG) "app-debug.apk" else "app-release.apk"
+                val apkName = if (isDebugBuild) "app-debug.apk" else "app-release.apk"
                 val apkUrl = findAssetUrl(json, apkName)
                 if (apkUrl.isBlank()) {
                     Timber.w("update check: %s missing from %s", apkName, releaseTag)
