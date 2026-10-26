@@ -76,6 +76,19 @@ private fun main(block: () -> Unit) {
 }
 
 /**
+ * Shared worker for all tiles.
+ *
+ * Tile services are destroyed as soon as the panel stops listening. A pending
+ * command must still finish in that case, so the executor is process-wide and
+ * is never shut down by an individual service instance.
+ */
+private val tileExecutor: ExecutorService by lazy {
+    Executors.newSingleThreadExecutor { runnable ->
+        Thread(runnable, "qs-tile").apply { isDaemon = true }
+    }
+}
+
+/**
  * Toggle tile backed by a system global setting, e.g. USB debugging or
  * developer options. The tile reflects the live setting value and flips
  * it through the root shell.
@@ -101,24 +114,30 @@ abstract class SettingToggleTile : QSTile() {
     /** Called when the daemon does not support this toggle. */
     protected open fun onUnsupported() {}
 
-    private val io: ExecutorService = Executors.newSingleThreadExecutor()
     private val generation = AtomicInteger()
 
-    override fun onDestroy() {
-        io.shutdownNow()
-        super.onDestroy()
-    }
-
     override fun refreshState() {
+        // On a cold start the tile is UNAVAILABLE until the asynchronous shell
+        // read finishes. Keep it clickable in the meantime so an early tap is
+        // not silently dropped by the system.
+        qsTile?.takeIf { it.state == Tile.STATE_UNAVAILABLE }?.let {
+            it.state = Tile.STATE_INACTIVE
+            it.updateTile()
+        }
         val gen = generation.get()
         post {
             // Running a command also creates the shell on a cold start, so the
             // root state and the daemon environment are resolved by now
             val active = readState()
+            val rooted = isRooted()
             val supported = isSupported()
             main {
                 if (gen != generation.get()) return@main
-                if (!supported || active == null) markUnavailable() else setState(active)
+                if (!rooted || !supported || active == null) {
+                    markUnavailable()
+                } else {
+                    setState(active)
+                }
             }
         }
     }
@@ -143,9 +162,11 @@ abstract class SettingToggleTile : QSTile() {
             }
             val written = writeState(desired)
             val actual = readState()
+            val rooted = isRooted()
             main {
                 if (gen != generation.get()) return@main
                 when {
+                    !rooted -> markUnavailable()
                     actual != null -> setState(actual)
                     written -> setState(desired)
                     else -> markUnavailable()
@@ -155,18 +176,32 @@ abstract class SettingToggleTile : QSTile() {
     }
 
     private fun post(block: () -> Unit) {
-        runCatching { io.execute(block) }
+        runCatching { tileExecutor.execute(block) }
     }
 
-    private fun readState(): Boolean? = runCatching {
-        val result = Shell.cmd(readCmd).exec()
-        if (!result.isSuccess) return@runCatching null
-        parseState(result.out.joinToString("\n"))
-    }.getOrNull()
+    private fun readState(): Boolean? {
+        repeat(3) { attempt ->
+            val result = runCatching { Shell.cmd(readCmd).exec() }.getOrNull()
+            if (result?.isSuccess == true) {
+                return parseState(result.out.joinToString("\n"))
+            }
+            // A cold start can fail before the root shell is fully initialized.
+            // Retry unless libsu has already confirmed the app has no root.
+            if (Shell.isAppGrantedRoot() == false) return null
+            if (attempt < 2) Thread.sleep(200L * (attempt + 1))
+        }
+        return null
+    }
 
-    private fun writeState(active: Boolean): Boolean = runCatching {
-        Shell.cmd(writeCmd(active)).exec().isSuccess
-    }.getOrDefault(false)
+    private fun writeState(active: Boolean): Boolean {
+        repeat(3) { attempt ->
+            val result = runCatching { Shell.cmd(writeCmd(active)).exec() }.getOrNull()
+            if (result?.isSuccess == true) return true
+            if (Shell.isAppGrantedRoot() == false) return false
+            if (attempt < 2) Thread.sleep(200L * (attempt + 1))
+        }
+        return false
+    }
 
     private fun setState(active: Boolean) {
         val tile = qsTile ?: return
