@@ -18,6 +18,10 @@ enum class Theme(
         themeName = "Rayquaza",
         themeRes = R.style.ThemeFoundationMD2_Rayquaza
     ),
+    Dynamic(
+        themeName = "Dynamic",
+        themeRes = R.style.ThemeFoundationMD2_Dynamic
+    ),
     Piplup(
         themeName = "Piplup",
         themeRes = R.style.ThemeFoundationMD2_Piplup

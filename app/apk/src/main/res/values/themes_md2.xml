@@ -128,6 +128,26 @@
         <item name="colorSecondary">#616161</item>
         <item name="colorSecondaryVariant">#80616161</item>
     </style>
+    
+    <style name="ThemeFoundationMD2.Dynamic" parent="ThemeFoundationMD2.Piplup">
+        <item name="colorPrimary">@android:color/system_accent1_600</item>
+        <item name="colorPrimaryVariant">@android:color/system_accent1_700</item>
+
+        <item name="colorSecondary">@android:color/system_accent2_600</item>
+        <item name="colorSecondaryVariant">@android:color/system_accent2_700</item>
+    
+        <item name="colorSurface">@android:color/system_neutral1_50</item>
+        <item name="colorSurfaceVariant">@android:color/system_neutral2_100</item>
+        <item name="colorSurfaceSurfaceVariant">@android:color/system_neutral2_50</item>
+
+        <item name="colorOnPrimary">@android:color/system_accent1_0</item>
+        <item name="colorOnPrimaryVariant">@android:color/system_accent1_100</item>
+        <item name="colorOnSecondary">@android:color/system_accent2_0</item>
+
+        <item name="colorOnSurface">@android:color/system_neutral1_900</item>
+        <item name="colorOnSurfaceVariant">@android:color/system_neutral2_700</item>
+        <item name="colorOnBackground">?colorOnSurface</item>
+    </style>
 
     <!--3rd party themes-->
 
