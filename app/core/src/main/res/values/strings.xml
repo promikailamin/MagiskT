@@ -164,6 +164,10 @@
     <string name="settings_usb_security_bypass_summary">Bypass the USB security check. Only for Xiaomi, Redmi and Poco devices.</string>
     <string name="settings_play_protect_title">Play Protect</string>
     <string name="settings_play_protect_summary">Scan apps installed outside the Play Store for harmful behaviour</string>
+    <string name="settings_freeform_support_title">Freeform window support</string>
+    <string name="settings_freeform_support_summary">Enable or disable freeform (floating) window support for all apps</string>
+    <string name="settings_force_resizable_title">Force resizable activities</string>
+    <string name="settings_force_resizable_summary">Make all activities resizable in split-screen and freeform modes</string>
     <string name="settings_color_mode">Color mode</string>
     <string name="color_mode_system">System</string>
     <string name="color_mode_light">Light</string>

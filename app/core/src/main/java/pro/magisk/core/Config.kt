@@ -47,6 +47,8 @@ object Config : PreferenceConfig, DBConfig {
         const val USB_DEBUGGING = "usb_debugging"
         const val USB_SECURITY_BYPASS = "usb_security_bypass"
         const val PLAY_PROTECT = "play_protect"
+        const val FREEFORM_SUPPORT = "freeform_support"
+        const val FORCE_RESIZABLE = "force_resizable"
     }
 
     /** Enumerated integer constants used by settings. */
@@ -76,6 +78,8 @@ object Config : PreferenceConfig, DBConfig {
     var usbDebugging by preference(Key.USB_DEBUGGING, false)
     var usbSecurityBypass by preference(Key.USB_SECURITY_BYPASS, false)
     var playProtect by preference(Key.PLAY_PROTECT, true)
+    var freeformSupport by preference(Key.FREEFORM_SUPPORT, false)
+    var forceResizable by preference(Key.FORCE_RESIZABLE, false)
     var locale
         get() = localePrefs
         set(value) {

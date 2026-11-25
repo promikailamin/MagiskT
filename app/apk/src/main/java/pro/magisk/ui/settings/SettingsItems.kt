@@ -226,6 +226,24 @@ object UsbSecurityBypass : SystemSettingToggle(
     override val description = CoreR.string.settings_usb_security_bypass_summary.asText()
 }
 
+object FreeformSupport : SystemSettingToggle(
+    getCmd = "settings get global enable_freeform_support",
+    setCmd = { "settings put global enable_freeform_support ${if (it) "1" else "0"}" },
+    setting = Config::freeformSupport
+) {
+    override val title = CoreR.string.settings_freeform_support_title.asText()
+    override val description = CoreR.string.settings_freeform_support_summary.asText()
+}
+
+object ForceResizable : SystemSettingToggle(
+    getCmd = "settings get global force_resizable_activities",
+    setCmd = { "settings put global force_resizable_activities ${if (it) "1" else "0"}" },
+    setting = Config::forceResizable
+) {
+    override val title = CoreR.string.settings_force_resizable_title.asText()
+    override val description = CoreR.string.settings_force_resizable_summary.asText()
+}
+
 object PlayProtect : BaseSettingsItem.Toggle() {
     override val title = CoreR.string.settings_play_protect_title.asText()
     override val description = CoreR.string.settings_play_protect_summary.asText()

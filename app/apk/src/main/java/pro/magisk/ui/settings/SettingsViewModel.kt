@@ -160,7 +160,12 @@ class SettingsViewModel : BaseViewModel(), BaseSettingsItem.Handler {
             }
 
             list.add(Developer)
-            list.addAll(listOf(DeveloperOptions, UsbDebugging, UsbSecurityBypass, PlayProtect))
+            list.addAll(
+                listOf(
+                    DeveloperOptions, UsbDebugging, UsbSecurityBypass, PlayProtect,
+                    FreeformSupport, ForceResizable
+                )
+            )
             list.add(MountNamespaceMode)
         }
 
