@@ -171,6 +171,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -eo pipefail
+
+          api="repos/${GITHUB_REPOSITORY}"
           apk="out/app-release.apk"
           apkD="out/app-debug.apk"
 
@@ -178,21 +181,36 @@ jobs:
           if [ "$branch" = "test" ]; then
               tag="test"
               channel="test"
+              latest="false"
           else
               tag="build"
               channel="main"
+              latest="true"
           fi
           commit=$(git rev-parse --short=8 HEAD)
           build_time=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-
+          title="MagiskT ${channel} build (${commit})"
           body=$(printf "Channel: %s\nBranch: %s\nCommit: %s\nBuild time: %s\n" \
-          "$channel" \
-          "$branch" \
-          "$commit" \
-          "$build_time")
+              "$channel" "$branch" "$commit" "$build_time")
 
-          gh release delete "$tag" -y --cleanup-tag || true
-          gh api -X DELETE "repos/${GITHUB_REPOSITORY}/git/refs/tags/${tag}" || true
+          retry() {
+              max=$1
+              shift
+              attempt=1
+              until "$@"; do
+                  if [ "$attempt" -ge "$max" ]; then
+                      return 1
+                  fi
+                  echo "Command failed (attempt ${attempt}/${max}); retrying in $((attempt * 5))s..." >&2
+                  sleep $((attempt * 5))
+                  attempt=$((attempt + 1))
+              done
+          }
+
+          find_release() {
+              gh api "${api}/releases?per_page=100" \
+                  --jq "[.[] | select(.tag_name == \"${tag}\")][0].id // empty"
+          }
 
           assets=()
           if [ -f "$apk" ]; then
@@ -208,7 +226,55 @@ jobs:
               exit 1
           fi
 
-          gh release create "$tag" "${assets[@]}" \
-              --target "$GITHUB_SHA" \
-              --title "MagiskT ${channel} build (${commit})" \
-              --notes "$body"
+          # Point the rolling tag at the commit that produced these artifacts.
+          if tag_sha=$(gh api "${api}/git/ref/tags/${tag}" --jq '.object.sha' 2>/dev/null); then
+              if [ "$tag_sha" != "$GITHUB_SHA" ]; then
+                  if ! retry 5 gh api -X PATCH "${api}/git/refs/tags/${tag}" \
+                      -f sha="$GITHUB_SHA" -F force=true >/dev/null; then
+                      echo "Warning: could not move tag '${tag}' to ${GITHUB_SHA}." >&2
+                  fi
+              fi
+          else
+              if ! retry 5 gh api -X POST "${api}/git/refs" \
+                  -f ref="refs/tags/${tag}" -f sha="$GITHUB_SHA" >/dev/null; then
+                  echo "Warning: could not create tag '${tag}'." >&2
+              fi
+          fi
+
+          release_id=$(find_release)
+
+          if [ -n "${release_id}" ]; then
+              echo "Using existing release '${tag}' (${release_id})..."
+              # Publish leftover drafts before uploading so assets attach to a
+              # real tag. Metadata is refreshed after the uploads succeed.
+              retry 5 gh api -X PATCH "${api}/releases/${release_id}" \
+                  -F draft=false >/dev/null
+          else
+              echo "Creating release '${tag}'..."
+              retry 5 gh release create "$tag" \
+                  --verify-tag \
+                  --title "$title" \
+                  --notes "$body" \
+                  --latest="$latest" >/dev/null
+          fi
+
+          # Upload assets separately. `gh release create` uploads through a
+          # temporary draft, so a transient upload failure can leave the
+          # release unpublished. Uploading after publishing avoids that, and
+          # each asset gets its own retry.
+          for asset in "${assets[@]}"; do
+              echo "Uploading $(basename "$asset")..."
+              retry 5 gh release upload "$tag" "$asset" --clobber
+          done
+
+          # Refresh metadata only after the new assets are in place and make
+          # sure the release is published.
+          release_id=$(find_release)
+          retry 5 gh api -X PATCH "${api}/releases/${release_id}" \
+              -f name="$title" \
+              -f body="$body" \
+              -f make_latest="$latest" \
+              -F draft=false \
+              -F prerelease=false >/dev/null
+
+          echo "Published release '${tag}' for commit ${commit}."
